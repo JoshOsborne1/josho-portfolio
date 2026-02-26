@@ -18,11 +18,13 @@
 }
 :root{--bg:#0f0f0f;--s1:#141414;--s2:#1a1a1a;--s3:#222;--border:rgba(255,255,255,0.07);--border-hi:rgba(255,255,255,0.18);--text:#f0f0f0;--muted:#666;--dim:#333;--green:#22c55e;--green-bg:rgba(34,197,94,0.08);--primary:#258487;--primary-bg:var(--primary-rgb-fallback,0.1);--amber:#f59e0b;--red:#ef4444;--mono:'JetBrains Mono',monospace;}
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.6;cursor:none !important}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:hidden;line-height:1.6;cursor:none !important}
 body *{cursor:none !important}
-@media(max-width:768px){body, body *{cursor:auto !important}}
+@media(hover:none),(pointer:coarse),(max-width:768px){body,body *{cursor:auto !important}}
+@media(hover:none),(pointer:coarse){.cursor-dot,.cursor-ring{display:none !important}}
 ::selection{background:var(--text);color:var(--bg)}
 a{color:inherit;text-decoration:none}
+button,a,[onclick]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .cursor-dot{position:fixed;top:0;left:0;width:6px;height:6px;background:#fff;border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform 0.1s}
 .cursor-ring{position:fixed;top:0;left:0;width:36px;height:36px;border:1.5px solid rgba(255,255,255,0.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width 0.15s ease-out,height 0.15s ease-out,border-color 0.15s ease-out,transform 0.08s linear}
 .cursor-ring.hover{width:56px;height:56px;border-color:var(--primary-rgb-fallback,0.8);transform:translate(-50%,-50%) scale(1.2)}
@@ -33,12 +35,22 @@ a{color:inherit;text-decoration:none}
 @media(prefers-reduced-motion:reduce){.js-ready .project-card,.js-ready .detail-hero,.js-ready .detail-stats,.js-ready .dstat,.js-ready .proof-panel,.js-ready .price-table,.js-ready .how-step,.js-ready .detail-body,.js-ready .section-label,.js-ready .detail-section-title{opacity:1;transform:none;transition-delay:0s !important}}
 .wrap{max-width:1280px;margin:0 auto;padding:0 64px}
 nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:22px 64px;display:flex;justify-content:space-between;align-items:center;transition:all 0.3s}
-nav.scrolled{background:rgba(15,15,15,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+nav.scrolled{background:rgba(15,15,15,0.95);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
 .nav-logo{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:0.06em}
 .nav-links{display:flex;gap:28px}
 .nav-links a{font-size:13px;color:var(--muted);letter-spacing:0.04em;transition:color 0.2s}
 .nav-links a:hover{color:var(--text)}
-.hero{ min-height: 100svh; position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:120px 64px 80px;overflow:hidden}
+/* MOBILE NAV */
+.nav-hamburger{display:none;flex-direction:column;gap:5px;width:28px;cursor:pointer;background:none;border:none;padding:4px;z-index:300;position:relative}
+.nav-hamburger span{display:block;height:1.5px;background:var(--muted);border-radius:2px;transition:transform 0.3s,opacity 0.3s,width 0.3s}
+.nav-hamburger.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg);background:var(--text)}
+.nav-hamburger.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+.nav-hamburger.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg);background:var(--text)}
+.nav-mobile-overlay{display:none;position:fixed;inset:0;z-index:250;background:rgba(15,15,15,0.97);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);flex-direction:column;justify-content:center;align-items:center;gap:40px;opacity:0;transition:opacity 0.3s ease}
+.nav-mobile-overlay.open{display:flex;opacity:1}
+.nav-mobile-overlay a{font-family:var(--mono);font-size:clamp(22px,6vw,32px);color:var(--muted);letter-spacing:0.05em;text-transform:uppercase;transition:color 0.2s;text-decoration:none}
+.nav-mobile-overlay a:hover,.nav-mobile-overlay a:focus{color:var(--text)}
+.hero{min-height:100vh;min-height:100svh;min-height:100dvh;position:relative;display:flex;flex-direction:column;justify-content:center;padding:120px 64px 80px;overflow:hidden}
 #bg-canvas{position:absolute;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none}
 .hero-content{position:relative;z-index:1}
 .hero-eyebrow{font-family:var(--mono);font-size:11px;color:var(--primary);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:28px;opacity:0;animation:fadeUp 0.5s 0.1s both}
@@ -64,7 +76,7 @@ nav.scrolled{background:rgba(15,15,15,0.95);backdrop-filter:blur(16px);border-bo
 .section-label{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:64px}
 .projects-index{padding:100px 0 120px}
 .project-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px}
-.project-card{background:var(--s1);border:1px solid var(--border);padding:48px;cursor:pointer;transition:border-color 0.25s,background 0.25s,transform 0.5s cubic-bezier(0.23,1,0.32,1);transform-style:preserve-3d;position:relative;overflow:visible}
+.project-card{background:var(--s1);border:1px solid var(--border);padding:48px;cursor:pointer;transition:border-color 0.25s,background 0.25s,transform 0.5s cubic-bezier(0.23,1,0.32,1);transform-style:preserve-3d;position:relative;overflow:visible;-webkit-user-select:none;user-select:none}
 .project-card::before,.project-card::after{content:"";position:absolute;pointer-events:none;z-index:10;opacity:0;transition:opacity 0.35s ease;}
 .project-card::before{top:-1px;left:-1px;height:1.5px;width:calc(100%+2px);background:linear-gradient(90deg,var(--primary) 0%,transparent 100%);}
 .project-card::after{top:-1px;left:-1px;width:1.5px;height:calc(100%+2px);background:linear-gradient(180deg,var(--primary) 0%,transparent 100%);}
@@ -131,6 +143,15 @@ nav.scrolled{background:rgba(15,15,15,0.95);backdrop-filter:blur(16px);border-bo
 .t-teal{color:var(--primary)}
 .term-cursor{display:inline-block;width:7px;height:13px;background:var(--green);vertical-align:middle;animation:blink 1s step-end infinite}
 .contact-section{background:var(--s1);border-top:1px solid var(--border);padding:120px 0}
+/* HOVER STEP MOBILE TOGGLE (tap to expand) */
+.hover-step-sim.open{max-height:200px !important}
+.hover-step.touch-hover .hover-step-hint{opacity:0}
+.hover-step.touch-hover .hover-step-sim{max-height:200px}
+.hover-step.touch-hover .hsim-line{opacity:1}
+.hover-step.touch-hover .hsim-line:nth-child(1){transition:opacity 0.2s 0.1s}
+.hover-step.touch-hover .hsim-line:nth-child(2){transition:opacity 0.2s 0.3s}
+.hover-step.touch-hover .hsim-line:nth-child(3){transition:opacity 0.2s 0.5s}
+.hover-step.touch-hover .hsim-line:nth-child(4){transition:opacity 0.2s 0.7s}
 .contact-content{max-width:800px;margin:0 auto;text-align:center}
 .contact-headline{font-size:clamp(40px,5vw,72px);font-weight:900;letter-spacing:-0.03em;margin-bottom:16px;color:var(--text)}
 .contact-sub{font-size:18px;color:var(--muted);margin-bottom:48px}
@@ -183,7 +204,7 @@ nav.scrolled{background:rgba(15,15,15,0.95);backdrop-filter:blur(16px);border-bo
 .hover-steps{display:flex;flex-direction:column;gap:0}
 .hover-step{border-bottom:1px solid var(--border);overflow:hidden}
 .hover-step:first-child{border-top:1px solid var(--border)}
-.hover-step-header{display:flex;align-items:center;gap:16px;padding:20px 0;cursor:none}
+.hover-step-header{display:flex;align-items:center;gap:16px;padding:20px 0;cursor:none;-webkit-user-select:none;user-select:none}
 .hover-step-num{font-family:var(--mono);font-size:13px;color:var(--primary);font-weight:600;min-width:28px}
 .hover-step-title{font-size:15px;font-weight:600;flex:1}
 .hover-step-hint{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:0.12em;text-transform:uppercase;transition:opacity 0.2s}
@@ -215,6 +236,94 @@ footer{padding:72px 0;border-top:1px solid var(--border);display:flex;justify-co
 .footer-links a{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:0.06em;transition:color 0.2s}
 .footer-links a:hover{color:var(--text)}
 .footer-right{font-family:var(--mono);font-size:11px;color:var(--dim)}
+
+/* =============================================
+   TABLET & MOBILE RESPONSIVE (≤ 1024px)
+   ============================================= */
+@media(max-width:1024px){
+  .wrap{padding:0 40px}
+  nav{padding:20px 40px}
+  .hero{padding:100px 40px 60px}
+  .project-card{padding:36px}
+}
+
+/* =============================================
+   MOBILE (≤ 768px)
+   ============================================= */
+@media(max-width:768px){
+  /* Nav */
+  nav{padding:18px 24px}
+  .nav-hamburger{display:flex}
+  .nav-links{display:none}
+  
+  /* Layout */
+  .wrap{padding:0 20px}
+
+  /* Hero */
+  .hero{padding:90px 24px 60px;min-height:100vh;min-height:100svh;min-height:100dvh}
+  .hero-name{font-size:clamp(52px,13vw,88px);margin-bottom:24px}
+  .hero-role{font-size:15px;margin-bottom:32px}
+  .hero-stats-row{gap:24px;margin:24px 0 20px}
+  .hs-num{font-size:clamp(28px,7vw,40px)}
+  .hero-meta{gap:20px}
+  .scroll-cue{left:24px}
+  
+  /* Project grid */
+  .projects-index{padding:64px 0 80px}
+  .section-label{margin-bottom:40px}
+  .project-grid{grid-template-columns:1fr;gap:2px}
+  .project-card{padding:28px 24px}
+  .card-stats{grid-template-columns:repeat(2,1fr);gap:16px}
+  .card-headline{font-size:clamp(17px,4.5vw,22px)}
+
+  /* Detail page */
+  .detail-page{padding-top:80px}
+  .detail-title{font-size:clamp(32px,8vw,56px)}
+  .detail-stats{grid-template-columns:repeat(2,1fr)}
+  .dstat{padding:20px 16px}
+  .dstat-num{font-size:clamp(22px,5vw,32px)}
+  .detail-body{grid-template-columns:1fr;gap:40px;margin-bottom:48px}
+  .back-btn{margin-bottom:36px}
+  .detail-hero{margin-bottom:48px}
+  
+  /* Contact page */
+  .contact-pg-grid{grid-template-columns:1fr;gap:40px}
+  .contact-two-col{grid-template-columns:1fr;gap:40px}
+  .contact-pg-title{font-size:clamp(40px,10vw,72px)}
+  .contact-hero-title{font-size:clamp(40px,10vw,72px)}
+
+  /* PDF live demo */
+  .pdf-live-editor{grid-template-columns:1fr;gap:24px}
+  .pdf-live-demo{grid-template-columns:1fr}
+  
+  /* Agent pipeline */
+  .ap-stages{grid-template-columns:1fr}
+  .wf-connector{margin-left:0;height:24px}
+  
+  /* Footer */
+  footer{flex-direction:column;align-items:flex-start;padding:48px 0 40px}
+
+  /* Hover steps: enlarge tap target */
+  .hover-step-header{padding:18px 0;cursor:pointer}
+}
+
+/* =============================================
+   SMALL MOBILE (≤ 480px)
+   ============================================= */
+@media(max-width:480px){
+  .wrap{padding:0 16px}
+  nav{padding:16px 20px}
+  .hero{padding:80px 16px 48px}
+  .hero-name{font-size:clamp(44px,12vw,72px)}
+  .project-card{padding:22px 18px}
+  .detail-stats{grid-template-columns:repeat(2,1fr)}
+  .dstat{padding:16px 12px}
+  .card-stats{grid-template-columns:1fr 1fr}
+  .contact-hero-title,.contact-pg-title{font-size:clamp(36px,11vw,60px)}
+  .detail-body{gap:28px}
+  .agent-row{flex-direction:column}
+  .agent-card{min-width:unset}
+}
 /* WORKFLOW */
 .wf-wrap{margin-bottom:80px}
 .wf-stage{display:grid;grid-template-columns:120px 1fr;gap:24px;align-items:start;margin-bottom:0}
@@ -512,7 +621,16 @@ document.addEventListener('DOMContentLoaded', () => {
     <a href="#" onclick="showIndex();return false" data-hover>Work</a>
     <a href="#" onclick="showContact();return false"  data-hover>Contact</a>
   </div>
+  <button class="nav-hamburger" id="nav-hamburger" aria-label="Toggle menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<!-- MOBILE NAV OVERLAY -->
+<div class="nav-mobile-overlay" id="nav-mobile-overlay" role="dialog" aria-label="Mobile navigation">
+  <a href="#" onclick="closeMobileNav();showIndex();return false">Work</a>
+  <a href="#" onclick="closeMobileNav();showContact();return false">Contact</a>
+</div>
 
 <div class="page-container faded-in" id="page-container">
 
@@ -1336,7 +1454,8 @@ function animateNumber(el) {
   requestAnimationFrame(update);
 }
 
-// MAGNETIC CURSOR
+// MAGNETIC CURSOR — skip entirely on touch/pointer-coarse devices
+const isTouchDevice = window.matchMedia('(hover:none),(pointer:coarse)').matches;
 const cursorRing = document.getElementById('cursor-ring');
 const cursorDot = document.getElementById('cursor-dot');
 let mouseX = window.innerWidth / 2;
@@ -1344,50 +1463,47 @@ let mouseY = window.innerHeight / 2;
 let ringX = window.innerWidth / 2;
 let ringY = window.innerHeight / 2;
 
-document.addEventListener('mousemove', (e) => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
-  cursorDot.style.left = `${mouseX}px`;
-  cursorDot.style.top = `${mouseY}px`;
-});
+if (!isTouchDevice) {
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    cursorDot.style.left = `${mouseX}px`;
+    cursorDot.style.top = `${mouseY}px`;
+  });
 
-function lerpCursor() {
-  ringX += (mouseX - ringX) * 0.2; // roughly 80ms lag at 60fps
-  ringY += (mouseY - ringY) * 0.2;
-  cursorRing.style.left = `${ringX}px`;
-  cursorRing.style.top = `${ringY}px`;
+  function lerpCursor() {
+    ringX += (mouseX - ringX) * 0.2;
+    ringY += (mouseY - ringY) * 0.2;
+    cursorRing.style.left = `${ringX}px`;
+    cursorRing.style.top = `${ringY}px`;
+    requestAnimationFrame(lerpCursor);
+  }
   requestAnimationFrame(lerpCursor);
+
+  document.addEventListener('mousedown', () => {
+    cursorDot.classList.add('click');
+    setTimeout(() => cursorDot.classList.remove('click'), 200);
+  });
+
+  const hoverElements = document.querySelectorAll('.project-card, .back-btn, .f-btn, a, [data-hover]');
+  hoverElements.forEach(el => {
+    el.addEventListener('mouseenter', () => cursorRing.classList.add('hover'));
+    el.addEventListener('mouseleave', () => cursorRing.classList.remove('hover'));
+  });
 }
-requestAnimationFrame(lerpCursor);
 
-document.addEventListener('mousedown', () => {
-  cursorDot.classList.add('click');
-  setTimeout(() => cursorDot.classList.remove('click'), 200);
-});
-
-// Hover states for cursor
-const hoverElements = document.querySelectorAll('.project-card, .back-btn, .f-btn, a, [data-hover]');
-hoverElements.forEach(el => {
-  el.addEventListener('mouseenter', () => cursorRing.classList.add('hover'));
-  el.addEventListener('mouseleave', () => cursorRing.classList.remove('hover'));
-});
-
-// CARD 3D TILT
+// CARD 3D TILT — skip on touch devices
 function cardMove(e, card) {
+  if (isTouchDevice) return;
   const rect = card.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
   const centerX = rect.width / 2;
   const centerY = rect.height / 2;
-  
-  // Normalise to -1 to 1
   const normX = (x - centerX) / centerX;
   const normY = (y - centerY) / centerY;
-  
-  // Max tilt: 6 degrees
-  const rotateX = normY * -6; 
+  const rotateX = normY * -6;
   const rotateY = normX * 6;
-  
   card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
   const pctX = (x / rect.width) * 100;
   const pctY = (y / rect.height) * 100;
@@ -1972,9 +2088,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // AGENT PIPELINE ANIMATION
+// Note: uses .wf-wrap as the scroll trigger since #ap-scene doesn't exist in DOM
 (function() {
-  var scene = document.getElementById("ap-scene");
-  if (!scene) return;
+  // setSlide is needed globally for carousel
   function setSlide(n) {
     document.querySelectorAll(".slide-card").forEach(function(c,i){ c.classList.toggle("slide-active", i===n); });
   }
@@ -1986,6 +2102,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { nodes: ["apn-4"], paths: ["ap-p3","ap-p4"], descs: ["apsd-3"] }
   ];
   var stageIdx = 0;
+  var triggered = false;
   function runStage() {
     if (stageIdx >= stages.length) return;
     var s = stages[stageIdx++];
@@ -1994,10 +2111,14 @@ document.addEventListener('DOMContentLoaded', () => {
     s.descs.forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.add("lit"); });
     if (stageIdx < stages.length) setTimeout(runStage, 700);
   }
-  var obs = new IntersectionObserver(function(entries) {
-    if (entries[0].isIntersecting) { setTimeout(runStage, 200); obs.disconnect(); }
-  }, { threshold: 0.25 });
-  obs.observe(scene);
+  // Use the wf-wrap as trigger (it contains the SVG pipeline)
+  var trigger = document.querySelector('.ap-svg-wrap') || document.querySelector('.wf-wrap');
+  if (trigger) {
+    var obs = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting && !triggered) { triggered = true; setTimeout(runStage, 200); obs.disconnect(); }
+    }, { threshold: 0.15 });
+    obs.observe(trigger);
+  }
 })();
 
 // LIVE PDF EDITOR — instant no-click updates
@@ -2027,6 +2148,45 @@ function updatePDFLive() {
 (function(){
   var d = document.getElementById('lf-date');
   if (d) { d.value = new Date().toISOString().slice(0,10); updatePDFLive(); }
+})();
+// MOBILE NAV
+function closeMobileNav() {
+  var overlay = document.getElementById('nav-mobile-overlay');
+  var hamburger = document.getElementById('nav-hamburger');
+  if (overlay) overlay.classList.remove('open');
+  if (hamburger) { hamburger.classList.remove('open'); hamburger.setAttribute('aria-expanded','false'); }
+  document.body.style.overflow = '';
+}
+
+(function() {
+  var hamburger = document.getElementById('nav-hamburger');
+  var overlay = document.getElementById('nav-mobile-overlay');
+  if (!hamburger || !overlay) return;
+  hamburger.addEventListener('click', function() {
+    var isOpen = overlay.classList.toggle('open');
+    hamburger.classList.toggle('open', isOpen);
+    hamburger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  });
+  // Close on escape
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeMobileNav();
+  });
+})();
+
+// TOUCH HOVER-STEPS (tap to expand on touch devices)
+(function() {
+  if (!isTouchDevice) return;
+  document.querySelectorAll('.hover-step').forEach(function(step) {
+    step.addEventListener('click', function() {
+      var isOpen = step.classList.toggle('touch-hover');
+      // Close siblings
+      if (isOpen) {
+        var siblings = step.parentElement ? step.parentElement.querySelectorAll('.hover-step') : [];
+        siblings.forEach(function(s) { if (s !== step) s.classList.remove('touch-hover'); });
+      }
+    });
+  });
 })();
 </script>
 </body>
