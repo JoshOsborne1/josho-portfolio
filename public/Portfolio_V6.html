@@ -1689,7 +1689,7 @@ function renderHero() {
     const sizeOffset = Math.sin(t + dot.x * 0.01 + dot.y * 0.01) * 0.5;
     const size = 1.5 + (dot.brightness * 1.5) + sizeOffset;
     bgCtx.beginPath();
-    bgCtx.arc(dot.x, dot.y, size, 0, Math.PI * 2);
+    bgCtx.arc(dot.x, dotVY, size, 0, Math.PI * 2);
     bgCtx.fill();
 
     // Draw particle connection lines
@@ -1697,16 +1697,17 @@ function renderHero() {
       for (let j = i + 1; j < dots.length; j++) {
         const dot2 = dots[j];
         if (dot2.brightness > 0.05) {
+          const dot2VY = dot2.y - parallaxOffsetY;
           const dx2 = dot.x - dot2.x;
-          const dy2 = dot.y - dot2.y;
+          const dy2 = dotVY - dot2VY;
           const dist2 = Math.sqrt(dx2*dx2 + dy2*dy2);
           if (dist2 < 120) {
             const lineAlpha = Math.min(dot.brightness, dot2.brightness) * (1 - dist2 / 120) * 0.5;
             bgCtx.strokeStyle = `rgba(${window.THEME_RGB_ARRAY[0]}, ${window.THEME_RGB_ARRAY[1]}, ${window.THEME_RGB_ARRAY[2]}, ${lineAlpha})`;
             bgCtx.lineWidth = 1;
             bgCtx.beginPath();
-            bgCtx.moveTo(dot.x, dot.y);
-            bgCtx.lineTo(dot2.x, dot2.y);
+            bgCtx.moveTo(dot.x, dotVY);
+            bgCtx.lineTo(dot2.x, dot2VY);
             bgCtx.stroke();
           }
         }
