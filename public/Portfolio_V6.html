@@ -1577,37 +1577,28 @@ const bgCanvas = document.getElementById('bg-canvas');
 const bgCtx = bgCanvas.getContext('2d');
 let hW, hH;
 const gridSpacing = 50;
+const dots = [];
 
 function resizeHeroCanvas() {
-  hW = bgCanvas.offsetWidth;
-  hH = bgCanvas.offsetHeight;
+  hW = window.innerWidth;
+  hH = window.innerHeight;
   bgCanvas.width = hW;
   bgCanvas.height = hH;
+  initDots();
 }
 
 window.addEventListener('resize', resizeHeroCanvas);
-resizeHeroCanvas();
 
 let heroScrollY = 0;
 window.addEventListener('scroll', () => {
-  heroScrollY = window.scrollY;
-  // Parallax offset applied to parent section using transform is smoother than redrawing
-  // but requirements say "canvas translates at 0.4x scroll speed". 
-  // We'll apply it via CSS transform for max performance.
-  // Fade scroll indicator
+  heroScrollY = window.pageYOffset || document.documentElement.scrollTop;
   const indicator = document.getElementById('scroll-cue');
-  if (indicator) {
-    if (heroScrollY > 80) indicator.style.opacity = '0';
-    else indicator.style.opacity = '1';
-  }
-  
-  document.getElementById('nav').classList.toggle('scrolled', heroScrollY > 40);
-});
+  if (indicator) indicator.style.opacity = heroScrollY > 80 ? '0' : '1';
+  const nav = document.getElementById('nav');
+  if (nav) nav.classList.toggle('scrolled', heroScrollY > 40);
+}, { passive: true });
 
-// Dot brightening logic
-// The canvas is position:fixed so it always fills the full viewport.
-// Mouse coords must be raw viewport-space (clientX/Y) — never subtract
-// the hero bounding rect, which goes negative once the user scrolls.
+// Mouse Tracking — Viewport Space
 let heroMouseX = -1000;
 let heroMouseY = -1000;
 
@@ -1616,107 +1607,109 @@ document.addEventListener('mousemove', (e) => {
   heroMouseY = e.clientY;
 });
 
-// Reset when the pointer leaves the browser window entirely
 document.addEventListener('mouseleave', () => {
   heroMouseX = -1000;
   heroMouseY = -1000;
 });
 
-// Grid logic
-const dots = [];
-// Initialise dots
+// Initialize a viewport-sized grid (+ buffer)
 function initDots() {
   dots.length = 0;
-  // Make grid larger than canvas to account for parallax
-  const cols = Math.ceil(3000 / gridSpacing); 
-  const rows = Math.ceil(2000 / gridSpacing);
-  for (let x = 0; x < cols; x++) {
-    for (let y = 0; y < rows; y++) {
+  // Create a grid large enough to cover the viewport + some overflow
+  const cols = Math.ceil(window.innerWidth / gridSpacing) + 2;
+  const rows = Math.ceil(window.innerHeight / gridSpacing) + 2;
+  for (let x = -1; x < cols; x++) {
+    for (let y = -1; y < rows; y++) {
       dots.push({
-        x: x * gridSpacing,
-        y: y * gridSpacing,
+        origX: x * gridSpacing,
+        origY: y * gridSpacing,
         brightness: 0
       });
     }
   }
 }
-initDots();
+
+resizeHeroCanvas();
 
 function renderHero() {
-  bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+  bgCtx.clearRect(0, 0, hW, hH);
   
-  // Dots shift upward as the user scrolls (parallax at 0.4x speed).
-  // To compare against viewport-space mouse coords we project each dot
-  // into viewport space: dotViewportY = dot.y - heroScrollY * 0.4
-  const parallaxOffsetY = heroScrollY * 0.4;
+  // Parallax: Background shifts at 40% scroll speed
+  // We use modulo to make the vertical movement infinite
+  const parallaxShiftY = (heroScrollY * 0.4) % gridSpacing;
   
+  // Theme colors
+  const [pR, pG, pB] = window.THEME_RGB_ARRAY || [0, 212, 204];
+
   for (let i = 0; i < dots.length; i++) {
     const dot = dots[i];
     
-    // Dot's current position in viewport space
-    const dotVY = dot.y - parallaxOffsetY;
-    
-    // Skip dots that are off-screen
-    if (dot.x > hW || dotVY > hH || dotVY < -gridSpacing || dot.x < 0) continue;
-    
-    // Calculate distance to mouse (both now in viewport space)
-    const dx = dot.x - heroMouseX;
-    const dy = dotVY - heroMouseY;
-    const dist = Math.sqrt(dx*dx + dy*dy);
-    
-    // Target brightness based on distance (3x3 grid = ~75px radius)
-    let targetB = 0;
-    if (dist < 80) targetB = 1;
-    
-    // Lerp brightness (600ms return = slow lerp down)
+    // Viewport-space coordinates
+    const vx = dot.origX;
+    const vy = dot.origY - parallaxShiftY;
+
+    // Check distance to cursor (both in viewport space)
+    const dx = vx - heroMouseX;
+    const dy = vy - heroMouseY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    // Update brightness
+    const targetB = dist < 85 ? 1 : 0;
     if (targetB > dot.brightness) {
-       dot.brightness += (targetB - dot.brightness) * 0.5; // fast up
+      dot.brightness += (targetB - dot.brightness) * 0.5; // Snap up
     } else {
-       dot.brightness += (targetB - dot.brightness) * 0.05; // slow down (~600ms)
+      dot.brightness += (targetB - dot.brightness) * 0.05; // Fade down
     }
+
+    if (dot.brightness < 0.01) continue;
+
+    const b = dot.brightness;
+    const alpha = 0.06 + 0.44 * b;
     
-    // Base color: rgba(255,255,255,0.06)
-    // Bright color: var(--primary-rgb-fallback,0.5)
-    
-    let a = 0.06 + (0.5 - 0.06) * dot.brightness;
-    let [pR, pG, pB] = window.THEME_RGB_ARRAY || [0, 240, 255];
-    let r = 255 + (pR - 255) * dot.brightness;
-    let g = 255 + (pG - 255) * dot.brightness;
-    let b = 255 + (pB - 255) * dot.brightness;
-    
-    bgCtx.fillStyle = `rgba(${r},${g},${b},${a})`;
-    const t = Date.now() * 0.003;
-    const sizeOffset = Math.sin(t + dot.x * 0.01 + dot.y * 0.01) * 0.5;
-    const size = 1.5 + (dot.brightness * 1.5) + sizeOffset;
+    // Math.round is critical for browser color parsing consistency
+    const r = Math.round(255 + (pR - 255) * b);
+    const g = Math.round(255 + (pG - 255) * b);
+    const bl = Math.round(255 + (pB - 255) * b);
+
+    // Visuals
+    const time = Date.now() * 0.002;
+    const pulse = Math.sin(time + vx * 0.01 + vy * 0.01) * 0.5;
+    const size = 1.3 + b * 1.5 + pulse;
+
+    bgCtx.fillStyle = `rgba(${r}, ${g}, ${bl}, ${alpha})`;
     bgCtx.beginPath();
-    bgCtx.arc(dot.x, dotVY, size, 0, Math.PI * 2);
+    bgCtx.arc(vx, vy, size, 0, Math.PI * 2);
     bgCtx.fill();
 
-    // Draw particle connection lines
-    if (dot.brightness > 0.05) {
+    // Secondary pass for lines
+    if (b > 0.1) {
       for (let j = i + 1; j < dots.length; j++) {
         const dot2 = dots[j];
-        if (dot2.brightness > 0.05) {
-          const dot2VY = dot2.y - parallaxOffsetY;
-          const dx2 = dot.x - dot2.x;
-          const dy2 = dotVY - dot2VY;
-          const dist2 = Math.sqrt(dx2*dx2 + dy2*dy2);
-          if (dist2 < 120) {
-            const lineAlpha = Math.min(dot.brightness, dot2.brightness) * (1 - dist2 / 120) * 0.5;
-            bgCtx.strokeStyle = `rgba(${window.THEME_RGB_ARRAY[0]}, ${window.THEME_RGB_ARRAY[1]}, ${window.THEME_RGB_ARRAY[2]}, ${lineAlpha})`;
-            bgCtx.lineWidth = 1;
-            bgCtx.beginPath();
-            bgCtx.moveTo(dot.x, dotVY);
-            bgCtx.lineTo(dot2.x, dot2VY);
-            bgCtx.stroke();
-          }
+        if (dot2.brightness < 0.1) continue;
+
+        const vx2 = dot2.origX;
+        const vy2 = dot2.origY - parallaxShiftY;
+        
+        const ldx = vx - vx2;
+        const ldy = vy - vy2;
+        const ldist = Math.sqrt(ldx * ldx + ldy * ldy);
+
+        if (ldist < 80) { // Keep lines short and clean
+          const lineA = Math.min(b, dot2.brightness) * (1 - ldist / 80) * 0.4;
+          bgCtx.strokeStyle = `rgba(${pR}, ${pG}, ${pB}, ${lineA})`;
+          bgCtx.lineWidth = 1;
+          bgCtx.beginPath();
+          bgCtx.moveTo(vx, vy);
+          bgCtx.lineTo(vx2, vy2);
+          bgCtx.stroke();
         }
       }
     }
   }
-  
+
   requestAnimationFrame(renderHero);
 }
+
 requestAnimationFrame(renderHero);
 
 
