@@ -504,11 +504,19 @@ footer{padding:72px 0;border-top:1px solid var(--border);display:flex;justify-co
 .pdf-live-editor{display:grid;grid-template-columns:1fr 1.1fr;gap:32px;align-items:start;margin-bottom:64px}
 @media(max-width:900px){.pdf-live-editor{grid-template-columns:1fr}}
 
-.ple-preview{display:flex;justify-content:stretch;align-items:flex-start}
-/* Scale the fake PDF viewer so the 340px paper always fits inside its column */
-.ple-preview-inner{width:100%;background:#18181b;border:1px solid rgba(255,255,255,0.05);border-radius:12px;overflow:hidden;box-shadow:0 10px 40px -10px rgba(0,0,0,0.8);display:flex;flex-direction:column;}
-.ple-canvas-area{background:#1e1e20;flex:1;display:flex;justify-content:center;padding:24px;overflow:hidden;}
-/* The paper scales to fill available space, min 260px, max 400px */
+/* Custom scrollbar — suppress OS scrollbar everywhere */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.22)}
+* { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.12) transparent; }
+
+.ple-preview{display:flex;justify-content:stretch;align-items:flex-start;}
+/* PDF Viewer chrome — matches the proof-panel / input form dark style */
+.ple-preview-inner{width:100%;background:var(--s1);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 10px 40px -10px rgba(0,0,0,0.8);display:flex;flex-direction:column;}
+/* Canvas area — neutral almost-black so the white paper pops cleanly */
+.ple-canvas-area{background:#141414;flex:1;display:flex;justify-content:center;padding:20px 16px;overflow:hidden;}
+/* The paper scaler fills the column, max 400px */
 .ple-paper-scaler{width:100%;max-width:400px;}
 .ple-paper-scaler .pdf-paper-inner{background:#ffffff;width:100%;box-shadow:0 8px 30px rgba(0,0,0,0.5);display:flex;flex-direction:column;}
 .pdf-paper{background:#fff;width:100%;max-width:400px;border-radius:4px;box-shadow:0 16px 48px rgba(0,0,0,0.55),0 2px 8px rgba(0,0,0,0.3);padding:28px 28px 20px;color:#1f1f1f;font-family:'Inter',sans-serif}
@@ -1137,26 +1145,26 @@ Headcount growth of 18 planned for H2</textarea>
         <!-- RIGHT: live paper PDF mockup -->
         <div class="ple-preview">
           <div class="ple-preview-inner" style="width:100%;">
-            <!-- Toolbar -->
-            <div style="height:36px;flex-shrink:0; background:#27272a; border-bottom:1px solid #3f3f46; display:flex; align-items:center; padding:0 12px; justify-content:space-between; gap:8px;">
+            <!-- Toolbar — matches the proof-panel header style -->
+            <div style="height:36px;flex-shrink:0; background:var(--s2); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 12px; justify-content:space-between; gap:8px;">
               <div style="display:flex; gap:6px; flex-shrink:0;">
                 <div style="width:10px; height:10px; border-radius:50%; background:#ef4444"></div>
                 <div style="width:10px; height:10px; border-radius:50%; background:#eab308"></div>
                 <div style="width:10px; height:10px; border-radius:50%; background:#22c55e"></div>
               </div>
-              <div style="font-family:var(--mono); color:#a1a1aa; font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;">output_report_04.pdf&nbsp;&mdash;&nbsp;100%</div>
+              <div style="font-family:var(--mono); color:var(--dim); font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;">output_report_04.pdf&nbsp;&mdash;&nbsp;100%</div>
               <div style="display:flex; gap:4px; flex-shrink:0;">
-                <svg width="14" height="14" fill="none" stroke="#71717a" stroke-width="2"><path d="M1 1h12M1 7h12M1 13h12"/></svg>
+                <svg width="14" height="14" fill="none" stroke="var(--dim)" stroke-width="2"><path d="M1 1h12M1 7h12M1 13h12"/></svg>
               </div>
             </div>
-            <!-- Canvas area: scales the paper to fit the column -->
-            <div style="background:#1e1e20; padding:20px; overflow:hidden;">
-              <!-- Scaler wrapper: the paper is rendered at full size then scaled down to fill the container -->
-              <div id="ple-scaler-wrap" style="width:100%; position:relative;">
-                <!-- This inner div is 400px wide (the paper's natural render width). We JS-scale it to fit. -->
-                <div id="ple-paper-natural" style="width:400px; transform-origin:top left; background:#ffffff; box-shadow:0 8px 30px rgba(0,0,0,0.5); display:flex; flex-direction:column;">
-                  <!-- PDF accent bar -->
-                  <div style="background:var(--primary); height:6px; width:100%; flex-shrink:0;"></div>
+            <!-- Canvas area: neutral dark so white paper pops. No overflow scroll. -->
+            <div style="background:#141414; padding:16px; overflow:hidden;">
+              <!-- Scaler wrapper: JS sets height to match scaled paper so nothing clips -->
+              <div id="ple-scaler-wrap" style="width:100%; position:relative; overflow:hidden;">
+                <!-- 400px natural width paper; JS scales it to fit the column -->
+                <div id="ple-paper-natural" style="width:400px; transform-origin:top left; background:#ffffff; box-shadow:0 8px 32px rgba(0,0,0,0.55); display:flex; flex-direction:column;">
+                  <!-- PDF accent bar — matches PDF's own navy brand, NOT the site teal -->
+                  <div style="background:#1a3c6e; height:6px; width:100%; flex-shrink:0;"></div>
                   <!-- PDF Header -->
                   <div style="padding:20px 28px 14px; border-bottom:1px solid #e4e4e7; display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
                     <div style="flex:1; min-width:0;">
@@ -1164,35 +1172,35 @@ Headcount growth of 18 planned for H2</textarea>
                       <p style="color:#71717a; font-size:10px; font-weight:500; margin:0;">PREPARED FOR:&nbsp;<span id="pdf-out-client" style="color:#3f3f46; font-weight:600;">Meridian Partners</span></p>
                     </div>
                     <div style="text-align:right; flex-shrink:0;">
-                      <div style="width:22px; height:22px; background:#111; border-radius:3px; margin-bottom:4px; margin-left:auto;"></div>
+                      <div style="width:22px; height:22px; background:#1a3c6e; border-radius:3px; margin-bottom:4px; margin-left:auto;"></div>
                       <p style="color:#a1a1aa; font-size:9px; margin:0;" id="pdf-out-date">2026-02-27</p>
                     </div>
                   </div>
                   <!-- PDF Body -->
                   <div style="padding:20px 28px; display:flex; flex-direction:column; gap:16px;">
                     <div>
-                      <div style="color:#000; font-family:var(--mono); font-size:8px; letter-spacing:0.1em; margin-bottom:8px; text-transform:uppercase;">Executive Summary</div>
-                      <ul id="pdf-out-bullets" style="color:#3f3f46; font-size:11px; line-height:1.65; padding-left:16px; margin:0;">
+                      <div style="color:#1a3c6e; font-family:var(--mono); font-size:8px; letter-spacing:0.1em; margin-bottom:8px; text-transform:uppercase; font-weight:700;">Executive Summary</div>
+                      <ul id="pdf-out-bullets" style="color:#374151; font-size:11px; line-height:1.65; padding-left:16px; margin:0;">
                         <li>Projected revenue uplift of 23% within 12 months</li>
                         <li>Priority expansion: Nordics and DACH region</li>
                         <li>Headcount growth of 18 planned for H2</li>
                       </ul>
                     </div>
                     <!-- Chart Area -->
-                    <div style="border:1px solid #f4f4f5; border-radius:6px; padding:12px; background:#fafafa;">
-                      <div style="color:#71717a; font-size:8px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px;">Quarterly Progress</div>
+                    <div style="border:1px solid #f4f4f5; border-radius:6px; padding:12px; background:#f8faff;">
+                      <div style="color:#1a3c6e; font-size:8px; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:10px; font-weight:600;">Quarterly Progress</div>
                       <div style="display:flex; align-items:flex-end; gap:8px; height:56px;">
-                        <div style="flex:1; background:#e4e4e7; height:40%; border-radius:2px 2px 0 0;"></div>
-                        <div style="flex:1; background:#e4e4e7; height:55%; border-radius:2px 2px 0 0;"></div>
-                        <div style="flex:1; background:#e4e4e7; height:75%; border-radius:2px 2px 0 0;"></div>
-                        <div style="flex:1; background:#111; height:100%; border-radius:2px 2px 0 0; position:relative;">
-                          <div style="position:absolute; top:-14px; left:50%; transform:translateX(-50%); font-size:8px; font-weight:700; color:#111;">Q4</div>
+                        <div style="flex:1; background:#dce7f5; height:40%; border-radius:2px 2px 0 0;"></div>
+                        <div style="flex:1; background:#b3cce8; height:55%; border-radius:2px 2px 0 0;"></div>
+                        <div style="flex:1; background:#7aadd4; height:75%; border-radius:2px 2px 0 0;"></div>
+                        <div style="flex:1; background:#1a3c6e; height:100%; border-radius:2px 2px 0 0; position:relative;">
+                          <div style="position:absolute; top:-14px; left:50%; transform:translateX(-50%); font-size:8px; font-weight:700; color:#1a3c6e;">Q4</div>
                         </div>
                       </div>
                     </div>
                   </div>
                   <!-- PDF Footer -->
-                  <div style="padding:12px 28px; border-top:1px solid #f4f4f5; display:flex; justify-content:space-between; color:#a1a1aa; font-size:8px; font-family:var(--mono);">
+                  <div style="padding:12px 28px; border-top:1px solid #e4e4e7; display:flex; justify-content:space-between; color:#9ca3af; font-size:8px; font-family:var(--mono); letter-spacing:0.06em;">
                     <span>CONFIDENTIAL</span>
                     <span>PAGE 1 OF 4</span>
                   </div>
@@ -1597,17 +1605,19 @@ window.addEventListener('scroll', () => {
 });
 
 // Dot brightening logic
+// The canvas is position:fixed so it always fills the full viewport.
+// Mouse coords must be raw viewport-space (clientX/Y) — never subtract
+// the hero bounding rect, which goes negative once the user scrolls.
 let heroMouseX = -1000;
 let heroMouseY = -1000;
-const heroSection = document.querySelector('.hero');
 
 document.addEventListener('mousemove', (e) => {
-  const rect = heroSection.getBoundingClientRect();
-  heroMouseX = e.clientX - rect.left;
-  heroMouseY = e.clientY - rect.top;
+  heroMouseX = e.clientX;
+  heroMouseY = e.clientY;
 });
 
-heroSection.addEventListener('mouseleave', () => {
+// Reset when the pointer leaves the browser window entirely
+document.addEventListener('mouseleave', () => {
   heroMouseX = -1000;
   heroMouseY = -1000;
 });
@@ -1635,18 +1645,23 @@ initDots();
 function renderHero() {
   bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
   
-  // We need to account for parallax offset to find the real mouse relative to canvas
-  const canvasMouseY = heroMouseY - (heroScrollY * 0.4);
+  // Dots shift upward as the user scrolls (parallax at 0.4x speed).
+  // To compare against viewport-space mouse coords we project each dot
+  // into viewport space: dotViewportY = dot.y - heroScrollY * 0.4
+  const parallaxOffsetY = heroScrollY * 0.4;
   
   for (let i = 0; i < dots.length; i++) {
     const dot = dots[i];
     
-    // Only draw if visible (roughly)
-    if (dot.x > hW || dot.y > hH + (heroScrollY * 0.4) || dot.x < 0) continue;
+    // Dot's current position in viewport space
+    const dotVY = dot.y - parallaxOffsetY;
     
-    // Calculate distance to mouse
+    // Skip dots that are off-screen
+    if (dot.x > hW || dotVY > hH || dotVY < -gridSpacing || dot.x < 0) continue;
+    
+    // Calculate distance to mouse (both now in viewport space)
     const dx = dot.x - heroMouseX;
-    const dy = dot.y - canvasMouseY;
+    const dy = dotVY - heroMouseY;
     const dist = Math.sqrt(dx*dx + dy*dy);
     
     // Target brightness based on distance (3x3 grid = ~75px radius)
