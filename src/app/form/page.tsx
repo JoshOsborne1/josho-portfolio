@@ -755,7 +755,42 @@ export default function GuldmannForm() {
         </div>
 
         {/* Form Card Area (takes remaining viewport) */}
-        <main className="flex-1 flex flex-col items-center justify-center p-0 md:p-6 lg:p-8 flex-1 overflow-hidden">
+        <main className="flex-1 overflow-hidden flex items-stretch">
+
+          {/* Left sidebar - tool teasers (desktop only) */}
+          <div className="hidden xl:flex flex-col justify-center gap-3 px-6 py-8 w-[220px] shrink-0">
+            {[
+              { icon: <Scan className="w-4 h-4 text-[#F4B626]" />, name: 'Smart Stock Take', desc: 'Tap to log inventory' },
+              { icon: <BookOpen className="w-4 h-4 text-[#F4B626]" />, name: 'Ask the Manual', desc: 'AI over every document' },
+              { icon: <Clock className="w-4 h-4 text-[#F4B626]" />, name: 'Time Logger', desc: 'Log a day in 10 seconds' },
+            ].map(tool => (
+              <motion.div
+                key={tool.name}
+                initial={{ opacity: 0, x: -16 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+                onClick={() => document.getElementById('tools-section')?.scrollIntoView({ behavior: 'smooth' })}
+                className="flex items-start gap-3 p-3 rounded-xl bg-white border border-gray-100 shadow-sm cursor-pointer hover:border-[#F4B626]/40 hover:shadow-md transition-all group"
+              >
+                <div className="w-8 h-8 rounded-lg bg-[#F4B626]/10 flex items-center justify-center shrink-0 group-hover:bg-[#F4B626]/20 transition-colors">{tool.icon}</div>
+                <div>
+                  <div className="text-[12px] font-semibold text-gray-700 leading-tight">{tool.name}</div>
+                  <div className="text-[11px] text-gray-400 mt-0.5">{tool.desc}</div>
+                </div>
+              </motion.div>
+            ))}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="text-[11px] text-gray-300 text-center pt-1"
+            >
+              + 3 more below
+            </motion.div>
+          </div>
+
+          {/* Center - the form */}
+          <div className="flex-1 flex flex-col items-center justify-center p-0 md:p-6 overflow-hidden">
           <div className="w-full max-w-3xl h-full md:h-auto md:max-h-full bg-white md:rounded-2xl shadow-none md:shadow-xl border-0 md:border border-gray-100 flex flex-col overflow-hidden">
             
             {/* Slim Card Header */}
@@ -1295,6 +1330,41 @@ export default function GuldmannForm() {
             </div>
             
           </div>
+          </div>
+
+          {/* Right sidebar - CTA teaser (desktop only) */}
+          <div className="hidden xl:flex flex-col justify-center gap-3 px-6 py-8 w-[220px] shrink-0">
+            {[
+              { icon: <FileText className="w-4 h-4 text-[#F4B626]" />, name: 'Report Builder', desc: 'PDF reports in seconds' },
+              { icon: <MessageSquare className="w-4 h-4 text-[#F4B626]" />, name: 'Quote Assistant', desc: 'Draft quotes instantly' },
+              { icon: <GraduationCap className="w-4 h-4 text-[#F4B626]" />, name: 'Training Tracker', desc: 'Team compliance at a glance' },
+            ].map(tool => (
+              <motion.div
+                key={tool.name}
+                initial={{ opacity: 0, x: 16 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+                onClick={() => document.getElementById('tools-section')?.scrollIntoView({ behavior: 'smooth' })}
+                className="flex items-start gap-3 p-3 rounded-xl bg-white border border-gray-100 shadow-sm cursor-pointer hover:border-[#F4B626]/40 hover:shadow-md transition-all group"
+              >
+                <div className="w-8 h-8 rounded-lg bg-[#F4B626]/10 flex items-center justify-center shrink-0 group-hover:bg-[#F4B626]/20 transition-colors">{tool.icon}</div>
+                <div>
+                  <div className="text-[12px] font-semibold text-gray-700 leading-tight">{tool.name}</div>
+                  <div className="text-[11px] text-gray-400 mt-0.5">{tool.desc}</div>
+                </div>
+              </motion.div>
+            ))}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              onClick={() => document.getElementById('tools-section')?.scrollIntoView({ behavior: 'smooth' })}
+              className="flex items-center justify-center gap-1.5 text-[11px] text-[#F4B626] cursor-pointer hover:text-[#cd962b] transition-colors pt-1 font-medium"
+            >
+              See all tools <ChevronDown className="w-3 h-3" />
+            </motion.div>
+          </div>
+
         </main>
         <div 
           onClick={() => document.getElementById('tools-section')?.scrollIntoView({ behavior: 'smooth' })}
