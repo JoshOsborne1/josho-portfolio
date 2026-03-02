@@ -463,6 +463,84 @@ const HintBox = ({ title, children }: { title: React.ReactNode, children: React.
   );
 };
 
+
+const DEPARTMENTS: { value: string; sub?: string }[] = [
+  { value: 'Technical', sub: 'Technicians, IT, Stepless' },
+  { value: 'Marketing' },
+  { value: 'Operations' },
+  { value: 'Contracts' },
+  { value: 'Sales', sub: 'Stepless, Trusts, Other' },
+  { value: 'Manager', sub: 'All departments' },
+];
+
+const DepartmentPicker = ({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) => {
+  const [open, setOpen] = useState(false);
+  const [hovered, setHovered] = useState<string | null>(null);
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className={`w-full px-4 py-2.5 rounded-lg border text-left flex items-center justify-between transition-all ${
+          value ? 'border-[#F4B626] bg-[#F4B626]/5 text-gray-800 font-medium' : 'border-gray-300 text-gray-400 bg-white'
+        } focus:outline-none focus:ring-1 focus:ring-[#F4B626]`}
+      >
+        <span>{value || 'Select your department'}</span>
+        <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              {DEPARTMENTS.map(dept => (
+                <button
+                  key={dept.value}
+                  type="button"
+                  onMouseEnter={() => setHovered(dept.value)}
+                  onMouseLeave={() => setHovered(null)}
+                  onClick={() => {
+                    onChange(dept.value);
+                    setOpen(false);
+                  }}
+                  className={`relative px-4 py-3 rounded-lg border text-left transition-all ${
+                    value === dept.value
+                      ? 'border-[#F4B626] bg-[#F4B626]/10 text-gray-800'
+                      : 'border-gray-200 bg-white hover:border-[#F4B626] hover:bg-[#F4B626]/5 text-gray-700'
+                  }`}
+                >
+                  <span className="block font-semibold text-[13px]">{dept.value}</span>
+                  {dept.sub && (hovered === dept.value || value === dept.value) && (
+                    <span className="block text-[11px] text-[#F4B626] mt-0.5">{dept.sub}</span>
+                  )}
+                  {value === dept.value && (
+                    <div className="absolute top-2 right-2">
+                      <Check className="w-3.5 h-3.5 text-[#F4B626]" strokeWidth={3} />
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
 export default function GuldmannForm() {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -474,6 +552,7 @@ export default function GuldmannForm() {
     name: '',
     jobTitle: '',
     department: '',
+    brand: '',
     tenure: '',
     
     // Step 2
@@ -510,7 +589,7 @@ export default function GuldmannForm() {
 
   const handleNext = () => {
     // Basic validation
-    if (step === 1 && (!formData.name || !formData.jobTitle || !formData.department || !formData.tenure)) {
+    if (step === 1 && (!formData.name || !formData.jobTitle || !formData.department || !formData.brand || !formData.tenure)) {
       setError('Please fill in all required fields.');
       return;
     }
@@ -738,29 +817,29 @@ export default function GuldmannForm() {
                       </div>
 
                       <div className="space-y-1.5">
-                        <label htmlFor="department" className="block text-[14px] font-semibold text-gray-700">Department <span className="text-red-500">*</span></label>
-                        <div className="relative">
-                          <select 
-                            id="department"
-                            value={formData.department}
-                            onChange={e => setFormData({...formData, department: e.target.value})}
-                            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-[#F4B626] focus:ring-1 focus:ring-[#F4B626] outline-none transition-all appearance-none bg-white"
-                          >
-                            <option value="" disabled>Select your department</option>
-                            <option value="Operations">Operations</option>
-                            <option value="Sales">Sales</option>
-                            <option value="Clinical/Healthcare">Clinical/Healthcare</option>
-                            <option value="IT">IT</option>
-                            <option value="Marketing/Communications">Marketing/Communications</option>
-                            <option value="Finance/Admin">Finance/Admin</option>
-                            <option value="Management">Management</option>
-                            <option value="Other">Other</option>
-                          </select>
-                          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                            <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                              <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                            </svg>
-                          </div>
+                        <label className="block text-[14px] font-semibold text-gray-700">Department <span className="text-red-500">*</span></label>
+                        <DepartmentPicker
+                          value={formData.department}
+                          onChange={v => setFormData({...formData, department: v})}
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="block text-[14px] font-semibold text-gray-700">Which brand do you work under? <span className="text-red-500">*</span></label>
+                        <div className="flex gap-3 flex-wrap">
+                          {['Guldmann', 'Stepless', 'Both'].map(brand => (
+                            <label key={brand} className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border cursor-pointer transition-all select-none ${
+                              formData.brand === brand ? 'border-[#F4B626] bg-[#F4B626]/10 text-gray-800 font-semibold' : 'border-gray-200 bg-white text-gray-600 hover:border-[#F4B626] hover:bg-[#F4B626]/5'
+                            }`}>
+                              <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
+                                formData.brand === brand ? 'bg-[#F4B626] border-[#F4B626]' : 'border-gray-300'
+                              }`}>
+                                {formData.brand === brand && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+                              </div>
+                              <span className="text-[13px]">{brand}</span>
+                              <input type="radio" name="brand" value={brand} checked={formData.brand === brand} onChange={() => setFormData({...formData, brand})} className="sr-only" />
+                            </label>
+                          ))}
                         </div>
                       </div>
 
