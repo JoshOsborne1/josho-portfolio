@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, Check, Loader2, Scan, BookOpen, Clock, FileText, Zap, GraduationCap, Lightbulb, MessageSquare, ChevronDown, QrCode, Plus, Minus } from 'lucide-react';
+import { ChevronRight, Search, ChevronLeft, Check, Loader2, Scan, BookOpen, Clock, FileText, Zap, GraduationCap, Lightbulb, MessageSquare, ChevronDown, QrCode, Plus, Minus } from 'lucide-react';
 
 
 const StockTakeMockup = () => {
@@ -28,12 +28,23 @@ const StockTakeMockup = () => {
       <div className="p-4 pt-6 h-[220px] flex flex-col relative">
         <div className="text-center mb-2">
           <div className="text-[10px] text-[#F4B626] font-bold tracking-widest">STOCK TAKE</div>
-          <div className="text-[10px] text-[#555]">Tap item to scan</div>
+          <div className="text-[10px] text-[#555] h-3">{flash ? <span className="text-[#F4B626] font-bold">ITEM FOUND</span> : 'Tap item to scan'}</div>
         </div>
         
         <div className="flex-1 flex items-center justify-center relative">
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className={`w-24 h-24 rounded-full border border-[#F4B626]/30 transition-all duration-300 ${flash ? 'bg-green-500/20 scale-110' : 'animate-ping'}`}></div>
+            
+            {/* Constant subtle pulse - always present */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-24 h-24 rounded-full border border-[#F4B626]/20 animate-ping opacity-30"></div>
+            </div>
+            {/* Flash overlay - only shows on scan */}
+            {flash && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-28 h-28 rounded-full bg-green-500/20 animate-pulse"></div>
+              </div>
+            )}
+
           </div>
           <div className="w-20 h-20 border-2 border-[#F4B626]/20 relative flex items-center justify-center">
             <div className="absolute -top-1 -left-1 w-2 h-2 border-t-2 border-l-2 border-[#F4B626]"></div>
@@ -132,6 +143,222 @@ const QuoteAssistantMockup = () => {
               <button className="bg-[#F4B626]/20 text-[#F4B626] font-medium px-2 py-1 rounded text-[9px]">View Quote</button>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+const AskTheManualMockup = () => {
+  const [queryIdx, setQueryIdx] = useState(0);
+  const [flash, setFlash] = useState(false);
+  
+  const queries = [
+    {
+      q: "Max SWL for GH3 hoist?",
+      a: "Maximum Safe Working Load: 205kg",
+      tag: "p.12 - GH3 Technical Manual",
+      sub: "See also: p.14 for load chart"
+    },
+    {
+      q: "Error code E04 on HC300?",
+      a: "Motor overheat. Reset via p.89, HC300 Service Manual",
+      tag: "p.89 - HC300 Service Manual",
+      sub: "Wait 15 mins before reset"
+    },
+    {
+      q: "C-rail min bend radius?",
+      a: "1,200mm minimum. See p.31, C-Rail Installation Guide",
+      tag: "p.31 - C-Rail Guide",
+      sub: "See also: Track limits table"
+    }
+  ];
+
+  const handleNext = () => {
+    setFlash(true);
+    setQueryIdx((i) => (i + 1) % queries.length);
+    setTimeout(() => setFlash(false), 300);
+  };
+
+  const current = queries[queryIdx];
+
+  return (
+    <div className="w-full max-w-[240px] mx-auto mt-4 overflow-hidden rounded-[28px] border-2 border-[rgba(255,255,255,0.1)] bg-[#0A0A0A] relative hover:scale-[1.02] transition-transform cursor-pointer" onClick={handleNext}>
+      <div className="absolute top-0 inset-x-0 h-4 bg-[#0A0A0A] z-10 flex justify-center">
+        <div className="w-16 h-3 bg-black rounded-b-xl"></div>
+      </div>
+      <div className="p-4 pt-6 h-[220px] flex flex-col">
+        <div className="text-center mb-3">
+          <div className="text-[10px] text-[#F4B626] font-bold tracking-widest">ASK THE MANUAL</div>
+        </div>
+
+        <div className="bg-[#1A1A1A] rounded-full px-3 py-2 flex items-center gap-2 mb-4 border border-white/5">
+          <Search className="w-3.5 h-3.5 text-[#666]" />
+          <span className="text-[11px] text-[#888] truncate select-none">{current.q}</span>
+        </div>
+
+        <div className="flex-1 relative">
+          <div className={`absolute inset-0 bg-[#111] rounded-xl p-3 border border-white/5 flex flex-col transition-colors duration-300 ${flash ? 'border-[#F4B626]/50 bg-[#F4B626]/10' : ''}`}>
+            <div className="inline-block bg-[#F4B626] text-black text-[9px] font-bold px-1.5 py-0.5 rounded self-start mb-2">
+              {current.tag}
+            </div>
+            <div className="text-white text-[11px] font-medium leading-tight mb-1">
+              {current.a}
+            </div>
+            <div className="text-[#555] text-[10px] mt-auto">
+              {current.sub}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ReportBuilderMockup = () => {
+  const [reportState, setReportState] = useState<'idle' | 'generating' | 'done'>('idle');
+
+  const handleGenerate = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (reportState !== 'idle') {
+      setReportState('idle');
+      return;
+    }
+    setReportState('generating');
+    setTimeout(() => {
+      setReportState('done');
+    }, 1500);
+  };
+
+  return (
+    <div className="w-full max-w-[240px] mx-auto mt-4 overflow-hidden rounded-[28px] border-2 border-[rgba(255,255,255,0.1)] bg-[#0A0A0A] relative hover:scale-[1.02] transition-transform">
+      <div className="absolute top-0 inset-x-0 h-4 bg-[#0A0A0A] z-10 flex justify-center">
+        <div className="w-16 h-3 bg-black rounded-b-xl"></div>
+      </div>
+      <div className="p-4 pt-6 h-[220px] flex flex-col">
+        <div className="text-center mb-3">
+          <div className="text-[10px] text-[#F4B626] font-bold tracking-widest">REPORT BUILDER</div>
+        </div>
+
+        <div className="space-y-2 mb-4">
+          <div className="bg-[#111] rounded p-2 border border-white/5 flex flex-col gap-0.5">
+            <span className="text-[#555] text-[9px]">Site</span>
+            <span className="text-white text-[11px]">St. Mary's Hospital</span>
+          </div>
+          <div className="bg-[#111] rounded p-2 border border-white/5 flex flex-col gap-0.5">
+            <span className="text-[#555] text-[9px]">Visit Type</span>
+            <span className="text-white text-[11px]">Annual Inspection</span>
+          </div>
+          <div className="bg-[#111] rounded p-2 border border-white/5 flex flex-col gap-0.5">
+            <span className="text-[#555] text-[9px]">Engineer</span>
+            <span className="text-white text-[11px]">Dan Mitchell</span>
+          </div>
+        </div>
+
+        <div className="mt-auto flex flex-col gap-2">
+          <button 
+            onClick={handleGenerate}
+            className={`w-full text-black text-[12px] font-bold py-2 rounded-lg transition-colors ${reportState === 'done' ? 'bg-white' : 'bg-[#F4B626]'}`}
+          >
+            {reportState === 'done' ? 'Reset' : 'Generate Report'}
+          </button>
+          
+          <div className="h-4 flex items-center justify-center">
+            {reportState === 'idle' && <span className="text-[10px] text-[#444]">Ready to generate</span>}
+            {reportState === 'generating' && (
+              <div className="flex items-center gap-1.5 text-[10px] text-[#F4B626]">
+                <Loader2 className="w-3 h-3 animate-spin" /> Generating PDF...
+              </div>
+            )}
+            {reportState === 'done' && (
+              <div className="flex items-center gap-1 text-[10px] text-green-500">
+                <Check className="w-3 h-3" /> Report ready - 4 pages
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const TrainingTrackerMockup = () => {
+  const [expanded, setExpanded] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  const handleSend = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSent(true);
+    setTimeout(() => setSent(false), 1000);
+  };
+
+  return (
+    <div className="w-full max-w-[240px] mx-auto mt-4 overflow-hidden rounded-[28px] border-2 border-[rgba(255,255,255,0.1)] bg-[#0A0A0A] relative hover:scale-[1.02] transition-transform">
+      <div className="absolute top-0 inset-x-0 h-4 bg-[#0A0A0A] z-10 flex justify-center">
+        <div className="w-16 h-3 bg-black rounded-b-xl"></div>
+      </div>
+      <div className="p-4 pt-6 h-[220px] flex flex-col">
+        <div className="text-center mb-1">
+          <div className="text-[10px] text-[#F4B626] font-bold tracking-widest">TRAINING TRACKER</div>
+          <div className="text-[10px] text-[#555]">4 of 5 compliant</div>
+        </div>
+
+        <div className="w-full h-1 bg-[#222] rounded-full overflow-hidden mb-4">
+          <div className="h-full bg-[#F4B626] w-[80%] rounded-full"></div>
+        </div>
+
+        <div className="flex-1 space-y-1.5 overflow-hidden">
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></div>
+            <div>
+              <div className="text-[11px] text-white">Dan M.</div>
+              <div className="text-[9px] text-[#555]">Moving & Handling - up to date</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></div>
+            <div>
+              <div className="text-[11px] text-white">Sarah K.</div>
+              <div className="text-[9px] text-[#555]">Fire Safety - up to date</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></div>
+            <div>
+              <div className="text-[11px] text-white">Nathan B.</div>
+              <div className="text-[9px] text-[#555]">LOLER - up to date</div>
+            </div>
+          </div>
+          
+          <div 
+            onClick={() => setExpanded(!expanded)}
+            className={`bg-[#111] rounded p-1.5 border ${expanded ? 'border-[#F4B626]/30' : 'border-red-500/20'} cursor-pointer transition-all`}
+          >
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0"></div>
+              <div>
+                <div className="text-[11px] text-white">Emma T.</div>
+                <div className="text-[9px] text-[#F4B626]">Moving & Handling - expires 12 days</div>
+              </div>
+            </div>
+            {expanded && (
+              <div className="mt-2 flex justify-end">
+                <button 
+                  onClick={handleSend}
+                  className="bg-[#F4B626] text-black text-[9px] font-bold px-2 py-1 rounded"
+                >
+                  {sent ? 'Reminder sent!' : 'Send reminder'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-2 text-center">
+          <span className="inline-block bg-[#F4B626]/10 text-[#F4B626] text-[9px] px-2 py-0.5 rounded-full">
+            1 renewal due
+          </span>
         </div>
       </div>
     </div>
@@ -401,7 +628,7 @@ export default function GuldmannForm() {
       <div id="form-top" className="min-h-[100dvh] flex flex-col bg-[#FAFAFA]">
         
         {/* Compact Header Strip */}
-        <header className="h-[80px] bg-[#111111] text-white px-4 md:px-6 flex items-center justify-between shrink-0">
+        <header className="h-[72px] bg-[#111111] text-white px-4 md:px-6 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-5 bg-[#F4B626] rounded-full"></div>
             <span className="text-sm md:text-base font-bold tracking-wider uppercase">Guldmann</span>
@@ -435,8 +662,21 @@ export default function GuldmannForm() {
           </button>
         </header>
 
+        {/* Teaser Strip */}
+        <div 
+          onClick={() => document.getElementById('tools-section')?.scrollIntoView({ behavior: 'smooth' })}
+          className="cursor-pointer shrink-0 bg-[#0D0D0D] flex items-center justify-center gap-3 group"
+          style={{ height: '52px' }}
+        >
+          <Zap className="w-3.5 h-3.5 text-[#F4B626]" />
+          <span className="text-xs text-[#666] font-semibold tracking-widest uppercase group-hover:text-[#999] transition-colors">
+            See what we can build for your team
+          </span>
+          <ChevronDown className="w-4 h-4 text-[#F4B626] animate-bounce" />
+        </div>
+
         {/* Form Card Area (takes remaining viewport) */}
-        <main className="flex-1 flex flex-col items-center justify-center p-0 md:p-6 lg:p-8 h-[calc(100dvh-80px)]">
+        <main className="flex-1 flex flex-col items-center justify-center p-0 md:p-6 lg:p-8 flex-1 overflow-hidden">
           <div className="w-full max-w-3xl h-full md:h-auto md:max-h-full bg-white md:rounded-2xl shadow-none md:shadow-xl border-0 md:border border-gray-100 flex flex-col overflow-hidden">
             
             {/* Slim Card Header */}
@@ -1039,9 +1279,12 @@ export default function GuldmannForm() {
                 </div>
               </div>
               <h3 className="text-[16px] font-bold text-white mb-3">Ask the Manual</h3>
-              <p className="text-[14px] text-[#777] group-hover:text-[#ccc] leading-relaxed mt-auto transition-colors duration-250 mb-6">
+              <p className="text-[14px] text-[#777] group-hover:text-[#ccc] leading-relaxed transition-colors duration-250 mb-6">
                 Every Guldmann manual searchable by AI. Ask a question, get the answer with a page reference. 24/7.
               </p>
+              <div className="mt-auto mb-6 flex justify-center items-center">
+                <AskTheManualMockup />
+              </div>
               <div className="absolute bottom-6 right-6">
                 <span className="px-2 py-0.5 bg-[rgba(244,182,38,0.12)] text-[#cd962b] text-xs font-bold rounded-full">Possible</span>
               </div>
@@ -1096,9 +1339,12 @@ export default function GuldmannForm() {
                 </div>
               </div>
               <h3 className="text-[16px] font-bold text-white mb-3">Report Builder</h3>
-              <p className="text-[14px] text-[#777] group-hover:text-[#ccc] leading-relaxed mt-auto transition-colors duration-250 mb-6">
+              <p className="text-[14px] text-[#777] group-hover:text-[#ccc] leading-relaxed transition-colors duration-250 mb-6">
                 Answer a few questions, get a formatted PDF report ready to send. No more Word wrestling.
               </p>
+              <div className="mt-auto mb-6 flex justify-center items-center">
+                <ReportBuilderMockup />
+              </div>
               <div className="absolute bottom-6 right-6">
                 <span className="px-2 py-0.5 bg-[rgba(244,182,38,0.12)] text-[#cd962b] text-xs font-bold rounded-full">Possible</span>
               </div>
@@ -1153,9 +1399,12 @@ export default function GuldmannForm() {
                 </div>
               </div>
               <h3 className="text-[16px] font-bold text-white mb-3">Training Tracker</h3>
-              <p className="text-[14px] text-[#777] group-hover:text-[#ccc] leading-relaxed mt-auto transition-colors duration-250 mb-6">
+              <p className="text-[14px] text-[#777] group-hover:text-[#ccc] leading-relaxed transition-colors duration-250 mb-6">
                 Team compliance at a glance. Auto-reminders before expiry. Nothing falls through the cracks.
               </p>
+              <div className="mt-auto mb-6 flex justify-center items-center">
+                <TrainingTrackerMockup />
+              </div>
               <div className="absolute bottom-6 right-6">
                 <span className="px-2 py-0.5 bg-[rgba(244,182,38,0.12)] text-[#cd962b] text-xs font-bold rounded-full">Possible</span>
               </div>
