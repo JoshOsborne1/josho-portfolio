@@ -843,28 +843,42 @@ export default function GuldmannForm() {
                         </div>
                       </div>
 
-                      <div className="space-y-1.5">
-                        <label htmlFor="tenure" className="block text-[14px] font-semibold text-gray-700">How long have you been at Guldmann? <span className="text-red-500">*</span></label>
-                        <div className="relative">
-                          <select 
-                            id="tenure"
-                            value={formData.tenure}
-                            onChange={e => setFormData({...formData, tenure: e.target.value})}
-                            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-[#F4B626] focus:ring-1 focus:ring-[#F4B626] outline-none transition-all appearance-none bg-white"
-                          >
-                            <option value="" disabled>Select duration</option>
-                            <option value="Less than 1 year">Less than 1 year</option>
-                            <option value="1-3 years">1-3 years</option>
-                            <option value="3-5 years">3-5 years</option>
-                            <option value="5-10 years">5-10 years</option>
-                            <option value="10+ years">10+ years</option>
-                          </select>
-                          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                            <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                              <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                            </svg>
-                          </div>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <label className="block text-[14px] font-semibold text-gray-700">How long have you been at Guldmann? <span className="text-red-500">*</span></label>
+                          {formData.tenure && (
+                            <span className="text-[13px] font-semibold text-[#cd962b] bg-[#F4B626]/10 px-2.5 py-0.5 rounded-full">{formData.tenure}</span>
+                          )}
                         </div>
+                        {(() => {
+                          const tenureOptions = ['Less than 1 year', '1-3 years', '3-5 years', '5-10 years', '10+ years'];
+                          const idx = tenureOptions.indexOf(formData.tenure);
+                          const sliderVal = idx === -1 ? 0 : idx;
+                          return (
+                            <div className="px-1">
+                              <input
+                                type="range"
+                                min={0}
+                                max={4}
+                                step={1}
+                                value={sliderVal}
+                                onChange={e => setFormData({...formData, tenure: tenureOptions[Number(e.target.value)]})}
+                                className="w-full h-2 rounded-full appearance-none cursor-pointer"
+                                style={{
+                                  background: `linear-gradient(to right, #F4B626 0%, #F4B626 ${sliderVal * 25}%, #e5e7eb ${sliderVal * 25}%, #e5e7eb 100%)`,
+                                  accentColor: '#F4B626',
+                                }}
+                              />
+                              <div className="flex justify-between mt-1.5">
+                                {tenureOptions.map((opt, i) => (
+                                  <span key={opt} className={`text-[10px] font-medium transition-colors ${i === sliderVal ? 'text-[#cd962b]' : 'text-gray-400'}`} style={{ width: '20%', textAlign: i === 0 ? 'left' : i === 4 ? 'right' : 'center' }}>
+                                    {opt}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
                   )}
