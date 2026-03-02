@@ -658,7 +658,7 @@ export default function GuldmannForm() {
             className="bg-[rgba(244,182,38,0.15)] border border-[rgba(244,182,38,0.5)] text-[#F4B626] text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5 hover:bg-[rgba(244,182,38,0.25)] transition-all"
             style={{ boxShadow: '0 0 12px rgba(244,182,38,0.4)' }}
           >
-            <Zap className="w-3.5 h-3.5" /> See what we can build
+            <Zap className="w-3.5 h-3.5" /> See what could be built
           </button>
         </header>
 
@@ -670,7 +670,7 @@ export default function GuldmannForm() {
         >
           <Zap className="w-3.5 h-3.5 text-[#F4B626]" />
           <span className="text-xs text-[#666] font-semibold tracking-widest uppercase group-hover:text-[#999] transition-colors">
-            See what we can build for your team
+            See what could be built for your team
           </span>
           <ChevronDown className="w-4 h-4 text-[#F4B626] animate-bounce" />
         </div>
@@ -1207,7 +1207,7 @@ export default function GuldmannForm() {
           onClick={() => document.getElementById('tools-section')?.scrollIntoView({ behavior: 'smooth' })}
           className="cursor-pointer bg-[#0D0D0D] h-14 flex flex-col items-center justify-center gap-1 group w-full shrink-0"
         >
-          <span className="text-xs text-[#555] font-medium group-hover:text-[#888] transition-colors tracking-wide uppercase">See what's possible</span>
+          <span className="text-xs text-[#555] font-medium group-hover:text-[#888] transition-colors tracking-wide uppercase">See what could be built</span>
           <ChevronDown className="w-4 h-4 text-[#F4B626] animate-bounce" />
         </div>
       </div>
