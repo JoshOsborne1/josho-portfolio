@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, Check, Loader2, Scan, BookOpen, Clock, FileText, Zap, GraduationCap, Lightbulb } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Check, Loader2, Scan, BookOpen, Clock, FileText, Zap, GraduationCap, Lightbulb, MessageSquare } from 'lucide-react';
 import { GuldmannParticles } from '@/components/GuldmannParticles';
 
 // Reusable custom checkbox component
@@ -273,86 +273,170 @@ export default function GuldmannForm() {
 
 
       {/* Inspiration Strip */}
-      <div className="w-full bg-[#F7F8FA] border-y border-gray-200 py-12 relative z-10">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-[#111111]">Here's what tools like these look like in practice</h2>
-            <p className="text-gray-600 mt-1">Already built for Guldmann - more on the way.</p>
+      <div className="w-full bg-[#0D0D0D] py-16 px-6 relative z-10">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">What could be built for Guldmann</h2>
+            <p className="text-[#888] text-lg">These are examples of what's possible - every tool built around your actual workflow.</p>
           </div>
           
-          <div className="flex overflow-x-auto pb-6 -mx-6 px-6 xl:mx-0 xl:px-0 gap-6 snap-x snap-mandatory scrollbar-hide xl:grid xl:grid-cols-3 xl:overflow-visible">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             
-            {/* Real Tool 1 */}
-            <div className="min-w-[300px] xl:min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 p-6 border-t-4 border-t-[#F4B626] snap-start flex-shrink-0 flex flex-col h-full">
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-12 h-12 rounded-lg bg-gray-50 flex items-center justify-center">
-                  <Scan className="w-6 h-6 text-gray-700" />
+            {/* Tool 1 */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0 * 0.08, duration: 0.5 }}
+              whileHover={{ 
+                y: -8, 
+                scale: 1.03, 
+                boxShadow: '0 0 0 1px rgba(244,182,38,0.4), 0 20px 60px rgba(244,182,38,0.15)' 
+              }}
+              className="bg-[#111111] rounded-xl p-6 border border-white/5 flex flex-col h-full relative group transition-all duration-250 ease-out"
+            >
+              <div className="flex items-start justify-between mb-5">
+                <div className="w-12 h-12 rounded-full bg-[#F4B626]/15 flex items-center justify-center group-hover:bg-[#F4B626] transition-colors duration-250">
+                  <Scan className="w-6 h-6 text-[#F4B626] group-hover:text-white transition-colors duration-250" />
                 </div>
-                <span className="px-3 py-1 bg-[#111111] text-white text-xs font-bold rounded-full">Live</span>
               </div>
-              <h3 className="text-lg font-bold mb-2">Stock Take</h3>
-              <p className="text-sm text-gray-600 leading-relaxed mt-auto">NFC warehouse scanning. Tap an item, set quantity, van stock updates automatically. Zero paperwork.</p>
-            </div>
+              <h3 className="text-[18px] font-bold text-white mb-3">Smart Stock Take</h3>
+              <p className="text-sm text-[#999] group-hover:text-[#ccc] leading-relaxed mt-auto transition-colors duration-250 mb-6">
+                Tap your phone to any item. Instant inventory logging, van stock tracking, activity trail. No spreadsheets.
+              </p>
+              <div className="absolute bottom-6 right-6">
+                <span className="px-3 py-1 bg-[#F4B626]/15 text-[#cd962b] border border-[#F4B626]/40 text-xs font-bold rounded-full">Possible</span>
+              </div>
+            </motion.div>
 
-            {/* Real Tool 2 */}
-            <div className="min-w-[300px] xl:min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 p-6 border-t-4 border-t-[#F4B626] snap-start flex-shrink-0 flex flex-col h-full">
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-12 h-12 rounded-lg bg-gray-50 flex items-center justify-center">
-                  <BookOpen className="w-6 h-6 text-gray-700" />
+            {/* Tool 2 */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1 * 0.08, duration: 0.5 }}
+              whileHover={{ 
+                y: -8, 
+                scale: 1.03, 
+                boxShadow: '0 0 0 1px rgba(244,182,38,0.4), 0 20px 60px rgba(244,182,38,0.15)' 
+              }}
+              className="bg-[#111111] rounded-xl p-6 border border-white/5 flex flex-col h-full relative group transition-all duration-250 ease-out"
+            >
+              <div className="flex items-start justify-between mb-5">
+                <div className="w-12 h-12 rounded-full bg-[#F4B626]/15 flex items-center justify-center group-hover:bg-[#F4B626] transition-colors duration-250">
+                  <BookOpen className="w-6 h-6 text-[#F4B626] group-hover:text-white transition-colors duration-250" />
                 </div>
-                <span className="px-3 py-1 bg-[#111111] text-white text-xs font-bold rounded-full">Live</span>
               </div>
-              <h3 className="text-lg font-bold mb-2">Check the Book</h3>
-              <p className="text-sm text-gray-600 leading-relaxed mt-auto">Ask an AI that's read every Guldmann manual. Page-cited answers in seconds, 24/7.</p>
-            </div>
+              <h3 className="text-[18px] font-bold text-white mb-3">Ask the Manual</h3>
+              <p className="text-sm text-[#999] group-hover:text-[#ccc] leading-relaxed mt-auto transition-colors duration-250 mb-6">
+                Every Guldmann manual, searchable by AI. Ask a question, get the answer with page reference. 24/7.
+              </p>
+              <div className="absolute bottom-6 right-6">
+                <span className="px-3 py-1 bg-[#F4B626]/15 text-[#cd962b] border border-[#F4B626]/40 text-xs font-bold rounded-full">Possible</span>
+              </div>
+            </motion.div>
 
-            {/* Real Tool 3 */}
-            <div className="min-w-[300px] xl:min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 p-6 border-t-4 border-t-[#F4B626] snap-start flex-shrink-0 flex flex-col h-full">
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-12 h-12 rounded-lg bg-gray-50 flex items-center justify-center">
-                  <Clock className="w-6 h-6 text-gray-700" />
+            {/* Tool 3 */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 2 * 0.08, duration: 0.5 }}
+              whileHover={{ 
+                y: -8, 
+                scale: 1.03, 
+                boxShadow: '0 0 0 1px rgba(244,182,38,0.4), 0 20px 60px rgba(244,182,38,0.15)' 
+              }}
+              className="bg-[#111111] rounded-xl p-6 border border-white/5 flex flex-col h-full relative group transition-all duration-250 ease-out"
+            >
+              <div className="flex items-start justify-between mb-5">
+                <div className="w-12 h-12 rounded-full bg-[#F4B626]/15 flex items-center justify-center group-hover:bg-[#F4B626] transition-colors duration-250">
+                  <Clock className="w-6 h-6 text-[#F4B626] group-hover:text-white transition-colors duration-250" />
                 </div>
-                <span className="px-3 py-1 bg-[#111111] text-white text-xs font-bold rounded-full">Live</span>
               </div>
-              <h3 className="text-lg font-bold mb-2">Time Logger</h3>
-              <p className="text-sm text-gray-600 leading-relaxed mt-auto">10 seconds to log your day. Syncs live to SharePoint. No chasing, no spreadsheets.</p>
-            </div>
+              <h3 className="text-[18px] font-bold text-white mb-3">Time Logger</h3>
+              <p className="text-sm text-[#999] group-hover:text-[#ccc] leading-relaxed mt-auto transition-colors duration-250 mb-6">
+                Log your day in 10 seconds. Auto-syncs to timesheets. No end-of-week guessing.
+              </p>
+              <div className="absolute bottom-6 right-6">
+                <span className="px-3 py-1 bg-[#F4B626]/15 text-[#cd962b] border border-[#F4B626]/40 text-xs font-bold rounded-full">Possible</span>
+              </div>
+            </motion.div>
 
-            {/* Possible Tool 1 */}
-            <div className="min-w-[300px] xl:min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 p-6 border-t-4 border-t-gray-200 snap-start flex-shrink-0 flex flex-col h-full relative overflow-hidden group hover:border-t-[#F4B626] transition-colors">
-              <div className="flex items-start justify-between mb-4 relative z-10">
-                <div className="w-12 h-12 rounded-lg bg-gray-50 flex items-center justify-center group-hover:bg-gray-100 transition-colors">
-                  <FileText className="w-6 h-6 text-gray-400 group-hover:text-gray-700 transition-colors" />
+            {/* Tool 4 */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 3 * 0.08, duration: 0.5 }}
+              whileHover={{ 
+                y: -8, 
+                scale: 1.03, 
+                boxShadow: '0 0 0 1px rgba(244,182,38,0.4), 0 20px 60px rgba(244,182,38,0.15)' 
+              }}
+              className="bg-[#111111] rounded-xl p-6 border border-white/5 flex flex-col h-full relative group transition-all duration-250 ease-out"
+            >
+              <div className="flex items-start justify-between mb-5">
+                <div className="w-12 h-12 rounded-full bg-[#F4B626]/15 flex items-center justify-center group-hover:bg-[#F4B626] transition-colors duration-250">
+                  <FileText className="w-6 h-6 text-[#F4B626] group-hover:text-white transition-colors duration-250" />
                 </div>
-                <span className="px-3 py-1 bg-[#F4B626] text-black text-xs font-bold rounded-full">Planned</span>
               </div>
-              <h3 className="text-lg font-bold mb-2 relative z-10">Smart Report Builder</h3>
-              <p className="text-sm text-gray-600 leading-relaxed mt-auto relative z-10">Answer a few questions, get a formatted PDF report ready to send. No Word wrestling.</p>
-            </div>
+              <h3 className="text-[18px] font-bold text-white mb-3">Report Builder</h3>
+              <p className="text-sm text-[#999] group-hover:text-[#ccc] leading-relaxed mt-auto transition-colors duration-250 mb-6">
+                Answer a few questions, get a formatted PDF report ready to send. No more Word wrestling.
+              </p>
+              <div className="absolute bottom-6 right-6">
+                <span className="px-3 py-1 bg-[#F4B626]/15 text-[#cd962b] border border-[#F4B626]/40 text-xs font-bold rounded-full">Possible</span>
+              </div>
+            </motion.div>
 
-            {/* Possible Tool 2 */}
-            <div className="min-w-[300px] xl:min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 p-6 border-t-4 border-t-gray-200 snap-start flex-shrink-0 flex flex-col h-full relative overflow-hidden group hover:border-t-[#F4B626] transition-colors">
-              <div className="flex items-start justify-between mb-4 relative z-10">
-                <div className="w-12 h-12 rounded-lg bg-gray-50 flex items-center justify-center group-hover:bg-gray-100 transition-colors">
-                  <Zap className="w-6 h-6 text-gray-400 group-hover:text-gray-700 transition-colors" />
+            {/* Tool 5 */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 4 * 0.08, duration: 0.5 }}
+              whileHover={{ 
+                y: -8, 
+                scale: 1.03, 
+                boxShadow: '0 0 0 1px rgba(244,182,38,0.4), 0 20px 60px rgba(244,182,38,0.15)' 
+              }}
+              className="bg-[#111111] rounded-xl p-6 border border-white/5 flex flex-col h-full relative group transition-all duration-250 ease-out"
+            >
+              <div className="flex items-start justify-between mb-5">
+                <div className="w-12 h-12 rounded-full bg-[#F4B626]/15 flex items-center justify-center group-hover:bg-[#F4B626] transition-colors duration-250">
+                  <MessageSquare className="w-6 h-6 text-[#F4B626] group-hover:text-white transition-colors duration-250" />
                 </div>
-                <span className="px-3 py-1 bg-[#F4B626] text-black text-xs font-bold rounded-full">Planned</span>
               </div>
-              <h3 className="text-lg font-bold mb-2 relative z-10">Quote Assistant</h3>
-              <p className="text-sm text-gray-600 leading-relaxed mt-auto relative z-10">Type a customer's need, get a draft quote pre-filled from your product catalogue.</p>
-            </div>
+              <h3 className="text-[18px] font-bold text-white mb-3">Quote Assistant</h3>
+              <p className="text-sm text-[#999] group-hover:text-[#ccc] leading-relaxed mt-auto transition-colors duration-250 mb-6">
+                Type a customer's need, get a pre-filled draft quote from the product catalogue. Done in minutes.
+              </p>
+              <div className="absolute bottom-6 right-6">
+                <span className="px-3 py-1 bg-[#F4B626]/15 text-[#cd962b] border border-[#F4B626]/40 text-xs font-bold rounded-full">Possible</span>
+              </div>
+            </motion.div>
 
-            {/* Possible Tool 3 */}
-            <div className="min-w-[300px] xl:min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 p-6 border-t-4 border-t-gray-200 snap-start flex-shrink-0 flex flex-col h-full relative overflow-hidden group hover:border-t-[#F4B626] transition-colors">
-              <div className="flex items-start justify-between mb-4 relative z-10">
-                <div className="w-12 h-12 rounded-lg bg-gray-50 flex items-center justify-center group-hover:bg-gray-100 transition-colors">
-                  <GraduationCap className="w-6 h-6 text-gray-400 group-hover:text-gray-700 transition-colors" />
+            {/* Tool 6 */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 5 * 0.08, duration: 0.5 }}
+              whileHover={{ 
+                y: -8, 
+                scale: 1.03, 
+                boxShadow: '0 0 0 1px rgba(244,182,38,0.4), 0 20px 60px rgba(244,182,38,0.15)' 
+              }}
+              className="bg-[#111111] rounded-xl p-6 border border-white/5 flex flex-col h-full relative group transition-all duration-250 ease-out"
+            >
+              <div className="flex items-start justify-between mb-5">
+                <div className="w-12 h-12 rounded-full bg-[#F4B626]/15 flex items-center justify-center group-hover:bg-[#F4B626] transition-colors duration-250">
+                  <GraduationCap className="w-6 h-6 text-[#F4B626] group-hover:text-white transition-colors duration-250" />
                 </div>
-                <span className="px-3 py-1 bg-[#F4B626] text-black text-xs font-bold rounded-full">Planned</span>
               </div>
-              <h3 className="text-lg font-bold mb-2 relative z-10">Training Tracker</h3>
-              <p className="text-sm text-gray-600 leading-relaxed mt-auto relative z-10">See who's completed what compliance training. Auto-reminders before expiry.</p>
-            </div>
+              <h3 className="text-[18px] font-bold text-white mb-3">Training Tracker</h3>
+              <p className="text-sm text-[#999] group-hover:text-[#ccc] leading-relaxed mt-auto transition-colors duration-250 mb-6">
+                See team compliance at a glance. Auto-reminders before expiry. Nothing falls through the cracks.
+              </p>
+              <div className="absolute bottom-6 right-6">
+                <span className="px-3 py-1 bg-[#F4B626]/15 text-[#cd962b] border border-[#F4B626]/40 text-xs font-bold rounded-full">Possible</span>
+              </div>
+            </motion.div>
             
           </div>
         </div>
