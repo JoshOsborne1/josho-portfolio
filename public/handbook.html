@@ -3,964 +3,811 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Guldmann Employee Handbook - UK Compliance Audit</title>
+<title>Guldmann UK Compliance Audit</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --red: #dc2626; --red-bg: #fef2f2; --red-border: #fecaca;
-    --amber: #d97706; --amber-bg: #fffbeb; --amber-border: #fde68a;
-    --green: #16a34a; --green-bg: #f0fdf4; --green-border: #bbf7d0;
-    --dark: #0f172a; --mid: #1e293b; --text: #334155; --muted: #64748b;
-    --light: #f8fafc; --border: #e2e8f0;
-  }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--light); color: var(--text); }
+:root {
+  --bg-light: #FFFFFF;
+  --bg-light-alt: #F7F8FA;
+  --text-primary: #111111;
+  --text-secondary: #555555;
+  --bg-dark: #111111;
+  --bg-dark-alt: #1A1A1A;
+  --card-on-dark: #1E1E1E;
+  --card-on-dark-2: #222222;
+  --text-on-dark: #F0F0F0;
+  --text-muted-dark: #888888;
+  --yellow: #F4B626;
+  --yellow-light: #F9C84A;
+  --yellow-dark: #D4960A;
+  --green: #16A34A;
+  --green-light: #4ADE80;
+  --red: #DC2626;
+  --red-light: #F87171;
+  --orange: #EA580C;
+  --orange-light: #FB923C;
+  --border-light: #E8EAED;
+  --border-dark: rgba(255,255,255,0.07);
+  --border-yellow: rgba(244,182,38,0.35);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Segoe UI','Helvetica Neue',Arial,sans-serif;color:var(--text-primary);background:var(--bg-light);line-height:1.7;overflow-x:hidden;font-size:17px}
+h1,h2,h3,h4{line-height:1.1;letter-spacing:-0.02em}
 
-  header {
-    background: var(--dark);
-    color: white;
-    padding: 32px 40px;
-    border-bottom: 4px solid #3b82f6;
-  }
-  header h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 6px; }
-  header .meta { color: #94a3b8; font-size: 0.85rem; display: flex; gap: 24px; flex-wrap: wrap; margin-top: 8px; }
-  header .meta span { display: flex; align-items: center; gap: 6px; }
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;height:60px;background:rgba(0,0,0,0.92);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;z-index:1000}
+.nav-brand{font-size:13px;letter-spacing:3px;font-weight:800;color:var(--yellow);text-transform:uppercase}
+.nav-right{display:flex;align-items:center;gap:1.5rem}
+.nav-tag{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#888;font-weight:600}
+.nav-badge{font-size:10px;padding:3px 10px;border-radius:20px;background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.4);color:var(--red-light);font-weight:700;letter-spacing:0.5px;text-transform:uppercase}
 
-  .dashboard {
-    background: var(--mid);
-    padding: 24px 40px;
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-    border-bottom: 1px solid #334155;
-  }
-  .stat {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 10px;
-    padding: 16px 24px;
-    text-align: center;
-    min-width: 130px;
-  }
-  .stat .num { font-size: 2rem; font-weight: 800; line-height: 1; }
-  .stat .label { color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
-  .stat.red .num { color: #f87171; }
-  .stat.amber .num { color: #fbbf24; }
-  .stat.green .num { color: #4ade80; }
-  .stat.blue .num { color: #60a5fa; }
+/* SECTIONS */
+section{padding:8rem 2rem;position:relative}
+.container{max-width:1160px;margin:0 auto;position:relative;z-index:2}
+.bg-light{background:var(--bg-light-alt)}
+.bg-dark{background:var(--bg-dark);color:var(--text-on-dark)}
+.bg-dark-2{background:var(--bg-dark-alt);color:var(--text-on-dark)}
 
-  .controls {
-    padding: 20px 40px;
-    background: white;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-  .search-box {
-    flex: 1;
-    min-width: 220px;
-    padding: 9px 14px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    font-size: 0.9rem;
-    outline: none;
-  }
-  .search-box:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
-  .filter-btn {
-    padding: 8px 16px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: white;
-    cursor: pointer;
-    font-size: 0.85rem;
-    font-weight: 500;
-    transition: all 0.15s;
-  }
-  .filter-btn:hover, .filter-btn.active { background: var(--dark); color: white; border-color: var(--dark); }
-  .filter-btn.red.active { background: var(--red); border-color: var(--red); color: white; }
-  .filter-btn.amber.active { background: var(--amber); border-color: var(--amber); color: white; }
-  .filter-btn.green.active { background: var(--green); border-color: var(--green); color: white; }
+/* TYPOGRAPHY */
+.label{font-size:0.8rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:1rem;display:block;color:var(--text-secondary)}
+.bg-dark .label,.bg-dark-2 .label{color:var(--text-muted-dark)}
+.section-rule{width:48px;height:3px;border-radius:2px;background:var(--yellow);margin-bottom:1.5rem}
+.section-rule.red{background:var(--red)}
+.heading-display{font-size:clamp(2.5rem,4vw,3.5rem);font-weight:700;margin-bottom:1rem}
+.heading-large{font-size:clamp(1.75rem,3vw,2.25rem);font-weight:700;margin-bottom:1.5rem}
+.subheading{font-size:1.15rem;color:var(--text-secondary);margin-bottom:3rem;max-width:760px;line-height:1.7}
+.bg-dark .subheading,.bg-dark-2 .subheading{color:var(--text-muted-dark)}
 
-  .main { max-width: 1200px; margin: 0 auto; padding: 32px 40px; }
+/* BADGES */
+.badge{display:inline-block;padding:0.375rem 1rem;border-radius:20px;border:1px solid var(--border-yellow);background:rgba(244,182,38,0.08);color:#111;font-size:0.8rem;font-weight:700;letter-spacing:0.3px}
+.bg-dark .badge,.bg-dark-2 .badge{color:var(--yellow)}
+.badge-red{border-color:rgba(220,38,38,0.4);background:rgba(220,38,38,0.08);color:var(--red)}
+.bg-dark .badge-red,.bg-dark-2 .badge-red{background:rgba(220,38,38,0.12);color:var(--red-light)}
+.badge-orange{border-color:rgba(234,88,12,0.4);background:rgba(234,88,12,0.08);color:var(--orange)}
+.bg-dark .badge-orange{background:rgba(234,88,12,0.12);color:var(--orange-light)}
+.badge-green{border-color:rgba(22,163,74,0.4);background:rgba(22,163,74,0.08);color:var(--green)}
+.bg-dark .badge-green{background:rgba(22,163,74,0.1);color:var(--green-light)}
 
-  .section-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-    gap: 16px;
-    margin-bottom: 40px;
-  }
+/* STAT CARDS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1.25rem;margin:3rem 0}
+.stat-card{background:var(--card-on-dark);border:1px solid var(--border-dark);border-radius:12px;padding:1.5rem 1.75rem;text-align:center;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--yellow)}
+.stat-card.red::before{background:var(--red)}
+.stat-card.orange::before{background:var(--orange)}
+.stat-card.green::before{background:var(--green)}
+.stat-card.yellow::before{background:var(--yellow)}
+.stat-num{font-size:2.25rem;font-weight:800;letter-spacing:-0.04em;line-height:1;color:#FFF}
+.stat-card.red .stat-num{color:var(--red-light)}
+.stat-card.orange .stat-num{color:var(--orange-light)}
+.stat-card.green .stat-num{color:var(--green-light)}
+.stat-label{font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted-dark);margin-top:0.5rem}
 
-  .card {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    transition: box-shadow 0.2s;
-  }
-  .card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-  .card.hidden { display: none; }
+/* CRITICAL LIST */
+.critical-list{list-style:none;display:flex;flex-direction:column;gap:0}
+.crit-item{display:flex;gap:1.25rem;align-items:flex-start;padding:1.25rem 0;border-bottom:1px solid rgba(220,38,38,0.15)}
+.crit-item:last-child{border-bottom:none}
+.crit-num{width:28px;height:28px;border-radius:50%;background:var(--red);color:#FFF;font-size:0.72rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.crit-content strong{color:var(--text-on-dark);font-weight:700;display:block;margin-bottom:0.25rem;font-size:0.95rem}
+.crit-content p{color:var(--text-muted-dark);font-size:0.875rem;line-height:1.6}
+.crit-content .law-tag{display:inline-block;font-size:0.72rem;font-weight:700;letter-spacing:0.3px;color:var(--red-light);background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.25);border-radius:4px;padding:1px 7px;margin-left:8px;vertical-align:middle}
 
-  .card-header {
-    padding: 14px 18px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    user-select: none;
-  }
-  .card.red .card-header { background: var(--red-bg); border-bottom: 2px solid var(--red-border); }
-  .card.amber .card-header { background: var(--amber-bg); border-bottom: 2px solid var(--amber-border); }
-  .card.green .card-header { background: var(--green-bg); border-bottom: 2px solid var(--green-border); }
+/* SECTION GRID */
+.compliance-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.25rem}
 
-  .status-pill {
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    padding: 3px 9px;
-    border-radius: 999px;
-    white-space: nowrap;
-  }
-  .red .status-pill { background: var(--red); color: white; }
-  .amber .status-pill { background: var(--amber); color: white; }
-  .green .status-pill { background: var(--green); color: white; }
+/* COMPLIANCE CARDS */
+.comp-card{background:#FFF;border:1px solid var(--border-light);border-radius:12px;overflow:hidden;transition:box-shadow 250ms ease,border-color 250ms ease}
+.comp-card:hover{box-shadow:0 8px 24px rgba(0,0,0,0.09),0 24px 48px rgba(0,0,0,0.05);border-color:rgba(244,182,38,0.35)}
+.comp-card.non-compliant:hover{border-color:rgba(220,38,38,0.35)}
+.comp-card.needs-amendment:hover{border-color:rgba(234,88,12,0.35)}
+.comp-card.compliant:hover{border-color:rgba(22,163,74,0.35)}
 
-  .card-header h3 { font-size: 0.9rem; font-weight: 600; flex: 1; line-height: 1.3; }
-  .chevron { color: var(--muted); font-size: 0.75rem; transition: transform 0.2s; }
-  .card.open .chevron { transform: rotate(90deg); }
+.card-top{height:3px;width:100%;background:var(--orange)}
+.comp-card.non-compliant .card-top{background:var(--red)}
+.comp-card.needs-amendment .card-top{background:var(--orange)}
+.comp-card.compliant .card-top{background:var(--green)}
 
-  .card-body { display: none; padding: 18px; border-top: 1px solid var(--border); }
-  .card.open .card-body { display: block; }
+.card-header{padding:1.1rem 1.25rem;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none;background:#FFF;transition:background 150ms}
+.card-header:hover{background:#FAFAFA}
+.comp-card.non-compliant .card-header{background:#FFF9F9}
+.comp-card.non-compliant .card-header:hover{background:#FFF2F2}
+.comp-card.compliant .card-header{background:#F9FFFB}
+.comp-card.compliant .card-header:hover{background:#F0FDF4}
 
-  .detail-row { margin-bottom: 14px; }
-  .detail-row:last-child { margin-bottom: 0; }
-  .detail-label {
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--muted);
-    margin-bottom: 4px;
-  }
-  .detail-text { font-size: 0.85rem; line-height: 1.6; }
-  .detail-text.issue { color: var(--red); font-weight: 500; }
-  .detail-text.amendment { color: #1d4ed8; }
-  .quote-text {
-    background: var(--light);
-    border-left: 3px solid var(--border);
-    padding: 8px 12px;
-    font-size: 0.82rem;
-    font-style: italic;
-    color: var(--muted);
-    border-radius: 0 6px 6px 0;
-    margin-top: 4px;
-  }
-  .source-link {
-    display: inline-block;
-    color: #2563eb;
-    text-decoration: none;
-    font-size: 0.8rem;
-    padding: 2px 0;
-  }
-  .source-link:hover { text-decoration: underline; }
+.card-header h3{font-size:0.88rem;font-weight:700;flex:1;line-height:1.3;color:var(--text-primary)}
+.chevron{color:#AAA;font-size:0.72rem;transition:transform 200ms;flex-shrink:0}
+.comp-card.open .chevron{transform:rotate(90deg)}
 
-  .critical-section {
-    background: white;
-    border: 2px solid var(--red-border);
-    border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 32px;
-  }
-  .critical-section h2 {
-    color: var(--red);
-    font-size: 1.1rem;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .critical-list { list-style: none; }
-  .critical-list li {
-    padding: 10px 0;
-    border-bottom: 1px solid var(--red-border);
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    font-size: 0.88rem;
-    line-height: 1.5;
-  }
-  .critical-list li:last-child { border-bottom: none; }
-  .crit-num {
-    background: var(--red);
-    color: white;
-    font-size: 0.7rem;
-    font-weight: 700;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
+.card-body{display:none;padding:1.25rem;border-top:1px solid var(--border-light);background:#FAFAFA}
+.comp-card.open .card-body{display:block}
 
-  .section-title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--dark);
-    margin-bottom: 16px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid var(--border);
-  }
+.detail-block{margin-bottom:1rem}
+.detail-block:last-child{margin-bottom:0}
+.detail-label{font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.8px;color:#AAA;margin-bottom:0.3rem}
+.detail-text{font-size:0.85rem;line-height:1.65;color:var(--text-primary)}
+.detail-issue{color:var(--red);font-weight:500;font-size:0.85rem;line-height:1.65}
+.detail-amendment{color:#1D4ED8;font-weight:500;font-size:0.85rem;line-height:1.65}
+.quote-block{background:#FFF;border-left:3px solid var(--border-light);border-radius:0 6px 6px 0;padding:8px 12px;font-style:italic;font-size:0.82rem;color:#888;margin-top:4px}
+.comp-card.non-compliant .quote-block{border-left-color:rgba(220,38,38,0.3)}
+.comp-card.needs-amendment .quote-block{border-left-color:rgba(234,88,12,0.3)}
+.source-links{display:flex;flex-direction:column;gap:2px}
+.source-link{color:#2563EB;text-decoration:none;font-size:0.8rem;display:inline-block}
+.source-link:hover{text-decoration:underline}
 
-  .disclaimer {
-    background: var(--mid);
-    color: #94a3b8;
-    text-align: center;
-    padding: 20px;
-    font-size: 0.8rem;
-    margin-top: 40px;
-    border-radius: 8px;
-  }
+/* FILTER BAR */
+.filter-bar{background:#FFF;border-bottom:1px solid var(--border-light);padding:16px 2rem;display:flex;gap:10px;align-items:center;flex-wrap:wrap;position:sticky;top:60px;z-index:999;box-shadow:0 2px 12px rgba(0,0,0,0.05)}
+.search-input{flex:1;min-width:200px;padding:9px 14px;border:1px solid var(--border-light);border-radius:8px;font-size:0.88rem;outline:none;color:var(--text-primary);transition:border-color 150ms}
+.search-input:focus{border-color:var(--yellow);box-shadow:0 0 0 3px rgba(244,182,38,0.12)}
+.filter-btn{padding:7px 16px;border-radius:8px;border:1px solid var(--border-light);background:#FFF;cursor:pointer;font-size:0.8rem;font-weight:700;letter-spacing:0.3px;transition:all 150ms;color:var(--text-secondary)}
+.filter-btn:hover{border-color:#DDD;background:#F7F8FA}
+.filter-btn.active{background:var(--text-primary);color:#FFF;border-color:var(--text-primary)}
+.filter-btn.f-red.active{background:var(--red);border-color:var(--red);color:#FFF}
+.filter-btn.f-orange.active{background:var(--orange);border-color:var(--orange);color:#FFF}
+.filter-btn.f-green.active{background:var(--green);border-color:var(--green);color:#FFF}
+.result-count{margin-left:auto;font-size:0.78rem;color:#AAA;font-weight:600;white-space:nowrap}
 
-  @media(max-width: 600px) {
-    header, .dashboard, .controls, .main { padding-left: 16px; padding-right: 16px; }
-    .section-grid { grid-template-columns: 1fr; }
-  }
+/* SUMMARY TABLE */
+.summary-table{width:100%;border-collapse:collapse;font-size:0.875rem}
+.summary-table th{text-align:left;padding:10px 14px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted-dark);border-bottom:1px solid rgba(255,255,255,0.08)}
+.summary-table td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.05);vertical-align:top;line-height:1.5}
+.summary-table tr:last-child td{border-bottom:none}
+.summary-table td:first-child{color:var(--text-on-dark);font-weight:600;font-size:0.85rem}
+.summary-table td:nth-child(2){color:var(--text-muted-dark);font-size:0.83rem}
+.summary-table tr:hover td{background:rgba(255,255,255,0.02)}
+.pri-critical{color:var(--red-light);font-weight:700;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px}
+.pri-high{color:var(--orange-light);font-weight:700;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px}
+.pri-medium{color:var(--yellow);font-weight:700;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px}
+.pri-low{color:var(--text-muted-dark);font-weight:700;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px}
+
+/* HERO ACCENT */
+.hero-chip{display:inline-flex;align-items:center;gap:6px;padding:0.35rem 1rem;border-radius:20px;border:1px solid rgba(244,182,38,0.3);background:rgba(244,182,38,0.06);color:var(--yellow);font-size:0.78rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:1.5rem}
+.dot-pulse{width:6px;height:6px;border-radius:50%;background:var(--yellow);animation:dot-pulse 2s infinite}
+@keyframes dot-pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* DISCLAIMER */
+.disclaimer{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:1.25rem 1.5rem;color:var(--text-muted-dark);font-size:0.8rem;line-height:1.7;margin-top:4rem}
+.disclaimer strong{color:#999}
+
+/* GRID HELPERS */
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem}
+@media(max-width:768px){
+  section{padding:4rem 1.25rem}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .compliance-grid{grid-template-columns:1fr}
+  .filter-bar{gap:8px}
+  .summary-table{font-size:0.78rem}
+}
+
+/* HIDDEN */
+.hidden{display:none!important}
+
+/* ANIMATIONS */
+.animate-up{opacity:1;transform:none}
+.js-loaded .animate-up{opacity:0;transform:translateY(20px);transition:opacity 550ms cubic-bezier(0.22,1,0.36,1),transform 550ms cubic-bezier(0.22,1,0.36,1)}
+.js-loaded .animate-up.is-visible{opacity:1;transform:translateY(0)}
+.js-loaded .animate-up.delay-1{transition-delay:80ms}
+.js-loaded .animate-up.delay-2{transition-delay:160ms}
+.js-loaded .animate-up.delay-3{transition-delay:240ms}
+.js-loaded .animate-up.delay-4{transition-delay:320ms}
+
+/* SECTION WAVE */
+.wave-bottom{position:absolute;bottom:-1px;left:0;width:100%;overflow:hidden;line-height:0;z-index:3}
+.wave-bottom svg{display:block;width:100%;height:48px}
+
+/* FOOTER NAV DOTS */
+.section-nav{display:flex;justify-content:center;gap:8px;padding:2rem 0 0}
+.snav-dot{width:8px;height:8px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.3);cursor:pointer;transition:all 200ms}
+.snav-dot.active,.snav-dot:hover{background:var(--yellow);border-color:var(--yellow)}
 </style>
 </head>
 <body>
 
-<header>
-  <h1>Guldmann Employee Handbook - UK Compliance Audit</h1>
-  <div class="meta">
-    <span>Audited: 2 March 2026</span>
-    <span>Auditor: Atlas AI Research / Rox Orchestrator</span>
-    <span>Document: Guldmann Employee Handbook (EN translation from DK/NO)</span>
-    <span>Jurisdiction: England and Wales, UK Employment Law</span>
+<nav>
+  <div class="nav-brand">Guldmann</div>
+  <div class="nav-right">
+    <span class="nav-tag">UK Compliance Audit</span>
+    <span class="nav-badge">Action Required</span>
   </div>
-</header>
+</nav>
 
-<div class="dashboard">
-  <div class="stat blue"><div class="num">24</div><div class="label">Sections Reviewed</div></div>
-  <div class="stat red"><div class="num">6</div><div class="label">Non-Compliant</div></div>
-  <div class="stat amber"><div class="num">11</div><div class="label">Needs Amendment</div></div>
-  <div class="stat green"><div class="num">5</div><div class="label">Broadly Compliant</div></div>
-  <div class="stat red"><div class="num">10</div><div class="label">Critical Issues</div></div>
-  <div class="stat amber"><div class="num">12+</div><div class="label">Unfilled Placeholders</div></div>
-</div>
+<!-- HERO -->
+<section class="bg-dark" style="padding-top:9rem;padding-bottom:6rem" id="hero">
+  <div class="container">
+    <div class="animate-up">
+      <div class="hero-chip"><span class="dot-pulse"></span> Confidential - Internal Use Only</div>
+    </div>
+    <div class="animate-up delay-1">
+      <div class="section-rule"></div>
+      <h1 class="heading-display" style="max-width:800px">Employee Handbook<br><span style="color:var(--yellow)">UK Compliance Audit</span></h1>
+    </div>
+    <div class="animate-up delay-2">
+      <p class="subheading" style="margin-top:1.25rem">The Guldmann Employee Handbook was written for the Danish and Norwegian market. It has been partially translated but not localised for UK employment law. This audit maps every section against current UK legislation and identifies what must change before this handbook can be used with UK employees.</p>
+    </div>
+    <div class="stats-row animate-up delay-3">
+      <div class="stat-card yellow">
+        <div class="stat-num">24</div>
+        <div class="stat-label">Sections Reviewed</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-num">6</div>
+        <div class="stat-label">Non-Compliant</div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-num">11</div>
+        <div class="stat-label">Needs Amendment</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-num">5</div>
+        <div class="stat-label">Broadly Compliant</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-num">10</div>
+        <div class="stat-label">Critical Issues</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-num">12+</div>
+        <div class="stat-label">Unfilled Placeholders</div>
+      </div>
+    </div>
+    <div class="animate-up delay-4" style="margin-top:1rem">
+      <span class="badge badge-red">Audited: 2 March 2026</span>
+      <span class="badge" style="margin-left:8px">Atlas AI Research / Rox Orchestrator</span>
+    </div>
+  </div>
+  <div class="wave-bottom"><svg viewBox="0 0 1200 48" preserveAspectRatio="none"><path d="M0,48 L0,24 Q300,0 600,24 Q900,48 1200,24 L1200,48 Z" fill="#F7F8FA"/></svg></div>
+</section>
 
-<div class="controls">
-  <input type="text" class="search-box" id="searchBox" placeholder="Search sections, issues, legislation..." oninput="filterCards()">
-  <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
-  <button class="filter-btn red" onclick="setFilter('red', this)">Non-Compliant</button>
-  <button class="filter-btn amber" onclick="setFilter('amber', this)">Needs Amendment</button>
-  <button class="filter-btn green" onclick="setFilter('green', this)">Compliant</button>
-</div>
-
-<div class="main">
-
-  <div class="critical-section">
-    <h2>&#9888; Critical Issues - Must Fix Before UK Use</h2>
-    <ul class="critical-list">
-      <li><div class="crit-num">1</div><div><strong>Salary deduction for driving fines</strong> - Handbook statement alone is insufficient. The Employment Rights Act 1996 s.13 requires a specific contractual provision or prior written employee consent for any wage deduction. Current wording creates unlawful deduction risk.</div></li>
-      <li><div class="crit-num">2</div><div><strong>Holiday entitlement</strong> - References the EU Holiday Act and Danish vacation year (1 Sept - 31 Aug). UK entitlement is 28 days under the Working Time Regulations 1998. EU Holiday Act no longer applies post-Brexit.</div></li>
-      <li><div class="crit-num">3</div><div><strong>Sickness during holiday qualifying period</strong> - 5-day qualifying period before reclaiming holiday is Danish law only. UK employees can reclaim annual leave from day 1 of sickness under WTR 1998 and UK case law (Stringer v HMRC).</div></li>
-      <li><div class="crit-num">4</div><div><strong>Maternity and parental leave - entirely absent for UK</strong> - Section contains only Danish-language leave tables. UK entitlement: 52 weeks maternity leave, 39 weeks SMP, paternity leave, Shared Parental Leave. Completely missing.</div></li>
-      <li><div class="crit-num">5</div><div><strong>Statutory Sick Pay not mentioned</strong> - The Danish municipal sickness benefit system is described instead. UK employees are entitled to SSP (GBP 116.75/week). From April 2026, SSP is payable from day 1 under the Employment Rights Act 2025.</div></li>
-      <li><div class="crit-num">6</div><div><strong>Parental Bereavement Leave entirely absent</strong> - Parental Bereavement (Leave and Pay) Act 2018 not referenced. On loss of a child under 18, employees have a statutory right to 2 weeks leave and SPBP (GBP 187.18/week). One Guldmann Day Off does not comply.</div></li>
-      <li><div class="crit-num">7</div><div><strong>Flexible working statutory right missing</strong> - Since 6 April 2024, all employees have a day 1 right to request flexible working under the Employment Relations (Flexible Working) Act 2023. Handbook presents it as purely discretionary.</div></li>
-      <li><div class="crit-num">8</div><div><strong>Pension auto-enrolment not described</strong> - Entire pension section is placeholder text. Pensions Act 2008 requires auto-enrolment of eligible employees (aged 22-66, earning over GBP 10,000/year). Minimum employer contribution 3%.</div></li>
-      <li><div class="crit-num">9</div><div><strong>Dependant care leave section is Danish placeholder</strong> - Employment Rights Act 1996 s.57A right to time off for dependants (unpaid, reasonable amount) not described at all.</div></li>
-      <li><div class="crit-num">10</div><div><strong>Danish language text throughout</strong> - Multiple sections contain untranslated Danish (sick leave, company car, parental leave tables). These sections are legally meaningless to UK employees and cannot form part of a valid UK employment policy.</div></li>
+<!-- CRITICAL ISSUES -->
+<section class="bg-light" id="critical" style="padding-top:6rem">
+  <div class="container">
+    <div class="animate-up">
+      <span class="label" style="color:var(--red)">Must Fix Before UK Use</span>
+      <div class="section-rule red"></div>
+      <h2 class="heading-large" style="color:var(--red)">10 Critical Issues</h2>
+      <p class="subheading" style="color:var(--text-secondary)">These sections create genuine legal risk for Guldmann and must be resolved before this handbook is distributed to UK employees.</p>
+    </div>
+    <ul class="critical-list animate-up delay-1" style="background:var(--bg-dark);border-radius:14px;padding:0.5rem 1.75rem;border:1px solid rgba(220,38,38,0.15)">
+      <li class="crit-item">
+        <div class="crit-num">1</div>
+        <div class="crit-content">
+          <strong>Salary deduction for driving fines <span class="law-tag">ERA 1996 s.13</span></strong>
+          <p>The handbook states Guldmann "may deduct from your salary" for speeding fines. A handbook statement alone is insufficient - the Employment Rights Act 1996 s.13 requires a specific contractual provision or the employee's prior written consent. Current wording creates an unlawful deduction risk.</p>
+        </div>
+      </li>
+      <li class="crit-item">
+        <div class="crit-num">2</div>
+        <div class="crit-content">
+          <strong>Holiday entitlement references EU / Danish law <span class="law-tag">WTR 1998</span></strong>
+          <p>The handbook cites the EU Holiday Act and the Danish vacation year (1 September - 31 August). The EU Holiday Act no longer applies in the UK post-Brexit. UK employees are entitled to 28 days under the Working Time Regulations 1998 - not 20 as implied.</p>
+        </div>
+      </li>
+      <li class="crit-item">
+        <div class="crit-num">3</div>
+        <div class="crit-content">
+          <strong>5-day qualifying period for sickness during holiday <span class="law-tag">WTR 1998</span></strong>
+          <p>The 5-day qualifying period before reclaiming annual leave for sickness is Danish law and does not exist in the UK. UK employees can reclaim from day 1 of sickness under the Working Time Regulations 1998 (Stringer v HMRC [2009]). This clause may unlawfully deny statutory rights.</p>
+        </div>
+      </li>
+      <li class="crit-item">
+        <div class="crit-num">4</div>
+        <div class="crit-content">
+          <strong>Maternity and parental leave - entirely absent for UK <span class="law-tag">MPLR 1999</span></strong>
+          <p>The maternity / parental leave section contains only Danish-language leave tables in Danish. There is no UK content at all. UK entitlements (52 weeks maternity leave, SMP rates, paternity leave, Shared Parental Leave) are completely missing.</p>
+        </div>
+      </li>
+      <li class="crit-item">
+        <div class="crit-num">5</div>
+        <div class="crit-content">
+          <strong>Statutory Sick Pay not mentioned <span class="law-tag">SSP / ERA 2025</span></strong>
+          <p>The Danish municipal sickness benefit system is described as if it applies to UK employees. It does not. UK employees are entitled to Statutory Sick Pay (GBP 116.75/week). From April 2026, SSP is payable from day 1 under the Employment Rights Act 2025.</p>
+        </div>
+      </li>
+      <li class="crit-item">
+        <div class="crit-num">6</div>
+        <div class="crit-content">
+          <strong>Parental Bereavement Leave entirely absent <span class="law-tag">PBLA 2018</span></strong>
+          <p>The Parental Bereavement (Leave and Pay) Act 2018 is not referenced anywhere. On the loss of a child under 18, employees have a statutory right to 2 weeks leave from day 1 of employment plus SPBP at GBP 187.18/week. One Guldmann Day Off does not satisfy this Act.</p>
+        </div>
+      </li>
+      <li class="crit-item">
+        <div class="crit-num">7</div>
+        <div class="crit-content">
+          <strong>Flexible working statutory right missing <span class="law-tag">ERFW Act 2023</span></strong>
+          <p>Since 6 April 2024, all employees have a day 1 statutory right to request flexible working under the Employment Relations (Flexible Working) Act 2023. The handbook presents flexible working as entirely at managerial discretion with no mention of this right.</p>
+        </div>
+      </li>
+      <li class="crit-item">
+        <div class="crit-num">8</div>
+        <div class="crit-content">
+          <strong>Pension auto-enrolment not described <span class="law-tag">Pensions Act 2008</span></strong>
+          <p>The entire pension section is placeholder text ("pension scheme xx... insert link"). The Pensions Act 2008 requires auto-enrolment of eligible employees (aged 22-66, earning over GBP 10,000/year) with a minimum 3% employer contribution. None of this is described.</p>
+        </div>
+      </li>
+      <li class="crit-item">
+        <div class="crit-num">9</div>
+        <div class="crit-content">
+          <strong>Dependant care leave is a Danish placeholder <span class="law-tag">ERA 1996 s.57A</span></strong>
+          <p>The child/dependant care leave section lists Danish entitlements (2 care days per year for children under 14) and is marked "[insert rules for UK]". The Employment Rights Act 1996 s.57A right to time off for dependants is completely absent.</p>
+        </div>
+      </li>
+      <li class="crit-item">
+        <div class="crit-num">10</div>
+        <div class="crit-content">
+          <strong>Untranslated Danish language text throughout</strong>
+          <p>Multiple sections contain untranslated Danish: sick leave ("Alt sygefravaer registreres"), company car section ("De samme regler gaelder i udlandet"), and the entire parental leave table (Mor, Graviditetsorlov, Barselsorlov, Faedreorlov, uger). These sections are legally meaningless to UK employees.</p>
+        </div>
+      </li>
     </ul>
   </div>
+</section>
 
-  <div class="section-title">All Sections</div>
-  <div class="section-grid" id="cardGrid">
+<!-- FILTER + SECTION CARDS -->
+<div class="filter-bar" id="filterBar">
+  <input type="text" class="search-input" id="searchBox" placeholder="Search sections, legislation, issues..." oninput="filterCards()">
+  <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+  <button class="filter-btn f-red" onclick="setFilter('non-compliant',this)">Non-Compliant</button>
+  <button class="filter-btn f-orange" onclick="setFilter('needs-amendment',this)">Needs Amendment</button>
+  <button class="filter-btn f-green" onclick="setFilter('compliant',this)">Compliant</button>
+  <span class="result-count" id="resultCount">24 sections</span>
+</div>
 
-    <!-- CARD: VALUES -->
-    <div class="card green" data-text="values introduction culture fact">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Compliant</span>
-        <h3>Values and Introduction</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Summary</div>
-          <div class="detail-text">FACT values (Flexibility, Ambition, Competence, Trustworthiness) and general culture statements. No legal compliance risk.</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Required Amendment</div>
-          <div class="detail-text">None.</div>
-        </div>
-      </div>
-    </div>
+<!-- SECTIONS GRID -->
+<section style="padding-top:3rem;padding-bottom:5rem;background:var(--bg-light-alt)" id="sections">
+  <div class="container">
+    <div class="compliance-grid" id="cardGrid">
 
-    <!-- CARD: CODE OF CONDUCT -->
-    <div class="card amber" data-text="code of conduct bribery equality human rights">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Needs Amendment</span>
-        <h3>Code of Conduct</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Issues</div>
-          <div class="detail-text issue">No reference to Bribery Act 2010, Modern Slavery Act 2015, or Equality Act 2010.</div>
+      <!-- 1. VALUES -->
+      <div class="comp-card compliant" data-status="compliant" data-text="values introduction culture fact flexibility ambition competence trustworthiness">
+        <div class="card-top"></div>
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="badge badge-green" style="font-size:0.68rem;padding:2px 8px">Compliant</span>
+          <h3>Values and Introduction</h3>
+          <span class="chevron">&#9654;</span>
         </div>
-        <div class="detail-row">
-          <div class="detail-label">Required Amendment</div>
-          <div class="detail-text amendment">Add references to: Bribery Act 2010 (anti-corruption), Modern Slavery Act 2015 (supply chain transparency if turnover over GBP 36m), Equality Act 2010 (anti-discrimination).</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Sources</div>
-          <div class="detail-text">
-            <a class="source-link" href="https://www.legislation.gov.uk/ukpga/2010/23/contents" target="_blank">Bribery Act 2010</a><br>
-            <a class="source-link" href="https://www.legislation.gov.uk/ukpga/2015/30/contents" target="_blank">Modern Slavery Act 2015</a><br>
-            <a class="source-link" href="https://www.legislation.gov.uk/ukpga/2010/15/contents" target="_blank">Equality Act 2010</a>
-          </div>
+        <div class="card-body">
+          <div class="detail-block"><div class="detail-label">Assessment</div><div class="detail-text">FACT values (Flexibility, Ambition, Competence, Trustworthiness) and general culture statements. No legal compliance risk. Appropriate and unobjectionable for UK context.</div></div>
+          <div class="detail-block"><div class="detail-label">Required Amendment</div><div class="detail-text">None.</div></div>
         </div>
       </div>
-    </div>
 
-    <!-- CARD: IT SECURITY -->
-    <div class="card amber" data-text="IT security policy data cyber">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Needs Amendment</span>
-        <h3>IT and Security Policy</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Issues</div>
-          <div class="detail-text issue">Policy content not included or linked. No specific reference to UK GDPR obligations for data security.</div>
+      <!-- 2. CODE OF CONDUCT -->
+      <div class="comp-card needs-amendment" data-status="needs-amendment" data-text="code of conduct bribery equality modern slavery human rights anti-corruption">
+        <div class="card-top"></div>
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="badge badge-orange" style="font-size:0.68rem;padding:2px 8px">Needs Amendment</span>
+          <h3>Code of Conduct</h3>
+          <span class="chevron">&#9654;</span>
         </div>
-        <div class="detail-row">
-          <div class="detail-label">Required Amendment</div>
-          <div class="detail-text amendment">Insert working link to full IT security policy. Add reference to Data Protection Act 2018 and UK GDPR (ICO enforcement). Replace all "[insert link]" placeholders.</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Sources</div>
-          <div class="detail-text">
-            <a class="source-link" href="https://ico.org.uk/for-organisations/guide-to-data-protection/" target="_blank">ICO Data Protection Guide</a>
-          </div>
+        <div class="card-body">
+          <div class="detail-block"><div class="detail-label">Issue</div><div class="detail-issue">No reference to Bribery Act 2010, Modern Slavery Act 2015, or Equality Act 2010.</div></div>
+          <div class="detail-block"><div class="detail-label">Required Amendment</div><div class="detail-amendment">Add references to: Bribery Act 2010 (anti-corruption, UK equivalent of anti-corruption policy), Modern Slavery Act 2015 (supply chain transparency - required if turnover exceeds GBP 36m), Equality Act 2010 (anti-discrimination).</div></div>
+          <div class="detail-block"><div class="detail-label">Legislation</div><div class="source-links"><a class="source-link" href="https://www.legislation.gov.uk/ukpga/2010/23/contents" target="_blank">Bribery Act 2010</a><a class="source-link" href="https://www.legislation.gov.uk/ukpga/2015/30/contents" target="_blank">Modern Slavery Act 2015</a><a class="source-link" href="https://www.legislation.gov.uk/ukpga/2010/15/contents" target="_blank">Equality Act 2010</a></div></div>
         </div>
       </div>
-    </div>
 
-    <!-- CARD: GDPR -->
-    <div class="card amber" data-text="GDPR data protection personal data ICO privacy">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Needs Amendment</span>
-        <h3>Personal Data Protection (GDPR)</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Current Text</div>
-          <div class="quote-text">"We handle personal data responsibly and in accordance with the law, including GDPR."</div>
+      <!-- 3. IT SECURITY -->
+      <div class="comp-card needs-amendment" data-status="needs-amendment" data-text="IT security policy cyber data breach link placeholder">
+        <div class="card-top"></div>
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="badge badge-orange" style="font-size:0.68rem;padding:2px 8px">Needs Amendment</span>
+          <h3>IT and Security Policy</h3>
+          <span class="chevron">&#9654;</span>
         </div>
-        <div class="detail-row">
-          <div class="detail-label">Issues</div>
-          <div class="detail-text issue">References EU GDPR not UK GDPR. UK GDPR is separate post-Brexit law. Privacy notice placeholder never completed for UK. No ICO reference. No employee data subject rights listed.</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Required Amendment</div>
-          <div class="detail-text amendment">Change all "GDPR" to "UK GDPR / Data Protection Act 2018". Insert actual UK employee privacy notice. State ICO as supervisory authority. List employee rights: Subject Access Request (1 month), right to rectification, right to erasure. Add 72-hour breach reporting obligation.</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Sources</div>
-          <div class="detail-text">
-            <a class="source-link" href="https://www.legislation.gov.uk/ukpga/2018/12/contents" target="_blank">Data Protection Act 2018</a><br>
-            <a class="source-link" href="https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/" target="_blank">ICO UK GDPR Guidance</a>
-          </div>
+        <div class="card-body">
+          <div class="detail-block"><div class="detail-label">Issue</div><div class="detail-issue">Policy content not included or linked (placeholder). No explicit reference to UK GDPR obligations for data security.</div></div>
+          <div class="detail-block"><div class="detail-label">Required Amendment</div><div class="detail-amendment">Insert working link to full IT security policy. Add reference to Data Protection Act 2018 and UK GDPR, enforced by the ICO. Replace all "[insert link]" placeholders.</div></div>
+          <div class="detail-block"><div class="detail-label">Legislation</div><div class="source-links"><a class="source-link" href="https://ico.org.uk/for-organisations/guide-to-data-protection/" target="_blank">ICO Data Protection Guide</a></div></div>
         </div>
       </div>
-    </div>
 
-    <!-- CARD: SPECIAL OCCASIONS -->
-    <div class="card red" data-text="anniversary gifts DKK birthday retirement apprenticeship">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Non-Compliant</span>
-        <h3>Special Occasions / Anniversary Gifts</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Current Text</div>
-          <div class="quote-text">Gifts of 700 DKK (10-year anniversary), 500 DKK (retirement/apprenticeship completion). 25-year: one month's salary.</div>
+      <!-- 4. GDPR -->
+      <div class="comp-card needs-amendment" data-status="needs-amendment" data-text="GDPR data protection UK GDPR ICO privacy personal data breach rights">
+        <div class="card-top"></div>
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="badge badge-orange" style="font-size:0.68rem;padding:2px 8px">Needs Amendment</span>
+          <h3>Personal Data Protection (GDPR)</h3>
+          <span class="chevron">&#9654;</span>
         </div>
-        <div class="detail-row">
-          <div class="detail-label">Issues</div>
-          <div class="detail-text issue">All monetary amounts in DKK - inapplicable to UK employees. One month's salary paid as cash = taxable earnings via PAYE. Gift amounts must comply with HMRC long-service award exemption (max GBP 50 per year of service, non-cash, 20+ years).</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Required Amendment</div>
-          <div class="detail-text amendment">Convert all DKK amounts to GBP. Cash/salary payments must be processed via payroll (PAYE applies). Non-cash gifts: review against HMRC long-service award exemption and trivial benefits exemption (under GBP 50, not cash, not contractual).</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Sources</div>
-          <div class="detail-text">
-            <a class="source-link" href="https://www.gov.uk/guidance/long-service-awards-490-chapter-5" target="_blank">HMRC Long Service Awards</a><br>
-            <a class="source-link" href="https://www.gov.uk/expenses-and-benefits/trivial-benefits" target="_blank">HMRC Trivial Benefits</a>
-          </div>
+        <div class="card-body">
+          <div class="detail-block"><div class="detail-label">Current Text</div><div class="quote-block">"We handle personal data responsibly and in accordance with the law, including GDPR."</div></div>
+          <div class="detail-block"><div class="detail-label">Issue</div><div class="detail-issue">References EU GDPR, not UK GDPR. Post-Brexit, the UK GDPR (Data Protection Act 2018) is the applicable law. The privacy notice placeholder was never completed for UK employees. No ICO reference. No employee data subject rights listed.</div></div>
+          <div class="detail-block"><div class="detail-label">Required Amendment</div><div class="detail-amendment">Change all "GDPR" references to "UK GDPR / Data Protection Act 2018". Insert actual UK employee privacy notice. State ICO as supervisory authority. List employee rights (Subject Access Request, right to erasure, right to rectification). Add 72-hour breach reporting obligation.</div></div>
+          <div class="detail-block"><div class="detail-label">Legislation</div><div class="source-links"><a class="source-link" href="https://www.legislation.gov.uk/ukpga/2018/12/contents" target="_blank">Data Protection Act 2018</a><a class="source-link" href="https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/" target="_blank">ICO UK GDPR Guidance</a></div></div>
         </div>
       </div>
-    </div>
 
-    <!-- CARD: TIME REGISTRATION -->
-    <div class="card amber" data-text="time registration absence azets cozone statistics denmark">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Needs Amendment</span>
-        <h3>Time Registration / Absence Reporting</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Issues</div>
-          <div class="detail-text issue">References Azets Cozone (Danish HR system). References "Statistic Denmark" reporting - has no UK equivalent. Danish municipal administrative structure referenced.</div>
+      <!-- 5. SPECIAL OCCASIONS -->
+      <div class="comp-card non-compliant" data-status="non-compliant" data-text="anniversary gifts DKK birthday retirement apprenticeship HMRC taxable">
+        <div class="card-top"></div>
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="badge badge-red" style="font-size:0.68rem;padding:2px 8px">Non-Compliant</span>
+          <h3>Special Occasions / Anniversary Gifts</h3>
+          <span class="chevron">&#9654;</span>
         </div>
-        <div class="detail-row">
-          <div class="detail-label">Required Amendment</div>
-          <div class="detail-text amendment">Replace Azets Cozone with the UK HR system in use. Remove all Statistic Denmark references. Add reference to Working Time Regulations 1998 reg.9 record-keeping obligation.</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Sources</div>
-          <div class="detail-text"><a class="source-link" href="https://www.legislation.gov.uk/uksi/1998/1833/contents" target="_blank">Working Time Regulations 1998</a></div>
+        <div class="card-body">
+          <div class="detail-block"><div class="detail-label">Current Text</div><div class="quote-block">Gifts of 700 DKK (10-year), 500 DKK (retirement/apprenticeship). 25-year: one month's salary.</div></div>
+          <div class="detail-block"><div class="detail-label">Issue</div><div class="detail-issue">All monetary amounts in DKK - inapplicable to UK employees. "One month's salary" as a cash payment is taxable earnings and must be processed through PAYE. Non-cash gifts must comply with HMRC long-service award exemption (max GBP 50 per year of service, non-cash, 20+ years service).</div></div>
+          <div class="detail-block"><div class="detail-label">Required Amendment</div><div class="detail-amendment">Convert all DKK to GBP. Process cash/salary payments via payroll (PAYE applies). Non-cash gifts: review against HMRC long-service award exemption and trivial benefits exemption (under GBP 50, not cash, not contractual).</div></div>
+          <div class="detail-block"><div class="detail-label">Legislation</div><div class="source-links"><a class="source-link" href="https://www.gov.uk/guidance/long-service-awards-490-chapter-5" target="_blank">HMRC Long Service Awards</a><a class="source-link" href="https://www.gov.uk/expenses-and-benefits/trivial-benefits" target="_blank">HMRC Trivial Benefits</a></div></div>
         </div>
       </div>
-    </div>
 
-    <!-- CARD: REMOTE WORK -->
-    <div class="card amber" data-text="remote work flexible working home DSE">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Needs Amendment</span>
-        <h3>Remote Working / Flexible Working</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Issues</div>
-          <div class="detail-text issue">Statutory right to request flexible working (day 1 right from 6 April 2024) not mentioned. No DSE workstation assessment obligation for home workers. Azets Cozone reference.</div>
+      <!-- 6. TIME REGISTRATION -->
+      <div class="comp-card needs-amendment" data-status="needs-amendment" data-text="time registration absence azets cozone statistics denmark record keeping">
+        <div class="card-top"></div>
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="badge badge-orange" style="font-size:0.68rem;padding:2px 8px">Needs Amendment</span>
+          <h3>Time Registration / Absence Reporting</h3>
+          <span class="chevron">&#9654;</span>
         </div>
-        <div class="detail-row">
-          <div class="detail-label">Required Amendment</div>
-          <div class="detail-text amendment">Add: statutory day 1 flexible working request right under Employment Relations (Flexible Working) Act 2023. Add: DSE assessment entitlement for regular home workers. Replace Azets Cozone with UK system.</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Sources</div>
-          <div class="detail-text">
-            <a class="source-link" href="https://www.legislation.gov.uk/ukpga/2023/33/contents" target="_blank">Employment Relations (Flexible Working) Act 2023</a><br>
-            <a class="source-link" href="https://www.acas.org.uk/flexible-working" target="_blank">ACAS Flexible Working Guide</a><br>
-            <a class="source-link" href="https://www.legislation.gov.uk/uksi/1992/2792/contents" target="_blank">DSE Regulations 1992</a>
-          </div>
+        <div class="card-body">
+          <div class="detail-block"><div class="detail-label">Issue</div><div class="detail-issue">References Azets Cozone (Danish HR system). References "Statistic Denmark" reporting - has no UK equivalent. Danish administrative structures throughout.</div></div>
+          <div class="detail-block"><div class="detail-label">Required Amendment</div><div class="detail-amendment">Replace Azets Cozone with the UK HR system in use. Remove all Statistic Denmark references. Add reference to Working Time Regulations 1998 reg.9 record-keeping obligation.</div></div>
+          <div class="detail-block"><div class="detail-label">Legislation</div><div class="source-links"><a class="source-link" href="https://www.legislation.gov.uk/uksi/1998/1833/contents" target="_blank">Working Time Regulations 1998</a></div></div>
         </div>
       </div>
-    </div>
 
-    <!-- CARD: HOLIDAY -->
-    <div class="card red" data-text="holiday annual leave vacation EU holiday act danish working time regulations bank holidays">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Non-Compliant</span>
-        <h3>Holiday / Annual Leave</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Current Text</div>
-          <div class="quote-text">"A minimum of 20 days must be taken per vacation year (according to the EU Holiday Act). Earning year: 1 September - 31 August."</div>
+      <!-- 7. REMOTE WORK / FLEXIBLE WORKING -->
+      <div class="comp-card needs-amendment" data-status="needs-amendment" data-text="remote work flexible working home DSE day 1 right 2024">
+        <div class="card-top"></div>
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="badge badge-orange" style="font-size:0.68rem;padding:2px 8px">Needs Amendment</span>
+          <h3>Remote Working / Flexible Working</h3>
+          <span class="chevron">&#9654;</span>
         </div>
-        <div class="detail-row">
-          <div class="detail-label">Issues</div>
-          <div class="detail-text issue">EU Holiday Act does not apply in UK post-Brexit. Danish vacation year (1 Sept - 31 Aug) is not UK law. UK entitlement is 28 days (not 20) under Working Time Regulations 1998. Danish national holidays listed (5 June Constitution Day, 1 May). Placeholder "[insert national/state vacation rules]" never completed.</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Required Amendment</div>
-          <div class="detail-text amendment">Replace entirely. UK employees entitled to 5.6 weeks (28 days full-time) under WTR 1998. UK holiday year (April-March or Jan-Dec). Holiday pay based on 52-week average of normal pay. Replace Danish holidays with 8 UK bank holidays (England and Wales). Remove EU Holiday Act and Danish vacation year.</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Sources</div>
-          <div class="detail-text">
-            <a class="source-link" href="https://www.legislation.gov.uk/uksi/1998/1833/contents" target="_blank">Working Time Regulations 1998</a><br>
-            <a class="source-link" href="https://www.acas.org.uk/holiday-entitlement-and-pay" target="_blank">ACAS Holiday Guide</a><br>
-            <a class="source-link" href="https://www.gov.uk/calculate-your-holiday-entitlement" target="_blank">GOV.UK Holiday Calculator</a>
-          </div>
+        <div class="card-body">
+          <div class="detail-block"><div class="detail-label">Issue</div><div class="detail-issue">Statutory right to request flexible working from day 1 of employment (since 6 April 2024) is not mentioned. No DSE workstation assessment obligation for home workers. Azets Cozone reference.</div></div>
+          <div class="detail-block"><div class="detail-label">Required Amendment</div><div class="detail-amendment">Add statutory day 1 flexible working request right under Employment Relations (Flexible Working) Act 2023. Employer must respond within 2 months. Employees can make 2 requests per year. Add DSE assessment entitlement for regular home workers.</div></div>
+          <div class="detail-block"><div class="detail-label">Legislation</div><div class="source-links"><a class="source-link" href="https://www.legislation.gov.uk/ukpga/2023/33/contents" target="_blank">Employment Relations (Flexible Working) Act 2023</a><a class="source-link" href="https://www.acas.org.uk/flexible-working" target="_blank">ACAS Flexible Working</a></div></div>
         </div>
       </div>
-    </div>
 
-    <!-- CARD: SICK LEAVE -->
-    <div class="card red" data-text="sick leave SSP statutory sick pay municipality denmark sickness absence">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Non-Compliant</span>
-        <h3>Sick Leave and Absence</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Current Text</div>
-          <div class="quote-text">"Once we have reported your absence, the municipality will send you an information form..." / "Alt sygefravær registreres..." (untranslated Danish)</div>
+      <!-- 8. HOLIDAY -->
+      <div class="comp-card non-compliant" data-status="non-compliant" data-text="holiday annual leave vacation EU danish 20 days 28 days WTR bank holidays constitution day">
+        <div class="card-top"></div>
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="badge badge-red" style="font-size:0.68rem;padding:2px 8px">Non-Compliant</span>
+          <h3>Holiday / Annual Leave</h3>
+          <span class="chevron">&#9654;</span>
         </div>
-        <div class="detail-row">
-          <div class="detail-label">Issues</div>
-          <div class="detail-text issue">Danish municipal sickness benefit system described as if it applies to UK employees. No mention of Statutory Sick Pay (SSP). Danish untranslated text in document. From April 2026, SSP payable from day 1 under Employment Rights Act 2025. No Equality Act 2010 (disability) consideration.</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Required Amendment</div>
-          <div class="detail-text amendment">Remove all Danish municipal references. Add SSP entitlement (GBP 116.75/week, day 1 from April 2026). Add: GP fit note required after 7 calendar days. Add Equality Act 2010 reasonable adjustments obligation for disability-related absence. Translate or remove all Danish text.</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Sources</div>
-          <div class="detail-text">
-            <a class="source-link" href="https://www.gov.uk/employers-sick-pay" target="_blank">GOV.UK - Employers' Sick Pay</a><br>
-            <a class="source-link" href="https://www.legislation.gov.uk/ukpga/2025/15/contents" target="_blank">Employment Rights Act 2025</a><br>
-            <a class="source-link" href="https://www.gov.uk/government/collections/fit-note" target="_blank">Fit Note Guidance</a>
-          </div>
+        <div class="card-body">
+          <div class="detail-block"><div class="detail-label">Current Text</div><div class="quote-block">"A minimum of 20 days must be taken per vacation year (according to the EU Holiday Act). Earning year: 1 September - 31 August." / "5 June (Constitution Day) - day off for all."</div></div>
+          <div class="detail-block"><div class="detail-label">Issue</div><div class="detail-issue">EU Holiday Act does not apply in the UK post-Brexit. Danish vacation year (1 Sept - 31 Aug) is not UK law. UK entitlement is 28 days (not 20) under WTR 1998. Danish national holidays listed (5 June Constitution Day, 1 May). Placeholder "[insert national/state vacation rules]" was never completed for UK.</div></div>
+          <div class="detail-block"><div class="detail-label">Required Amendment</div><div class="detail-amendment">Replace entirely with UK WTR 1998 position: 5.6 weeks (28 days full-time) including bank holidays. UK holiday year (April-March or Jan-Dec). Holiday pay based on 52-week average of normal pay. Replace Danish public holidays with the 8 UK bank holidays (England and Wales).</div></div>
+          <div class="detail-block"><div class="detail-label">Legislation</div><div class="source-links"><a class="source-link" href="https://www.legislation.gov.uk/uksi/1998/1833/contents" target="_blank">Working Time Regulations 1998</a><a class="source-link" href="https://www.acas.org.uk/holiday-entitlement-and-pay" target="_blank">ACAS Holiday Guide</a></div></div>
         </div>
       </div>
-    </div>
 
-    <!-- CARD: SICKNESS DURING HOLIDAY -->
-    <div class="card red" data-text="sickness holiday qualifying period vacation illness">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Non-Compliant</span>
-        <h3>Sickness During Annual Leave</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Current Text</div>
-          <div class="quote-text">"If you get ill during the vacation, you may get compensation = new vacation days, but not for the first 5 days (qualifying period) - and only if you have earned 25 vacation days."</div>
+      <!-- 9. SICK LEAVE -->
+      <div class="comp-card non-compliant" data-status="non-compliant" data-text="sick leave SSP statutory sick pay municipality denmark absence sickness">
+        <div class="card-top"></div>
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="badge badge-red" style="font-size:0.68rem;padding:2px 8px">Non-Compliant</span>
+          <h3>Sick Leave and Absence</h3>
+          <span class="chevron">&#9654;</span>
         </div>
-        <div class="detail-row">
-          <div class="detail-label">Issues</div>
-          <div class="detail-text issue">5-day qualifying period is Danish law only. UK law (Working Time Regulations 1998 as interpreted by Stringer v HMRC [2009]) gives employees the right to reclaim annual leave from day 1 of sickness. This clause may unlawfully deny statutory holiday rights.</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Required Amendment</div>
-          <div class="detail-text amendment">Replace entirely: "If you are ill during annual leave, you may reclaim those days as annual leave from day 1 of sickness (no qualifying period). Notify manager per sick leave procedure. Fit note required for absences over 7 calendar days. Where documentation is required by Guldmann, Guldmann bears the cost."</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Sources</div>
-          <div class="detail-text">
-            <a class="source-link" href="https://www.legislation.gov.uk/uksi/1998/1833/regulation/13" target="_blank">WTR 1998 s.13</a><br>
-            <a class="source-link" href="https://www.acas.org.uk/checking-holiday-entitlement/sick-leave-and-holiday" target="_blank">ACAS - Sick Leave and Holiday</a>
-          </div>
+        <div class="card-body">
+          <div class="detail-block"><div class="detail-label">Current Text</div><div class="quote-block">"Once we have reported your absence, the municipality will send you an information form..." - Danish untranslated text: "Alt sygefravaer registreres som led i vores arbejdsmiljoindsats"</div></div>
+          <div class="detail-block"><div class="detail-label">Issue</div><div class="detail-issue">Danish municipal sickness benefit system described as if it applies to UK employees. No mention of Statutory Sick Pay (SSP, GBP 116.75/week). From April 2026, SSP payable from day 1 (Employment Rights Act 2025). Danish untranslated text in document. No Equality Act 2010 reasonable adjustments obligation referenced.</div></div>
+          <div class="detail-block"><div class="detail-label">Required Amendment</div><div class="detail-amendment">Remove all Danish municipal references. Add SSP entitlement and day 1 rule (from April 2026). Add: GP fit note required after 7 calendar days. Add Equality Act 2010 reasonable adjustments for disability-related absence. Translate or remove all Danish text.</div></div>
+          <div class="detail-block"><div class="detail-label">Legislation</div><div class="source-links"><a class="source-link" href="https://www.gov.uk/employers-sick-pay" target="_blank">GOV.UK - Statutory Sick Pay</a><a class="source-link" href="https://www.legislation.gov.uk/ukpga/2025/15/contents" target="_blank">Employment Rights Act 2025</a></div></div>
         </div>
       </div>
-    </div>
 
-    <!-- CARD: WEATHER ABSENCE -->
-    <div class="card amber" data-text="weather snow absence unpaid bad weather">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Needs Amendment</span>
-        <h3>Weather / Snow Absence</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Issues</div>
-          <div class="detail-text issue">Blanket "at your own expense" policy. No acknowledgement of remote working alternative. No acknowledgement that employer workplace closure entitles employees to pay.</div>
+      <!-- 10. SICKNESS DURING HOLIDAY -->
+      <div class="comp-card non-compliant" data-status="non-compliant" data-text="sickness holiday qualifying period 5 days vacation illness WTR">
+        <div class="card-top"></div>
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="badge badge-red" style="font-size:0.68rem;padding:2px 8px">Non-Compliant</span>
+          <h3>Sickness During Annual Leave</h3>
+          <span class="chevron">&#9654;</span>
         </div>
-        <div class="detail-row">
-          <div class="detail-label">Required Amendment</div>
-          <div class="detail-text amendment">Add: "Where possible, employees should work remotely on severe weather days. If Guldmann closes the workplace, employees receive normal pay. Unpaid absence only where employee genuinely cannot travel AND remote working is not possible."</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Sources</div>
-          <div class="detail-text"><a class="source-link" href="https://www.acas.org.uk/bad-weather-and-getting-to-work" target="_blank">ACAS - Bad Weather</a></div>
+        <div class="card-body">
+          <div class="detail-block"><div class="detail-label">Current Text</div><div class="quote-block">"If you get ill during the vacation, you may get compensation = new vacation days, but not for the first 5 days (qualifying period) - and only if you have earned 25 vacation days."</div></div>
+          <div class="detail-block"><div class="detail-label">Issue</div><div class="detail-issue">5-day qualifying period is Danish law only. UK law (WTR 1998, Stringer v HMRC [2009]) gives employees the right to reclaim annual leave from day 1 of sickness. "25 vacation days" prerequisite has no UK equivalent. This clause may unlawfully deny statutory holiday rights.</div></div>
+          <div class="detail-block"><div class="detail-label">Required Amendment</div><div class="detail-amendment">Replace entirely. UK position: employees may reclaim annual leave from day 1 of sickness (no qualifying period). Notify manager per sick leave procedure. Fit note required for absences over 7 calendar days. Where documentation is required by Guldmann, Guldmann bears the cost.</div></div>
+          <div class="detail-block"><div class="detail-label">Legislation</div><div class="source-links"><a class="source-link" href="https://www.legislation.gov.uk/uksi/1998/1833/regulation/13" target="_blank">WTR 1998 s.13</a><a class="source-link" href="https://www.acas.org.uk/checking-holiday-entitlement/sick-leave-and-holiday" target="_blank">ACAS - Sick Leave and Holiday</a></div></div>
         </div>
       </div>
-    </div>
 
-    <!-- CARD: DEPENDENT CARE -->
-    <div class="card red" data-text="child care dependent leave first sick day childcare ERA 1996">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Non-Compliant</span>
-        <h3>Dependant / Child Care Leave</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Current Text</div>
-          <div class="quote-text">"Child's first sick day - ..... insert rules for employees right to stay home and payment... In DK: right to 2 Care take days per year for children under the age of 14"</div>
+      <!-- 11. WEATHER -->
+      <div class="comp-card needs-amendment" data-status="needs-amendment" data-text="weather snow absence unpaid bad weather remote working">
+        <div class="card-top"></div>
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="badge badge-orange" style="font-size:0.68rem;padding:2px 8px">Needs Amendment</span>
+          <h3>Weather / Snow Absence</h3>
+          <span class="chevron">&#9654;</span>
         </div>
-        <div class="detail-row">
-          <div class="detail-label">Issues</div>
-          <div class="detail-text issue">Entire section is a Danish-law placeholder. ERA 1996 s.57A right to time off for dependants completely absent. Danish 2-day / 5-day care provisions do not exist in UK law.</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Required Amendment</div>
-          <div class="detail-text amendment">Replace with: "Time off for dependants (ERA 1996 s.57A): All employees have the right to take reasonable unpaid time off to deal with emergencies involving a dependant (typically 1-2 days per incident). Covers: dependant falls ill, care breakdown, dependant death. Must notify manager as soon as reasonably practicable."</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Sources</div>
-          <div class="detail-text">
-            <a class="source-link" href="https://www.legislation.gov.uk/ukpga/1996/18/section/57A" target="_blank">ERA 1996 s.57A</a><br>
-            <a class="source-link" href="https://www.acas.org.uk/time-off-for-dependants" target="_blank">ACAS - Time Off for Dependants</a>
-          </div>
+        <div class="card-body">
+          <div class="detail-block"><div class="detail-label">Issue</div><div class="detail-issue">Blanket "at your own expense" policy. No acknowledgement of remote working as an alternative. No acknowledgement that if Guldmann closes the workplace, employees are entitled to normal pay.</div></div>
+          <div class="detail-block"><div class="detail-label">Required Amendment</div><div class="detail-amendment">Add: "Where possible, employees should work remotely on severe weather days. If Guldmann closes the workplace due to severe weather, employees receive their normal pay."</div></div>
+          <div class="detail-block"><div class="detail-label">Guidance</div><div class="source-links"><a class="source-link" href="https://www.acas.org.uk/bad-weather-and-getting-to-work" target="_blank">ACAS - Bad Weather at Work</a></div></div>
         </div>
       </div>
-    </div>
 
-    <!-- CARD: PARENTAL BEREAVEMENT -->
-    <div class="card red" data-text="parental bereavement child death stillbirth leave pay 2018">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Non-Compliant</span>
-        <h3>Parental Bereavement Leave</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Current Text</div>
-          <div class="quote-text">"In the event of a death and funeral of a close family member - a Guldmann Day Off is given."</div>
+      <!-- 12. DEPENDANT CARE -->
+      <div class="comp-card non-compliant" data-status="non-compliant" data-text="child care dependent leave first sick day childcare ERA 1996 57A dependants">
+        <div class="card-top"></div>
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="badge badge-red" style="font-size:0.68rem;padding:2px 8px">Non-Compliant</span>
+          <h3>Dependant / Child Care Leave</h3>
+          <span class="chevron">&#9654;</span>
         </div>
-        <div class="detail-row">
-          <div class="detail-label">Issues</div>
-          <div class="detail-text issue">CRITICAL: Parental Bereavement (Leave and Pay) Act 2018 entirely absent. On loss of a child under 18 (or stillbirth after 24 weeks), employees have a statutory right to 2 weeks leave from day 1 of employment, plus SPBP of GBP 187.18/week (eligible employees). One Guldmann Day Off does not comply with this Act.</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Required Amendment</div>
-          <div class="detail-text amendment">Add new section: "Parental Bereavement Leave: On loss of a child under 18 or stillbirth after 24 weeks, you are entitled to 2 weeks' statutory parental bereavement leave (day 1 right) and, if eligible, SPBP at GBP 187.18/week. Leave can be taken in 1 or 2 blocks within 56 weeks. Contact HR in confidence."</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Sources</div>
-          <div class="detail-text">
-            <a class="source-link" href="https://www.legislation.gov.uk/ukpga/2018/13/contents" target="_blank">Parental Bereavement (Leave and Pay) Act 2018</a><br>
-            <a class="source-link" href="https://www.gov.uk/parental-bereavement-pay-leave" target="_blank">GOV.UK - Parental Bereavement Leave</a>
-          </div>
+        <div class="card-body">
+          <div class="detail-block"><div class="detail-label">Current Text</div><div class="quote-block">"Child's first sick day - ..... insert rules for employees right to stay home and payment... In DK: right to 2 Care take days per year for children under the age of 14"</div></div>
+          <div class="detail-block"><div class="detail-label">Issue</div><div class="detail-issue">Entire section is a Danish-law placeholder. ERA 1996 s.57A right to time off for dependants completely absent. Danish 2-day / 5-day care provisions have no UK equivalent.</div></div>
+          <div class="detail-block"><div class="detail-label">Required Amendment</div><div class="detail-amendment">Replace entirely with UK position. ERA 1996 s.57A: all employees have the right to take reasonable unpaid time off to deal with emergencies involving a dependant (spouse, partner, child, parent, household member). Typically 1-2 days per incident. Must notify manager as soon as reasonably practicable.</div></div>
+          <div class="detail-block"><div class="detail-label">Legislation</div><div class="source-links"><a class="source-link" href="https://www.legislation.gov.uk/ukpga/1996/18/section/57A" target="_blank">ERA 1996 s.57A - Time Off for Dependants</a><a class="source-link" href="https://www.acas.org.uk/time-off-for-dependants" target="_blank">ACAS Guide</a></div></div>
         </div>
       </div>
-    </div>
 
-    <!-- CARD: MATERNITY / PARENTAL LEAVE -->
-    <div class="card red" data-text="maternity paternity parental leave SMP SPL shared parental leave Danish">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Non-Compliant</span>
-        <h3>Maternity and Parental Leave</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Current Text</div>
-          <div class="quote-text">Danish-language leave tables: "Mor / Graviditetsorlov 4 uger / Barselsorlov 10 uger / Foraldreorlov 9 uger / Faedreorlov 2 uger" with placeholder brackets "[insert x weeks]"</div>
+      <!-- 13. PARENTAL BEREAVEMENT -->
+      <div class="comp-card non-compliant" data-status="non-compliant" data-text="parental bereavement child death stillbirth leave pay 2018 PBLA SPBP">
+        <div class="card-top"></div>
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="badge badge-red" style="font-size:0.68rem;padding:2px 8px">Non-Compliant</span>
+          <h3>Parental Bereavement Leave</h3>
+          <span class="chevron">&#9654;</span>
         </div>
-        <div class="detail-row">
-          <div class="detail-label">Issues</div>
-          <div class="detail-text issue">CRITICAL: Entire section is Danish-language leave tables with no UK content. UK entitlements completely absent: 52 weeks maternity leave (day 1 right), SMP at 90% AWE for 6 weeks then GBP 187.18/week for 33 weeks, paternity leave, Shared Parental Leave, Adoption Leave.</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Required Amendment</div>
-          <div class="detail-text amendment">Complete replacement required. Minimum content: 52 weeks ML; SMP rates; 26 weeks paternity eligibility; 2 weeks SPL leave; SPL (up to 50 weeks shared); KIT days; adoption leave equivalence. Must notify at 15 weeks before due date. Full policy document recommended as standalone document.</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Sources</div>
-          <div class="detail-text">
-            <a class="source-link" href="https://www.gov.uk/maternity-pay-leave" target="_blank">GOV.UK Maternity Leave</a><br>
-            <a class="source-link" href="https://www.gov.uk/shared-parental-leave-and-pay" target="_blank">Shared Parental Leave</a><br>
-            <a class="source-link" href="https://www.gov.uk/paternity-pay-leave" target="_blank">Paternity Leave</a>
-          </div>
+        <div class="card-body">
+          <div class="detail-block"><div class="detail-label">Current Text</div><div class="quote-block">"In the event of a death and funeral of a close family member, e.g. a spouse, partner, parent or child - a Guldmann Day Off is given."</div></div>
+          <div class="detail-block"><div class="detail-label">Issue</div><div class="detail-issue">CRITICAL. Parental Bereavement (Leave and Pay) Act 2018 entirely absent. On loss of a child under 18 or stillbirth after 24 weeks, employees have a statutory right to 2 weeks leave from day 1 of employment, plus SPBP at GBP 187.18/week (eligible employees). One Guldmann Day Off does not comply.</div></div>
+          <div class="detail-block"><div class="detail-label">Required Amendment</div><div class="detail-amendment">Add new section: "On loss of a child under 18 or stillbirth after 24 weeks, you are entitled to 2 weeks' statutory parental bereavement leave (day 1 right) and, if eligible, SPBP at GBP 187.18/week. Leave may be taken in 1 or 2 blocks within 56 weeks. Please contact HR in confidence."</div></div>
+          <div class="detail-block"><div class="detail-label">Legislation</div><div class="source-links"><a class="source-link" href="https://www.legislation.gov.uk/ukpga/2018/13/contents" target="_blank">Parental Bereavement (Leave and Pay) Act 2018</a><a class="source-link" href="https://www.gov.uk/parental-bereavement-pay-leave" target="_blank">GOV.UK Guidance</a></div></div>
         </div>
       </div>
-    </div>
 
-    <!-- CARD: H&S / WORKING ENVIRONMENT -->
-    <div class="card amber" data-text="health safety working environment HSE RIDDOR injury">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Needs Amendment</span>
-        <h3>Health and Safety / Working Environment</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Issues</div>
-          <div class="detail-text issue">References "Working Environment Authority" (Danish Arbejdstilsynet) - UK equivalent is the HSE. "NN is responsible for reporting" placeholder not completed. No specific RIDDOR 2013 thresholds listed. No Employers' Liability Insurance certificate reference.</div>
+      <!-- 14. MATERNITY / PARENTAL LEAVE -->
+      <div class="comp-card non-compliant" data-status="non-compliant" data-text="maternity paternity parental leave SMP SPL shared parental leave danish uger mor">
+        <div class="card-top"></div>
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="badge badge-red" style="font-size:0.68rem;padding:2px 8px">Non-Compliant</span>
+          <h3>Maternity and Parental Leave</h3>
+          <span class="chevron">&#9654;</span>
         </div>
-        <div class="detail-row">
-          <div class="detail-label">Required Amendment</div>
-          <div class="detail-text amendment">Replace "Working Environment Authority" with HSE (hse.gov.uk). Name the RIDDOR-responsible person. Add RIDDOR 2013 reporting thresholds (deaths, specified injuries, 7+ day absence, occupational diseases). Add Employers' Liability Insurance certificate location.</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Sources</div>
-          <div class="detail-text">
-            <a class="source-link" href="https://www.legislation.gov.uk/ukpga/1974/37/contents" target="_blank">HASAWA 1974</a><br>
-            <a class="source-link" href="https://www.hse.gov.uk/riddor/" target="_blank">RIDDOR 2013 - HSE</a><br>
-            <a class="source-link" href="https://www.legislation.gov.uk/ukpga/1969/57/contents" target="_blank">Employers' Liability (Compulsory Insurance) Act 1969</a>
-          </div>
+        <div class="card-body">
+          <div class="detail-block"><div class="detail-label">Current Text</div><div class="quote-block">Danish-language leave tables: "Mor / Graviditetsorlov 4 uger / Barselsorlov 10 uger / Foraldreorlov 9 uger / Faedreorlov 2 uger" with placeholder brackets "[insert x weeks]"</div></div>
+          <div class="detail-block"><div class="detail-label">Issue</div><div class="detail-issue">CRITICAL. Entire section is Danish-language leave tables with no UK content. 52 weeks maternity leave, SMP rates, paternity leave, Shared Parental Leave, Adoption Leave - all completely absent.</div></div>
+          <div class="detail-block"><div class="detail-label">Required Amendment</div><div class="detail-amendment">Complete replacement required. Minimum: 52 weeks maternity leave (day 1 right); SMP at 90% AWE for 6 weeks then GBP 187.18/week for 33 weeks; 2 weeks paternity leave; Shared Parental Leave (up to 50 weeks shared); 10 KIT days; adoption leave equivalence. Full standalone policy document recommended.</div></div>
+          <div class="detail-block"><div class="detail-label">Legislation</div><div class="source-links"><a class="source-link" href="https://www.gov.uk/maternity-pay-leave" target="_blank">GOV.UK - Maternity Leave</a><a class="source-link" href="https://www.gov.uk/shared-parental-leave-and-pay" target="_blank">Shared Parental Leave</a><a class="source-link" href="https://www.gov.uk/paternity-pay-leave" target="_blank">Paternity Leave</a></div></div>
         </div>
       </div>
-    </div>
 
-    <!-- CARD: TRAVEL POLICY -->
-    <div class="card amber" data-text="travel expenses mileage HMRC acubiz hotel">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Needs Amendment</span>
-        <h3>Travel Policy and Expenses</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Issues</div>
-          <div class="detail-text issue">Danish hotel agreements (Wakeup Copenhagen, Scandic Denmark) listed for UK employees. Acubiz expense system (Danish). Mileage allowance section is a placeholder - no HMRC AMAP rates stated.</div>
+      <!-- 15. H&S -->
+      <div class="comp-card needs-amendment" data-status="needs-amendment" data-text="health safety HSE RIDDOR injury working environment arbejdstilsynet employers liability">
+        <div class="card-top"></div>
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="badge badge-orange" style="font-size:0.68rem;padding:2px 8px">Needs Amendment</span>
+          <h3>Health and Safety / Working Environment</h3>
+          <span class="chevron">&#9654;</span>
         </div>
-        <div class="detail-row">
-          <div class="detail-label">Required Amendment</div>
-          <div class="detail-text amendment">Remove Danish hotel agreements (or relocate to Denmark travel section). Replace Acubiz with UK expense system. Add HMRC AMAP mileage rates: 45p/mile first 10,000 miles, 25p/mile thereafter (cars/vans). Add UK hotel guidance or company agreements.</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Sources</div>
-          <div class="detail-text">
-            <a class="source-link" href="https://www.gov.uk/expenses-and-benefits/business-travel-mileage-for-employees-own-vehicles" target="_blank">HMRC AMAP Rates</a>
-          </div>
+        <div class="card-body">
+          <div class="detail-block"><div class="detail-label">Issue</div><div class="detail-issue">References "Working Environment Authority" (Danish Arbejdstilsynet) - UK equivalent is the Health and Safety Executive (HSE). "NN is responsible for reporting" placeholder not completed. No RIDDOR 2013 thresholds listed. No Employers' Liability Insurance reference.</div></div>
+          <div class="detail-block"><div class="detail-label">Required Amendment</div><div class="detail-amendment">Replace "Working Environment Authority" with HSE (hse.gov.uk). Name the RIDDOR-responsible person. Add RIDDOR 2013 thresholds (deaths, specified injuries, 7+ day absence, occupational diseases). Add Employers' Liability Insurance certificate location (compulsory under EL(CI) Act 1969).</div></div>
+          <div class="detail-block"><div class="detail-label">Legislation</div><div class="source-links"><a class="source-link" href="https://www.legislation.gov.uk/ukpga/1974/37/contents" target="_blank">HASAWA 1974</a><a class="source-link" href="https://www.hse.gov.uk/riddor/" target="_blank">RIDDOR 2013 - HSE</a></div></div>
         </div>
       </div>
-    </div>
 
-    <!-- CARD: COMPANY CAR -->
-    <div class="card red" data-text="company car fines salary deduction wage ERA BIK tax Danish DKK">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Non-Compliant</span>
-        <h3>Company Car Policy</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Current Text</div>
-          <div class="quote-text">"Guldmann is liable for speeding fines and reckless driving but may deduct from your salary if you are the documented driver."</div>
+      <!-- 16. TRAVEL POLICY -->
+      <div class="comp-card needs-amendment" data-status="needs-amendment" data-text="travel expenses mileage HMRC acubiz hotel danish economy class">
+        <div class="card-top"></div>
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="badge badge-orange" style="font-size:0.68rem;padding:2px 8px">Needs Amendment</span>
+          <h3>Travel Policy and Expenses</h3>
+          <span class="chevron">&#9654;</span>
         </div>
-        <div class="detail-row">
-          <div class="detail-label">Issues</div>
-          <div class="detail-text issue">CRITICAL: Salary deduction for fines without contractual provision = unlawful deduction under ERA 1996 s.13. Untranslated Danish text ("De samme regler gaelder i udlandet som i Danmark"). DKK leasing table. Danish role titles. No HMRC BIK (benefit in kind) tax information.</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Required Amendment</div>
-          <div class="detail-text amendment">Salary deduction clause must be in employment contracts (ERA 1996 s.13) - handbook statement alone is insufficient. Add HMRC BIK tax notice. Translate all Danish text. Convert DKK leasing table to GBP with UK role titles.</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Sources</div>
-          <div class="detail-text">
-            <a class="source-link" href="https://www.legislation.gov.uk/ukpga/1996/18/section/13" target="_blank">ERA 1996 s.13 - Deductions from Wages</a><br>
-            <a class="source-link" href="https://www.gov.uk/tax-company-benefits/company-cars" target="_blank">HMRC Company Car Tax</a>
-          </div>
+        <div class="card-body">
+          <div class="detail-block"><div class="detail-label">Issue</div><div class="detail-issue">Danish hotel agreements (Wakeup Copenhagen, Scandic Denmark) listed for UK employees. Acubiz expense system is Danish. Mileage allowance section is placeholder - HMRC AMAP rates not stated.</div></div>
+          <div class="detail-block"><div class="detail-label">Required Amendment</div><div class="detail-amendment">Remove Danish hotel agreements. Replace Acubiz with UK expense system. Add HMRC AMAP mileage rates: 45p per mile (first 10,000 business miles), 25p per mile thereafter (cars/vans). Add UK hotel guidance or company-negotiated UK arrangements.</div></div>
+          <div class="detail-block"><div class="detail-label">Legislation</div><div class="source-links"><a class="source-link" href="https://www.gov.uk/expenses-and-benefits/business-travel-mileage-for-employees-own-vehicles" target="_blank">HMRC Approved Mileage Rates</a></div></div>
         </div>
       </div>
-    </div>
 
-    <!-- CARD: PENSION -->
-    <div class="card red" data-text="pension auto enrolment Pensions Act 2008 contributions">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Non-Compliant</span>
-        <h3>Pension</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Current Text</div>
-          <div class="quote-text">"As installer or service technician, you are covered by the pension scheme xx... You find specific information about the pension scheme here: insert link"</div>
+      <!-- 17. COMPANY CAR -->
+      <div class="comp-card non-compliant" data-status="non-compliant" data-text="company car fines salary deduction wage ERA BIK tax Danish DKK leasing">
+        <div class="card-top"></div>
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="badge badge-red" style="font-size:0.68rem;padding:2px 8px">Non-Compliant</span>
+          <h3>Company Car Policy</h3>
+          <span class="chevron">&#9654;</span>
         </div>
-        <div class="detail-row">
-          <div class="detail-label">Issues</div>
-          <div class="detail-text issue">Entire section is a placeholder. Pensions Act 2008 auto-enrolment obligations not described. No scheme details. No contribution rates. No opt-out right. No mention of The Pensions Regulator.</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Required Amendment</div>
-          <div class="detail-text amendment">Insert scheme name, provider, employer and employee contribution rates. Add: "Under the Pensions Act 2008, Guldmann automatically enrols eligible employees (aged 22-66, earning over GBP 10,000/year). Employer minimum contribution: 3%. You may opt out within 1 month. Re-enrolment every 3 years."</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Sources</div>
-          <div class="detail-text">
-            <a class="source-link" href="https://www.thepensionsregulator.gov.uk/en/employers" target="_blank">The Pensions Regulator - Auto-Enrolment</a><br>
-            <a class="source-link" href="https://www.legislation.gov.uk/ukpga/2008/30/contents" target="_blank">Pensions Act 2008</a>
-          </div>
+        <div class="card-body">
+          <div class="detail-block"><div class="detail-label">Current Text</div><div class="quote-block">"Guldmann is liable for speeding fines and reckless driving but may deduct from your salary if you are the documented driver." / Leasing table in Danish with DKK amounts.</div></div>
+          <div class="detail-block"><div class="detail-label">Issue</div><div class="detail-issue">CRITICAL. Salary deduction for fines without specific contractual provision = unlawful deduction under ERA 1996 s.13. Untranslated Danish text in document. DKK leasing table and Danish role titles. No HMRC Benefit in Kind (BIK) tax information for company car recipients.</div></div>
+          <div class="detail-block"><div class="detail-label">Required Amendment</div><div class="detail-amendment">Salary deduction clause must be in employment contracts (ERA 1996 s.13) - handbook statement alone insufficient. Translate all Danish text. Convert DKK leasing table to GBP with UK role titles. Add HMRC BIK tax notice (employees pay income tax on company car benefit).</div></div>
+          <div class="detail-block"><div class="detail-label">Legislation</div><div class="source-links"><a class="source-link" href="https://www.legislation.gov.uk/ukpga/1996/18/section/13" target="_blank">ERA 1996 s.13 - Deductions from Wages</a><a class="source-link" href="https://www.gov.uk/tax-company-benefits/company-cars" target="_blank">HMRC Company Car Tax</a></div></div>
         </div>
       </div>
-    </div>
 
-    <!-- CARD: WORKWEAR -->
-    <div class="card amber" data-text="workwear PPE safety equipment personal protective equipment">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Needs Amendment</span>
-        <h3>Workwear / PPE</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Issues</div>
-          <div class="detail-text issue">Placeholder "[insert local rules re. workwear and safety shoes]" never completed. No reference to PPE at Work Regulations 1992 (employer must provide required PPE free of charge).</div>
+      <!-- 18. PENSION -->
+      <div class="comp-card non-compliant" data-status="non-compliant" data-text="pension auto enrolment pensions act 2008 contributions placeholder scheme">
+        <div class="card-top"></div>
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="badge badge-red" style="font-size:0.68rem;padding:2px 8px">Non-Compliant</span>
+          <h3>Pension</h3>
+          <span class="chevron">&#9654;</span>
         </div>
-        <div class="detail-row">
-          <div class="detail-label">Required Amendment</div>
-          <div class="detail-text amendment">Complete the workwear section with actual requirements. Add: "Required PPE (safety footwear, hi-vis, etc.) is provided by Guldmann free of charge under the PPE at Work Regulations 1992."</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Sources</div>
-          <div class="detail-text"><a class="source-link" href="https://www.legislation.gov.uk/uksi/1992/2966/contents" target="_blank">PPE at Work Regulations 1992</a></div>
+        <div class="card-body">
+          <div class="detail-block"><div class="detail-label">Current Text</div><div class="quote-block">"As installer or service technician, you are covered by the pension scheme xx... You find specific information about the pension scheme here: insert link"</div></div>
+          <div class="detail-block"><div class="detail-label">Issue</div><div class="detail-issue">Entire section is placeholder text. Pensions Act 2008 auto-enrolment obligations not described. No scheme name, provider, or contribution rates. No opt-out right mentioned. No Pensions Regulator reference.</div></div>
+          <div class="detail-block"><div class="detail-label">Required Amendment</div><div class="detail-amendment">Insert actual pension scheme details. Add: auto-enrolment under Pensions Act 2008 for eligible employees (aged 22-66, earning over GBP 10,000/year). Employer minimum contribution: 3%. Employees may opt out within 1 month and will be re-enrolled every 3 years.</div></div>
+          <div class="detail-block"><div class="detail-label">Legislation</div><div class="source-links"><a class="source-link" href="https://www.thepensionsregulator.gov.uk/en/employers" target="_blank">The Pensions Regulator - Auto-Enrolment</a><a class="source-link" href="https://www.legislation.gov.uk/ukpga/2008/30/contents" target="_blank">Pensions Act 2008</a></div></div>
         </div>
       </div>
-    </div>
 
-    <!-- CARD: BLOOD DONATION -->
-    <div class="card amber" data-text="blood donation NHS donor time off">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Needs Amendment</span>
-        <h3>Blood Donation</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Issues</div>
-          <div class="detail-text issue">"Blood bank" is not standard UK NHS terminology. No confirmation of whether time off is paid or unpaid. No statutory right to paid blood donation time off in UK - this is discretionary.</div>
+      <!-- 19. WORKWEAR -->
+      <div class="comp-card needs-amendment" data-status="needs-amendment" data-text="workwear PPE safety equipment personal protective equipment regulations">
+        <div class="card-top"></div>
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="badge badge-orange" style="font-size:0.68rem;padding:2px 8px">Needs Amendment</span>
+          <h3>Workwear / PPE</h3>
+          <span class="chevron">&#9654;</span>
         </div>
-        <div class="detail-row">
-          <div class="detail-label">Required Amendment</div>
-          <div class="detail-text amendment">Reword as: "Guldmann supports NHS blood donation. If you are a registered donor, you may take [paid/unpaid] time off during working hours to attend donor sessions, with manager agreement. Please minimise operational disruption where possible."</div>
+        <div class="card-body">
+          <div class="detail-block"><div class="detail-label">Issue</div><div class="detail-issue">Placeholder "[insert local rules re. workwear and safety shoes]" never completed. No reference to PPE at Work Regulations 1992 - employers must provide required PPE free of charge.</div></div>
+          <div class="detail-block"><div class="detail-label">Required Amendment</div><div class="detail-amendment">Complete with actual requirements. Add: "Required PPE (safety footwear, hi-vis, etc.) is provided by Guldmann free of charge under the PPE at Work Regulations 1992 (amended 2022)."</div></div>
+          <div class="detail-block"><div class="detail-label">Legislation</div><div class="source-links"><a class="source-link" href="https://www.legislation.gov.uk/uksi/1992/2966/contents" target="_blank">PPE at Work Regulations 1992</a></div></div>
         </div>
       </div>
-    </div>
 
-    <!-- CARD: SENIOR DAYS -->
-    <div class="card amber" data-text="senior days age equality act 2010">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Needs Amendment</span>
-        <h3>Senior Days Off / Special Benefits</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Current Text</div>
-          <div class="quote-text">"Senior days off: At which age are you entitled...? ...... Agreement and frame ......"</div>
+      <!-- 20. BLOOD DONATION -->
+      <div class="comp-card needs-amendment" data-status="needs-amendment" data-text="blood donation NHS donor time off paid unpaid">
+        <div class="card-top"></div>
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="badge badge-orange" style="font-size:0.68rem;padding:2px 8px">Needs Amendment</span>
+          <h3>Blood Donation</h3>
+          <span class="chevron">&#9654;</span>
         </div>
-        <div class="detail-row">
-          <div class="detail-label">Issues</div>
-          <div class="detail-text issue">Entire section is a placeholder. Any age-based benefit must be reviewed against Equality Act 2010 (age discrimination) to ensure it is objectively justified.</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Required Amendment</div>
-          <div class="detail-text amendment">Either: complete the section with actual UK benefit details (and obtain Equality Act 2010 sign-off), or remove it entirely if no such benefit applies to UK employees.</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Sources</div>
-          <div class="detail-text"><a class="source-link" href="https://www.legislation.gov.uk/ukpga/2010/15/section/4" target="_blank">Equality Act 2010 - Age Discrimination</a></div>
+        <div class="card-body">
+          <div class="detail-block"><div class="detail-label">Issue</div><div class="detail-issue">"Blood bank" is not standard UK NHS terminology. No confirmation of paid or unpaid time off. No statutory right to paid blood donation leave in UK - this is entirely discretionary.</div></div>
+          <div class="detail-block"><div class="detail-label">Required Amendment</div><div class="detail-amendment">Reword as: "Guldmann supports NHS blood donation. If you are a registered NHS blood donor, you may take [paid/unpaid - confirm] time off during working hours to attend donor sessions, with manager agreement and minimum operational disruption."</div></div>
         </div>
       </div>
-    </div>
 
-    <!-- CARD: IT SECURITY TABLE -->
-    <div class="card amber" data-text="IT security policy table of contents intranet link">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Needs Amendment</span>
-        <h3>IT Security Detailed Policy (Contents)</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Issues</div>
-          <div class="detail-text issue">Policy topics listed in table of contents but policy content not included or linked. "[Insert link]" placeholders throughout. Employees cannot access the policy.</div>
+      <!-- 21. SENIOR DAYS -->
+      <div class="comp-card needs-amendment" data-status="needs-amendment" data-text="senior days age equality act 2010 placeholder benefit">
+        <div class="card-top"></div>
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="badge badge-orange" style="font-size:0.68rem;padding:2px 8px">Needs Amendment</span>
+          <h3>Senior Days Off / Special Benefits</h3>
+          <span class="chevron">&#9654;</span>
         </div>
-        <div class="detail-row">
-          <div class="detail-label">Required Amendment</div>
-          <div class="detail-text amendment">Insert actual IT security policy or working intranet link. UK GDPR Article 32 requires appropriate security measures - accessible policy is part of demonstrating compliance.</div>
+        <div class="card-body">
+          <div class="detail-block"><div class="detail-label">Current Text</div><div class="quote-block">"Senior days off: At which age are you entitled...? ...... Agreement and frame ......"</div></div>
+          <div class="detail-block"><div class="detail-label">Issue</div><div class="detail-issue">Entire section is a placeholder. Any age-based benefit must be reviewed against the Equality Act 2010 (age discrimination provisions) to ensure it is objectively justified.</div></div>
+          <div class="detail-block"><div class="detail-label">Required Amendment</div><div class="detail-amendment">Either: complete with actual UK benefit details (and obtain Equality Act 2010 sign-off for age-based eligibility), or remove it entirely if no such benefit applies to UK employees.</div></div>
+          <div class="detail-block"><div class="detail-label">Legislation</div><div class="source-links"><a class="source-link" href="https://www.legislation.gov.uk/ukpga/2010/15/section/4" target="_blank">Equality Act 2010 - Age as Protected Characteristic</a></div></div>
         </div>
       </div>
-    </div>
 
-    <!-- CARD: COURSES / TRAINING ABSENCE -->
-    <div class="card green" data-text="courses seminar training absence registration">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Compliant</span>
-        <h3>Courses / Training / Absence Registration</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Summary</div>
-          <div class="detail-text">The policy to register course and training absence is generally appropriate. No legal compliance risk with the principle. Azets Cozone reference needs replacing with UK system (covered in Time Registration section).</div>
+      <!-- 22. IT SECURITY TABLE -->
+      <div class="comp-card needs-amendment" data-status="needs-amendment" data-text="IT security policy table contents intranet link placeholder">
+        <div class="card-top"></div>
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="badge badge-orange" style="font-size:0.68rem;padding:2px 8px">Needs Amendment</span>
+          <h3>IT Security - Detailed Contents</h3>
+          <span class="chevron">&#9654;</span>
+        </div>
+        <div class="card-body">
+          <div class="detail-block"><div class="detail-label">Issue</div><div class="detail-issue">Topics listed in a table of contents (passwords, phishing, MFA, encryption, social media) but no actual policy content included or linked. Employees cannot access the policy from the handbook.</div></div>
+          <div class="detail-block"><div class="detail-label">Required Amendment</div><div class="detail-amendment">Insert the actual IT security policy or a working intranet/SharePoint link. UK GDPR Article 32 requires appropriate security measures - an accessible, complete policy is part of demonstrating compliance to the ICO.</div></div>
         </div>
       </div>
-    </div>
 
-    <!-- CARD: TRAVEL ECONOMY CLASS -->
-    <div class="card green" data-text="travel economy class booking receipts">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Compliant</span>
-        <h3>Travel - Economy Class Policy</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Summary</div>
-          <div class="detail-text">Economy class requirement, receipt-based reimbursement, manager approval for exceptions - all appropriate for UK. HMRC mileage rates needed (covered in Travel Policy card).</div>
+      <!-- 23. COURSES TRAINING -->
+      <div class="comp-card compliant" data-status="compliant" data-text="courses seminar training absence registration working time">
+        <div class="card-top"></div>
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="badge badge-green" style="font-size:0.68rem;padding:2px 8px">Compliant</span>
+          <h3>Courses / Training Absence Registration</h3>
+          <span class="chevron">&#9654;</span>
+        </div>
+        <div class="card-body">
+          <div class="detail-block"><div class="detail-label">Assessment</div><div class="detail-text">The policy to register course and training absence is generally appropriate. No legal compliance risk with the principle. Azets Cozone reference needs replacing with UK HR system (covered under Time Registration).</div></div>
         </div>
       </div>
-    </div>
 
-    <!-- CARD: GENERAL CONDUCT / COMMUNICATION -->
-    <div class="card green" data-text="communication conduct direct honesty values">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Compliant</span>
-        <h3>Communication and Conduct Principles</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Summary</div>
-          <div class="detail-text">Statements on honest communication and direct dialogue. No legal compliance risk. Unobjectionable in UK employment context.</div>
+      <!-- 24. TRAVEL ECONOMY -->
+      <div class="comp-card compliant" data-status="compliant" data-text="travel economy class booking receipts expenses reimbursement">
+        <div class="card-top"></div>
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="badge badge-green" style="font-size:0.68rem;padding:2px 8px">Compliant</span>
+          <h3>Travel - Economy Class Policy</h3>
+          <span class="chevron">&#9654;</span>
+        </div>
+        <div class="card-body">
+          <div class="detail-block"><div class="detail-label">Assessment</div><div class="detail-text">Economy class requirement, receipt-based reimbursement, and manager approval for exceptions are all appropriate for UK. HMRC mileage rate addition needed (see Travel Policy card).</div></div>
         </div>
       </div>
-    </div>
 
-    <!-- CARD: WORK INJURY REPORTING STRUCTURE -->
-    <div class="card green" data-text="work injury accident occupational disease reporting">
-      <div class="card-header" onclick="toggleCard(this)">
-        <span class="status-pill">Compliant</span>
-        <h3>Work Injury Reporting Structure</h3>
-        <span class="chevron">&#9654;</span>
-      </div>
-      <div class="card-body">
-        <div class="detail-row">
-          <div class="detail-label">Summary</div>
-          <div class="detail-text">The structure (work accident vs occupational disease, reporting obligations) broadly mirrors RIDDOR 2013. Needs amendment to name HSE and complete the "NN responsible" placeholder - see H&S card for full detail.</div>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- end card grid -->
-
-  <div class="disclaimer">
-    This audit report was generated by Atlas AI Research Specialist / Rox Orchestrator on 2 March 2026.<br>
-    It is provided for guidance only and does not constitute legal advice.<br>
-    Guldmann should seek advice from a qualified UK employment solicitor before distributing any updated handbook to UK employees.
+    </div><!-- end card grid -->
   </div>
+</section>
 
-</div><!-- end main -->
+<!-- SUMMARY TABLE -->
+<section class="bg-dark" style="padding-top:5rem;padding-bottom:6rem" id="summary">
+  <div class="container">
+    <div class="animate-up">
+      <span class="label">Amendment Priority Map</span>
+      <div class="section-rule"></div>
+      <h2 class="heading-large">Full Amendment List</h2>
+      <p class="subheading">Every section requiring a change, ordered by priority.</p>
+    </div>
+    <div class="animate-up delay-1" style="background:var(--card-on-dark);border:1px solid var(--border-dark);border-radius:14px;overflow:hidden;margin-top:2rem">
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>Section</th>
+            <th>Change Required</th>
+            <th style="width:90px">Priority</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Holiday / Annual Leave</td><td>Replace with WTR 1998; 28 days; UK holiday year; UK bank holidays</td><td><span class="pri-critical">Critical</span></td></tr>
+          <tr><td>Maternity / Parental Leave</td><td>Replace entirely; 52 weeks ML; SMP rates; SPL; Danish tables removed</td><td><span class="pri-critical">Critical</span></td></tr>
+          <tr><td>Sick Leave</td><td>Add SSP; remove Danish municipal reporting; remove Danish text</td><td><span class="pri-critical">Critical</span></td></tr>
+          <tr><td>Sickness During Holiday</td><td>Remove 5-day qualifying period; UK WTR position (day 1)</td><td><span class="pri-critical">Critical</span></td></tr>
+          <tr><td>Parental Bereavement Leave</td><td>Add new section; 2 weeks SPBL; SPBP GBP 187.18/week</td><td><span class="pri-critical">Critical</span></td></tr>
+          <tr><td>Salary Deduction for Fines</td><td>Remove or add contractual provision; ERA 1996 s.13 legal risk</td><td><span class="pri-critical">Critical</span></td></tr>
+          <tr><td>Danish Language Text</td><td>Translate all untranslated Danish throughout document</td><td><span class="pri-critical">Critical</span></td></tr>
+          <tr><td>Flexible Working</td><td>Add statutory day 1 right; Employment Relations Act 2023</td><td><span class="pri-high">High</span></td></tr>
+          <tr><td>Pension</td><td>Insert actual scheme details; add auto-enrolment information (Pensions Act 2008)</td><td><span class="pri-high">High</span></td></tr>
+          <tr><td>Dependant / Child Care Leave</td><td>Replace placeholder with ERA 1996 s.57A rights</td><td><span class="pri-high">High</span></td></tr>
+          <tr><td>Data Protection / GDPR</td><td>Change to UK GDPR; add ICO; complete privacy notice placeholder</td><td><span class="pri-high">High</span></td></tr>
+          <tr><td>Working Environment / H&amp;S</td><td>Replace Arbejdstilsynet with HSE; add RIDDOR 2013; HASAWA 1974</td><td><span class="pri-high">High</span></td></tr>
+          <tr><td>Time Registration</td><td>Replace Azets Cozone; remove Statistics Denmark references</td><td><span class="pri-medium">Medium</span></td></tr>
+          <tr><td>Travel Policy</td><td>Add HMRC AMAP mileage rates; replace Acubiz; UK hotel guidance</td><td><span class="pri-medium">Medium</span></td></tr>
+          <tr><td>Company Car</td><td>Add HMRC BIK info; remove DKK table; translate Danish; UK role titles</td><td><span class="pri-medium">Medium</span></td></tr>
+          <tr><td>Special Occasions - Gifts</td><td>Convert DKK to GBP; review HMRC gift exemption limits; PAYE on cash</td><td><span class="pri-medium">Medium</span></td></tr>
+          <tr><td>Code of Conduct</td><td>Add Bribery Act 2010; Modern Slavery Act 2015; Equality Act 2010</td><td><span class="pri-medium">Medium</span></td></tr>
+          <tr><td>Remote Work</td><td>Add DSE assessment obligation; add flexible working right reference</td><td><span class="pri-medium">Medium</span></td></tr>
+          <tr><td>Workwear / PPE</td><td>Complete placeholder; add PPE at Work Regs 1992</td><td><span class="pri-low">Low</span></td></tr>
+          <tr><td>Blood Donation</td><td>Clarify paid/unpaid; use NHS terminology</td><td><span class="pri-low">Low</span></td></tr>
+          <tr><td>Senior Days Off</td><td>Complete or remove; Equality Act 2010 compliance if retained</td><td><span class="pri-low">Low</span></td></tr>
+          <tr><td>Weather Absence</td><td>Add remote working option; add employer-closure pay rule</td><td><span class="pri-low">Low</span></td></tr>
+          <tr><td>All "[insert]" Placeholders</td><td>All placeholder sections must be completed with UK-specific content</td><td><span class="pri-high">High</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="disclaimer animate-up delay-2">
+      <strong>Important notice:</strong> This audit was conducted by Atlas AI Research / Rox AI Orchestrator on 2 March 2026. It is provided for guidance and information purposes only and does not constitute legal advice. Guldmann should seek advice from a qualified UK employment solicitor before distributing any updated version of this handbook to UK employees. Laws and statutory rates referenced were current as of the audit date and may change.
+    </div>
+  </div>
+</section>
 
 <script>
-let activeFilter = 'all';
+document.body.classList.add('js-loaded');
 
+// Scroll animations
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('is-visible'); observer.unobserve(e.target); }});
+}, { threshold: 0.12 });
+document.querySelectorAll('.animate-up').forEach(el => observer.observe(el));
+
+// Card toggle
 function toggleCard(header) {
-  const card = header.closest('.card');
-  card.classList.toggle('open');
+  header.closest('.comp-card').classList.toggle('open');
 }
 
-function setFilter(filter, btn) {
-  activeFilter = filter;
+// Filter
+let activeFilter = 'all';
+function setFilter(f, btn) {
+  activeFilter = f;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   filterCards();
 }
-
 function filterCards() {
-  const query = document.getElementById('searchBox').value.toLowerCase();
-  document.querySelectorAll('.card').forEach(card => {
-    const matchesFilter = activeFilter === 'all' || card.classList.contains(activeFilter);
-    const text = (card.dataset.text || '') + ' ' + card.innerText.toLowerCase();
-    const matchesSearch = !query || text.includes(query);
-    card.classList.toggle('hidden', !(matchesFilter && matchesSearch));
+  const q = document.getElementById('searchBox').value.toLowerCase();
+  let count = 0;
+  document.querySelectorAll('.comp-card').forEach(card => {
+    const matchFilter = activeFilter === 'all' || card.dataset.status === activeFilter;
+    const text = (card.dataset.text||'') + ' ' + card.innerText.toLowerCase();
+    const matchSearch = !q || text.includes(q);
+    const show = matchFilter && matchSearch;
+    card.classList.toggle('hidden', !show);
+    if(show) count++;
   });
+  document.getElementById('resultCount').textContent = count + ' section' + (count !== 1 ? 's' : '');
 }
 </script>
 </body>
