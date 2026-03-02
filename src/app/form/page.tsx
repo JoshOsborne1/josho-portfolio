@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, Check, Loader2 } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Check, Loader2, Scan, BookOpen, Clock, FileText, Zap, GraduationCap, Lightbulb } from 'lucide-react';
 import { GuldmannParticles } from '@/components/GuldmannParticles';
 
 // Reusable custom checkbox component
@@ -65,6 +65,45 @@ const CustomRadio = ({
     <span className="text-gray-700">{label}</span>
   </label>
 );
+
+
+
+// Reusable Hint Box component
+const HintBox = ({ title, children }: { title: React.ReactNode, children: React.ReactNode }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <div className="mt-4 mb-6 rounded-lg border-l-4 border-[#F4B626] bg-[rgba(244,182,38,0.08)] overflow-hidden">
+      <button 
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-[rgba(244,182,38,0.12)] transition-colors"
+      >
+        <div className="flex items-center gap-2 text-gray-800 font-semibold">
+          <Lightbulb className="w-5 h-5 text-[#F4B626]" />
+          <span>{title}</span>
+        </div>
+        <div className="text-sm font-medium text-gray-600 flex items-center gap-1">
+          {isOpen ? 'Hide' : 'Show examples'}
+          <ChevronRight className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`} />
+        </div>
+      </button>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="px-4 pb-4 pt-1 text-sm text-gray-700 leading-relaxed">
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 export default function GuldmannForm() {
   const [step, setStep] = useState(1);
@@ -232,8 +271,95 @@ export default function GuldmannForm() {
         </div>
       </div>
 
+
+      {/* Inspiration Strip */}
+      <div className="w-full bg-[#F7F8FA] border-y border-gray-200 py-12 relative z-10">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-[#111111]">Here's what tools like these look like in practice</h2>
+            <p className="text-gray-600 mt-1">Already built for Guldmann - more on the way.</p>
+          </div>
+          
+          <div className="flex overflow-x-auto pb-6 -mx-6 px-6 xl:mx-0 xl:px-0 gap-6 snap-x snap-mandatory scrollbar-hide xl:grid xl:grid-cols-3 xl:overflow-visible">
+            
+            {/* Real Tool 1 */}
+            <div className="min-w-[300px] xl:min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 p-6 border-t-4 border-t-[#F4B626] snap-start flex-shrink-0 flex flex-col h-full">
+              <div className="flex items-start justify-between mb-4">
+                <div className="w-12 h-12 rounded-lg bg-gray-50 flex items-center justify-center">
+                  <Scan className="w-6 h-6 text-gray-700" />
+                </div>
+                <span className="px-3 py-1 bg-[#111111] text-white text-xs font-bold rounded-full">Live</span>
+              </div>
+              <h3 className="text-lg font-bold mb-2">Stock Take</h3>
+              <p className="text-sm text-gray-600 leading-relaxed mt-auto">NFC warehouse scanning. Tap an item, set quantity, van stock updates automatically. Zero paperwork.</p>
+            </div>
+
+            {/* Real Tool 2 */}
+            <div className="min-w-[300px] xl:min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 p-6 border-t-4 border-t-[#F4B626] snap-start flex-shrink-0 flex flex-col h-full">
+              <div className="flex items-start justify-between mb-4">
+                <div className="w-12 h-12 rounded-lg bg-gray-50 flex items-center justify-center">
+                  <BookOpen className="w-6 h-6 text-gray-700" />
+                </div>
+                <span className="px-3 py-1 bg-[#111111] text-white text-xs font-bold rounded-full">Live</span>
+              </div>
+              <h3 className="text-lg font-bold mb-2">Check the Book</h3>
+              <p className="text-sm text-gray-600 leading-relaxed mt-auto">Ask an AI that's read every Guldmann manual. Page-cited answers in seconds, 24/7.</p>
+            </div>
+
+            {/* Real Tool 3 */}
+            <div className="min-w-[300px] xl:min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 p-6 border-t-4 border-t-[#F4B626] snap-start flex-shrink-0 flex flex-col h-full">
+              <div className="flex items-start justify-between mb-4">
+                <div className="w-12 h-12 rounded-lg bg-gray-50 flex items-center justify-center">
+                  <Clock className="w-6 h-6 text-gray-700" />
+                </div>
+                <span className="px-3 py-1 bg-[#111111] text-white text-xs font-bold rounded-full">Live</span>
+              </div>
+              <h3 className="text-lg font-bold mb-2">Time Logger</h3>
+              <p className="text-sm text-gray-600 leading-relaxed mt-auto">10 seconds to log your day. Syncs live to SharePoint. No chasing, no spreadsheets.</p>
+            </div>
+
+            {/* Possible Tool 1 */}
+            <div className="min-w-[300px] xl:min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 p-6 border-t-4 border-t-gray-200 snap-start flex-shrink-0 flex flex-col h-full relative overflow-hidden group hover:border-t-[#F4B626] transition-colors">
+              <div className="flex items-start justify-between mb-4 relative z-10">
+                <div className="w-12 h-12 rounded-lg bg-gray-50 flex items-center justify-center group-hover:bg-gray-100 transition-colors">
+                  <FileText className="w-6 h-6 text-gray-400 group-hover:text-gray-700 transition-colors" />
+                </div>
+                <span className="px-3 py-1 bg-[#F4B626] text-black text-xs font-bold rounded-full">Planned</span>
+              </div>
+              <h3 className="text-lg font-bold mb-2 relative z-10">Smart Report Builder</h3>
+              <p className="text-sm text-gray-600 leading-relaxed mt-auto relative z-10">Answer a few questions, get a formatted PDF report ready to send. No Word wrestling.</p>
+            </div>
+
+            {/* Possible Tool 2 */}
+            <div className="min-w-[300px] xl:min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 p-6 border-t-4 border-t-gray-200 snap-start flex-shrink-0 flex flex-col h-full relative overflow-hidden group hover:border-t-[#F4B626] transition-colors">
+              <div className="flex items-start justify-between mb-4 relative z-10">
+                <div className="w-12 h-12 rounded-lg bg-gray-50 flex items-center justify-center group-hover:bg-gray-100 transition-colors">
+                  <Zap className="w-6 h-6 text-gray-400 group-hover:text-gray-700 transition-colors" />
+                </div>
+                <span className="px-3 py-1 bg-[#F4B626] text-black text-xs font-bold rounded-full">Planned</span>
+              </div>
+              <h3 className="text-lg font-bold mb-2 relative z-10">Quote Assistant</h3>
+              <p className="text-sm text-gray-600 leading-relaxed mt-auto relative z-10">Type a customer's need, get a draft quote pre-filled from your product catalogue.</p>
+            </div>
+
+            {/* Possible Tool 3 */}
+            <div className="min-w-[300px] xl:min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 p-6 border-t-4 border-t-gray-200 snap-start flex-shrink-0 flex flex-col h-full relative overflow-hidden group hover:border-t-[#F4B626] transition-colors">
+              <div className="flex items-start justify-between mb-4 relative z-10">
+                <div className="w-12 h-12 rounded-lg bg-gray-50 flex items-center justify-center group-hover:bg-gray-100 transition-colors">
+                  <GraduationCap className="w-6 h-6 text-gray-400 group-hover:text-gray-700 transition-colors" />
+                </div>
+                <span className="px-3 py-1 bg-[#F4B626] text-black text-xs font-bold rounded-full">Planned</span>
+              </div>
+              <h3 className="text-lg font-bold mb-2 relative z-10">Training Tracker</h3>
+              <p className="text-sm text-gray-600 leading-relaxed mt-auto relative z-10">See who's completed what compliance training. Auto-reminders before expiry.</p>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+
       {/* Main Form Container */}
-      <div className="max-w-3xl mx-auto px-4 md:px-6 -mt-20 relative z-20">
+      <div className="max-w-3xl mx-auto px-4 md:px-6 -mt-10 relative z-20 pb-20">
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
           
           {/* Progress Bar */}
@@ -396,9 +522,15 @@ export default function GuldmannForm() {
                       )}
                     </div>
 
+
                     <div className="space-y-3 pt-4">
                       <label className="block text-sm font-semibold text-gray-700">How many hours a week do you spend on repetitive or manual tasks? <span className="text-red-500">*</span></label>
                       <p className="text-sm text-gray-500 mb-2">Think data entry, copying between systems, formatting reports, etc.</p>
+                      
+                      <HintBox title="Not sure what could be automated?">
+                        <p>Things like copying data between systems, chasing colleagues for updates, formatting the same report every week, filling in the same fields across multiple spreadsheets - all of these can typically be automated.</p>
+                      </HintBox>
+
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {[
                           'Less than 2hrs',
@@ -582,9 +714,20 @@ export default function GuldmannForm() {
                       </AnimatePresence>
                     </div>
 
+
                     <div className="space-y-3 pt-4 border-t border-gray-100">
                       <label className="block text-sm font-semibold text-gray-700">Which of these AI-assisted tasks interest you most? <span className="text-red-500">*</span></label>
                       <p className="text-sm text-gray-500 mb-2">Select up to 3</p>
+                      
+                      <HintBox title="What AI can actually do at work (with real examples):">
+                        <ul className="list-disc pl-5 space-y-1">
+                          <li>"Summarise this 40-page report for me" - done in 10 seconds</li>
+                          <li>"Draft a reply to this complaint email" - review and send in 2 minutes</li>
+                          <li>"Find every mention of [customer name] across our SharePoint files" - instant</li>
+                          <li>"I need to write up this site visit" - speak naturally, AI formats it</li>
+                        </ul>
+                      </HintBox>
+
                       <div className="grid grid-cols-1 gap-2">
                         {[
                           'Writing/drafting emails and documents',
@@ -633,13 +776,25 @@ export default function GuldmannForm() {
                   </div>
                 )}
 
+
                 {/* --- STEP 5: MAKING LIFE EASIER --- */}
                 {step === 5 && (
                   <div className="space-y-8">
                     <h2 className="text-2xl font-bold mb-6">Making Life Easier</h2>
-                    <p className="text-gray-600 mb-6">Your honest feedback here is incredibly valuable.</p>
+                    <p className="text-gray-600 mb-2">Your honest feedback here is incredibly valuable.</p>
                     
-                    <div className="space-y-2">
+                    <HintBox title="Need inspiration? Common examples from teams like yours:">
+                      <ul className="list-disc pl-5 space-y-1">
+                        <li>Filling in the same information across multiple systems</li>
+                        <li>Chasing colleagues for sign-offs or updates</li>
+                        <li>Manually creating weekly/monthly reports from spreadsheets</li>
+                        <li>Formatting and sending the same type of email repeatedly</li>
+                        <li>Finding the right document in SharePoint</li>
+                        <li>Logging time or activity at the end of the day</li>
+                      </ul>
+                    </HintBox>
+                    
+                    <div className="space-y-2 mt-4">
                       <label htmlFor="frustrations" className="block text-sm font-semibold text-gray-700">What's the most time-consuming or frustrating part of your job?</label>
                       <textarea 
                         id="frustrations"
