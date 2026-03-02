@@ -523,9 +523,13 @@ const DepartmentPicker = ({
                   }`}
                 >
                   <span className="block font-semibold text-[13px]">{dept.value}</span>
-                  {dept.sub && (hovered === dept.value || value === dept.value) && (
-                    <span className="block text-[11px] text-[#F4B626] mt-0.5">{dept.sub}</span>
-                  )}
+                  <span className={`block text-[11px] mt-0.5 transition-colors duration-150 ${
+                    dept.sub && (hovered === dept.value || value === dept.value)
+                      ? 'text-[#F4B626]'
+                      : 'text-transparent select-none'
+                  }`}>
+                    {dept.sub || '\u00A0'}
+                  </span>
                   {value === dept.value && (
                     <div className="absolute top-2 right-2">
                       <Check className="w-3.5 h-3.5 text-[#F4B626]" strokeWidth={3} />
