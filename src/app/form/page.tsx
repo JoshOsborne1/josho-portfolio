@@ -2,7 +2,141 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, Check, Loader2, Scan, BookOpen, Clock, FileText, Zap, GraduationCap, Lightbulb, MessageSquare } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Check, Loader2, Scan, BookOpen, Clock, FileText, Zap, GraduationCap, Lightbulb, MessageSquare, ChevronDown, QrCode, Plus, Minus } from 'lucide-react';
+
+
+const StockTakeMockup = () => {
+  const items = [
+    { name: "Ceiling Hook Assembly", part: "GLD-CHA-120", qty: "x3" },
+    { name: "C-Rail Bracket Set", part: "GLD-CRS-045", qty: "x12" },
+    { name: "HC300 Remote Unit", part: "GLD-RC-300", qty: "x1" }
+  ];
+  const [idx, setIdx] = useState(0);
+  const [flash, setFlash] = useState(false);
+
+  const handleScan = () => {
+    setFlash(true);
+    setIdx((i) => (i + 1) % items.length);
+    setTimeout(() => setFlash(false), 300);
+  };
+
+  return (
+    <div className="w-full max-w-[240px] mx-auto mt-4 overflow-hidden rounded-[28px] border-2 border-[rgba(255,255,255,0.1)] bg-[#0A0A0A] relative hover:scale-[1.02] transition-transform cursor-pointer" onClick={handleScan}>
+      <div className="absolute top-0 inset-x-0 h-4 bg-[#0A0A0A] z-10 flex justify-center">
+        <div className="w-16 h-3 bg-black rounded-b-xl"></div>
+      </div>
+      <div className="p-4 pt-6 h-[220px] flex flex-col relative">
+        <div className="text-center mb-2">
+          <div className="text-[10px] text-[#F4B626] font-bold tracking-widest">STOCK TAKE</div>
+          <div className="text-[10px] text-[#555]">Tap item to scan</div>
+        </div>
+        
+        <div className="flex-1 flex items-center justify-center relative">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className={`w-24 h-24 rounded-full border border-[#F4B626]/30 transition-all duration-300 ${flash ? 'bg-green-500/20 scale-110' : 'animate-ping'}`}></div>
+          </div>
+          <div className="w-20 h-20 border-2 border-[#F4B626]/20 relative flex items-center justify-center">
+            <div className="absolute -top-1 -left-1 w-2 h-2 border-t-2 border-l-2 border-[#F4B626]"></div>
+            <div className="absolute -top-1 -right-1 w-2 h-2 border-t-2 border-r-2 border-[#F4B626]"></div>
+            <div className="absolute -bottom-1 -left-1 w-2 h-2 border-b-2 border-l-2 border-[#F4B626]"></div>
+            <div className="absolute -bottom-1 -right-1 w-2 h-2 border-b-2 border-r-2 border-[#F4B626]"></div>
+            <QrCode className="w-8 h-8 text-[#333]" />
+          </div>
+        </div>
+
+        <div className="bg-[#111] rounded-lg p-2.5 mt-2 border border-white/5">
+          <div className="flex justify-between items-start">
+            <div>
+              <div className="text-white text-[13px] font-medium leading-tight">{items[idx].name}</div>
+              <div className="text-[#555] text-[11px] mt-0.5">{items[idx].part}</div>
+            </div>
+            <div className="bg-[#F4B626]/10 text-[#F4B626] text-[11px] font-bold px-1.5 py-0.5 rounded">{items[idx].qty}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const TimeLoggerMockup = () => {
+  const [hours, setHours] = useState(7.5);
+  
+  const handleDec = (e: React.MouseEvent) => { e.stopPropagation(); setHours(h => Math.max(0.5, h - 0.5)); };
+  const handleInc = (e: React.MouseEvent) => { e.stopPropagation(); setHours(h => Math.min(12, h + 0.5)); };
+
+  const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+
+  return (
+    <div className="w-full max-w-[240px] mx-auto mt-4 overflow-hidden rounded-[28px] border-2 border-[rgba(255,255,255,0.1)] bg-[#0A0A0A] relative hover:scale-[1.02] transition-transform">
+      <div className="absolute top-0 inset-x-0 h-4 bg-[#0A0A0A] z-10 flex justify-center">
+        <div className="w-16 h-3 bg-black rounded-b-xl"></div>
+      </div>
+      <div className="p-4 pt-6 h-[220px] flex flex-col">
+        <div className="text-center mb-3">
+          <div className="text-[10px] text-[#F4B626] font-bold tracking-widest">TIME LOG</div>
+          <div className="text-[10px] text-[#555]">Today - {date}</div>
+        </div>
+
+        <div className="bg-[#1A1A1A] rounded-md px-3 py-2 flex items-center justify-between mb-4 border border-white/5">
+          <span className="text-white text-[12px] truncate">St. Mary's - Hoist Install</span>
+          <ChevronDown className="w-3 h-3 text-[#666]" />
+        </div>
+
+        <div className="flex items-center justify-between px-4 mb-4">
+          <button onClick={handleDec} className="w-8 h-8 rounded-full bg-[#1A1A1A] flex items-center justify-center border border-white/5 text-white hover:bg-[#222]">
+            <Minus className="w-4 h-4" />
+          </button>
+          <div className="text-3xl font-light text-white tracking-tight">{hours.toFixed(1)}</div>
+          <button onClick={handleInc} className="w-8 h-8 rounded-full bg-[#1A1A1A] flex items-center justify-center border border-white/5 text-white hover:bg-[#222]">
+            <Plus className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="mt-auto">
+          <button className="w-full bg-[#F4B626] text-black text-[12px] font-bold py-2 rounded-lg">LOG IT</button>
+          <div className="text-center mt-2 text-[9px] text-[#444] italic">Syncs to SharePoint automatically</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const QuoteAssistantMockup = () => {
+  return (
+    <div className="w-full max-w-[240px] mx-auto mt-4 overflow-hidden rounded-[28px] border-2 border-[rgba(255,255,255,0.1)] bg-[#0A0A0A] relative hover:scale-[1.02] transition-transform">
+      <div className="absolute top-0 inset-x-0 h-4 bg-[#0A0A0A] z-10 flex justify-center">
+        <div className="w-16 h-3 bg-black rounded-b-xl"></div>
+      </div>
+      <div className="p-3 pt-6 h-[220px] flex flex-col">
+        <div className="text-center mb-3">
+          <div className="text-[10px] text-[#F4B626] font-bold tracking-widest">QUOTE ASSISTANT</div>
+        </div>
+
+        <div className="space-y-2 flex-1">
+          <div className="flex justify-end">
+            <div className="bg-[#F4B626] text-black text-[10px] p-2 rounded-xl rounded-tr-sm max-w-[85%] leading-tight">
+              Customer needs ceiling hoist for 2-bed ward, weight limit 200kg
+            </div>
+          </div>
+          
+          <div className="flex justify-start">
+            <div className="bg-[#1A1A1A] border border-white/5 text-white text-[10px] p-2 rounded-xl rounded-tl-sm max-w-[85%] leading-tight flex items-center gap-1.5">
+              <Loader2 className="w-3 h-3 animate-spin text-[#F4B626] shrink-0" />
+              Got it. Generating quote for GH5 Hoist System...
+            </div>
+          </div>
+
+          <div className="flex justify-start">
+            <div className="bg-[#1A1A1A] border border-white/5 text-white text-[10px] p-2 rounded-xl rounded-tl-sm max-w-[85%] leading-tight">
+              <div className="mb-1.5">Draft ready. GH5 + C-Rail Kit + Installation. Est. £4,200.</div>
+              <button className="bg-[#F4B626]/20 text-[#F4B626] font-medium px-2 py-1 rounded text-[9px]">View Quote</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Reusable custom checkbox component
 const CustomCheckbox = ({ 
@@ -294,9 +428,10 @@ export default function GuldmannForm() {
 
           <button 
             onClick={() => document.getElementById('tools-section')?.scrollIntoView({ behavior: 'smooth' })}
-            className="text-sm font-medium text-gray-300 hover:text-white transition-colors flex items-center gap-1"
+            className="bg-[rgba(244,182,38,0.15)] border border-[rgba(244,182,38,0.5)] text-[#F4B626] text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5 hover:bg-[rgba(244,182,38,0.25)] transition-all"
+            style={{ boxShadow: '0 0 12px rgba(244,182,38,0.4)' }}
           >
-            What can be built? <ChevronRight className="w-4 h-4" />
+            <Zap className="w-3.5 h-3.5" /> See what we can build
           </button>
         </header>
 
@@ -828,6 +963,13 @@ export default function GuldmannForm() {
             
           </div>
         </main>
+        <div 
+          onClick={() => document.getElementById('tools-section')?.scrollIntoView({ behavior: 'smooth' })}
+          className="cursor-pointer bg-[#0D0D0D] h-14 flex flex-col items-center justify-center gap-1 group w-full shrink-0"
+        >
+          <span className="text-xs text-[#555] font-medium group-hover:text-[#888] transition-colors tracking-wide uppercase">See what's possible</span>
+          <ChevronDown className="w-4 h-4 text-[#F4B626] animate-bounce" />
+        </div>
       </div>
 
       {/* SECTION B - Tool Cards (Scrolled to on demand) */}
@@ -859,7 +1001,7 @@ export default function GuldmannForm() {
                 scale: 1.02, 
                 boxShadow: '0 0 0 1px rgba(244,182,38,0.35), 0 16px 48px rgba(244,182,38,0.12)' 
               }}
-              className="bg-[#111] rounded-xl p-6 border border-white/5 flex flex-col h-full relative group transition-all duration-250 ease-out"
+              className="bg-[#111] rounded-xl p-6 border border-white/5 flex flex-col h-full relative group transition-all duration-250 ease-out col-span-1"
             >
               <div className="flex items-start justify-between mb-5">
                 <div className="w-12 h-12 rounded-full bg-[rgba(244,182,38,0.12)] flex items-center justify-center group-hover:bg-[#F4B626] transition-colors duration-250">
@@ -867,9 +1009,12 @@ export default function GuldmannForm() {
                 </div>
               </div>
               <h3 className="text-[16px] font-bold text-white mb-3">Smart Stock Take</h3>
-              <p className="text-[14px] text-[#777] group-hover:text-[#ccc] leading-relaxed mt-auto transition-colors duration-250 mb-6">
+              <p className="text-[14px] text-[#777] group-hover:text-[#ccc] leading-relaxed transition-colors duration-250 mb-6">
                 Tap your phone to any item. Inventory logged, van stock updated, activity trail created. Zero spreadsheets.
               </p>
+              <div className="mt-auto mb-6 flex justify-center items-center">
+                <StockTakeMockup />
+              </div>
               <div className="absolute bottom-6 right-6">
                 <span className="px-2 py-0.5 bg-[rgba(244,182,38,0.12)] text-[#cd962b] text-xs font-bold rounded-full">Possible</span>
               </div>
@@ -886,7 +1031,7 @@ export default function GuldmannForm() {
                 scale: 1.02, 
                 boxShadow: '0 0 0 1px rgba(244,182,38,0.35), 0 16px 48px rgba(244,182,38,0.12)' 
               }}
-              className="bg-[#111] rounded-xl p-6 border border-white/5 flex flex-col h-full relative group transition-all duration-250 ease-out"
+              className="bg-[#111] rounded-xl p-6 border border-white/5 flex flex-col h-full relative group transition-all duration-250 ease-out col-span-1"
             >
               <div className="flex items-start justify-between mb-5">
                 <div className="w-12 h-12 rounded-full bg-[rgba(244,182,38,0.12)] flex items-center justify-center group-hover:bg-[#F4B626] transition-colors duration-250">
@@ -921,9 +1066,12 @@ export default function GuldmannForm() {
                 </div>
               </div>
               <h3 className="text-[16px] font-bold text-white mb-3">Time Logger</h3>
-              <p className="text-[14px] text-[#777] group-hover:text-[#ccc] leading-relaxed mt-auto transition-colors duration-250 mb-6">
+              <p className="text-[14px] text-[#777] group-hover:text-[#ccc] leading-relaxed transition-colors duration-250 mb-6">
                 Log your day in 10 seconds. Auto-syncs to timesheets. No end-of-week guessing.
               </p>
+              <div className="mt-auto mb-6 flex justify-center items-center">
+                <TimeLoggerMockup />
+              </div>
               <div className="absolute bottom-6 right-6">
                 <span className="px-2 py-0.5 bg-[rgba(244,182,38,0.12)] text-[#cd962b] text-xs font-bold rounded-full">Possible</span>
               </div>
@@ -967,7 +1115,7 @@ export default function GuldmannForm() {
                 scale: 1.02, 
                 boxShadow: '0 0 0 1px rgba(244,182,38,0.35), 0 16px 48px rgba(244,182,38,0.12)' 
               }}
-              className="bg-[#111] rounded-xl p-6 border border-white/5 flex flex-col h-full relative group transition-all duration-250 ease-out"
+              className="bg-[#111] rounded-xl p-6 border border-white/5 flex flex-col h-full relative group transition-all duration-250 ease-out col-span-1"
             >
               <div className="flex items-start justify-between mb-5">
                 <div className="w-12 h-12 rounded-full bg-[rgba(244,182,38,0.12)] flex items-center justify-center group-hover:bg-[#F4B626] transition-colors duration-250">
@@ -975,9 +1123,12 @@ export default function GuldmannForm() {
                 </div>
               </div>
               <h3 className="text-[16px] font-bold text-white mb-3">Quote Assistant</h3>
-              <p className="text-[14px] text-[#777] group-hover:text-[#ccc] leading-relaxed mt-auto transition-colors duration-250 mb-6">
+              <p className="text-[14px] text-[#777] group-hover:text-[#ccc] leading-relaxed transition-colors duration-250 mb-6">
                 Type a customer need, get a pre-filled draft quote from the product catalogue. Done in minutes.
               </p>
+              <div className="mt-auto mb-6 flex justify-center items-center">
+                <QuoteAssistantMockup />
+              </div>
               <div className="absolute bottom-6 right-6">
                 <span className="px-2 py-0.5 bg-[rgba(244,182,38,0.12)] text-[#cd962b] text-xs font-bold rounded-full">Possible</span>
               </div>
