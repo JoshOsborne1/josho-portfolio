@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, Check, Loader2 } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Check, Loader2, Scan, BookOpen, Clock, FileText, Zap, GraduationCap, Lightbulb, MessageSquare } from 'lucide-react';
 import { GuldmannParticles } from '@/components/GuldmannParticles';
 
 // Reusable custom checkbox component
@@ -65,6 +65,45 @@ const CustomRadio = ({
     <span className="text-gray-700">{label}</span>
   </label>
 );
+
+
+
+// Reusable Hint Box component
+const HintBox = ({ title, children }: { title: React.ReactNode, children: React.ReactNode }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <div className="mt-4 mb-6 rounded-lg border-l-4 border-[#F4B626] bg-[rgba(244,182,38,0.08)] overflow-hidden">
+      <button 
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-[rgba(244,182,38,0.12)] transition-colors"
+      >
+        <div className="flex items-center gap-2 text-gray-800 font-semibold">
+          <Lightbulb className="w-5 h-5 text-[#F4B626]" />
+          <span>{title}</span>
+        </div>
+        <div className="text-sm font-medium text-gray-600 flex items-center gap-1">
+          {isOpen ? 'Hide' : 'Show examples'}
+          <ChevronRight className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`} />
+        </div>
+      </button>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="px-4 pb-4 pt-1 text-sm text-gray-700 leading-relaxed">
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 export default function GuldmannForm() {
   const [step, setStep] = useState(1);
@@ -232,8 +271,179 @@ export default function GuldmannForm() {
         </div>
       </div>
 
+
+      {/* Inspiration Strip */}
+      <div className="w-full bg-[#0D0D0D] py-16 px-6 relative z-10">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">What could be built for Guldmann</h2>
+            <p className="text-[#888] text-lg">These are examples of what's possible - every tool built around your actual workflow.</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            
+            {/* Tool 1 */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0 * 0.08, duration: 0.5 }}
+              whileHover={{ 
+                y: -8, 
+                scale: 1.03, 
+                boxShadow: '0 0 0 1px rgba(244,182,38,0.4), 0 20px 60px rgba(244,182,38,0.15)' 
+              }}
+              className="bg-[#111111] rounded-xl p-6 border border-white/5 flex flex-col h-full relative group transition-all duration-250 ease-out"
+            >
+              <div className="flex items-start justify-between mb-5">
+                <div className="w-12 h-12 rounded-full bg-[#F4B626]/15 flex items-center justify-center group-hover:bg-[#F4B626] transition-colors duration-250">
+                  <Scan className="w-6 h-6 text-[#F4B626] group-hover:text-white transition-colors duration-250" />
+                </div>
+              </div>
+              <h3 className="text-[18px] font-bold text-white mb-3">Smart Stock Take</h3>
+              <p className="text-sm text-[#999] group-hover:text-[#ccc] leading-relaxed mt-auto transition-colors duration-250 mb-6">
+                Tap your phone to any item. Instant inventory logging, van stock tracking, activity trail. No spreadsheets.
+              </p>
+              <div className="absolute bottom-6 right-6">
+                <span className="px-3 py-1 bg-[#F4B626]/15 text-[#cd962b] border border-[#F4B626]/40 text-xs font-bold rounded-full">Possible</span>
+              </div>
+            </motion.div>
+
+            {/* Tool 2 */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1 * 0.08, duration: 0.5 }}
+              whileHover={{ 
+                y: -8, 
+                scale: 1.03, 
+                boxShadow: '0 0 0 1px rgba(244,182,38,0.4), 0 20px 60px rgba(244,182,38,0.15)' 
+              }}
+              className="bg-[#111111] rounded-xl p-6 border border-white/5 flex flex-col h-full relative group transition-all duration-250 ease-out"
+            >
+              <div className="flex items-start justify-between mb-5">
+                <div className="w-12 h-12 rounded-full bg-[#F4B626]/15 flex items-center justify-center group-hover:bg-[#F4B626] transition-colors duration-250">
+                  <BookOpen className="w-6 h-6 text-[#F4B626] group-hover:text-white transition-colors duration-250" />
+                </div>
+              </div>
+              <h3 className="text-[18px] font-bold text-white mb-3">Ask the Manual</h3>
+              <p className="text-sm text-[#999] group-hover:text-[#ccc] leading-relaxed mt-auto transition-colors duration-250 mb-6">
+                Every Guldmann manual, searchable by AI. Ask a question, get the answer with page reference. 24/7.
+              </p>
+              <div className="absolute bottom-6 right-6">
+                <span className="px-3 py-1 bg-[#F4B626]/15 text-[#cd962b] border border-[#F4B626]/40 text-xs font-bold rounded-full">Possible</span>
+              </div>
+            </motion.div>
+
+            {/* Tool 3 */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 2 * 0.08, duration: 0.5 }}
+              whileHover={{ 
+                y: -8, 
+                scale: 1.03, 
+                boxShadow: '0 0 0 1px rgba(244,182,38,0.4), 0 20px 60px rgba(244,182,38,0.15)' 
+              }}
+              className="bg-[#111111] rounded-xl p-6 border border-white/5 flex flex-col h-full relative group transition-all duration-250 ease-out"
+            >
+              <div className="flex items-start justify-between mb-5">
+                <div className="w-12 h-12 rounded-full bg-[#F4B626]/15 flex items-center justify-center group-hover:bg-[#F4B626] transition-colors duration-250">
+                  <Clock className="w-6 h-6 text-[#F4B626] group-hover:text-white transition-colors duration-250" />
+                </div>
+              </div>
+              <h3 className="text-[18px] font-bold text-white mb-3">Time Logger</h3>
+              <p className="text-sm text-[#999] group-hover:text-[#ccc] leading-relaxed mt-auto transition-colors duration-250 mb-6">
+                Log your day in 10 seconds. Auto-syncs to timesheets. No end-of-week guessing.
+              </p>
+              <div className="absolute bottom-6 right-6">
+                <span className="px-3 py-1 bg-[#F4B626]/15 text-[#cd962b] border border-[#F4B626]/40 text-xs font-bold rounded-full">Possible</span>
+              </div>
+            </motion.div>
+
+            {/* Tool 4 */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 3 * 0.08, duration: 0.5 }}
+              whileHover={{ 
+                y: -8, 
+                scale: 1.03, 
+                boxShadow: '0 0 0 1px rgba(244,182,38,0.4), 0 20px 60px rgba(244,182,38,0.15)' 
+              }}
+              className="bg-[#111111] rounded-xl p-6 border border-white/5 flex flex-col h-full relative group transition-all duration-250 ease-out"
+            >
+              <div className="flex items-start justify-between mb-5">
+                <div className="w-12 h-12 rounded-full bg-[#F4B626]/15 flex items-center justify-center group-hover:bg-[#F4B626] transition-colors duration-250">
+                  <FileText className="w-6 h-6 text-[#F4B626] group-hover:text-white transition-colors duration-250" />
+                </div>
+              </div>
+              <h3 className="text-[18px] font-bold text-white mb-3">Report Builder</h3>
+              <p className="text-sm text-[#999] group-hover:text-[#ccc] leading-relaxed mt-auto transition-colors duration-250 mb-6">
+                Answer a few questions, get a formatted PDF report ready to send. No more Word wrestling.
+              </p>
+              <div className="absolute bottom-6 right-6">
+                <span className="px-3 py-1 bg-[#F4B626]/15 text-[#cd962b] border border-[#F4B626]/40 text-xs font-bold rounded-full">Possible</span>
+              </div>
+            </motion.div>
+
+            {/* Tool 5 */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 4 * 0.08, duration: 0.5 }}
+              whileHover={{ 
+                y: -8, 
+                scale: 1.03, 
+                boxShadow: '0 0 0 1px rgba(244,182,38,0.4), 0 20px 60px rgba(244,182,38,0.15)' 
+              }}
+              className="bg-[#111111] rounded-xl p-6 border border-white/5 flex flex-col h-full relative group transition-all duration-250 ease-out"
+            >
+              <div className="flex items-start justify-between mb-5">
+                <div className="w-12 h-12 rounded-full bg-[#F4B626]/15 flex items-center justify-center group-hover:bg-[#F4B626] transition-colors duration-250">
+                  <MessageSquare className="w-6 h-6 text-[#F4B626] group-hover:text-white transition-colors duration-250" />
+                </div>
+              </div>
+              <h3 className="text-[18px] font-bold text-white mb-3">Quote Assistant</h3>
+              <p className="text-sm text-[#999] group-hover:text-[#ccc] leading-relaxed mt-auto transition-colors duration-250 mb-6">
+                Type a customer's need, get a pre-filled draft quote from the product catalogue. Done in minutes.
+              </p>
+              <div className="absolute bottom-6 right-6">
+                <span className="px-3 py-1 bg-[#F4B626]/15 text-[#cd962b] border border-[#F4B626]/40 text-xs font-bold rounded-full">Possible</span>
+              </div>
+            </motion.div>
+
+            {/* Tool 6 */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 5 * 0.08, duration: 0.5 }}
+              whileHover={{ 
+                y: -8, 
+                scale: 1.03, 
+                boxShadow: '0 0 0 1px rgba(244,182,38,0.4), 0 20px 60px rgba(244,182,38,0.15)' 
+              }}
+              className="bg-[#111111] rounded-xl p-6 border border-white/5 flex flex-col h-full relative group transition-all duration-250 ease-out"
+            >
+              <div className="flex items-start justify-between mb-5">
+                <div className="w-12 h-12 rounded-full bg-[#F4B626]/15 flex items-center justify-center group-hover:bg-[#F4B626] transition-colors duration-250">
+                  <GraduationCap className="w-6 h-6 text-[#F4B626] group-hover:text-white transition-colors duration-250" />
+                </div>
+              </div>
+              <h3 className="text-[18px] font-bold text-white mb-3">Training Tracker</h3>
+              <p className="text-sm text-[#999] group-hover:text-[#ccc] leading-relaxed mt-auto transition-colors duration-250 mb-6">
+                See team compliance at a glance. Auto-reminders before expiry. Nothing falls through the cracks.
+              </p>
+              <div className="absolute bottom-6 right-6">
+                <span className="px-3 py-1 bg-[#F4B626]/15 text-[#cd962b] border border-[#F4B626]/40 text-xs font-bold rounded-full">Possible</span>
+              </div>
+            </motion.div>
+            
+          </div>
+        </div>
+      </div>
+
       {/* Main Form Container */}
-      <div className="max-w-3xl mx-auto px-4 md:px-6 -mt-20 relative z-20">
+      <div className="max-w-3xl mx-auto px-4 md:px-6 -mt-10 relative z-20 pb-20">
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
           
           {/* Progress Bar */}
@@ -396,9 +606,15 @@ export default function GuldmannForm() {
                       )}
                     </div>
 
+
                     <div className="space-y-3 pt-4">
                       <label className="block text-sm font-semibold text-gray-700">How many hours a week do you spend on repetitive or manual tasks? <span className="text-red-500">*</span></label>
                       <p className="text-sm text-gray-500 mb-2">Think data entry, copying between systems, formatting reports, etc.</p>
+                      
+                      <HintBox title="Not sure what could be automated?">
+                        <p>Things like copying data between systems, chasing colleagues for updates, formatting the same report every week, filling in the same fields across multiple spreadsheets - all of these can typically be automated.</p>
+                      </HintBox>
+
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {[
                           'Less than 2hrs',
@@ -582,9 +798,20 @@ export default function GuldmannForm() {
                       </AnimatePresence>
                     </div>
 
+
                     <div className="space-y-3 pt-4 border-t border-gray-100">
                       <label className="block text-sm font-semibold text-gray-700">Which of these AI-assisted tasks interest you most? <span className="text-red-500">*</span></label>
                       <p className="text-sm text-gray-500 mb-2">Select up to 3</p>
+                      
+                      <HintBox title="What AI can actually do at work (with real examples):">
+                        <ul className="list-disc pl-5 space-y-1">
+                          <li>"Summarise this 40-page report for me" - done in 10 seconds</li>
+                          <li>"Draft a reply to this complaint email" - review and send in 2 minutes</li>
+                          <li>"Find every mention of [customer name] across our SharePoint files" - instant</li>
+                          <li>"I need to write up this site visit" - speak naturally, AI formats it</li>
+                        </ul>
+                      </HintBox>
+
                       <div className="grid grid-cols-1 gap-2">
                         {[
                           'Writing/drafting emails and documents',
@@ -633,13 +860,25 @@ export default function GuldmannForm() {
                   </div>
                 )}
 
+
                 {/* --- STEP 5: MAKING LIFE EASIER --- */}
                 {step === 5 && (
                   <div className="space-y-8">
                     <h2 className="text-2xl font-bold mb-6">Making Life Easier</h2>
-                    <p className="text-gray-600 mb-6">Your honest feedback here is incredibly valuable.</p>
+                    <p className="text-gray-600 mb-2">Your honest feedback here is incredibly valuable.</p>
                     
-                    <div className="space-y-2">
+                    <HintBox title="Need inspiration? Common examples from teams like yours:">
+                      <ul className="list-disc pl-5 space-y-1">
+                        <li>Filling in the same information across multiple systems</li>
+                        <li>Chasing colleagues for sign-offs or updates</li>
+                        <li>Manually creating weekly/monthly reports from spreadsheets</li>
+                        <li>Formatting and sending the same type of email repeatedly</li>
+                        <li>Finding the right document in SharePoint</li>
+                        <li>Logging time or activity at the end of the day</li>
+                      </ul>
+                    </HintBox>
+                    
+                    <div className="space-y-2 mt-4">
                       <label htmlFor="frustrations" className="block text-sm font-semibold text-gray-700">What's the most time-consuming or frustrating part of your job?</label>
                       <textarea 
                         id="frustrations"

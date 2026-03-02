@@ -17,7 +17,7 @@ export function GuldmannParticles() {
     // Camera
     const camera = new THREE.PerspectiveCamera(
       75,
-      window.innerWidth / window.innerHeight,
+      container.clientWidth / container.clientHeight,
       0.1,
       1000
     );
@@ -25,15 +25,20 @@ export function GuldmannParticles() {
 
     // Renderer
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     
     // Add to DOM
     container.appendChild(renderer.domElement);
+    renderer.domElement.style.position = 'absolute';
+    renderer.domElement.style.top = '0';
+    renderer.domElement.style.left = '0';
+    renderer.domElement.style.width = '100%';
+    renderer.domElement.style.height = '100%';
 
     // Particles
     const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 300; // not too dense, professional look
+    const particlesCount = 500; // not too dense, professional look
     
     const posArray = new Float32Array(particlesCount * 3);
     const scaleArray = new Float32Array(particlesCount);
@@ -78,7 +83,7 @@ export function GuldmannParticles() {
           gl_Position = projectedPosition;
           
           // Size attenuation based on depth and scale
-          gl_PointSize = (20.0 * aScale) * (1.0 / -viewPosition.z);
+          gl_PointSize = (35.0 * aScale) * (1.0 / -viewPosition.z);
         }
       `,
       fragmentShader: `
@@ -93,7 +98,7 @@ export function GuldmannParticles() {
           if (strength < 0.01) discard;
           
           // Very subtle opacity for professional look
-          gl_FragColor = vec4(uColor, strength * 0.4);
+          gl_FragColor = vec4(uColor, strength * 0.7);
         }
       `,
       transparent: true,
@@ -120,9 +125,9 @@ export function GuldmannParticles() {
 
     // Resize handler
     const onWindowResize = () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.aspect = container.clientWidth / container.clientHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setSize(container.clientWidth, container.clientHeight);
     };
 
     window.addEventListener('resize', onWindowResize);
@@ -170,8 +175,8 @@ export function GuldmannParticles() {
   return (
     <div 
       ref={containerRef} 
-      className="absolute inset-0 z-0 pointer-events-none"
-      style={{ opacity: 0.6 }} // subtle
+      className="absolute inset-0 z-0 pointer-events-none" style={{ position: 'absolute', inset: 0, opacity: 1.0 }}
+      
     />
   );
 }
