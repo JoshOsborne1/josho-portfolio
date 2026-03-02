@@ -147,7 +147,7 @@ export default function GuldmannForm() {
     setError('');
 
     try {
-      const response = await fetch('https://formspree.io/f/xqaqnjvo', {
+      const response = await fetch('https://formspree.io/f/mkovaddd', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
