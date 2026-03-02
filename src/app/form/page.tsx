@@ -1315,11 +1315,7 @@ export default function GuldmannForm() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: 0 * 0.07, duration: 0.5 }}
-              whileHover={{ 
-                y: -6, 
-                scale: 1.02, 
-                boxShadow: '0 0 0 1px rgba(244,182,38,0.35), 0 16px 48px rgba(244,182,38,0.12)' 
-              }}
+              whileHover={{ boxShadow: '0 0 0 1px rgba(244,182,38,0.5), 0 4px 24px rgba(244,182,38,0.1)' }}
               className="bg-[#111] rounded-xl p-6 border border-white/5 flex flex-col h-full relative group transition-all duration-250 ease-out col-span-1"
             >
               <div className="flex items-start justify-between mb-5">
@@ -1345,11 +1341,7 @@ export default function GuldmannForm() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: 1 * 0.07, duration: 0.5 }}
-              whileHover={{ 
-                y: -6, 
-                scale: 1.02, 
-                boxShadow: '0 0 0 1px rgba(244,182,38,0.35), 0 16px 48px rgba(244,182,38,0.12)' 
-              }}
+              whileHover={{ boxShadow: '0 0 0 1px rgba(244,182,38,0.5), 0 4px 24px rgba(244,182,38,0.1)' }}
               className="bg-[#111] rounded-xl p-6 border border-white/5 flex flex-col h-full relative group transition-all duration-250 ease-out col-span-1"
             >
               <div className="flex items-start justify-between mb-5">
@@ -1375,11 +1367,7 @@ export default function GuldmannForm() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: 2 * 0.07, duration: 0.5 }}
-              whileHover={{ 
-                y: -6, 
-                scale: 1.02, 
-                boxShadow: '0 0 0 1px rgba(244,182,38,0.35), 0 16px 48px rgba(244,182,38,0.12)' 
-              }}
+              whileHover={{ boxShadow: '0 0 0 1px rgba(244,182,38,0.5), 0 4px 24px rgba(244,182,38,0.1)' }}
               className="bg-[#111] rounded-xl p-6 border border-white/5 flex flex-col h-full relative group transition-all duration-250 ease-out"
             >
               <div className="flex items-start justify-between mb-5">
@@ -1405,11 +1393,7 @@ export default function GuldmannForm() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: 3 * 0.07, duration: 0.5 }}
-              whileHover={{ 
-                y: -6, 
-                scale: 1.02, 
-                boxShadow: '0 0 0 1px rgba(244,182,38,0.35), 0 16px 48px rgba(244,182,38,0.12)' 
-              }}
+              whileHover={{ boxShadow: '0 0 0 1px rgba(244,182,38,0.5), 0 4px 24px rgba(244,182,38,0.1)' }}
               className="bg-[#111] rounded-xl p-6 border border-white/5 flex flex-col h-full relative group transition-all duration-250 ease-out"
             >
               <div className="flex items-start justify-between mb-5">
@@ -1435,11 +1419,7 @@ export default function GuldmannForm() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: 4 * 0.07, duration: 0.5 }}
-              whileHover={{ 
-                y: -6, 
-                scale: 1.02, 
-                boxShadow: '0 0 0 1px rgba(244,182,38,0.35), 0 16px 48px rgba(244,182,38,0.12)' 
-              }}
+              whileHover={{ boxShadow: '0 0 0 1px rgba(244,182,38,0.5), 0 4px 24px rgba(244,182,38,0.1)' }}
               className="bg-[#111] rounded-xl p-6 border border-white/5 flex flex-col h-full relative group transition-all duration-250 ease-out col-span-1"
             >
               <div className="flex items-start justify-between mb-5">
@@ -1465,11 +1445,7 @@ export default function GuldmannForm() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: 5 * 0.07, duration: 0.5 }}
-              whileHover={{ 
-                y: -6, 
-                scale: 1.02, 
-                boxShadow: '0 0 0 1px rgba(244,182,38,0.35), 0 16px 48px rgba(244,182,38,0.12)' 
-              }}
+              whileHover={{ boxShadow: '0 0 0 1px rgba(244,182,38,0.5), 0 4px 24px rgba(244,182,38,0.1)' }}
               className="bg-[#111] rounded-xl p-6 border border-white/5 flex flex-col h-full relative group transition-all duration-250 ease-out"
             >
               <div className="flex items-start justify-between mb-5">
