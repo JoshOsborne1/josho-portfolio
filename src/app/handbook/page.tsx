@@ -1031,28 +1031,42 @@ export default function HandbookBuilder() {
           * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
           @page { size: A4 portrait; margin: 0; }
 
-          body > * { display: none !important; }
-          #handbook-print-root { display: block !important; }
-
+          /* Hide everything except print root */
+          body { margin: 0 !important; padding: 0 !important; background: white !important; }
+          body > div > * { display: none !important; }
+          #handbook-print-root,
+          #handbook-print-root * { display: revert !important; }
           .no-print { display: none !important; }
 
+          #handbook-print-root {
+            display: block !important;
+            position: fixed !important;
+            top: 0; left: 0;
+            width: 100%;
+          }
+
           .doc-page {
-            width: 210mm;
-            min-height: 297mm;
-            height: 297mm;
+            width: 210mm !important;
+            height: 297mm !important;
+            min-height: unset !important;
             margin: 0 !important;
             padding: 16mm 18mm 12mm 18mm !important;
             box-shadow: none !important;
             border-radius: 0 !important;
             page-break-after: always;
             break-after: page;
-            overflow: hidden;
+            overflow: hidden !important;
+            display: flex !important;
+            flex-direction: column !important;
           }
           .doc-page-break {
-            page-break-before: always;
-            break-before: page;
+            page-break-before: always !important;
+            break-before: page !important;
           }
-          .doc-page:last-child { page-break-after: auto; break-after: auto; }
+          .doc-page:last-child {
+            page-break-after: auto !important;
+            break-after: auto !important;
+          }
         }
       `}</style>
 
