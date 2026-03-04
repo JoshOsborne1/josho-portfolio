@@ -1007,33 +1007,35 @@ function DocumentPreview({ selected, settings, editedContent, onEdit }: {
         <PageFooter settings={settings} />
       </div>
 
-      {/* Section pages */}
-      {selectedCategories.map((cat) => (
-        <DocumentPage key={cat.id} sectionTitle={cat.title} settings={settings} isFirst={false}>
-          {/* Section heading */}
-          <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
-            <div className="w-8 h-8 bg-[#F4B626] flex items-center justify-center rounded shrink-0">
-              <span className="text-[9px] font-black text-[#111111] tracking-wider font-mono">{cat.label}</span>
-            </div>
-            <div>
-              <h2 className="text-[22px] font-black text-[#111111] leading-tight">{cat.title}</h2>
-              <div className="text-[9px] font-medium text-gray-400 uppercase tracking-wide mt-0.5">{cat.clauses.length} section{cat.clauses.length !== 1 ? 's' : ''}</div>
-            </div>
-          </div>
-
-          {/* Clauses in two-column layout for denser content */}
-          <div className="doc-clauses-grid">
-            {cat.clauses.map((clause, idx) => (
-              <div key={clause.id} className={`doc-clause-item ${idx < cat.clauses.length - 1 ? 'border-b border-gray-100 pb-4 mb-4' : ''}`}>
-                <InlineClause
-                  clause={clause} settings={settings} editedContent={editedContent}
-                  onEdit={onEdit} activeEdit={activeEdit} onSetActive={setActiveEdit}
-                />
+      {/* All sections in one flowing container - no forced page break per section */}
+      <div className="doc-page doc-page-break doc-content-flow bg-white">
+        <PageHeader section="Employee Handbook" settings={settings} />
+        <div className="doc-page-body">
+          {selectedCategories.map((cat, catIdx) => (
+            <div key={cat.id} className={`doc-section-block ${catIdx > 0 ? 'doc-section-break' : ''}`}>
+              {/* Section heading */}
+              <div className="flex items-center gap-3 mb-5 pb-3 border-b-2 border-[#F4B626]">
+                <div className="w-7 h-7 bg-[#F4B626] flex items-center justify-center rounded shrink-0">
+                  <span className="text-[8px] font-black text-[#111111] tracking-wider font-mono">{cat.label}</span>
+                </div>
+                <div>
+                  <h2 className="text-[18px] font-black text-[#111111] leading-tight">{cat.title}</h2>
+                </div>
               </div>
-            ))}
-          </div>
-        </DocumentPage>
-      ))}
+              {/* Clauses */}
+              {cat.clauses.map((clause, idx) => (
+                <div key={clause.id} className={`doc-clause-item ${idx < cat.clauses.length - 1 ? 'border-b border-gray-100 pb-4 mb-4' : 'mb-2'}`}>
+                  <InlineClause
+                    clause={clause} settings={settings} editedContent={editedContent}
+                    onEdit={onEdit} activeEdit={activeEdit} onSetActive={setActiveEdit}
+                  />
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+        <PageFooter settings={settings} />
+      </div>
 
       {/* Back page */}
       <div className="doc-page doc-page-break bg-[#111111]">
@@ -1235,6 +1237,8 @@ export default function HandbookBuilder() {
         .doc-page-header { margin-bottom: 10mm; }
         .doc-page-footer { margin-top: auto; padding-top: 8mm; }
         .doc-page-body { flex: 1; }
+        .doc-section-block { margin-bottom: 32px; }
+        .doc-section-break { margin-top: 40px; padding-top: 32px; border-top: 1px dashed #e5e7eb; }
         .doc-clauses-grid { display: flex; flex-direction: column; gap: 0; }
 
         /* ---- PRINT STYLES ---- */
@@ -1285,11 +1289,30 @@ export default function HandbookBuilder() {
             margin-top: 8mm !important;
           }
 
+          /* Content flow container - does NOT force page-break-after */
+          .doc-content-flow {
+            page-break-after: auto !important;
+            break-after: auto !important;
+          }
+
+          /* Section blocks: each major section prefers to start on a new page */
+          .doc-section-break {
+            page-break-before: always !important;
+            break-before: page !important;
+          }
+
+          /* Section heading: keep with first clause, never orphan */
+          .doc-section-block > div:first-child {
+            page-break-after: avoid !important;
+            break-after: avoid !important;
+          }
+
           /* Prevent page breaks inside individual clauses */
           .doc-clause-item {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
           }
+
           /* Prevent page breaks inside headings */
           h1, h2, h3, h4 {
             page-break-after: avoid !important;
@@ -1298,6 +1321,11 @@ export default function HandbookBuilder() {
 
           /* Edit hint hidden */
           .group > div[class*="absolute"] { display: none !important; }
+
+          /* Footer always at bottom of last printed page, not mid-page */
+          .doc-page-footer {
+            margin-top: 8mm !important;
+          }
         }
       `}</style>
 
