@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Check, ChevronDown, Download, FileText, Printer, Search, Settings, X } from 'lucide-react';
+import { Check, ChevronDown, Download, Pencil, Printer, Search, Settings, X } from 'lucide-react';
+import Image from 'next/image';
 
 // ---------------------------------------------------------------------------
 // TYPES
@@ -93,7 +94,6 @@ export interface Clause {
 export interface Category {
   id: string;
   title: string;
-  icon: string;
   clauses: Clause[];
 }
 
@@ -101,7 +101,6 @@ const CATEGORIES: Category[] = [
   {
     id: 'welcome',
     title: 'Welcome & Introduction',
-    icon: '👋',
     clauses: [
       {
         id: 'welcome-message',
@@ -166,7 +165,6 @@ The full Code of Conduct is available from [HR_CONTACT]. It applies to how you w
   {
     id: 'employment',
     title: 'Your Employment',
-    icon: '📋',
     clauses: [
       {
         id: 'contracts',
@@ -222,9 +220,7 @@ You may work from home where your role allows and your manager agrees. Remote wo
 - Inform your team and manager in advance
 - Be available during your normal working hours
 - Company data security rules apply regardless of where you work
-- Any regular hybrid pattern needs manager approval and formal agreement
-
-Remote work provides flexibility, but must be balanced to maintain collaboration and team culture.`
+- Any regular hybrid pattern needs manager approval and formal agreement`
       },
       {
         id: 'appearance',
@@ -235,7 +231,7 @@ Remote work provides flexibility, but must be balanced to maintain collaboration
 
 How we present ourselves reflects on Guldmann. We expect everyone to dress appropriately for their role and any customer or external interactions.
 
-**Technical staff:** Company-issued workwear must be worn on all customer sites and during installation or service work. Safety footwear is required in all applicable environments.
+**Technical staff:** Company-issued workwear must be worn on all customer sites. Safety footwear is required in all applicable environments.
 
 **Office and sales staff:** Smart business casual is the standard. For customer visits, events, or trade shows, branded items may be issued.
 
@@ -261,7 +257,6 @@ Your specific notice period is confirmed in your contract. These are the minimum
   {
     id: 'pay-benefits',
     title: 'Pay & Benefits',
-    icon: '💰',
     clauses: [
       {
         id: 'pay-dates',
@@ -295,7 +290,7 @@ Guldmann will reimburse all reasonable and legitimate business expenses. "Reason
 - Lunch: up to £[EXPENSE_LUNCH]
 - Evening meal (away past 8:00pm): up to £[EXPENSE_DINNER]
 
-**Rules:** Always keep receipts. Submit claims within 30 days. All expenses must be approved by your manager. A card statement is not a receipt.`
+**Rules:** Always keep receipts. Submit claims within 30 days. All expenses must be approved by your manager.`
       },
       {
         id: 'company-card',
@@ -330,7 +325,7 @@ Electric vehicles are preferred in line with Guldmann's environmental commitment
 - Report any damage promptly
 - Drive responsibly at all times
 
-**Fines:** Parking and speeding penalties are your responsibility. If Guldmann receives a notice, you will be asked to pay or have it deducted from salary (always confirmed first).
+**Fines:** Parking and speeding penalties are your responsibility.
 
 **Private use:** Any agreed private mileage creates a taxable Benefit in Kind. Keep a log of business vs private mileage.`
       },
@@ -385,7 +380,6 @@ People deserve to be celebrated. Guldmann UK marks the following:
   {
     id: 'time-off',
     title: 'Time Off',
-    icon: '🌴',
     clauses: [
       {
         id: 'holiday',
@@ -402,7 +396,7 @@ You are entitled to [HOLIDAY_DAYS] days of paid holiday per year (inclusive of t
 
 **Carry-over:** Up to 5 days may be carried over by agreement. Routine carry-over is not the norm - use your entitlement.
 
-**On leaving:** Accrued but untaken holiday is paid in your final salary. Holiday taken in excess of accrual will be deducted.`
+**On leaving:** Accrued but untaken holiday is paid in your final salary.`
       },
       {
         id: 'sick-leave',
@@ -411,7 +405,7 @@ You are entitled to [HOLIDAY_DAYS] days of paid holiday per year (inclusive of t
         required: true,
         content: `## Sick Leave and Statutory Sick Pay
 
-**Reporting:** Contact your manager directly before your normal start time on day one of any absence. Keep your manager updated if illness continues.
+**Reporting:** Contact your manager directly before your normal start time on day one of any absence.
 
 **Fit notes:** For absences of 7 calendar days or less, you self-certify. For absences longer than 7 days, a fit note from your GP is required.
 
@@ -419,7 +413,7 @@ You are entitled to [HOLIDAY_DAYS] days of paid holiday per year (inclusive of t
 
 [ENHANCED_SICK]
 
-**Return-to-work:** After every absence, your manager will have a brief return-to-work conversation. This is a supportive check-in, not a disciplinary process.`
+**Return-to-work:** After every absence, your manager will have a brief return-to-work conversation.`
       },
       {
         id: 'bereavement',
@@ -434,22 +428,20 @@ Losing someone you love is one of the hardest things that can happen. You should
 
 **Extended family and close friends** (grandparent, in-law, close friend): minimum 2 days paid.
 
-**Pregnancy loss:** We take a compassionate and flexible approach regardless of gestation. Speak to [HR_CONTACT].
-
-We will never make you prove your grief or justify your need for time. Talk to us and we will work it out together.`
+**Pregnancy loss:** We take a compassionate and flexible approach regardless of gestation. Speak to [HR_CONTACT].`
       },
       {
         id: 'medical-appointments',
         title: 'Medical & Dental Appointments',
-        summary: 'Routine vs urgent, children\'s appointments',
+        summary: 'Routine vs urgent, children appointments',
         required: false,
         content: `## Medical and Dental Appointments
 
-Where possible, book routine appointments outside working hours. Where that is not possible, give your manager as much notice as you can and minimise disruption.
+Where possible, book routine appointments outside working hours. Where that is not possible, give your manager as much notice as you can.
 
-For urgent or referred medical appointments (specialist referrals, physiotherapy, etc.), we will support attendance during working hours.
+For urgent or referred appointments (specialist referrals, physiotherapy, etc.), we will support attendance during working hours.
 
-**Children's appointments:** If your child needs to attend a medical appointment and cannot go unaccompanied, you may take the time needed. Discuss with your manager in advance where possible.`
+**Children:** If your child needs to attend a medical appointment and cannot go unaccompanied, you may take the time needed.`
       },
       {
         id: 'dependants-leave',
@@ -476,7 +468,6 @@ If you are called for jury service, notify [HR_CONTACT] and your manager as soon
   {
     id: 'family-leave',
     title: 'Family Leave',
-    icon: '👨‍👩‍👧',
     clauses: [
       {
         id: 'maternity',
@@ -495,7 +486,7 @@ If you are called for jury service, notify [HR_CONTACT] and your manager as soon
 
 **Keeping in Touch (KIT) days:** Up to 10 voluntary KIT days can be worked during maternity leave without affecting SMP.
 
-**Return to work:** You have the right to return to the same job. Contact [HR_CONTACT] to confirm your return date.`
+Contact [HR_CONTACT] to discuss your maternity leave plans.`
       },
       {
         id: 'paternity',
@@ -530,7 +521,7 @@ Speak to [HR_CONTACT] as early as possible if you are interested - ideally durin
         required: true,
         content: `## Adoption Leave
 
-If you are adopting a child, you have the same entitlements as a birth parent: up to 52 weeks adoption leave and 39 weeks Statutory Adoption Pay (90% for the first 6 weeks, then £187.18/week). The secondary adopter is entitled to paternity leave.
+If you are adopting a child, you have the same entitlements as a birth parent: up to 52 weeks adoption leave and 39 weeks Statutory Adoption Pay (90% for the first 6 weeks, then £187.18/week).
 
 Contact [HR_CONTACT] as soon as you are matched with a child.`
       },
@@ -550,7 +541,6 @@ Parental leave must be agreed with your manager at least 21 days in advance. Spe
   {
     id: 'performance',
     title: 'Performance & Development',
-    icon: '📈',
     clauses: [
       {
         id: 'performance-standards',
@@ -594,7 +584,7 @@ Guldmann invests in its people. When you grow, we grow.
 
 **External training:** Where relevant to your role, Guldmann will support and fund external training. Discuss development opportunities with your manager.
 
-**Study leave:** If undertaking a company-supported qualification, you are entitled to paid time off for exams. Notify your manager as soon as exam dates are confirmed.
+**Study leave:** If undertaking a company-supported qualification, you are entitled to paid time off for exams.
 
 Contact [HR_CONTACT] to discuss training and development opportunities.`
       }
@@ -603,7 +593,6 @@ Contact [HR_CONTACT] to discuss training and development opportunities.`
   {
     id: 'conduct',
     title: 'Conduct & Discipline',
-    icon: '⚖️',
     clauses: [
       {
         id: 'standards-behaviour',
@@ -614,7 +603,7 @@ Contact [HR_CONTACT] to discuss training and development opportunities.`
 
 We expect everyone at Guldmann to behave professionally, honestly, and with respect for others. This applies in the office, on customer sites, when travelling, and in any context where you represent the company.
 
-Treat all colleagues, customers, and partners fairly and without discrimination. Be honest in your communications and your work. Respect confidential information. Do not behave in a way that could bring Guldmann into disrepute.`
+Treat all colleagues, customers, and partners fairly and without discrimination. Be honest in your communications. Respect confidential information.`
       },
       {
         id: 'disciplinary',
@@ -633,7 +622,7 @@ The disciplinary procedure follows the Acas Code of Practice and exists to deal 
 
 **Dismissal:** For repeated or serious breaches.
 
-**Your rights at every stage:** To be told the allegation in advance, to see evidence, to be accompanied by a colleague or union representative, to respond, and to appeal. Contact [HR_CONTACT] for the full policy.`
+**Your rights at every stage:** To be told the allegation in advance, to see evidence, to be accompanied, to respond, and to appeal. Contact [HR_CONTACT] for the full policy.`
       },
       {
         id: 'gross-misconduct',
@@ -667,7 +656,7 @@ If you have a concern about your treatment, working conditions, or a colleague's
 
 **Formal grievance:** Submit a written grievance to [HR_CONTACT] at [HR_EMAIL]. We will acknowledge it within 3 working days.
 
-You have the right to be accompanied at any grievance meeting and to appeal any outcome. We will not treat any employee less favourably for raising a genuine grievance.`
+You have the right to be accompanied at any grievance meeting and to appeal any outcome.`
       },
       {
         id: 'whistleblowing',
@@ -680,14 +669,13 @@ If you become aware of serious wrongdoing - something that affects health and sa
 
 Raise this with your manager, [HR_CONTACT], or a senior leader. If not comfortable internally, you can report to the relevant regulator externally.
 
-Guldmann will not penalise any employee for making a whistleblowing disclosure in good faith. This is a protected right under the Public Interest Disclosure Act.`
+Guldmann will not penalise any employee for making a whistleblowing disclosure in good faith.`
       }
     ]
   },
   {
     id: 'health-safety',
     title: 'Health, Safety & Wellbeing',
-    icon: '🛡️',
     clauses: [
       {
         id: 'hs-commitment',
@@ -704,7 +692,7 @@ Guldmann will not penalise any employee for making a whistleblowing disclosure i
 - Report hazards, accidents, and near misses to your manager immediately
 - Complete all mandatory health and safety training
 
-If you are asked to carry out a task you believe is unsafe - stop and speak to your manager. You will not be penalised for raising a safety concern.`
+If you are asked to carry out a task you believe is unsafe - stop and speak to your manager.`
       },
       {
         id: 'accident-reporting',
@@ -728,7 +716,7 @@ Report all incidents to your manager and [HR_CONTACT] immediately.`
 
 **Installers and Service Technicians:** Company-issued workwear must be worn at all times on customer sites. Safety footwear is required in all applicable environments.
 
-**Screen and Safety Glasses:** If your role involves significant screen use, you are entitled to a company-funded eye test. If prescription safety glasses are required for your work, Guldmann will contribute to the cost. Contact [HR_CONTACT] for the current process.`
+**Screen and Safety Glasses:** If your role involves significant screen use, you are entitled to a company-funded eye test. Contact [HR_CONTACT] for details.`
       },
       {
         id: 'mental-health',
@@ -737,7 +725,7 @@ Report all incidents to your manager and [HR_CONTACT] immediately.`
         required: false,
         content: `## Mental Health and Wellbeing
 
-We take mental health seriously. We are a small team, and we notice when someone is struggling. We want to create an environment where people feel they can speak up.
+We take mental health seriously. We are a small team, and we notice when someone is struggling.
 
 If you are going through a difficult time, please talk to your manager or [HR_CONTACT]. We will treat what you share in confidence and work with you on a practical response.
 
@@ -748,7 +736,6 @@ Long-term mental health conditions are a disability under the Equality Act 2010.
   {
     id: 'data-it',
     title: 'Data, IT & Security',
-    icon: '🔐',
     clauses: [
       {
         id: 'it-use',
@@ -765,7 +752,7 @@ Guldmann provides IT equipment and systems for business purposes. Reasonable per
 - Leave devices unlocked and unattended
 - Connect to unsecured public Wi-Fi without a VPN
 
-Report any suspected security incident to IT immediately. Contact [HR_CONTACT] for the full IT Acceptable Use Policy.`
+Report any suspected security incident to IT immediately.`
       },
       {
         id: 'data-protection',
@@ -780,9 +767,7 @@ Report any suspected security incident to IT immediately. Contact [HR_CONTACT] f
 - Only access personal data you need for your role
 - Do not share personal data with anyone who does not need it
 - Secure personal data - do not leave it exposed
-- Report any data breach or suspected breach to [HR_CONTACT] immediately
-
-Full Data Protection Policy available from [HR_CONTACT].`
+- Report any data breach or suspected breach to [HR_CONTACT] immediately`
       },
       {
         id: 'confidentiality',
@@ -791,7 +776,7 @@ Full Data Protection Policy available from [HR_CONTACT].`
         required: true,
         content: `## Confidentiality
 
-During your employment you will have access to confidential information: commercially sensitive data, customer details, pricing, business strategy, personnel information.
+During your employment you will have access to confidential information: commercially sensitive data, customer details, pricing, business strategy, and personnel information.
 
 Do not share this outside the company without authorisation. Your obligation to keep confidential information confidential continues after you leave Guldmann.`
       },
@@ -804,16 +789,13 @@ Do not share this outside the company without authorisation. Your obligation to 
 
 We are not going to tell you what to do on your personal social media. But we ask for common sense.
 
-**Do not** share confidential company information, make defamatory or discriminatory comments about Guldmann, colleagues, or customers, or claim to speak on behalf of Guldmann without authorisation.
-
-Feel free to share genuine enthusiasm for our work and mission.`
+Do not share confidential company information, make defamatory comments about Guldmann, colleagues, or customers, or claim to speak on behalf of Guldmann without authorisation.`
       }
     ]
   },
   {
     id: 'leaving',
     title: 'Leaving Guldmann',
-    icon: '🚪',
     clauses: [
       {
         id: 'resignation',
@@ -833,7 +815,7 @@ During your notice period, you are expected to work normally and assist with han
         required: true,
         content: `## Redundancy
 
-Redundancy occurs when a role no longer exists - it is about the job, not the person. If redundancy becomes necessary, Guldmann will follow a fair process: identifying affected roles, consulting, exploring alternatives, applying fair selection, and paying statutory redundancy pay where applicable.
+Redundancy occurs when a role no longer exists - it is about the job, not the person. If redundancy becomes necessary, Guldmann will follow a fair process: identifying affected roles, consulting, exploring alternatives, and paying statutory redundancy pay where applicable.
 
 **Statutory Redundancy Pay** (qualifying service: 2+ years):
 - Under age 22: 0.5 week's pay per year of service
@@ -853,7 +835,7 @@ Before you leave, [HR_CONTACT] will invite you to an exit interview. This is vol
 
 **Return of property:** Return all company property on or before your last day - laptop, phone, access cards, car keys, workwear. All system access is revoked on your last day.
 
-**References:** Guldmann will provide a reference confirming your job title and dates of employment. All reference requests go through [HR_CONTACT].`
+**References:** All reference requests go through [HR_CONTACT].`
       }
     ]
   }
@@ -864,9 +846,7 @@ const REQUIRED_IDS = new Set(
   CATEGORIES.flatMap(c => c.clauses.filter(cl => cl.required).map(cl => cl.id))
 );
 
-function defaultSelected(): Set<string> {
-  return new Set(ALL_IDS);
-}
+function defaultSelected(): Set<string> { return new Set(ALL_IDS); }
 
 // ---------------------------------------------------------------------------
 // SETTINGS PANEL
@@ -898,7 +878,7 @@ const FIELD_GROUPS = [
   {
     label: 'Employment',
     fields: [
-      { key: 'probationMonths', label: 'Probation Length (months)', placeholder: '6' },
+      { key: 'probationMonths', label: 'Probation (months)', placeholder: '6' },
       { key: 'noticeProbation', label: 'Notice - During Probation', placeholder: '1 week' },
       { key: 'noticeUnder2', label: 'Notice - Under 2 Years', placeholder: '1 month' },
       { key: 'noticeOver2', label: 'Notice - Over 2 Years', placeholder: '1 week per year (max 12)' },
@@ -914,7 +894,7 @@ const FIELD_GROUPS = [
   {
     label: 'Sick Pay',
     fields: [
-      { key: 'enhancedSickWeeks', label: 'Enhanced Sick Pay - Full Salary Weeks', placeholder: 'e.g. 4 (leave blank if SSP only)' },
+      { key: 'enhancedSickWeeks', label: 'Enhanced Sick Pay - Full Salary Weeks', placeholder: 'e.g. 4 (blank = SSP only)' },
     ],
   },
   {
@@ -936,11 +916,7 @@ const FIELD_GROUPS = [
   },
 ];
 
-function SettingsPanel({
-  settings,
-  onChange,
-  onClose,
-}: {
+function SettingsPanel({ settings, onChange, onClose }: {
   settings: CompanySettings;
   onChange: (key: keyof CompanySettings, value: string) => void;
   onClose: () => void;
@@ -951,34 +927,34 @@ function SettingsPanel({
       animate={{ x: 0, opacity: 1 }}
       exit={{ x: -340, opacity: 0 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className="absolute top-0 left-0 bottom-0 w-[340px] bg-white border-r border-gray-100 z-20 flex flex-col shadow-xl"
+      className="absolute top-0 left-0 bottom-0 w-[340px] bg-[#1a1a1a] border-r border-white/10 z-20 flex flex-col shadow-2xl"
     >
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
         <div className="flex items-center gap-2">
           <Settings className="w-4 h-4 text-[#F4B626]" />
-          <span className="text-[13px] font-bold text-gray-900">Company Details</span>
+          <span className="text-[13px] font-semibold text-white">Company Details</span>
         </div>
-        <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+        <button type="button" onClick={onClose} className="text-white/30 hover:text-white/70 transition-colors">
           <X className="w-4 h-4" />
         </button>
       </div>
       <div className="flex-1 overflow-y-auto p-4 space-y-5">
-        <p className="text-[11px] text-gray-400 leading-relaxed">
+        <p className="text-[11px] text-white/40 leading-relaxed">
           Fill in your company-specific details. The document updates live as you type.
         </p>
         {FIELD_GROUPS.map(group => (
           <div key={group.label}>
-            <div className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-2">{group.label}</div>
+            <div className="text-[9px] font-bold uppercase tracking-widest text-white/30 mb-2">{group.label}</div>
             <div className="space-y-2">
               {group.fields.map(field => (
                 <div key={field.key}>
-                  <label className="block text-[11px] font-medium text-gray-600 mb-1">{field.label}</label>
+                  <label className="block text-[11px] font-medium text-white/50 mb-1">{field.label}</label>
                   <input
                     type="text"
                     value={settings[field.key as keyof CompanySettings]}
                     onChange={e => onChange(field.key as keyof CompanySettings, e.target.value)}
                     placeholder={field.placeholder}
-                    className="w-full px-2.5 py-1.5 text-[12px] rounded-lg border border-gray-200 focus:border-[#F4B626] focus:ring-1 focus:ring-[#F4B626]/30 outline-none placeholder:text-gray-300"
+                    className="w-full px-2.5 py-1.5 text-[12px] rounded-md bg-white/5 border border-white/10 text-white placeholder:text-white/20 focus:border-[#F4B626]/60 focus:ring-1 focus:ring-[#F4B626]/20 outline-none"
                   />
                 </div>
               ))}
@@ -991,90 +967,164 @@ function SettingsPanel({
 }
 
 // ---------------------------------------------------------------------------
-// CLAUSE + CATEGORY COMPONENTS
+// CLAUSE COMPONENTS
 // ---------------------------------------------------------------------------
 
-function ClauseCheckbox({
-  clause, selected, onToggle,
-}: { clause: Clause; selected: boolean; onToggle: () => void }) {
+function ClauseRow({
+  clause, selected, editedContent, onToggle, onEdit,
+}: {
+  clause: Clause;
+  selected: boolean;
+  editedContent: string | undefined;
+  onToggle: () => void;
+  onEdit: (id: string, content: string) => void;
+}) {
   const required = REQUIRED_IDS.has(clause.id);
+  const [editing, setEditing] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const displayContent = editedContent ?? clause.content;
+
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditing(true);
+    setTimeout(() => textareaRef.current?.focus(), 50);
+  };
+
   return (
-    <button
-      type="button"
-      onClick={() => !required && onToggle()}
-      className={`w-full flex items-start gap-3 px-3 py-2.5 rounded-lg text-left transition-all ${
-        selected ? 'bg-[#F4B626]/8 hover:bg-[#F4B626]/12' : 'hover:bg-gray-50'
-      } ${required ? 'cursor-default' : 'cursor-pointer'}`}
-    >
-      <div className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all ${
-        selected ? 'bg-[#F4B626] border-[#F4B626]' : 'border-gray-300'
-      }`}>
-        {selected && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className={`text-[13px] font-medium leading-tight ${selected ? 'text-gray-900' : 'text-gray-500'}`}>
-            {clause.title}
-          </span>
-          {required && (
-            <span className="shrink-0 text-[9px] font-bold uppercase tracking-wide text-[#F4B626] bg-[#F4B626]/10 px-1.5 py-0.5 rounded">
-              Required
+    <div className={`rounded-md border transition-all ${
+      selected ? 'border-[#F4B626]/20 bg-[#F4B626]/5' : 'border-white/5 bg-white/2'
+    }`}>
+      <div className="flex items-start gap-2.5 px-3 py-2.5">
+        {/* Checkbox - only this toggles inclusion */}
+        <button
+          type="button"
+          onClick={() => !required && onToggle()}
+          className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all ${
+            required ? 'cursor-default' : 'cursor-pointer'
+          } ${selected ? 'bg-[#F4B626] border-[#F4B626]' : 'border-white/20 bg-transparent'}`}
+        >
+          {selected && <Check className="w-2.5 h-2.5 text-black" strokeWidth={3} />}
+        </button>
+
+        {/* Text area - clicking opens editor */}
+        <div className="flex-1 min-w-0">
+          <div
+            className={`flex items-center gap-1.5 cursor-pointer group`}
+            onClick={handleEditClick}
+            title="Click to edit this section"
+          >
+            <span className={`text-[13px] font-medium leading-tight transition-colors ${
+              selected ? 'text-white' : 'text-white/40'
+            }`}>
+              {clause.title}
             </span>
-          )}
+            {required && (
+              <span className="shrink-0 text-[9px] font-bold uppercase tracking-wide text-[#F4B626] bg-[#F4B626]/10 px-1.5 py-0.5 rounded">
+                Required
+              </span>
+            )}
+            <Pencil className="w-2.5 h-2.5 text-white/20 group-hover:text-[#F4B626]/60 transition-colors shrink-0 ml-auto" />
+          </div>
+          <span
+            className={`block text-[11px] mt-0.5 leading-snug cursor-pointer transition-colors hover:text-white/50 ${
+              selected ? 'text-white/40' : 'text-white/20'
+            }`}
+            onClick={handleEditClick}
+          >
+            {clause.summary}
+          </span>
         </div>
-        <span className="block text-[11px] text-gray-400 mt-0.5 leading-snug">{clause.summary}</span>
       </div>
-    </button>
+
+      {/* Inline editor */}
+      <AnimatePresence>
+        {editing && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            className="overflow-hidden border-t border-white/10"
+          >
+            <div className="px-3 pb-3 pt-2">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[10px] text-white/30 font-mono">Editing section content</span>
+                <button
+                  type="button"
+                  onClick={() => setEditing(false)}
+                  className="text-[10px] font-medium text-[#F4B626] hover:text-[#F4B626]/70 transition-colors"
+                >
+                  Done
+                </button>
+              </div>
+              <textarea
+                ref={textareaRef}
+                value={displayContent}
+                onChange={e => onEdit(clause.id, e.target.value)}
+                rows={10}
+                className="w-full text-[11px] font-mono text-white/70 bg-black/30 border border-white/10 rounded p-2 resize-y focus:border-[#F4B626]/40 focus:ring-1 focus:ring-[#F4B626]/10 outline-none leading-relaxed"
+              />
+              <p className="text-[10px] text-white/20 mt-1">Use ## for headings, **text** for bold, - for bullets</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
-function CategoryAccordion({
-  category, selected, onToggleClause, onToggleAll,
-}: {
-  category: Category; selected: Set<string>;
+function CategoryAccordion({ category, selected, editedContent, onToggleClause, onToggleAll, onEdit }: {
+  category: Category;
+  selected: Set<string>;
+  editedContent: Record<string, string>;
   onToggleClause: (id: string) => void;
   onToggleAll: (catId: string, on: boolean) => void;
+  onEdit: (id: string, content: string) => void;
 }) {
   const [open, setOpen] = useState(true);
   const selectedCount = category.clauses.filter(c => selected.has(c.id)).length;
   const allSelected = selectedCount === category.clauses.length;
 
   return (
-    <div className="border border-gray-100 rounded-xl overflow-hidden">
+    <div className="border border-white/8 rounded-lg overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center gap-2 px-4 py-3 bg-white hover:bg-gray-50 transition-colors text-left"
+        className="w-full flex items-center gap-2 px-3 py-2.5 bg-white/3 hover:bg-white/5 transition-colors text-left"
       >
-        <span className="text-base">{category.icon}</span>
-        <span className="flex-1 text-[13px] font-semibold text-gray-800">{category.title}</span>
-        <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
-          selectedCount === category.clauses.length ? 'bg-[#F4B626]/15 text-[#c9961e]'
-          : selectedCount > 0 ? 'bg-blue-50 text-blue-600'
-          : 'bg-gray-100 text-gray-400'
+        <span className="flex-1 text-[12px] font-semibold text-white/80 uppercase tracking-wider">{category.title}</span>
+        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full tabular-nums ${
+          selectedCount === category.clauses.length ? 'bg-[#F4B626]/20 text-[#F4B626]'
+          : selectedCount > 0 ? 'bg-white/10 text-white/50'
+          : 'bg-white/5 text-white/20'
         }`}>
           {selectedCount}/{category.clauses.length}
         </span>
-        <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-3.5 h-3.5 text-white/30 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
+
       <AnimatePresence initial={false}>
         {open && (
           <motion.div
             initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }}
             transition={{ duration: 0.18 }} className="overflow-hidden"
           >
-            <div className="px-2 pb-2 pt-1 bg-white border-t border-gray-50 space-y-0.5">
+            <div className="p-2 space-y-1.5 border-t border-white/5">
               <button
                 type="button"
                 onClick={() => onToggleAll(category.id, !allSelected)}
-                className="w-full text-left text-[11px] font-medium text-[#F4B626] hover:text-[#c9961e] px-3 py-1.5 transition-colors"
+                className="w-full text-left text-[10px] font-medium text-[#F4B626]/70 hover:text-[#F4B626] px-2 py-1 transition-colors"
               >
                 {allSelected ? 'Deselect all' : 'Select all'}
               </button>
               {category.clauses.map(clause => (
-                <ClauseCheckbox
-                  key={clause.id} clause={clause} selected={selected.has(clause.id)}
+                <ClauseRow
+                  key={clause.id}
+                  clause={clause}
+                  selected={selected.has(clause.id)}
+                  editedContent={editedContent[clause.id]}
                   onToggle={() => onToggleClause(clause.id)}
+                  onEdit={onEdit}
                 />
               ))}
             </div>
@@ -1089,25 +1139,32 @@ function CategoryAccordion({
 // DOCUMENT PREVIEW
 // ---------------------------------------------------------------------------
 
-function DocumentPreview({ selected, settings }: { selected: Set<string>; settings: CompanySettings }) {
+function DocumentPreview({ selected, settings, editedContent }: {
+  selected: Set<string>;
+  settings: CompanySettings;
+  editedContent: Record<string, string>;
+}) {
   const selectedClauses = CATEGORIES.flatMap(cat =>
-    cat.clauses
-      .filter(cl => selected.has(cl.id))
-      .map(cl => ({ ...cl, categoryTitle: cat.title, categoryIcon: cat.icon }))
+    cat.clauses.filter(cl => selected.has(cl.id)).map(cl => ({ ...cl, categoryTitle: cat.title }))
   );
-  const wordCount = selectedClauses.reduce((acc, cl) => acc + cl.content.split(' ').length, 0);
+  const wordCount = selectedClauses.reduce((acc, cl) => acc + (editedContent[cl.id] ?? cl.content).split(' ').length, 0);
 
   const renderContent = (rawContent: string) => {
-    const content = applySettings(rawContent, settings);
+    const content = applySettings(rawContent, settings)
+      .replace(/\[EXTRA_BENEFIT_1\]/g, settings.extraBenefit1 || '')
+      .replace(/\[EXTRA_BENEFIT_2\]/g, settings.extraBenefit2 || '')
+      .replace(/\[EXTRA_BENEFIT_3\]/g, settings.extraBenefit3 || '');
+
     return content.split('\n').map((line, i) => {
       if (line.startsWith('## ')) {
-        return <h2 key={i} className="text-[15px] font-bold text-[#111] mt-5 mb-2 first:mt-0 border-b border-gray-100 pb-1.5">{line.slice(3)}</h2>;
+        return <h2 key={i} className="text-[15px] font-bold text-[#111] mt-5 mb-2 first:mt-0 pb-1.5 border-b border-gray-100">{line.slice(3)}</h2>;
       }
       if (line.startsWith('- ')) {
         const html = line.slice(2).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        return <li key={i} className="text-[12px] text-gray-700 ml-3 leading-relaxed list-disc" dangerouslySetInnerHTML={{ __html: html }} />;
+        return <li key={i} className="text-[12px] text-gray-700 ml-4 leading-relaxed list-disc" dangerouslySetInnerHTML={{ __html: html }} />;
       }
       if (line === '') return <div key={i} className="h-1" />;
+      if (!line.trim()) return null;
       const html = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
       return <p key={i} className="text-[12px] text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: html }} />;
     });
@@ -1115,8 +1172,7 @@ function DocumentPreview({ selected, settings }: { selected: Set<string>; settin
 
   if (selectedClauses.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-center p-12">
-        <FileText className="w-12 h-12 text-gray-200 mb-4" />
+      <div className="flex flex-col items-center justify-center h-64 text-center p-12">
         <p className="text-sm text-gray-400">Select sections from the left to build your handbook</p>
       </div>
     );
@@ -1124,33 +1180,38 @@ function DocumentPreview({ selected, settings }: { selected: Set<string>; settin
 
   let currentCategory = '';
   return (
-    <div id="handbook-document" className="p-8 max-w-[680px] mx-auto">
+    <div id="handbook-document" className="p-10 max-w-[680px] mx-auto">
+      {/* Cover */}
       <div className="text-center mb-10 pb-8 border-b-2 border-[#F4B626]">
-        <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#F4B626] mb-2">{settings.companyName || 'Guldmann UK'}</div>
+        <div className="flex justify-center mb-5">
+          <Image src="/guldmann-logo.svg" alt="Guldmann" width={160} height={36} />
+        </div>
         <h1 className="text-[28px] font-bold text-[#111] leading-tight">Employee Handbook</h1>
-        <p className="text-[13px] text-gray-400 mt-2">Version 1.0 - {settings.versionDate || '2025'}</p>
+        <p className="text-[13px] text-gray-400 mt-2">{settings.companyName || 'Guldmann UK'} - Version 1.0 - {settings.versionDate || '2025'}</p>
         <div className="mt-4 text-[11px] text-gray-400">
           {selectedClauses.length} sections - approx. {wordCount.toLocaleString()} words
         </div>
       </div>
-      {selectedClauses.map((clause) => {
+
+      {selectedClauses.map(clause => {
         const showCategoryHeader = clause.categoryTitle !== currentCategory;
         if (showCategoryHeader) currentCategory = clause.categoryTitle;
+        const content = editedContent[clause.id] ?? clause.content;
         return (
           <div key={clause.id}>
             {showCategoryHeader && (
               <div className="mt-8 mb-4 flex items-center gap-2">
-                <span className="text-lg">{clause.categoryIcon}</span>
                 <h2 className="text-[17px] font-bold text-[#111]">{clause.categoryTitle}</h2>
-                <div className="flex-1 h-px bg-gray-200 ml-2" />
+                <div className="flex-1 h-px bg-[#F4B626]/40 ml-2" />
               </div>
             )}
-            <div className="mb-4">{renderContent(clause.content)}</div>
+            <div className="mb-4">{renderContent(content)}</div>
           </div>
         );
       })}
-      <div className="mt-12 pt-6 border-t border-gray-200 text-[10px] text-gray-400 text-center">
-        <p>{settings.companyName || 'Guldmann UK'} Employee Handbook - Confidential</p>
+
+      <div className="mt-12 pt-6 border-t border-[#F4B626]/30 text-[10px] text-gray-400 text-center">
+        <p className="font-semibold text-[#111]">{settings.companyName || 'Guldmann UK'} Employee Handbook - Confidential</p>
         {settings.hrContact && <p className="mt-1">Questions? Contact {settings.hrContact}{settings.hrEmail ? ` - ${settings.hrEmail}` : ''}.</p>}
       </div>
     </div>
@@ -1164,6 +1225,7 @@ function DocumentPreview({ selected, settings }: { selected: Set<string>; settin
 export default function HandbookBuilder() {
   const [selected, setSelected] = useState<Set<string>>(defaultSelected);
   const [settings, setSettings] = useState<CompanySettings>(DEFAULT_SETTINGS);
+  const [editedContent, setEditedContent] = useState<Record<string, string>>({});
   const [showSettings, setShowSettings] = useState(false);
   const [search, setSearch] = useState('');
   const [exporting, setExporting] = useState(false);
@@ -1172,8 +1234,7 @@ export default function HandbookBuilder() {
     if (REQUIRED_IDS.has(id)) return;
     setSelected(prev => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
   }, []);
@@ -1185,11 +1246,14 @@ export default function HandbookBuilder() {
       const next = new Set(prev);
       cat.clauses.forEach(cl => {
         if (REQUIRED_IDS.has(cl.id)) return;
-        if (on) next.add(cl.id);
-        else next.delete(cl.id);
+        if (on) next.add(cl.id); else next.delete(cl.id);
       });
       return next;
     });
+  }, []);
+
+  const handleEdit = useCallback((id: string, content: string) => {
+    setEditedContent(prev => ({ ...prev, [id]: content }));
   }, []);
 
   const updateSetting = useCallback((key: keyof CompanySettings, value: string) => {
@@ -1225,22 +1289,21 @@ export default function HandbookBuilder() {
             border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: 'F4B626', space: 4 } },
           }));
         }
-        const processedContent = applySettings(clause.content, settings);
+        const rawContent = editedContent[clause.id] ?? clause.content;
+        const processedContent = applySettings(rawContent, settings)
+          .replace(/\[EXTRA_BENEFIT_1\]/g, settings.extraBenefit1 || '')
+          .replace(/\[EXTRA_BENEFIT_2\]/g, settings.extraBenefit2 || '')
+          .replace(/\[EXTRA_BENEFIT_3\]/g, settings.extraBenefit3 || '');
+
         processedContent.split('\n').forEach(line => {
           if (!line.trim()) return;
           if (line.startsWith('## ')) {
             children.push(new Paragraph({ text: line.slice(3), heading: HeadingLevel.HEADING_2, spacing: { before: 240, after: 120 } }));
           } else if (line.startsWith('- ')) {
-            children.push(new Paragraph({
-              bullet: { level: 0 },
-              children: [new TextRun({ text: line.slice(2).replace(/\*\*(.*?)\*\*/g, '$1') })],
-            }));
+            children.push(new Paragraph({ bullet: { level: 0 }, children: [new TextRun({ text: line.slice(2).replace(/\*\*(.*?)\*\*/g, '$1') })] }));
           } else {
             const parts = line.split(/\*\*(.*?)\*\*/g);
-            children.push(new Paragraph({
-              children: parts.map((part, i) => new TextRun({ text: part, bold: i % 2 === 1 })),
-              spacing: { after: 120 },
-            }));
+            children.push(new Paragraph({ children: parts.map((part, i) => new TextRun({ text: part, bold: i % 2 === 1 })), spacing: { after: 120 } }));
           }
         });
       });
@@ -1275,28 +1338,30 @@ export default function HandbookBuilder() {
         }
       `}</style>
 
-      <div className="flex flex-col h-screen bg-[#F8F8F6] overflow-hidden">
+      <div className="flex flex-col h-screen bg-[#111111] overflow-hidden">
         {/* Top bar */}
-        <div className="shrink-0 flex items-center gap-4 px-5 py-3 bg-white border-b border-gray-100 shadow-sm z-10">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-md bg-[#F4B626] flex items-center justify-center">
-              <FileText className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <div className="text-[13px] font-bold text-gray-900 leading-tight">Handbook Builder</div>
-              <div className="text-[10px] text-gray-400">{settings.companyName || 'Guldmann UK'} - {settings.versionDate || '2025'}</div>
-            </div>
+        <div className="shrink-0 flex items-center gap-4 px-5 py-3 bg-[#111111] border-b border-white/8 z-10">
+          <div className="flex items-center gap-3">
+            <Image src="/guldmann-logo.svg" alt="Guldmann" width={120} height={28} />
+            <div className="h-5 w-px bg-white/10" />
+            <span className="text-[11px] font-medium text-white/40 uppercase tracking-wider">Handbook Builder</span>
           </div>
-          <div className="h-5 w-px bg-gray-200 mx-1" />
-          <div className="text-[12px] text-gray-500">
-            <span className="font-semibold text-gray-800">{selected.size}</span>/{ALL_IDS.length} sections
-          </div>
+
           <div className="flex-1" />
+
+          <div className="text-[12px] text-white/30">
+            <span className="font-semibold text-white/70">{selected.size}</span>/{ALL_IDS.length} sections
+          </div>
+
+          <div className="h-4 w-px bg-white/10" />
+
           <button
             type="button"
             onClick={() => setShowSettings(s => !s)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[12px] font-medium transition-colors ${
-              showSettings ? 'bg-[#F4B626]/10 border-[#F4B626]/40 text-[#c9961e]' : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded border text-[12px] font-medium transition-colors ${
+              showSettings
+                ? 'bg-[#F4B626]/15 border-[#F4B626]/40 text-[#F4B626]'
+                : 'border-white/10 text-white/50 hover:border-white/20 hover:text-white/70'
             }`}
           >
             <Settings className="w-3.5 h-3.5" />
@@ -1304,14 +1369,14 @@ export default function HandbookBuilder() {
           </button>
           <button
             type="button" onClick={handlePrint}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 text-[12px] font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-white/10 text-[12px] font-medium text-white/50 hover:border-white/20 hover:text-white/70 transition-colors"
           >
             <Printer className="w-3.5 h-3.5" />
-            Print / PDF
+            Print
           </button>
           <button
             type="button" onClick={handleExportWord} disabled={exporting}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#F4B626] text-[12px] font-semibold text-white hover:bg-[#e0a820] transition-colors disabled:opacity-60"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#F4B626] text-[12px] font-semibold text-black hover:bg-[#e0a820] transition-colors disabled:opacity-60"
           >
             <Download className="w-3.5 h-3.5" />
             {exporting ? 'Exporting...' : 'Export Word'}
@@ -1320,55 +1385,60 @@ export default function HandbookBuilder() {
 
         {/* Body */}
         <div className="flex-1 flex overflow-hidden relative">
-          {/* Settings panel */}
           <AnimatePresence>
             {showSettings && (
               <SettingsPanel settings={settings} onChange={updateSetting} onClose={() => setShowSettings(false)} />
             )}
           </AnimatePresence>
 
-          {/* Left - clause selector */}
-          <div className={`w-[340px] shrink-0 flex flex-col border-r border-gray-100 bg-white overflow-hidden transition-all ${showSettings ? 'ml-[340px]' : ''}`}>
-            <div className="p-3 border-b border-gray-100">
+          {/* Left - selector */}
+          <div className={`w-[340px] shrink-0 flex flex-col border-r border-white/8 bg-[#111111] overflow-hidden transition-all ${showSettings ? 'ml-[340px]' : ''}`}>
+            <div className="p-3 border-b border-white/8">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/20" />
                 <input
                   type="text" placeholder="Search sections..."
                   value={search} onChange={e => setSearch(e.target.value)}
-                  className="w-full pl-8 pr-3 py-2 text-[12px] rounded-lg border border-gray-200 focus:border-[#F4B626] focus:ring-1 focus:ring-[#F4B626] outline-none"
+                  className="w-full pl-8 pr-3 py-2 text-[12px] rounded-md bg-white/5 border border-white/10 text-white placeholder:text-white/20 focus:border-[#F4B626]/40 outline-none"
                 />
                 {search && (
                   <button type="button" onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2">
-                    <X className="w-3 h-3 text-gray-400" />
+                    <X className="w-3 h-3 text-white/30" />
                   </button>
                 )}
               </div>
             </div>
+
             <div className="flex-1 overflow-y-auto p-3 space-y-2">
               {filteredCategories.map(cat => (
-                <CategoryAccordion key={cat.id} category={cat} selected={selected}
-                  onToggleClause={toggleClause} onToggleAll={toggleAll} />
+                <CategoryAccordion
+                  key={cat.id} category={cat} selected={selected}
+                  editedContent={editedContent}
+                  onToggleClause={toggleClause} onToggleAll={toggleAll}
+                  onEdit={handleEdit}
+                />
               ))}
               {filteredCategories.length === 0 && (
-                <div className="text-center py-8 text-[12px] text-gray-400">No sections match your search</div>
+                <div className="text-center py-8 text-[12px] text-white/20">No sections match your search</div>
               )}
             </div>
-            <div className="p-3 border-t border-gray-100 flex gap-2">
+
+            <div className="p-3 border-t border-white/8 flex gap-2">
               <button type="button" onClick={() => setSelected(new Set(ALL_IDS))}
-                className="flex-1 py-1.5 text-[11px] font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                className="flex-1 py-1.5 text-[11px] font-medium text-white/40 border border-white/10 rounded hover:border-white/20 hover:text-white/60 transition-colors">
                 Select all
               </button>
               <button type="button" onClick={() => setSelected(new Set(REQUIRED_IDS))}
-                className="flex-1 py-1.5 text-[11px] font-medium text-[#F4B626] border border-[#F4B626]/30 rounded-lg hover:bg-[#F4B626]/5 transition-colors">
+                className="flex-1 py-1.5 text-[11px] font-medium text-[#F4B626]/70 border border-[#F4B626]/20 rounded hover:border-[#F4B626]/40 hover:text-[#F4B626] transition-colors">
                 Required only
               </button>
             </div>
           </div>
 
-          {/* Right - preview */}
-          <div className="flex-1 overflow-y-auto bg-[#F8F8F6]">
-            <div className="min-h-full bg-white shadow-sm mx-auto my-6 rounded-xl overflow-hidden" style={{ maxWidth: '780px' }}>
-              <DocumentPreview selected={selected} settings={settings} />
+          {/* Right - preview (white paper) */}
+          <div className="flex-1 overflow-y-auto bg-[#1a1a1a]">
+            <div className="min-h-full bg-white shadow-2xl mx-auto my-6 rounded-sm overflow-hidden" style={{ maxWidth: '780px' }}>
+              <DocumentPreview selected={selected} settings={settings} editedContent={editedContent} />
             </div>
           </div>
         </div>
