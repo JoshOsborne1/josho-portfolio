@@ -1073,7 +1073,7 @@ export default function HandbookBuilder() {
         {/* Top bar */}
         <div className="no-print shrink-0 flex items-center gap-4 px-5 py-3 bg-white border-b border-gray-100 shadow-sm z-10">
           <div className="flex items-center gap-3">
-            <Image src="/guldmann-logo-stacked.png" alt="Guldmann" width={80} height={57} className="object-contain" />
+            <Image src="/guldmann-logo-black.png" alt="Guldmann" width={140} height={24} className="object-contain" />
             <div className="h-5 w-px bg-gray-200" />
             <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Handbook Builder</span>
           </div>
