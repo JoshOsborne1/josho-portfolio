@@ -837,7 +837,7 @@ function DocumentPreview({ selected, settings, editedContent, onEdit }: {
         <div className="doc-page-body flex flex-col">
           {/* Hero area */}
           <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
-            <div className="w-1 h-20 bg-[#F4B626] mb-8 mx-auto" />
+            <Image src="/guldmann-logo-black.png" alt="Guldmann" width={180} height={30} className="object-contain mb-10 mx-auto" unoptimized />
             <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#F4B626] mb-3">Confidential Document</div>
             <h1 className="text-[34px] font-black text-[#111111] leading-none tracking-tight mb-2">Employee</h1>
             <h1 className="text-[34px] font-black text-[#111111] leading-none tracking-tight mb-8">Handbook</h1>
