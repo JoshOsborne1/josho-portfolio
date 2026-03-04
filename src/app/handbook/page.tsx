@@ -134,6 +134,13 @@ Everything at Guldmann comes back to four values. We call them FACT.
 **Competence** - Our customers trust us because we know what we are talking about. We take learning seriously. We share what we know. The strength of every individual is part of our collective strength.
 
 **Trustworthiness** - Trust is earned, not assumed. We earn it by saying what we will do and doing it - with customers, colleagues, and the wider world.` },
+      { id: 'handbook-use', title: 'How to Use This Handbook', summary: 'Reading alongside your contract, what this document is and is not', required: false, content: `## How to Use This Handbook
+
+This handbook covers the main policies and practices that apply to your employment with [COMPANY_NAME]. Read it alongside your individual employment contract - where the two differ, your contract takes precedence.
+
+We review this handbook regularly. You will be notified of any significant changes. The most current version is always available from [HR_CONTACT].
+
+This handbook does not form part of your contract of employment unless your contract specifically says so.` },
       { id: 'code-of-conduct', title: 'Code of Conduct', summary: 'Human Rights, Labour Rights, Environment, Anti-Corruption', required: true, content: `## Code of Conduct
 
 Guldmann operates to a global Code of Conduct built on four principles: Human Rights, Labour Rights, Environment, and Anti-Corruption.
@@ -285,6 +292,23 @@ You are entitled to [HOLIDAY_DAYS] days of paid holiday per year (inclusive of t
 **Carry-over:** Up to 5 days may be carried over by agreement.
 
 **On leaving:** Accrued but untaken holiday is paid in your final salary.` },
+      { id: 'bank-holidays', title: 'Bank Holidays', summary: 'Eight UK bank holidays, substitute days, part-time pro-rata', required: false, content: `## Bank Holidays
+
+Your [HOLIDAY_DAYS]-day holiday entitlement includes the eight UK public bank holidays. If a bank holiday falls on a day you do not normally work, you do not receive an automatic substitute day - your entitlement is calculated pro-rata based on your contracted days.
+
+We aim to close the office on all UK bank holidays. If your role requires you to work on a bank holiday, you will be given a substitute day off in lieu to be taken by agreement with your manager.
+
+Part-time employees: your entitlement is proportional to your contracted hours.` },
+      { id: 'sickness-during-holiday', title: 'Sickness During Holiday', summary: 'Right to reclaim holiday days lost to illness', required: false, content: `## Sickness During Holiday
+
+If you fall ill before or during a period of pre-booked holiday, you have the right to reclaim those days as sick leave rather than holiday, provided you follow the normal sickness reporting procedure.
+
+**What to do:**
+- Notify your manager as soon as you are too unwell to enjoy your holiday
+- Obtain a fit note if the illness lasts more than 7 calendar days
+- The days you were ill can be rebooked as holiday at a later date
+
+This is a statutory right under UK law. Contact [HR_CONTACT] for guidance on how to apply it in practice.` },
       { id: 'sick-leave', title: 'Sick Leave & SSP', summary: 'Reporting, SSP rates, fit notes, return interviews', required: true, content: `## Sick Leave and Statutory Sick Pay
 
 **Reporting:** Contact your manager before your normal start time on day one of any absence.
@@ -355,6 +379,19 @@ Speak to [HR_CONTACT] as early as possible to work through your options.` },
 If you are adopting, you have the same entitlements as a birth parent: up to 52 weeks leave and 39 weeks Statutory Adoption Pay (90% for the first 6 weeks, then £187.18/week).
 
 Contact [HR_CONTACT] as soon as you are matched with a child.` },
+      { id: 'pregnancy-risk', title: 'Pregnancy: Risk Assessments & Adjustments', summary: 'Duty to adjust duties and workspace from notification of pregnancy', required: true, content: `## Pregnancy: Risk Assessments and Adjustments
+
+As soon as you tell us you are pregnant, we have a legal duty to carry out a pregnancy risk assessment and make any necessary adjustments to your role, workspace, or working pattern.
+
+This applies immediately - it does not wait for maternity leave to begin.
+
+**Common adjustments may include:**
+- Changes to manual handling or physical tasks
+- Adjustments to working hours or rest breaks
+- Workspace modifications
+- Temporary redeployment to a lower-risk role if needed
+
+Speak to [HR_CONTACT] as soon as you are ready to share your news - the earlier we know, the sooner we can put the right support in place. Everything is handled in confidence.` },
       { id: 'parental-leave', title: 'Unpaid Parental Leave', summary: '18 weeks unpaid per child, max 4 weeks/year', required: true, content: `## Parental Leave (Unpaid)
 
 Employees with at least one year's service are entitled to 18 weeks of unpaid parental leave per child, up to the child's 18th birthday. Maximum 4 weeks in any one year.
@@ -382,6 +419,26 @@ Every employee has an annual appraisal with their manager - a genuine conversati
 The appraisal covers: performance against objectives, what has gone well, what could be better, and development aspirations.
 
 We also encourage mid-year check-ins.` },
+      { id: 'probation-reviews', title: 'Probation Reviews', summary: 'Mid-point check-in and final confirmation structure', required: false, content: `## Probation Reviews
+
+Your [PROBATION_MONTHS]-month probation includes two structured touchpoints:
+
+**Mid-point review (~3 months):** An informal conversation with your manager covering how you have settled in, what is going well, and any support you need. Two-way: your manager listens as much as they talk.
+
+**Final review ([PROBATION_MONTHS] months):** A formal meeting to confirm employment. Your manager will share feedback on performance, conduct, and culture fit. You will have the chance to share your own reflections.
+
+If there are concerns at any stage, your manager will raise them before the review - no surprises at the end.` },
+      { id: 'career-progression', title: 'Career Progression', summary: 'Goal setting, promotion criteria, pay review cycle', required: false, content: `## Career Progression
+
+Guldmann is a growing company and we want our people to grow with it. Career progression here is based on performance, attitude, and the business need for the role - not on tenure alone.
+
+**Annual appraisal:** The main forum for discussing your development, setting objectives, and reviewing pay.
+
+**Pay reviews:** Conducted annually, linked to your appraisal outcome and company performance.
+
+**Promotion:** When a more senior role becomes available - or when your contribution has grown significantly beyond your current role - your manager will discuss next steps. We promote from within where we can.
+
+If you have ambitions beyond your current role, tell your manager. We cannot help if we do not know.` },
       { id: 'learning', title: 'Learning & Development', summary: 'Guldmann Academy, external training, study leave', required: false, content: `## Learning and Development
 
 Guldmann invests in its people. When you grow, we grow.
@@ -473,6 +530,36 @@ Report all incidents to your manager and [HR_CONTACT] immediately.` },
 **Installers and Service Technicians:** Company-issued workwear must be worn at all times on customer sites. Safety footwear required in all applicable environments.
 
 **Screen and Safety Glasses:** If your role involves significant screen use, you are entitled to a company-funded eye test. Contact [HR_CONTACT] for details.` },
+      { id: 'risk-assessments', title: 'Risk Assessments', summary: 'Who conducts them, when, employee duty to flag hazards', required: true, content: `## Risk Assessments
+
+[COMPANY_NAME] conducts risk assessments for all roles and working environments. These are reviewed regularly and whenever something significant changes - a new task, a new location, new equipment, or an incident.
+
+**Your responsibilities:**
+- Follow the safe working practices identified in assessments for your role
+- Flag any new hazard, near miss, or change in your working environment to your manager immediately
+- Never start a task you believe carries an uncontrolled risk - stop and raise it first
+
+Risk assessments are not bureaucracy. They are the mechanism by which we keep each other safe.` },
+      { id: 'dse', title: 'Display Screen Equipment & Eye Tests', summary: 'DSE regulations, eye test entitlement, screen setup', required: true, content: `## Display Screen Equipment and Eye Tests
+
+If you regularly use a computer, laptop, or other display screen as a significant part of your work, you are a "DSE user" under the Health and Safety (Display Screen Equipment) Regulations 1992.
+
+**Your entitlements:**
+- A DSE workstation assessment to ensure your setup is ergonomically correct
+- A company-funded eye test (ask [HR_CONTACT] for the voucher process)
+- A contribution towards corrective lenses if your eye test shows you need them specifically for DSE work
+
+**Your responsibilities:**
+- Complete your DSE assessment when requested
+- Adjust your screen, chair, and desk to the recommended settings
+- Report any discomfort, eye strain, or headaches linked to screen use early - do not wait until it becomes a problem` },
+      { id: 'working-environment-committee', title: 'Working Environment Committee', summary: 'Employee representatives, how concerns are raised collectively', required: false, content: `## Working Environment Committee
+
+Guldmann operates a Working Environment Committee (WEC) through which employees can raise concerns, make suggestions, and engage with company-level health, safety, and wellbeing matters.
+
+Employee representatives are elected from within the team. The WEC meets regularly and reports to leadership.
+
+If you have a concern that is wider than your immediate team - or that you feel is better raised collectively than individually - speak to your WEC representative or contact [HR_CONTACT].` },
       { id: 'mental-health', title: 'Mental Health & Wellbeing', summary: 'Open culture, reasonable adjustments', required: false, content: `## Mental Health and Wellbeing
 
 We take mental health seriously. We are a small team, and we notice when someone is struggling.
@@ -535,6 +622,37 @@ Redundancy occurs when a role no longer exists - it is about the job, not the pe
 - Age 41+: 1.5 week's pay per year of service
 
 Weekly pay capped at £669 (2024/25). Maximum 20 years of service count.` },
+      { id: 'retirement', title: 'Retirement', summary: 'Farewell gathering, company gift, flexible transition options', required: false, content: `## Retirement
+
+When you decide to retire, let your manager and [HR_CONTACT] know as early as possible so we can plan a proper handover and farewell.
+
+**Company gift:** A gift to mark your service, sized to the length of your time at Guldmann.
+
+**Farewell gathering:** A gathering for close colleagues if you would like one - we take our lead from you on how you want to mark it.
+
+**Phased retirement:** If you would prefer to reduce your hours gradually rather than stopping all at once, speak to your manager. We will consider phased arrangements where the role allows.` },
+      { id: 'return-of-property', title: 'Return of Company Property', summary: 'All assets returned on last day, access revoked', required: true, content: `## Return of Company Property
+
+On or before your last day, you must return all company property. This includes:
+
+- Laptop, phone, and any other hardware
+- Company credit card
+- Company car keys, fuel card, and documentation
+- Access fobs, keys, and security passes
+- Any company documents (physical or digital copies)
+
+All system access - email, SharePoint, internal tools - is revoked on your last day. If you hold any company data on a personal device, delete it.
+
+Failure to return company property may result in the cost being deducted from your final pay (where permitted by law) or recovery through other means.` },
+      { id: 'references', title: 'References Policy', summary: 'How references are handled and what Guldmann will provide', required: false, content: `## References Policy
+
+All requests for employment references must be directed to [HR_CONTACT] at [HR_EMAIL]. Managers should not provide individual references without going through HR.
+
+**What we provide:** Guldmann's standard reference confirms your job title, employment dates, and (if you consent) whether you left in good standing.
+
+**What we do not provide:** Personal character references or detailed performance assessments as part of a standard reference.
+
+If a prospective employer requires a more detailed reference, speak to [HR_CONTACT] to discuss what can be provided.` },
       { id: 'exit', title: 'Exit Interview & Offboarding', summary: 'Voluntary exit interview, return of property, references', required: false, content: `## Exit Interview and Offboarding
 
 [HR_CONTACT] will invite you to an exit interview before you leave. This is voluntary, but we genuinely value the feedback.
@@ -544,6 +662,31 @@ Weekly pay capped at £669 (2024/25). Maximum 20 years of service count.` },
 **References:** All reference requests go through [HR_CONTACT].` },
     ]
   },
+  {
+    id: 'acknowledgement', title: 'Acknowledgement', label: 'ACK',
+    clauses: [
+      { id: 'acknowledgement-page', title: 'Acknowledgement Page', summary: 'Signed confirmation that employee has read the handbook', required: false, content: `## Acknowledgement
+
+I confirm that I have received, read, and understood the [COMPANY_NAME] Employee Handbook (Version 1.0, [VERSION_DATE]).
+
+I understand that:
+
+- This handbook sets out the policies, procedures, and expectations that apply to my employment
+- It does not form part of my contract of employment unless my contract specifically states otherwise
+- I am responsible for familiarising myself with its contents and asking [HR_CONTACT] if anything is unclear
+- The handbook may be updated from time to time and I will be notified of significant changes
+
+**Employee name:** ___________________________________
+
+**Job title:** ___________________________________
+
+**Signature:** ___________________________________
+
+**Date:** ___________________________________
+
+_Please return a signed copy of this page to [HR_CONTACT] at [HR_EMAIL]._` },
+    ]
+  }
 ];
 
 const ALL_IDS = CATEGORIES.flatMap(c => c.clauses.map(cl => cl.id));
