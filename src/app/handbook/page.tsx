@@ -1060,8 +1060,14 @@ function DocumentPreview({ selected, settings, editedContent, onEdit }: {
 
 export default function HandbookBuilder() {
   const [selected, setSelected] = useState<Set<string>>(defaultSelected);
-  const [settings, setSettings] = useState<CompanySettings>(DEFAULT_SETTINGS);
-  const [editedContent, setEditedContent] = useState<Record<string, string>>({});
+  const [settings, setSettings] = useState<CompanySettings>(() => {
+    if (typeof window === 'undefined') return DEFAULT_SETTINGS;
+    try { return { ...DEFAULT_SETTINGS, ...JSON.parse(localStorage.getItem('handbook-settings') || '{}') }; } catch { return DEFAULT_SETTINGS; }
+  });
+  const [editedContent, setEditedContent] = useState<Record<string, string>>(() => {
+    if (typeof window === 'undefined') return {};
+    try { return JSON.parse(localStorage.getItem('handbook-edits') || '{}'); } catch { return {}; }
+  });
   const [showSettings, setShowSettings] = useState(false);
   const [search, setSearch] = useState('');
   const [exporting, setExporting] = useState(false);
@@ -1080,12 +1086,24 @@ export default function HandbookBuilder() {
     });
   }, []);
 
-  const handleEdit = useCallback((id: string, content: string) => {
-    setEditedContent(prev => ({ ...prev, [id]: content }));
+  const handleEdit = useCallback((id: string, value: string) => {
+    setEditedContent(prev => {
+      const next = { ...prev, [id]: value };
+      if (typeof window !== 'undefined') {
+        try { localStorage.setItem('handbook-edits', JSON.stringify(next)); } catch {}
+      }
+      return next;
+    });
   }, []);
 
   const updateSetting = useCallback((key: keyof CompanySettings, value: string) => {
-    setSettings(prev => ({ ...prev, [key]: value }));
+    setSettings(prev => {
+      const next = { ...prev, [key]: value };
+      if (typeof window !== 'undefined') {
+        try { localStorage.setItem('handbook-settings', JSON.stringify(next)); } catch {}
+      }
+      return next;
+    });
   }, []);
 
   const handlePrint = () => window.print();
@@ -1173,20 +1191,18 @@ export default function HandbookBuilder() {
           * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
           @page { size: A4 portrait; margin: 0; }
 
-          /* Hide everything except print root */
-          body { margin: 0 !important; padding: 0 !important; background: white !important; }
-          body > div > * { display: none !important; }
-          #handbook-print-root,
-          #handbook-print-root * { display: revert !important; }
+          /* Hide UI chrome */
           .no-print { display: none !important; }
+          .handbook-sidebar { display: none !important; }
+          .handbook-topbar { display: none !important; }
 
-          #handbook-print-root {
-            display: block !important;
-            position: fixed !important;
-            top: 0; left: 0;
-            width: 100%;
-          }
+          /* Undo scroll containers so all pages render */
+          body, html { overflow: visible !important; height: auto !important; }
+          .handbook-shell { height: auto !important; overflow: visible !important; display: block !important; }
+          .handbook-body { height: auto !important; overflow: visible !important; display: block !important; }
+          .handbook-preview { overflow: visible !important; height: auto !important; background: white !important; padding: 0 !important; }
 
+          /* Page styles */
           .doc-page {
             width: 210mm !important;
             height: 297mm !important;
@@ -1195,8 +1211,8 @@ export default function HandbookBuilder() {
             padding: 16mm 18mm 12mm 18mm !important;
             box-shadow: none !important;
             border-radius: 0 !important;
-            page-break-after: always;
-            break-after: page;
+            page-break-after: always !important;
+            break-after: page !important;
             overflow: hidden !important;
             display: flex !important;
             flex-direction: column !important;
@@ -1212,7 +1228,7 @@ export default function HandbookBuilder() {
         }
       `}</style>
 
-      <div className="flex flex-col h-screen bg-[#F0F0EE] overflow-hidden">
+      <div className="handbook-shell flex flex-col h-screen bg-[#F0F0EE] overflow-hidden">
         {/* Top bar */}
         <div className="no-print shrink-0 flex items-center gap-4 px-5 py-3 bg-white border-b border-gray-100 shadow-sm z-10">
           <div className="flex items-center gap-3">
@@ -1244,13 +1260,13 @@ export default function HandbookBuilder() {
         </div>
 
         {/* Body */}
-        <div className="flex-1 flex overflow-hidden relative">
+        <div className="handbook-body flex-1 flex overflow-hidden relative">
           <AnimatePresence>
             {showSettings && <SettingsPanel settings={settings} onChange={updateSetting} onClose={() => setShowSettings(false)} />}
           </AnimatePresence>
 
           {/* Left panel */}
-          <div className={`no-print w-[320px] shrink-0 flex flex-col border-r border-gray-200 bg-white overflow-hidden transition-[margin] ${showSettings ? 'ml-[360px]' : ''}`}>
+          <div className={`handbook-sidebar no-print w-[320px] shrink-0 flex flex-col border-r border-gray-200 bg-white overflow-hidden transition-[margin] ${showSettings ? 'ml-[360px]' : ''}`}>
             <div className="p-3 border-b border-gray-100">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
@@ -1274,7 +1290,7 @@ export default function HandbookBuilder() {
           </div>
 
           {/* Right - A4 page preview */}
-          <div className="flex-1 overflow-y-auto bg-[#E8E8E6] px-8 py-4 pb-12">
+          <div className="handbook-preview flex-1 overflow-y-auto bg-[#E8E8E6] px-8 py-4 pb-12">
             <DocumentPreview selected={selected} settings={settings} editedContent={editedContent} onEdit={handleEdit} />
           </div>
         </div>
