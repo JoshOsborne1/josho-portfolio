@@ -716,15 +716,14 @@ function InlineClause({ clause, settings, editedContent, onEdit, activeEdit, onS
 
   return (
     <div className="group relative doc-clause">
-      <div className="flex items-baseline justify-between mb-1.5">
-        <h4 className="text-[12px] font-semibold text-[#111111] uppercase tracking-wide">{clause.title}</h4>
-        {!isEditing && (
+      {!isEditing && (
+        <div className="absolute top-0 right-0 no-print">
           <button type="button" onClick={() => onSetActive(clause.id)}
-            className="no-print opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-[10px] text-gray-400 hover:text-[#F4B626] ml-3 shrink-0">
+            className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-[10px] text-gray-400 hover:text-[#F4B626]">
             <Pencil className="w-2.5 h-2.5" />Edit
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {isEditing ? (
         <div className="relative">
