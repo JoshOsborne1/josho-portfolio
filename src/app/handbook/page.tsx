@@ -936,52 +936,57 @@ function InlineClause({ clause, settings, editedContent, onEdit, activeEdit, onS
   const isEditing = activeEdit === clause.id;
   const rawContent = editedContent[clause.id] ?? clause.content;
   const displayContent = applySettings(rawContent, settings);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const editRef = useRef<HTMLDivElement>(null);
+  const renderRef = useRef<HTMLDivElement>(null);
 
+  // On enter-edit: populate contenteditable with plain text and match render height
   useEffect(() => {
-    if (isEditing && textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
-      textareaRef.current.focus();
+    if (isEditing && editRef.current) {
+      editRef.current.innerText = rawContent;
+      editRef.current.focus();
+      // Place cursor at end
+      const range = document.createRange();
+      const sel = window.getSelection();
+      range.selectNodeContents(editRef.current);
+      range.collapse(false);
+      sel?.removeAllRanges();
+      sel?.addRange(range);
     }
-  }, [isEditing]);
+  }, [isEditing]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onEdit(clause.id, e.target.value);
-    e.target.style.height = 'auto';
-    e.target.style.height = e.target.scrollHeight + 'px';
+  const handleInput = () => {
+    if (editRef.current) {
+      onEdit(clause.id, editRef.current.innerText);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') { onSetActive(null); }
   };
 
   return (
-    <div className="group relative doc-clause">
-      {!isEditing && (
-        <div className="absolute top-0 right-0 no-print">
-          <button type="button" onClick={() => onSetActive(clause.id)}
-            className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-[10px] text-gray-400 hover:text-[#F4B626]">
-            <Pencil className="w-2.5 h-2.5" />Edit
-          </button>
-        </div>
-      )}
+    <div className="doc-clause-editable-root" onClick={() => { if (!isEditing) onSetActive(clause.id); }}>
+      {/* Rendered view - always present, hidden while editing */}
+      <div
+        ref={renderRef}
+        className={`doc-clause-render ${isEditing ? 'invisible absolute inset-0' : 'cursor-text'}`}
+        title={isEditing ? undefined : 'Click to edit'}
+      >
+        {renderContent(displayContent)}
+      </div>
 
-      {isEditing ? (
-        <div className="relative">
-          <div className="absolute -top-1 -left-2 -right-2 -bottom-1 bg-amber-50 border border-[#F4B626]/30 rounded-lg pointer-events-none" />
-          <div className="relative">
-            <div className="text-[10px] text-amber-600 font-medium mb-1.5 flex items-center justify-between">
-              <span>## headings | **bold** | - bullets</span>
-              <button type="button" onClick={() => onSetActive(null)}
-                className="text-[11px] font-semibold text-[#F4B626] hover:text-[#c9961e] px-2 py-0.5 rounded bg-[#F4B626]/10">Done</button>
-            </div>
-            <textarea ref={textareaRef} value={rawContent} onChange={handleTextareaChange}
-              className="w-full text-[11.5px] font-mono text-gray-700 bg-white border border-[#F4B626]/30 rounded-lg p-2.5 resize-none outline-none leading-relaxed min-h-[60px]"
-              style={{ overflow: 'hidden' }}
-            />
-          </div>
-        </div>
-      ) : (
-        <div className="cursor-text" onClick={() => onSetActive(clause.id)} title="Click to edit">
-          {renderContent(displayContent)}
-        </div>
+      {/* Contenteditable editor - overlays rendered view exactly */}
+      {isEditing && (
+        <div
+          ref={editRef}
+          contentEditable
+          suppressContentEditableWarning
+          onInput={handleInput}
+          onKeyDown={handleKeyDown}
+          onBlur={() => onSetActive(null)}
+          className="doc-clause-editor"
+          spellCheck
+        />
       )}
     </div>
   );
@@ -1126,12 +1131,11 @@ function DocumentPreview({ selected, settings, editedContent, onEdit }: {
             {/* Rich clause mosaic */}
             <div className="doc-clause-mosaic">
               {cat.clauses.map((clause) => {
-                const rawContent = editedContent[clause.id] ?? clause.content;
-                const displayContent = applySettings(rawContent, settings);
-                const isEditing = activeEdit === clause.id;
-                const blocks = parseBlocks(displayContent);
-                const hasTable = blocks.some(b => b.type === 'defs');
-                const hasManyBullets = blocks.filter(b => b.type === 'bullets').flatMap(b => b.type === 'bullets' ? b.items : []).length > 5;
+                const rawForWidth = editedContent[clause.id] ?? clause.content;
+                const dispForWidth = applySettings(rawForWidth, settings);
+                const blocksForWidth = parseBlocks(dispForWidth);
+                const hasTable = blocksForWidth.some(b => b.type === 'defs');
+                const hasManyBullets = blocksForWidth.filter(b => b.type === 'bullets').flatMap(b => b.type === 'bullets' ? b.items : []).length > 5;
                 const isWide = hasTable || hasManyBullets;
                 return (
                   <div key={clause.id} className={`doc-clause-card doc-clause-item ${isWide ? 'doc-clause-wide' : ''}`}>
@@ -1140,27 +1144,12 @@ function DocumentPreview({ selected, settings, editedContent, onEdit }: {
                       <span className="text-[8px] font-black uppercase tracking-[0.15em] text-[#F4B626]">{clause.title}</span>
                       {clause.required && <span className="ml-1.5 text-[7px] font-bold uppercase tracking-wide text-white bg-[#F4B626] px-1 py-px rounded-sm">Required</span>}
                     </div>
-                    {isEditing ? (
-                      <div>
-                        <div className="text-[8px] text-amber-600 font-medium mb-1 flex items-center justify-between mt-1">
-                          <span>## h2 | **Key:** val | - bullet | &gt; callout</span>
-                          <button type="button" onClick={() => { onEdit(clause.id, rawContent); setActiveEdit(null); }}
-                            className="text-[8px] font-bold text-[#F4B626] px-1.5 py-0.5 bg-[#F4B626]/10 rounded">Done</button>
-                        </div>
-                        <textarea
-                          value={rawContent}
-                          onChange={e => onEdit(clause.id, e.target.value)}
-                          onBlur={() => setActiveEdit(null)}
-                          autoFocus
-                          className="w-full text-[9px] font-mono text-gray-700 bg-amber-50 border border-[#F4B626]/30 rounded p-1.5 resize-none outline-none leading-relaxed min-h-[80px]"
-                          style={{ overflow: 'hidden' }}
-                        />
-                      </div>
-                    ) : (
-                      <div onClick={() => setActiveEdit(clause.id)} className="cursor-text doc-clause-body">
-                        {renderContent(displayContent)}
-                      </div>
-                    )}
+                    <div className="doc-clause-body">
+                      <InlineClause
+                        clause={clause} settings={settings} editedContent={editedContent}
+                        onEdit={onEdit} activeEdit={activeEdit} onSetActive={setActiveEdit}
+                      />
+                    </div>
                   </div>
                 );
               })}
