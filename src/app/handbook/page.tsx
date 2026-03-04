@@ -893,48 +893,26 @@ function InlineClause({ clause, settings, editedContent, onEdit, activeEdit, onS
 }
 
 // ---------------------------------------------------------------------------
-// PAGE HEADER & FOOTER COMPONENTS (for preview + print)
+// PAGE HEADER & FOOTER COMPONENTS
 // ---------------------------------------------------------------------------
 
-function PageHeader({ section, settings }: { section: string; settings: CompanySettings }) {
+function PageHeader({ section, pageNum, settings }: { section: string; pageNum?: number; settings: CompanySettings }) {
   return (
-    <div className="doc-page-header">
-      <div className="flex items-center justify-between pb-3 border-b-2 border-[#F4B626]">
-        <Image src="/guldmann-logo-black.png" alt="Guldmann" width={140} height={24} className="object-contain" unoptimized />
-        <div className="text-right">
-          <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#F4B626]">{settings.companyName || 'Guldmann UK'}</div>
-          <div className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide">{section}</div>
-        </div>
+    <div className="doc-header flex items-center justify-between mb-0 pb-2.5 border-b-2 border-[#F4B626]">
+      <Image src="/guldmann-logo-black.png" alt="Guldmann" width={110} height={18} className="object-contain" unoptimized />
+      <div className="flex items-center gap-3">
+        <span className="text-[8.5px] font-bold uppercase tracking-[0.18em] text-gray-400">{section}</span>
+        {pageNum !== undefined && <span className="text-[8px] font-mono text-[#F4B626] font-bold">{String(pageNum).padStart(2,'0')}</span>}
       </div>
     </div>
   );
 }
 
-function PageFooter({ settings }: { settings: CompanySettings }) {
+function PageFooter({ settings, note }: { settings: CompanySettings; note?: string }) {
   return (
-    <div className="doc-page-footer">
-      <div className="flex items-center justify-between pt-2 border-t border-gray-200">
-        <span className="text-[9px] text-gray-400 font-medium uppercase tracking-wide">Employee Handbook {settings.versionDate || '2026'} - Confidential</span>
-        <span className="text-[10px] text-gray-400">{settings.companyName || 'Guldmann UK'}</span>
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// DOCUMENT PAGE COMPONENT
-// ---------------------------------------------------------------------------
-
-function DocumentPage({ children, sectionTitle, settings, isFirst = false }: {
-  children: React.ReactNode; sectionTitle: string; settings: CompanySettings; isFirst?: boolean;
-}) {
-  return (
-    <div className={`doc-page bg-white ${isFirst ? '' : 'doc-page-break'}`}>
-      <PageHeader section={sectionTitle} settings={settings} />
-      <div className="doc-page-body">
-        {children}
-      </div>
-      <PageFooter settings={settings} />
+    <div className="doc-footer flex items-center justify-between pt-2 mt-auto border-t border-gray-100">
+      <span className="text-[7.5px] text-gray-300 uppercase tracking-wide font-medium">{note || `Employee Handbook ${settings.versionDate || '2026'} - Confidential`}</span>
+      <span className="text-[7.5px] text-gray-300">{settings.companyName || 'Guldmann UK'}</span>
     </div>
   );
 }
@@ -965,89 +943,143 @@ function DocumentPreview({ selected, settings, editedContent, onEdit }: {
     </div>
   );
 
+  let pageNum = 0;
+
   return (
-    <div id="handbook-print-root">
+    <div id="handbook-print-root" className="handbook-print-root">
       {/* Edit hint - screen only */}
-      <div className="no-print mx-8 mt-6 mb-0 flex items-center gap-2 text-[11px] text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
+      <div className="no-print mx-auto mt-5 mb-0 max-w-[794px] flex items-center gap-2 text-[11px] text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
         <Pencil className="w-3 h-3 shrink-0" />
-        Click any section to edit it directly. Changes carry through to Word and PDF export.
+        Click any clause to edit in place. Changes carry through to Word and PDF export.
       </div>
 
-      {/* Cover page */}
-      <div className="doc-page bg-white" style={{ marginTop: '24px' }}>
-        <PageHeader section="Employee Handbook" settings={settings} />
-        <div className="doc-page-body flex flex-col">
-          {/* Hero area */}
-          <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
-            <Image src="/guldmann-logo-stacked.png" alt="Guldmann" width={280} height={198} className="object-contain mb-8 mx-auto" unoptimized />
-            <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#F4B626] mb-3">Confidential Document</div>
-            <h1 className="text-[48px] font-black text-[#111111] leading-none tracking-tight mb-2">Employee</h1>
-            <h1 className="text-[48px] font-black text-[#111111] leading-none tracking-tight mb-8">Handbook</h1>
-            <div className="w-12 h-0.5 bg-[#F4B626] mb-8 mx-auto" />
-            <div className="text-[16px] font-medium text-gray-500">{settings.companyName || 'Guldmann UK'}</div>
-            <div className="text-[14px] text-gray-400 mt-1">Version 1.0 - {settings.versionDate || '2026'}</div>
+      {/* ── COVER PAGE ── */}
+      <div className="doc-page doc-cover bg-[#111111]">
+        {/* Yellow accent bar top */}
+        <div className="doc-cover-topbar bg-[#F4B626] flex items-center justify-between px-8 py-3">
+          <Image src="/guldmann-logo-black.png" alt="Guldmann" width={120} height={20} className="object-contain" unoptimized />
+          <span className="text-[8px] font-black uppercase tracking-[0.25em] text-[#111111]">Confidential</span>
+        </div>
+        {/* Main cover body */}
+        <div className="doc-cover-body flex flex-col justify-between flex-1 px-10 py-8">
+          {/* Hero */}
+          <div className="flex flex-col justify-center flex-1">
+            <div className="mb-6">
+              <div className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#F4B626] mb-4">
+                {settings.companyName || 'Guldmann UK'}
+              </div>
+              <div className="text-[72px] font-black text-white leading-[0.9] tracking-tight">
+                Employee<br />
+                <span className="text-[#F4B626]">Handbook</span>
+              </div>
+              <div className="mt-5 flex items-center gap-3">
+                <div className="h-px flex-1 bg-white/10" />
+                <span className="text-[9px] font-mono text-white/30 uppercase tracking-widest">Version 1.0 / {settings.versionDate || '2026'}</span>
+                <div className="h-px flex-1 bg-white/10" />
+              </div>
+            </div>
+            {/* Stats strip */}
+            <div className="grid grid-cols-3 gap-4 mt-2">
+              <div className="bg-white/5 rounded-lg p-4">
+                <div className="text-[28px] font-black text-[#F4B626] leading-none">{selectedCategories.length}</div>
+                <div className="text-[8px] text-white/40 uppercase tracking-wide mt-1 font-medium">Sections</div>
+              </div>
+              <div className="bg-white/5 rounded-lg p-4">
+                <div className="text-[28px] font-black text-[#F4B626] leading-none">{totalClauses}</div>
+                <div className="text-[8px] text-white/40 uppercase tracking-wide mt-1 font-medium">Policies</div>
+              </div>
+              <div className="bg-white/5 rounded-lg p-4">
+                <div className="text-[28px] font-black text-[#F4B626] leading-none">UK</div>
+                <div className="text-[8px] text-white/40 uppercase tracking-wide mt-1 font-medium">Operations</div>
+              </div>
+            </div>
           </div>
           {/* TOC */}
-          <div className="border-t border-gray-100 pt-6 mt-auto">
-            <div className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-4">Contents</div>
-            <div className="grid grid-cols-2 gap-x-8 gap-y-1.5">
+          <div className="mt-6 pt-5 border-t border-white/10">
+            <div className="text-[7.5px] font-bold uppercase tracking-[0.2em] text-white/30 mb-3">Contents</div>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-1.5">
               {selectedCategories.map((cat, i) => (
-                <div key={cat.id} className="flex items-center gap-2">
-                  <span className="text-[8px] font-bold text-[#F4B626] font-mono w-6 shrink-0">{String(i + 1).padStart(2, '0')}</span>
-                  <span className="text-[10px] text-gray-600 font-medium">{cat.title}</span>
+                <div key={cat.id} className="flex items-center gap-2.5">
+                  <span className="text-[7px] font-black font-mono text-[#F4B626] w-5 shrink-0">{String(i + 1).padStart(2, '0')}</span>
+                  <div className="flex-1 flex items-center gap-1.5">
+                    <span className="text-[8.5px] font-mono bg-white/5 text-white/40 px-1 py-0.5 rounded text-[7px]">{cat.label}</span>
+                    <span className="text-[9px] text-white/60 font-medium truncate">{cat.title}</span>
+                  </div>
                 </div>
               ))}
-            </div>
-            <div className="mt-4 pt-3 border-t border-gray-100 flex gap-6 text-[9px] text-gray-400">
-              <span><strong className="text-gray-600">{totalClauses}</strong> sections</span>
-              <span><strong className="text-gray-600">~{wordCount.toLocaleString()}</strong> words</span>
             </div>
           </div>
         </div>
-        <PageFooter settings={settings} />
       </div>
 
-      {/* All sections in one flowing container - no forced page break per section */}
-      <div className="doc-page doc-page-break doc-content-flow bg-white">
-        <PageHeader section="Employee Handbook" settings={settings} />
-        <div className="doc-page-body">
-          {selectedCategories.map((cat, catIdx) => (
-            <div key={cat.id} className={`doc-section-block ${catIdx > 0 ? 'doc-section-break' : ''}`}>
-              {/* Section heading */}
-              <div className="flex items-center gap-3 mb-5 pb-3 border-b-2 border-[#F4B626]">
-                <div className="w-7 h-7 bg-[#F4B626] flex items-center justify-center rounded shrink-0">
-                  <span className="text-[8px] font-black text-[#111111] tracking-wider font-mono">{cat.label}</span>
-                </div>
-                <div>
-                  <h2 className="text-[18px] font-black text-[#111111] leading-tight">{cat.title}</h2>
-                </div>
+      {/* ── SECTION PAGES ── */}
+      {selectedCategories.map((cat) => {
+        pageNum++;
+        return (
+          <div key={cat.id} className="doc-page doc-page-break bg-white">
+            <PageHeader section={cat.title} pageNum={pageNum} settings={settings} />
+            {/* Section title bar */}
+            <div className="doc-section-title flex items-center gap-3 mt-3 mb-4">
+              <div className="flex items-center justify-center bg-[#F4B626] rounded-sm w-8 h-8 shrink-0">
+                <span className="text-[8px] font-black text-[#111111] tracking-wider font-mono">{cat.label}</span>
               </div>
-              {/* Clauses */}
-              {cat.clauses.map((clause, idx) => (
-                <div key={clause.id} className={`doc-clause-item ${idx < cat.clauses.length - 1 ? 'border-b border-gray-100 pb-4 mb-4' : 'mb-2'}`}>
-                  <InlineClause
-                    clause={clause} settings={settings} editedContent={editedContent}
-                    onEdit={onEdit} activeEdit={activeEdit} onSetActive={setActiveEdit}
-                  />
-                </div>
-              ))}
+              <div>
+                <h2 className="text-[20px] font-black text-[#111111] leading-tight tracking-tight">{cat.title}</h2>
+                <div className="text-[8px] text-gray-400 uppercase tracking-wide font-medium mt-0.5">{cat.clauses.length} polic{cat.clauses.length === 1 ? 'y' : 'ies'}</div>
+              </div>
             </div>
-          ))}
-        </div>
-        <PageFooter settings={settings} />
-      </div>
+            {/* 2-col clause grid */}
+            <div className="doc-clause-grid">
+              {cat.clauses.map((clause) => {
+                const rawContent = editedContent[clause.id] ?? clause.content;
+                const displayContent = applySettings(rawContent, settings);
+                const isEditing = activeEdit === clause.id;
+                return (
+                  <div key={clause.id} className="doc-clause-card doc-clause-item">
+                    {isEditing ? (
+                      <div>
+                        <div className="text-[8px] text-amber-600 font-medium mb-1 flex items-center justify-between">
+                          <span>## h2 | **bold** | - list</span>
+                          <button type="button" onClick={() => { onEdit(clause.id, rawContent); setActiveEdit(null); }}
+                            className="text-[8px] font-bold text-[#F4B626] px-1.5 py-0.5 bg-[#F4B626]/10 rounded">Done</button>
+                        </div>
+                        <textarea
+                          value={rawContent}
+                          onChange={e => onEdit(clause.id, e.target.value)}
+                          onBlur={() => setActiveEdit(null)}
+                          autoFocus
+                          className="w-full text-[9px] font-mono text-gray-700 bg-amber-50 border border-[#F4B626]/30 rounded p-1.5 resize-none outline-none leading-relaxed min-h-[80px]"
+                          style={{ overflow: 'hidden' }}
+                        />
+                      </div>
+                    ) : (
+                      <div onClick={() => setActiveEdit(clause.id)} className="cursor-text">
+                        {renderContent(displayContent)}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <PageFooter settings={settings} />
+          </div>
+        );
+      })}
 
-      {/* Back page */}
+      {/* ── BACK PAGE ── */}
       <div className="doc-page doc-page-break bg-[#111111]">
-        <div className="doc-page-body flex flex-col items-center justify-center text-center">
-          <Image src="/guldmann-logo-stacked-white.png" alt="Guldmann" width={220} height={156} className="object-contain mb-8" unoptimized />
-          <div className="w-8 h-0.5 bg-[#F4B626] mb-6 mx-auto" />
-          <div className="text-[13px] font-medium text-white/60 mb-1">Time to Care and Accessibility for All</div>
-          <div className="text-[10px] text-white/30 mt-2">www.guldmann.com/uk</div>
-          <div className="mt-12 pt-8 border-t border-white/10 w-full text-center">
-            <p className="text-[9px] text-white/30 leading-relaxed max-w-sm mx-auto">
-              This handbook is issued for informational purposes. It does not form part of your contract of employment
-              and may be updated from time to time. For the most current version, contact {settings.hrContact || 'HR'}.
+        <div className="doc-cover-topbar bg-[#F4B626] flex items-center justify-between px-8 py-3">
+          <Image src="/guldmann-logo-black.png" alt="Guldmann" width={120} height={20} className="object-contain" unoptimized />
+          <span className="text-[8px] font-black uppercase tracking-[0.25em] text-[#111111]">Employee Handbook</span>
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center text-center px-10">
+          <Image src="/guldmann-logo-stacked-white.png" alt="Guldmann" width={180} height={128} className="object-contain mb-6" unoptimized />
+          <div className="text-[11px] font-medium text-white/50 mb-1 italic">Time to Care and Accessibility for All</div>
+          <div className="text-[9px] text-white/25 mt-1">www.guldmann.com/uk</div>
+          <div className="mt-8 pt-6 border-t border-white/10 max-w-xs">
+            <p className="text-[8px] text-white/25 leading-relaxed">
+              This handbook is issued for informational purposes and does not form part of your contract of employment.
+              For the most current version, contact {settings.hrContact || 'HR'} at {settings.hrEmail || settings.companyName || 'Guldmann UK'}.
             </p>
           </div>
         </div>
@@ -1223,54 +1255,120 @@ export default function HandbookBuilder() {
     <>
       <style>{`
         /* ---- SCREEN STYLES ---- */
+        /* ── SCREEN: fixed A4 pages ── */
         .doc-page {
-          width: 210mm;
-          min-height: 297mm;
-          margin: 0 auto 24px auto;
-          padding: 16mm 18mm 12mm 18mm;
+          width: 794px;
+          min-height: 1123px;
+          height: 1123px;
+          margin: 24px auto;
+          box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+          border-radius: 2px;
           display: flex;
           flex-direction: column;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
-          border-radius: 4px;
+          overflow: hidden;
+          padding: 36px 42px 28px 42px;
           position: relative;
+          box-sizing: border-box;
         }
-        .doc-page-header { margin-bottom: 10mm; }
-        .doc-page-footer { margin-top: auto; padding-top: 8mm; }
-        .doc-page-body { flex: 1; }
-        .doc-section-block { margin-bottom: 32px; }
-        .doc-section-break { margin-top: 40px; padding-top: 32px; border-top: 1px dashed #e5e7eb; }
-        .doc-clauses-grid { display: flex; flex-direction: column; gap: 0; }
+        .doc-cover {
+          padding: 0;
+          overflow: hidden;
+        }
+        .doc-cover-topbar {
+          width: 100%;
+          flex-shrink: 0;
+        }
+        .doc-cover-body {
+          padding: 32px 40px;
+        }
+        .doc-header { flex-shrink: 0; }
+        .doc-footer { flex-shrink: 0; }
+        .doc-section-title { flex-shrink: 0; }
+        /* 2-column clause grid */
+        .doc-clause-grid {
+          flex: 1;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0;
+          align-content: start;
+          overflow: hidden;
+        }
+        .doc-clause-card {
+          padding: 10px 12px;
+          border-bottom: 1px solid #f3f4f6;
+          font-size: 8.5px;
+          line-height: 1.55;
+        }
+        .doc-clause-card:nth-child(odd) {
+          border-right: 1px solid #f3f4f6;
+        }
+        .doc-clause-card h2 {
+          font-size: 10px;
+          font-weight: 800;
+          color: #111;
+          margin-bottom: 4px;
+          line-height: 1.2;
+        }
+        .doc-clause-card h3 {
+          font-size: 9px;
+          font-weight: 700;
+          color: #333;
+          margin-top: 6px;
+          margin-bottom: 3px;
+        }
+        .doc-clause-card p {
+          font-size: 8.5px;
+          color: #444;
+          line-height: 1.55;
+          margin-bottom: 4px;
+        }
+        .doc-clause-card ul, .doc-clause-card ol {
+          padding-left: 12px;
+          margin-bottom: 4px;
+        }
+        .doc-clause-card li {
+          font-size: 8px;
+          color: #555;
+          line-height: 1.5;
+          margin-bottom: 1px;
+        }
+        .doc-clause-card strong {
+          color: #111;
+          font-weight: 700;
+        }
 
-        /* ---- PRINT STYLES ---- */
         @media print {
           * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-          @page { size: A4 portrait; margin: 16mm 18mm 12mm 18mm; }
+          @page { size: A4 portrait; margin: 0; }
 
-          /* Hide UI chrome */
           .no-print { display: none !important; }
           .handbook-sidebar { display: none !important; }
           .handbook-topbar { display: none !important; }
 
-          /* Flatten scroll containers */
           body, html { overflow: visible !important; height: auto !important; margin: 0 !important; }
           .handbook-shell { height: auto !important; overflow: visible !important; display: block !important; }
-          .handbook-body { height: auto !important; overflow: visible !important; display: block !important; flex-direction: column !important; }
+          .handbook-body { height: auto !important; overflow: visible !important; display: block !important; }
           .handbook-preview { overflow: visible !important; height: auto !important; background: white !important; padding: 0 !important; margin: 0 !important; }
-          #handbook-print-root { display: block !important; }
 
-          /* Each doc-page: no fixed height, natural flow, page break AFTER */
+          .handbook-print-root { display: block !important; }
+
           .doc-page {
-            width: auto !important;
-            height: auto !important;
+            width: 210mm !important;
+            height: 297mm !important;
             min-height: unset !important;
             margin: 0 !important;
-            padding: 0 !important;
+            padding: 14mm 16mm 10mm 16mm !important;
             box-shadow: none !important;
             border-radius: 0 !important;
             page-break-after: always !important;
             break-after: page !important;
-            overflow: visible !important;
-            display: block !important;
+            overflow: hidden !important;
+          }
+          .doc-cover {
+            padding: 0 !important;
+          }
+          .doc-cover-body {
+            padding: 10mm 14mm !important;
           }
           .doc-page:last-child {
             page-break-after: auto !important;
@@ -1280,52 +1378,14 @@ export default function HandbookBuilder() {
             page-break-before: always !important;
             break-before: page !important;
           }
-
-          /* Header/footer: always show at top/bottom of each printed page */
-          .doc-page-header {
-            margin-bottom: 8mm !important;
-          }
-          .doc-page-footer {
-            margin-top: 8mm !important;
-          }
-
-          /* Content flow container - does NOT force page-break-after */
-          .doc-content-flow {
-            page-break-after: auto !important;
-            break-after: auto !important;
-          }
-
-          /* Section blocks: each major section prefers to start on a new page */
-          .doc-section-break {
-            page-break-before: always !important;
-            break-before: page !important;
-          }
-
-          /* Section heading: keep with first clause, never orphan */
-          .doc-section-block > div:first-child {
-            page-break-after: avoid !important;
-            break-after: avoid !important;
-          }
-
-          /* Prevent page breaks inside individual clauses */
           .doc-clause-item {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
           }
-
-          /* Prevent page breaks inside headings */
-          h1, h2, h3, h4 {
-            page-break-after: avoid !important;
-            break-after: avoid !important;
+          .doc-clause-grid {
+            overflow: hidden !important;
           }
-
-          /* Edit hint hidden */
-          .group > div[class*="absolute"] { display: none !important; }
-
-          /* Footer always at bottom of last printed page, not mid-page */
-          .doc-page-footer {
-            margin-top: 8mm !important;
-          }
+        }
         }
       `}</style>
 
