@@ -1240,42 +1240,64 @@ export default function HandbookBuilder() {
         /* ---- PRINT STYLES ---- */
         @media print {
           * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-          @page { size: A4 portrait; margin: 0; }
+          @page { size: A4 portrait; margin: 16mm 18mm 12mm 18mm; }
 
           /* Hide UI chrome */
           .no-print { display: none !important; }
           .handbook-sidebar { display: none !important; }
           .handbook-topbar { display: none !important; }
 
-          /* Undo scroll containers so all pages render */
-          body, html { overflow: visible !important; height: auto !important; }
+          /* Flatten scroll containers */
+          body, html { overflow: visible !important; height: auto !important; margin: 0 !important; }
           .handbook-shell { height: auto !important; overflow: visible !important; display: block !important; }
-          .handbook-body { height: auto !important; overflow: visible !important; display: block !important; }
-          .handbook-preview { overflow: visible !important; height: auto !important; background: white !important; padding: 0 !important; }
+          .handbook-body { height: auto !important; overflow: visible !important; display: block !important; flex-direction: column !important; }
+          .handbook-preview { overflow: visible !important; height: auto !important; background: white !important; padding: 0 !important; margin: 0 !important; }
+          #handbook-print-root { display: block !important; }
 
-          /* Page styles */
+          /* Each doc-page: no fixed height, natural flow, page break AFTER */
           .doc-page {
-            width: 210mm !important;
-            height: 297mm !important;
+            width: auto !important;
+            height: auto !important;
             min-height: unset !important;
             margin: 0 !important;
-            padding: 16mm 18mm 12mm 18mm !important;
+            padding: 0 !important;
             box-shadow: none !important;
             border-radius: 0 !important;
             page-break-after: always !important;
             break-after: page !important;
-            overflow: hidden !important;
-            display: flex !important;
-            flex-direction: column !important;
-          }
-          .doc-page-break {
-            page-break-before: always !important;
-            break-before: page !important;
+            overflow: visible !important;
+            display: block !important;
           }
           .doc-page:last-child {
             page-break-after: auto !important;
             break-after: auto !important;
           }
+          .doc-page-break {
+            page-break-before: always !important;
+            break-before: page !important;
+          }
+
+          /* Header/footer: always show at top/bottom of each printed page */
+          .doc-page-header {
+            margin-bottom: 8mm !important;
+          }
+          .doc-page-footer {
+            margin-top: 8mm !important;
+          }
+
+          /* Prevent page breaks inside individual clauses */
+          .doc-clause-item {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          /* Prevent page breaks inside headings */
+          h1, h2, h3, h4 {
+            page-break-after: avoid !important;
+            break-after: avoid !important;
+          }
+
+          /* Edit hint hidden */
+          .group > div[class*="absolute"] { display: none !important; }
         }
       `}</style>
 
