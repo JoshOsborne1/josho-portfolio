@@ -757,7 +757,7 @@ function PageHeader({ section, settings }: { section: string; settings: CompanyS
   return (
     <div className="doc-page-header">
       <div className="flex items-center justify-between pb-3 border-b-2 border-[#F4B626]">
-        <Image src="/guldmann-logo-black.png" alt="Guldmann" width={100} height={17} className="object-contain" unoptimized />
+        <Image src="/guldmann-logo-stacked.png" alt="Guldmann" width={44} height={32} className="object-contain" unoptimized />
         <div className="text-right">
           <div className="text-[8px] font-bold uppercase tracking-[0.15em] text-[#F4B626]">{settings.companyName || 'Guldmann UK'}</div>
           <div className="text-[9px] font-semibold text-gray-500 uppercase tracking-wide">{section}</div>
@@ -836,7 +836,7 @@ function DocumentPreview({ selected, settings, editedContent, onEdit }: {
         <div className="doc-page-body flex flex-col">
           {/* Hero area */}
           <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
-            <Image src="/guldmann-logo-black.png" alt="Guldmann" width={180} height={30} className="object-contain mb-10 mx-auto" unoptimized />
+            <Image src="/guldmann-logo-stacked.png" alt="Guldmann" width={120} height={85} className="object-contain mb-8 mx-auto" unoptimized />
             <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#F4B626] mb-3">Confidential Document</div>
             <h1 className="text-[34px] font-black text-[#111111] leading-none tracking-tight mb-2">Employee</h1>
             <h1 className="text-[34px] font-black text-[#111111] leading-none tracking-tight mb-8">Handbook</h1>
@@ -895,7 +895,7 @@ function DocumentPreview({ selected, settings, editedContent, onEdit }: {
       {/* Back page */}
       <div className="doc-page doc-page-break bg-[#111111]">
         <div className="doc-page-body flex flex-col items-center justify-center text-center">
-          <Image src="/guldmann-logo-black.png" alt="Guldmann" width={120} height={20} className="object-contain invert mb-8" unoptimized />
+          <Image src="/guldmann-logo-stacked-white.png" alt="Guldmann" width={100} height={72} className="object-contain mb-8" unoptimized />
           <div className="w-8 h-0.5 bg-[#F4B626] mb-6 mx-auto" />
           <div className="text-[13px] font-medium text-white/60 mb-1">Time to Care and Accessibility for All</div>
           <div className="text-[10px] text-white/30 mt-2">www.guldmann.com/uk</div>
@@ -1073,7 +1073,7 @@ export default function HandbookBuilder() {
         {/* Top bar */}
         <div className="no-print shrink-0 flex items-center gap-4 px-5 py-3 bg-white border-b border-gray-100 shadow-sm z-10">
           <div className="flex items-center gap-3">
-            <Image src="/guldmann-logo-black.png" alt="Guldmann" width={100} height={17} className="object-contain" />
+            <Image src="/guldmann-logo-stacked.png" alt="Guldmann" width={44} height={32} className="object-contain" />
             <div className="h-5 w-px bg-gray-200" />
             <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Handbook Builder</span>
           </div>
