@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useTransition } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, ChevronDown, Download, FileText, Pencil, Printer, Search, Settings, X } from 'lucide-react';
 import Image from 'next/image';
@@ -1068,6 +1068,9 @@ export default function HandbookBuilder() {
     if (typeof window === 'undefined') return {};
     try { return JSON.parse(localStorage.getItem('handbook-edits') || '{}'); } catch { return {}; }
   });
+  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved' | 'error'>('saved');
+  const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const [, startTransition] = useTransition();
   const [showSettings, setShowSettings] = useState(false);
   const [search, setSearch] = useState('');
   const [exporting, setExporting] = useState(false);
@@ -1086,15 +1089,62 @@ export default function HandbookBuilder() {
     });
   }, []);
 
+  // Load from server on mount (overrides localStorage with authoritative copy)
+  useEffect(() => {
+    fetch('/api/handbook')
+      .then(r => r.json())
+      .then(data => {
+        if (data.edits && Object.keys(data.edits).length > 0) {
+          setEditedContent(data.edits);
+          localStorage.setItem('handbook-edits', JSON.stringify(data.edits));
+        }
+        if (data.settings && Object.keys(data.settings).length > 0) {
+          setSettings(prev => ({ ...prev, ...data.settings }));
+          localStorage.setItem('handbook-settings', JSON.stringify(data.settings));
+        }
+        if (data.savedAt) setLastSaved(data.savedAt);
+        setSaveStatus('saved');
+      })
+      .catch(() => setSaveStatus('saved')); // fall through to localStorage silently
+  }, []);
+
+  // Auto-save to server 2s after last change
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingSave = useRef<{ edits: Record<string, string>; settings: CompanySettings } | null>(null);
+
+  const triggerSave = useCallback((edits: Record<string, string>, s: CompanySettings) => {
+    pendingSave.current = { edits, settings: s };
+    setSaveStatus('unsaved');
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      if (!pendingSave.current) return;
+      const payload = pendingSave.current;
+      pendingSave.current = null;
+      setSaveStatus('saving');
+      fetch('/api/handbook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data.ok) { setSaveStatus('saved'); setLastSaved(data.savedAt); }
+          else setSaveStatus('error');
+        })
+        .catch(() => setSaveStatus('error'));
+    }, 2000);
+  }, []);
+
   const handleEdit = useCallback((id: string, value: string) => {
     setEditedContent(prev => {
       const next = { ...prev, [id]: value };
       if (typeof window !== 'undefined') {
         try { localStorage.setItem('handbook-edits', JSON.stringify(next)); } catch {}
       }
+      startTransition(() => triggerSave(next, settings));
       return next;
     });
-  }, []);
+  }, [settings, triggerSave]);
 
   const updateSetting = useCallback((key: keyof CompanySettings, value: string) => {
     setSettings(prev => {
@@ -1102,9 +1152,10 @@ export default function HandbookBuilder() {
       if (typeof window !== 'undefined') {
         try { localStorage.setItem('handbook-settings', JSON.stringify(next)); } catch {}
       }
+      startTransition(() => triggerSave(editedContent, next));
       return next;
     });
-  }, []);
+  }, [editedContent, triggerSave]);
 
   const handlePrint = () => window.print();
 
@@ -1237,8 +1288,25 @@ export default function HandbookBuilder() {
             <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Handbook Builder</span>
           </div>
           <div className="flex-1" />
-          <div className="text-[12px] text-gray-500">
-            <span className="font-bold text-gray-800">{selected.size}</span>/{ALL_IDS.length} sections
+          <div className="flex items-center gap-3">
+            <div className="text-[12px] text-gray-500">
+              <span className="font-bold text-gray-800">{selected.size}</span>/{ALL_IDS.length} sections
+            </div>
+            <div className={`flex items-center gap-1.5 text-[11px] font-medium px-2 py-1 rounded-md ${
+              saveStatus === 'saved' ? 'text-green-600 bg-green-50' :
+              saveStatus === 'saving' ? 'text-amber-600 bg-amber-50' :
+              saveStatus === 'unsaved' ? 'text-gray-400 bg-gray-50' :
+              'text-red-500 bg-red-50'
+            }`}>
+              <div className={`w-1.5 h-1.5 rounded-full ${
+                saveStatus === 'saved' ? 'bg-green-500' :
+                saveStatus === 'saving' ? 'bg-amber-400 animate-pulse' :
+                saveStatus === 'unsaved' ? 'bg-gray-300' : 'bg-red-400'
+              }`} />
+              {saveStatus === 'saved' ? (lastSaved ? 'Saved' : 'Ready') :
+               saveStatus === 'saving' ? 'Saving...' :
+               saveStatus === 'unsaved' ? 'Unsaved' : 'Save failed'}
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <button type="button" onClick={() => setShowSettings(s => !s)}
