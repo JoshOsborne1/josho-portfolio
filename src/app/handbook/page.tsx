@@ -99,13 +99,13 @@ interface Clause {
 interface Category {
   id: string;
   title: string;
-  icon: string;
+  label: string;
   clauses: Clause[];
 }
 
 const CATEGORIES: Category[] = [
   {
-    id: 'welcome', title: 'Welcome & Introduction', icon: '👋',
+    id: 'welcome', title: 'Welcome & Introduction', label: 'WEL',
     clauses: [
       { id: 'welcome-message', title: 'Welcome Message', summary: 'Opening letter from Guldmann UK leadership', required: false, content: `## Welcome to [COMPANY_NAME]
 
@@ -144,14 +144,14 @@ The full Code of Conduct is available from [HR_CONTACT].` },
     ]
   },
   {
-    id: 'employment', title: 'Your Employment', icon: '📋',
+    id: 'employment', title: 'Your Employment', label: 'EMP',
     clauses: [
       { id: 'contracts', title: 'Employment Contracts', summary: 'Written particulars, contract changes', required: true, content: `## Employment Contracts
 
 Every employee receives a written statement of employment particulars on or before their first day. This confirms your job title, start date, pay, working hours, holiday entitlement, and notice period.
 
 If anything in your contract needs to change - your hours, your role, your location - this will be agreed with you and confirmed in writing.` },
-      { id: 'probation', title: 'Probationary Period', summary: 'Probation with mid-point review', required: false, content: `## Probationary Period
+      { id: 'probation', title: 'Probationary Period', summary: 'Six-month probation with mid-point review', required: false, content: `## Probationary Period
 
 All new employees serve a [PROBATION_MONTHS]-month probationary period. This is not a test designed for you to fail - it is a structured period to make sure the role is right for you and you are right for the role.
 
@@ -191,15 +191,15 @@ How we present ourselves reflects on Guldmann. We expect everyone to dress appro
 
 **During probation:** [NOTICE_PROBATION] notice required from either side.
 
-**Under 2 years' service:** [NOTICE_UNDER_2] notice from either side.
+**Under 2 years service:** [NOTICE_UNDER_2] notice from either side.
 
-**2+ years' service:** [NOTICE_OVER_2].
+**2+ years service:** [NOTICE_OVER_2].
 
 Your specific notice period is confirmed in your contract.` },
     ]
   },
   {
-    id: 'pay-benefits', title: 'Pay & Benefits', icon: '💷',
+    id: 'pay-benefits', title: 'Pay & Benefits', label: 'PAY',
     clauses: [
       { id: 'pay-dates', title: 'Pay & Payslips', summary: 'Monthly pay, payslip details, error reporting', required: true, content: `## Pay and Payslips
 
@@ -231,7 +231,7 @@ Some roles include a company credit card. The card is for business purchases onl
 - Submit receipts and a brief purpose note for every transaction
 - Report a lost or stolen card to [HR_CONTACT] and accounts immediately
 
-Spend Guldmann's money the way you would spend your own.` },
+Spend Guldmann money the way you would spend your own.` },
       { id: 'company-car', title: 'Company Car Policy', summary: 'Eligibility, standards, fines, private use, BIK', required: false, content: `## Company Car Policy
 
 Company cars are available to certain roles where the business need is clear. Eligibility is confirmed in your contract. Electric vehicles are preferred.
@@ -272,7 +272,7 @@ Guldmann UK marks the following milestones:
     ]
   },
   {
-    id: 'time-off', title: 'Time Off', icon: '🏖️',
+    id: 'time-off', title: 'Time Off', label: 'LEA',
     clauses: [
       { id: 'holiday', title: 'Holiday Entitlement', summary: 'Days, holiday year, booking, carry-over', required: true, content: `## Holiday Entitlement
 
@@ -285,7 +285,7 @@ You are entitled to [HOLIDAY_DAYS] days of paid holiday per year (inclusive of t
 **Carry-over:** Up to 5 days may be carried over by agreement.
 
 **On leaving:** Accrued but untaken holiday is paid in your final salary.` },
-      { id: 'sick-leave', title: 'Sick Leave & SSP', summary: 'Reporting, SSP £118.75/week, fit notes, return interviews', required: true, content: `## Sick Leave and Statutory Sick Pay
+      { id: 'sick-leave', title: 'Sick Leave & SSP', summary: 'Reporting, SSP rates, fit notes, return interviews', required: true, content: `## Sick Leave and Statutory Sick Pay
 
 **Reporting:** Contact your manager before your normal start time on day one of any absence.
 
@@ -321,7 +321,7 @@ If you are called for jury service, notify [HR_CONTACT] and your manager as soon
     ]
   },
   {
-    id: 'family-leave', title: 'Family Leave', icon: '👨‍👩‍👧',
+    id: 'family-leave', title: 'Family Leave', label: 'FAM',
     clauses: [
       { id: 'maternity', title: 'Maternity Leave & Pay', summary: 'Up to 52 weeks, SMP rates, KIT days', required: true, content: `## Maternity Leave and Pay
 
@@ -336,7 +336,7 @@ If you are called for jury service, notify [HR_CONTACT] and your manager as soon
 **Keeping in Touch (KIT) days:** Up to 10 voluntary KIT days during maternity leave.
 
 Contact [HR_CONTACT] to discuss your maternity plans.` },
-      { id: 'paternity', title: 'Paternity Leave & Pay', summary: '1-2 weeks, SPP £187.18/week', required: true, content: `## Paternity Leave and Pay
+      { id: 'paternity', title: 'Paternity Leave & Pay', summary: '1-2 weeks, SPP rates', required: true, content: `## Paternity Leave and Pay
 
 **Leave:** 1 or 2 consecutive weeks, taken within 56 days of the birth.
 
@@ -363,7 +363,7 @@ Give at least 21 days notice. Speak to [HR_CONTACT] for details.` },
     ]
   },
   {
-    id: 'performance', title: 'Performance & Development', icon: '📈',
+    id: 'performance', title: 'Performance & Development', label: 'DEV',
     clauses: [
       { id: 'performance-standards', title: 'Expected Standards', summary: 'What Guldmann expects from everyone', required: false, content: `## Expected Standards
 
@@ -396,7 +396,7 @@ Contact [HR_CONTACT] to discuss training and development.` },
     ]
   },
   {
-    id: 'conduct', title: 'Conduct & Discipline', icon: '⚖️',
+    id: 'conduct', title: 'Conduct & Discipline', label: 'CON',
     clauses: [
       { id: 'standards-behaviour', title: 'Standards of Behaviour', summary: 'Professionalism, honesty, respect', required: false, content: `## Standards of Behaviour
 
@@ -448,7 +448,7 @@ Guldmann will not penalise any employee for making a whistleblowing disclosure i
     ]
   },
   {
-    id: 'health-safety', title: 'Health, Safety & Wellbeing', icon: '🦺',
+    id: 'health-safety', title: 'Health, Safety & Wellbeing', label: 'H&S',
     clauses: [
       { id: 'hs-commitment', title: 'Health & Safety Commitment', summary: 'Legal duties, employer and employee responsibilities', required: true, content: `## Health and Safety Commitment
 
@@ -468,7 +468,7 @@ All accidents, injuries, and near misses must be recorded in the accident book. 
 RIDDOR-reportable incidents include deaths, specified injuries, over-7-day incapacitations, and dangerous occurrences.
 
 Report all incidents to your manager and [HR_CONTACT] immediately.` },
-      { id: 'ppe-workwear', title: 'Workwear & PPE', summary: 'Installer and technician requirements, screen glasses', required: true, content: `## Workwear and PPE
+      { id: 'ppe-workwear', title: 'Workwear & PPE', summary: 'Installer and technician requirements', required: true, content: `## Workwear and PPE
 
 **Installers and Service Technicians:** Company-issued workwear must be worn at all times on customer sites. Safety footwear required in all applicable environments.
 
@@ -483,7 +483,7 @@ Long-term mental health conditions are a disability under the Equality Act 2010.
     ]
   },
   {
-    id: 'data-it', title: 'Data, IT & Security', icon: '🔒',
+    id: 'data-it', title: 'Data, IT & Security', label: 'IT',
     clauses: [
       { id: 'it-use', title: 'IT Systems & Acceptable Use', summary: 'Business use, prohibited actions, device security', required: true, content: `## IT Systems and Acceptable Use
 
@@ -518,18 +518,18 @@ Do not share confidential company information, make defamatory comments about Gu
     ]
   },
   {
-    id: 'leaving', title: 'Leaving Guldmann', icon: '🚪',
+    id: 'leaving', title: 'Leaving Guldmann', label: 'LEV',
     clauses: [
       { id: 'resignation', title: 'Resignation & Notice', summary: 'Written resignation, notice periods, garden leave', required: true, content: `## Resignation and Notice
 
 Submit your resignation in writing to your manager, with a copy to [HR_CONTACT]. Your notice period is in your contract.
 
 During your notice period, you are expected to work normally and assist with handover. We may place you on garden leave - full pay, not attending work.` },
-      { id: 'redundancy', title: 'Redundancy', summary: 'Fair process, statutory pay, £669/week cap (2024/25)', required: true, content: `## Redundancy
+      { id: 'redundancy', title: 'Redundancy', summary: 'Fair process, statutory pay, weekly cap 2024/25', required: true, content: `## Redundancy
 
 Redundancy occurs when a role no longer exists - it is about the job, not the person. Guldmann will follow a fair process: identifying affected roles, consulting, exploring alternatives, and paying statutory redundancy pay where applicable.
 
-**Statutory Redundancy Pay** (2+ years' service):
+**Statutory Redundancy Pay** (2+ years service):
 - Under age 22: 0.5 week's pay per year of service
 - Ages 22-40: 1 week's pay per year of service
 - Age 41+: 1.5 week's pay per year of service
@@ -561,8 +561,8 @@ const FIELD_GROUPS = [
   { label: 'Employment', fields: [{ key: 'probationMonths', label: 'Probation (months)', placeholder: '6' }, { key: 'noticeProbation', label: 'Notice - During Probation', placeholder: '1 week' }, { key: 'noticeUnder2', label: 'Notice - Under 2 Years', placeholder: '1 month' }, { key: 'noticeOver2', label: 'Notice - Over 2 Years', placeholder: '1 week per year (max 12)' }] },
   { label: 'Holiday', fields: [{ key: 'holidayDays', label: 'Holiday Days (inc. bank hols)', placeholder: '28' }, { key: 'holidayYearStart', label: 'Holiday Year Start', placeholder: '1 January' }] },
   { label: 'Sick Pay', fields: [{ key: 'enhancedSickWeeks', label: 'Enhanced Sick Pay - Full Salary Weeks', placeholder: 'e.g. 4 (blank = SSP only)' }] },
-  { label: 'Expenses', fields: [{ key: 'expenseBreakfast', label: 'Breakfast Limit (£)', placeholder: '10' }, { key: 'expenseLunch', label: 'Lunch Limit (£)', placeholder: '15' }, { key: 'expenseDinner', label: 'Dinner Limit (£)', placeholder: '25' }, { key: 'cardApprovalLimit', label: 'Card Single Purchase Limit (£)', placeholder: '200' }] },
-  { label: 'Additional Benefits', fields: [{ key: 'extraBenefit1', label: 'Benefit 1', placeholder: 'e.g. Private healthcare (AXA Health)' }, { key: 'extraBenefit2', label: 'Benefit 2', placeholder: 'e.g. Annual gym allowance - £300' }, { key: 'extraBenefit3', label: 'Benefit 3', placeholder: 'e.g. EV salary sacrifice scheme' }] },
+  { label: 'Expenses', fields: [{ key: 'expenseBreakfast', label: 'Breakfast Limit (GBP)', placeholder: '10' }, { key: 'expenseLunch', label: 'Lunch Limit (GBP)', placeholder: '15' }, { key: 'expenseDinner', label: 'Dinner Limit (GBP)', placeholder: '25' }, { key: 'cardApprovalLimit', label: 'Card Single Purchase Limit (GBP)', placeholder: '200' }] },
+  { label: 'Additional Benefits', fields: [{ key: 'extraBenefit1', label: 'Benefit 1', placeholder: 'e.g. Private healthcare (AXA Health)' }, { key: 'extraBenefit2', label: 'Benefit 2', placeholder: 'e.g. Annual gym allowance - 300 GBP' }, { key: 'extraBenefit3', label: 'Benefit 3', placeholder: 'e.g. EV salary sacrifice scheme' }] },
 ];
 
 function SettingsPanel({ settings, onChange, onClose }: {
@@ -606,15 +606,13 @@ function SettingsPanel({ settings, onChange, onClose }: {
 }
 
 // ---------------------------------------------------------------------------
-// LEFT PANEL - clause toggles only
+// LEFT PANEL
 // ---------------------------------------------------------------------------
 
 function ClauseCheckbox({ clause, selected, onToggle }: { clause: Clause; selected: boolean; onToggle: () => void }) {
   const required = REQUIRED_IDS.has(clause.id);
   return (
-    <button
-      type="button"
-      onClick={() => !required && onToggle()}
+    <button type="button" onClick={() => !required && onToggle()}
       className={`w-full flex items-start gap-3 px-3 py-2.5 rounded-lg transition-all text-left ${
         selected ? 'bg-[#F4B626]/8 hover:bg-[#F4B626]/12' : 'hover:bg-gray-50'
       } ${required ? 'cursor-default' : 'cursor-pointer'}`}
@@ -645,7 +643,7 @@ function CategoryAccordion({ category, selected, onToggleClause, onToggleAll }: 
     <div className="border border-gray-100 rounded-xl overflow-hidden">
       <button type="button" onClick={() => setOpen(o => !o)}
         className="w-full flex items-center gap-2 px-4 py-3 bg-white hover:bg-gray-50 transition-colors text-left">
-        <span className="text-base">{category.icon}</span>
+        <span className="text-[10px] font-bold tracking-widest text-[#F4B626] bg-[#F4B626]/10 px-2 py-1 rounded font-mono">{category.label}</span>
         <span className="flex-1 text-[13px] font-semibold text-gray-800">{category.title}</span>
         <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${count === category.clauses.length ? 'bg-[#F4B626]/15 text-[#c9961e]' : count > 0 ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-400'}`}>
           {count}/{category.clauses.length}
@@ -672,11 +670,25 @@ function CategoryAccordion({ category, selected, onToggleClause, onToggleAll }: 
 }
 
 // ---------------------------------------------------------------------------
-// INLINE EDITABLE CLAUSE - the heart of the new editing UX
+// INLINE EDITABLE CLAUSE
 // ---------------------------------------------------------------------------
 
+function renderContent(content: string): React.ReactNode {
+  return content.split('\n').map((line, i) => {
+    if (line.startsWith('## '))
+      return <h3 key={i} className="doc-section-heading text-[14px] font-bold text-[#111111] mt-5 mb-2 first:mt-0">{line.slice(3)}</h3>;
+    if (line.startsWith('- ')) {
+      const html = line.slice(2).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      return <li key={i} className="text-[11.5px] text-gray-700 ml-4 mb-1 leading-relaxed list-disc" dangerouslySetInnerHTML={{ __html: html }} />;
+    }
+    if (!line.trim()) return <div key={i} className="h-2" />;
+    const html = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    return <p key={i} className="text-[11.5px] text-gray-700 leading-relaxed mb-1.5" dangerouslySetInnerHTML={{ __html: html }} />;
+  });
+}
+
 function InlineClause({ clause, settings, editedContent, onEdit, activeEdit, onSetActive }: {
-  clause: Clause & { categoryTitle: string; categoryIcon: string };
+  clause: Clause;
   settings: CompanySettings;
   editedContent: Record<string, string>;
   onEdit: (id: string, v: string) => void;
@@ -688,7 +700,6 @@ function InlineClause({ clause, settings, editedContent, onEdit, activeEdit, onS
   const displayContent = applySettings(rawContent, settings);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-resize textarea
   useEffect(() => {
     if (isEditing && textareaRef.current) {
       textareaRef.current.style.height = 'auto';
@@ -703,65 +714,85 @@ function InlineClause({ clause, settings, editedContent, onEdit, activeEdit, onS
     e.target.style.height = e.target.scrollHeight + 'px';
   };
 
-  const renderContent = (content: string) => {
-    return content.split('\n').map((line, i) => {
-      if (line.startsWith('## ')) return <h2 key={i} className="text-[15px] font-bold text-[#111] mt-5 mb-2 first:mt-0 border-b border-gray-100 pb-1.5">{line.slice(3)}</h2>;
-      if (line.startsWith('- ')) {
-        const html = line.slice(2).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        return <li key={i} className="text-[12px] text-gray-700 ml-3 leading-relaxed list-disc" dangerouslySetInnerHTML={{ __html: html }} />;
-      }
-      if (!line.trim()) return <div key={i} className="h-1" />;
-      const html = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      return <p key={i} className="text-[12px] text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: html }} />;
-    });
-  };
-
   return (
-    <div className="group relative">
-      {/* Edit mode */}
+    <div className="group relative doc-clause">
+      <div className="flex items-baseline justify-between mb-1.5">
+        <h4 className="text-[12px] font-semibold text-[#111111] uppercase tracking-wide">{clause.title}</h4>
+        {!isEditing && (
+          <button type="button" onClick={() => onSetActive(clause.id)}
+            className="no-print opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-[10px] text-gray-400 hover:text-[#F4B626] ml-3 shrink-0">
+            <Pencil className="w-2.5 h-2.5" />Edit
+          </button>
+        )}
+      </div>
+
       {isEditing ? (
         <div className="relative">
-          <div className="absolute -top-2 -left-3 -right-3 -bottom-2 bg-[#FFFBF0] border-2 border-[#F4B626]/40 rounded-xl pointer-events-none z-0" />
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-1.5 text-[10px] font-medium text-[#c9961e]">
-                <Pencil className="w-3 h-3" />
-                Editing - use ## for headings, **bold**, - for bullets
-              </div>
-              <button
-                type="button"
-                onClick={() => onSetActive(null)}
-                className="text-[11px] font-semibold text-[#F4B626] hover:text-[#c9961e] transition-colors px-2 py-0.5 rounded bg-[#F4B626]/10"
-              >
-                Done
-              </button>
+          <div className="absolute -top-1 -left-2 -right-2 -bottom-1 bg-amber-50 border border-[#F4B626]/30 rounded-lg pointer-events-none" />
+          <div className="relative">
+            <div className="text-[10px] text-amber-600 font-medium mb-1.5 flex items-center justify-between">
+              <span>## headings | **bold** | - bullets</span>
+              <button type="button" onClick={() => onSetActive(null)}
+                className="text-[11px] font-semibold text-[#F4B626] hover:text-[#c9961e] px-2 py-0.5 rounded bg-[#F4B626]/10">Done</button>
             </div>
-            <textarea
-              ref={textareaRef}
-              value={rawContent}
-              onChange={handleTextareaChange}
-              className="w-full text-[12px] font-mono text-gray-700 bg-white border border-[#F4B626]/30 rounded-lg p-3 resize-none focus:border-[#F4B626] focus:ring-2 focus:ring-[#F4B626]/20 outline-none leading-relaxed min-h-[80px]"
+            <textarea ref={textareaRef} value={rawContent} onChange={handleTextareaChange}
+              className="w-full text-[11.5px] font-mono text-gray-700 bg-white border border-[#F4B626]/30 rounded-lg p-2.5 resize-none outline-none leading-relaxed min-h-[60px]"
               style={{ overflow: 'hidden' }}
             />
           </div>
         </div>
       ) : (
-        /* Read mode - click anywhere to edit */
-        <div
-          className="relative cursor-text rounded-xl transition-all duration-150 hover:bg-gray-50/80 -mx-3 px-3 py-1"
-          onClick={() => onSetActive(clause.id)}
-          title="Click to edit"
-        >
+        <div className="cursor-text" onClick={() => onSetActive(clause.id)} title="Click to edit">
           {renderContent(displayContent)}
-          {/* Edit hint on hover */}
-          <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <div className="flex items-center gap-1 text-[10px] text-gray-400 bg-white border border-gray-200 rounded-md px-1.5 py-0.5 shadow-sm">
-              <Pencil className="w-2.5 h-2.5" />
-              Edit
-            </div>
-          </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// PAGE HEADER & FOOTER COMPONENTS (for preview + print)
+// ---------------------------------------------------------------------------
+
+function PageHeader({ section, settings }: { section: string; settings: CompanySettings }) {
+  return (
+    <div className="doc-page-header">
+      <div className="flex items-center justify-between pb-3 border-b-2 border-[#F4B626]">
+        <Image src="/guldmann-logo-black.png" alt="Guldmann" width={100} height={17} className="object-contain" unoptimized />
+        <div className="text-right">
+          <div className="text-[8px] font-bold uppercase tracking-[0.15em] text-[#F4B626]">{settings.companyName || 'Guldmann UK'}</div>
+          <div className="text-[9px] font-semibold text-gray-500 uppercase tracking-wide">{section}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PageFooter({ settings }: { settings: CompanySettings }) {
+  return (
+    <div className="doc-page-footer">
+      <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+        <span className="text-[8px] text-gray-400 font-medium uppercase tracking-wide">Employee Handbook {settings.versionDate || '2025'} - Confidential</span>
+        <span className="text-[8px] text-gray-400">{settings.companyName || 'Guldmann UK'}</span>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// DOCUMENT PAGE COMPONENT
+// ---------------------------------------------------------------------------
+
+function DocumentPage({ children, sectionTitle, settings, isFirst = false }: {
+  children: React.ReactNode; sectionTitle: string; settings: CompanySettings; isFirst?: boolean;
+}) {
+  return (
+    <div className={`doc-page bg-white ${isFirst ? '' : 'doc-page-break'}`}>
+      <PageHeader section={sectionTitle} settings={settings} />
+      <div className="doc-page-body">
+        {children}
+      </div>
+      <PageFooter settings={settings} />
     </div>
   );
 }
@@ -776,62 +807,106 @@ function DocumentPreview({ selected, settings, editedContent, onEdit }: {
 }) {
   const [activeEdit, setActiveEdit] = useState<string | null>(null);
 
-  const selectedClauses = CATEGORIES.flatMap(cat =>
-    cat.clauses.filter(cl => selected.has(cl.id)).map(cl => ({ ...cl, categoryTitle: cat.title, categoryIcon: cat.icon }))
-  );
-  const wordCount = selectedClauses.reduce((acc, cl) => acc + (editedContent[cl.id] ?? cl.content).split(' ').length, 0);
+  const selectedCategories = CATEGORIES
+    .map(cat => ({ ...cat, clauses: cat.clauses.filter(cl => selected.has(cl.id)) }))
+    .filter(cat => cat.clauses.length > 0);
 
-  if (selectedClauses.length === 0) return (
+  const totalClauses = selectedCategories.reduce((a, c) => a + c.clauses.length, 0);
+  const wordCount = selectedCategories.flatMap(c => c.clauses).reduce(
+    (acc, cl) => acc + (editedContent[cl.id] ?? cl.content).split(' ').length, 0
+  );
+
+  if (selectedCategories.length === 0) return (
     <div className="flex flex-col items-center justify-center h-full text-center p-12">
       <FileText className="w-12 h-12 text-gray-200 mb-4" />
       <p className="text-sm text-gray-400">Select sections from the left to build your handbook</p>
     </div>
   );
 
-  let currentCategory = '';
   return (
-    <div id="handbook-document" className="p-8 max-w-[680px] mx-auto">
-      {/* Editing hint banner */}
-      <div className="no-print mb-4 flex items-center gap-2 text-[11px] text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
+    <div id="handbook-print-root">
+      {/* Edit hint - screen only */}
+      <div className="no-print mx-8 mt-6 mb-0 flex items-center gap-2 text-[11px] text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
         <Pencil className="w-3 h-3 shrink-0" />
-        Click any section to edit it directly. Changes appear in Print and Word export.
+        Click any section to edit it directly. Changes carry through to Word and PDF export.
       </div>
 
-      {/* Cover */}
-      <div className="text-center mb-10 pb-8 border-b-2 border-[#F4B626]">
-        <div className="flex justify-center mb-4">
-          <Image src="/guldmann-logo-black.png" alt="Guldmann" width={150} height={34} />
-        </div>
-        <h1 className="text-[28px] font-bold text-[#111] leading-tight">Employee Handbook</h1>
-        <p className="text-[13px] text-gray-400 mt-2">{settings.companyName || 'Guldmann UK'} - Version 1.0 - {settings.versionDate || '2025'}</p>
-        <div className="mt-3 text-[11px] text-gray-400">{selectedClauses.length} sections - approx. {wordCount.toLocaleString()} words</div>
-      </div>
-
-      {selectedClauses.map(clause => {
-        const showCat = clause.categoryTitle !== currentCategory;
-        if (showCat) currentCategory = clause.categoryTitle;
-        return (
-          <div key={clause.id}>
-            {showCat && (
-              <div className="mt-8 mb-4 flex items-center gap-2">
-                <span className="text-lg">{clause.categoryIcon}</span>
-                <h2 className="text-[17px] font-bold text-[#111]">{clause.categoryTitle}</h2>
-                <div className="flex-1 h-px bg-gray-200 ml-2" />
-              </div>
-            )}
-            <div className="mb-6">
-              <InlineClause
-                clause={clause} settings={settings} editedContent={editedContent}
-                onEdit={onEdit} activeEdit={activeEdit} onSetActive={setActiveEdit}
-              />
+      {/* Cover page */}
+      <div className="doc-page bg-white" style={{ marginTop: '24px' }}>
+        <PageHeader section="Employee Handbook" settings={settings} />
+        <div className="doc-page-body flex flex-col">
+          {/* Hero area */}
+          <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
+            <div className="w-1 h-20 bg-[#F4B626] mb-8 mx-auto" />
+            <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#F4B626] mb-3">Confidential Document</div>
+            <h1 className="text-[34px] font-black text-[#111111] leading-none tracking-tight mb-2">Employee</h1>
+            <h1 className="text-[34px] font-black text-[#111111] leading-none tracking-tight mb-8">Handbook</h1>
+            <div className="w-12 h-0.5 bg-[#F4B626] mb-8 mx-auto" />
+            <div className="text-[13px] font-medium text-gray-500">{settings.companyName || 'Guldmann UK'}</div>
+            <div className="text-[12px] text-gray-400 mt-1">Version 1.0 - {settings.versionDate || '2025'}</div>
+          </div>
+          {/* TOC */}
+          <div className="border-t border-gray-100 pt-6 mt-auto">
+            <div className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-4">Contents</div>
+            <div className="grid grid-cols-2 gap-x-8 gap-y-1.5">
+              {selectedCategories.map((cat, i) => (
+                <div key={cat.id} className="flex items-center gap-2">
+                  <span className="text-[8px] font-bold text-[#F4B626] font-mono w-6 shrink-0">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="text-[10px] text-gray-600 font-medium">{cat.title}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 pt-3 border-t border-gray-100 flex gap-6 text-[9px] text-gray-400">
+              <span><strong className="text-gray-600">{totalClauses}</strong> sections</span>
+              <span><strong className="text-gray-600">~{wordCount.toLocaleString()}</strong> words</span>
             </div>
           </div>
-        );
-      })}
+        </div>
+        <PageFooter settings={settings} />
+      </div>
 
-      <div className="mt-12 pt-6 border-t border-gray-200 text-[10px] text-gray-400 text-center">
-        <p className="font-medium text-gray-600">{settings.companyName || 'Guldmann UK'} Employee Handbook - Confidential</p>
-        {settings.hrContact && <p className="mt-1">For questions, contact {settings.hrContact}{settings.hrEmail ? ` at ${settings.hrEmail}` : ''}.</p>}
+      {/* Section pages */}
+      {selectedCategories.map((cat) => (
+        <DocumentPage key={cat.id} sectionTitle={cat.title} settings={settings} isFirst={false}>
+          {/* Section heading */}
+          <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
+            <div className="w-8 h-8 bg-[#F4B626] flex items-center justify-center rounded shrink-0">
+              <span className="text-[9px] font-black text-[#111111] tracking-wider font-mono">{cat.label}</span>
+            </div>
+            <div>
+              <h2 className="text-[18px] font-black text-[#111111] leading-tight">{cat.title}</h2>
+              <div className="text-[9px] font-medium text-gray-400 uppercase tracking-wide mt-0.5">{cat.clauses.length} section{cat.clauses.length !== 1 ? 's' : ''}</div>
+            </div>
+          </div>
+
+          {/* Clauses in two-column layout for denser content */}
+          <div className="doc-clauses-grid">
+            {cat.clauses.map((clause, idx) => (
+              <div key={clause.id} className={`doc-clause-item ${idx < cat.clauses.length - 1 ? 'border-b border-gray-100 pb-4 mb-4' : ''}`}>
+                <InlineClause
+                  clause={clause} settings={settings} editedContent={editedContent}
+                  onEdit={onEdit} activeEdit={activeEdit} onSetActive={setActiveEdit}
+                />
+              </div>
+            ))}
+          </div>
+        </DocumentPage>
+      ))}
+
+      {/* Back page */}
+      <div className="doc-page doc-page-break bg-[#111111]">
+        <div className="doc-page-body flex flex-col items-center justify-center text-center">
+          <Image src="/guldmann-logo-black.png" alt="Guldmann" width={120} height={20} className="object-contain invert mb-8" unoptimized />
+          <div className="w-8 h-0.5 bg-[#F4B626] mb-6 mx-auto" />
+          <div className="text-[13px] font-medium text-white/60 mb-1">Time to Care and Accessibility for All</div>
+          <div className="text-[10px] text-white/30 mt-2">www.guldmann.com/uk</div>
+          <div className="mt-12 pt-8 border-t border-white/10 w-full text-center">
+            <p className="text-[9px] text-white/30 leading-relaxed max-w-sm mx-auto">
+              This handbook is issued for informational purposes. It does not form part of your contract of employment
+              and may be updated from time to time. For the most current version, contact {settings.hrContact || 'HR'}.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -877,10 +952,9 @@ export default function HandbookBuilder() {
     setExporting(true);
     try {
       const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, BorderStyle } = await import('docx');
-
-      const selectedClauses = CATEGORIES.flatMap(cat =>
-        cat.clauses.filter(cl => selected.has(cl.id)).map(cl => ({ ...cl, categoryTitle: cat.title }))
-      );
+      const selectedCats = CATEGORIES
+        .map(cat => ({ ...cat, clauses: cat.clauses.filter(cl => selected.has(cl.id)) }))
+        .filter(cat => cat.clauses.length > 0);
 
       const children: InstanceType<typeof Paragraph>[] = [
         new Paragraph({ text: settings.companyName || 'Guldmann UK', heading: HeadingLevel.TITLE, alignment: AlignmentType.CENTER }),
@@ -888,21 +962,26 @@ export default function HandbookBuilder() {
         new Paragraph({ text: `Version 1.0 - ${settings.versionDate || '2025'}`, alignment: AlignmentType.CENTER, spacing: { after: 400 } }),
       ];
 
-      let currentCat = '';
-      for (const clause of selectedClauses) {
-        if (clause.categoryTitle !== currentCat) {
-          currentCat = clause.categoryTitle;
-          children.push(new Paragraph({ text: clause.categoryTitle, heading: HeadingLevel.HEADING_1, spacing: { before: 400, after: 200 }, border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: 'F4B626', space: 4 } } }));
-        }
-        const raw = editedContent[clause.id] ?? clause.content;
-        const content = applySettings(raw, settings);
-        for (const line of content.split('\n')) {
-          if (!line.trim()) continue;
-          if (line.startsWith('## ')) { children.push(new Paragraph({ text: line.slice(3), heading: HeadingLevel.HEADING_2, spacing: { before: 240, after: 120 } })); }
-          else if (line.startsWith('- ')) { children.push(new Paragraph({ bullet: { level: 0 }, children: [new TextRun({ text: line.slice(2).replace(/\*\*(.*?)\*\*/g, '$1') })] })); }
-          else {
-            const parts = line.split(/\*\*(.*?)\*\*/g);
-            children.push(new Paragraph({ children: parts.map((part, i) => new TextRun({ text: part, bold: i % 2 === 1 })), spacing: { after: 120 } }));
+      for (const cat of selectedCats) {
+        children.push(new Paragraph({
+          text: cat.title, heading: HeadingLevel.HEADING_1,
+          spacing: { before: 480, after: 200 },
+          border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: 'F4B626', space: 4 } }
+        }));
+        for (const clause of cat.clauses) {
+          const raw = editedContent[clause.id] ?? clause.content;
+          const content = applySettings(raw, settings);
+          children.push(new Paragraph({ text: clause.title, heading: HeadingLevel.HEADING_2, spacing: { before: 280, after: 120 } }));
+          for (const line of content.split('\n')) {
+            if (!line.trim()) continue;
+            if (line.startsWith('## ')) {
+              children.push(new Paragraph({ text: line.slice(3), heading: HeadingLevel.HEADING_3, spacing: { before: 200, after: 100 } }));
+            } else if (line.startsWith('- ')) {
+              children.push(new Paragraph({ bullet: { level: 0 }, children: [new TextRun({ text: line.slice(2).replace(/\*\*(.*?)\*\*/g, '$1') })], spacing: { after: 60 } }));
+            } else {
+              const parts = line.split(/\*\*(.*?)\*\*/g);
+              children.push(new Paragraph({ children: parts.map((part, i) => new TextRun({ text: part, bold: i % 2 === 1 })), spacing: { after: 100 } }));
+            }
           }
         }
       }
@@ -922,26 +1001,66 @@ export default function HandbookBuilder() {
   };
 
   const filteredCategories = search.trim()
-    ? CATEGORIES.map(cat => ({ ...cat, clauses: cat.clauses.filter(cl => cl.title.toLowerCase().includes(search.toLowerCase()) || cl.summary.toLowerCase().includes(search.toLowerCase())) })).filter(cat => cat.clauses.length > 0)
+    ? CATEGORIES.map(cat => ({ ...cat, clauses: cat.clauses.filter(cl =>
+        cl.title.toLowerCase().includes(search.toLowerCase()) || cl.summary.toLowerCase().includes(search.toLowerCase())
+      ) })).filter(cat => cat.clauses.length > 0)
     : CATEGORIES;
 
   return (
     <>
       <style>{`
-        .no-print { display: flex; }
-        @media print {
-          .no-print { display: none !important; }
-          body { background: white !important; }
-          * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        /* ---- SCREEN STYLES ---- */
+        .doc-page {
+          width: 210mm;
+          min-height: 297mm;
+          margin: 0 auto 24px auto;
+          padding: 16mm 18mm 12mm 18mm;
+          display: flex;
+          flex-direction: column;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
+          border-radius: 4px;
+          position: relative;
         }
-        @page { margin: 20mm; size: A4; }
+        .doc-page-header { margin-bottom: 10mm; }
+        .doc-page-footer { margin-top: auto; padding-top: 8mm; }
+        .doc-page-body { flex: 1; }
+        .doc-clauses-grid { display: flex; flex-direction: column; gap: 0; }
+
+        /* ---- PRINT STYLES ---- */
+        @media print {
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          @page { size: A4 portrait; margin: 0; }
+
+          body > * { display: none !important; }
+          #handbook-print-root { display: block !important; }
+
+          .no-print { display: none !important; }
+
+          .doc-page {
+            width: 210mm;
+            min-height: 297mm;
+            height: 297mm;
+            margin: 0 !important;
+            padding: 16mm 18mm 12mm 18mm !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            page-break-after: always;
+            break-after: page;
+            overflow: hidden;
+          }
+          .doc-page-break {
+            page-break-before: always;
+            break-before: page;
+          }
+          .doc-page:last-child { page-break-after: auto; break-after: auto; }
+        }
       `}</style>
 
-      <div className="flex flex-col h-screen bg-[#F8F8F6] overflow-hidden">
+      <div className="flex flex-col h-screen bg-[#F0F0EE] overflow-hidden">
         {/* Top bar */}
         <div className="no-print shrink-0 flex items-center gap-4 px-5 py-3 bg-white border-b border-gray-100 shadow-sm z-10">
           <div className="flex items-center gap-3">
-            <Image src="/guldmann-logo-black.png" alt="Guldmann" width={110} height={26} />
+            <Image src="/guldmann-logo-black.png" alt="Guldmann" width={100} height={17} className="object-contain" />
             <div className="h-5 w-px bg-gray-200" />
             <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Handbook Builder</span>
           </div>
@@ -974,8 +1093,8 @@ export default function HandbookBuilder() {
             {showSettings && <SettingsPanel settings={settings} onChange={updateSetting} onClose={() => setShowSettings(false)} />}
           </AnimatePresence>
 
-          {/* Left panel - section toggles only */}
-          <div className={`no-print w-[340px] shrink-0 flex flex-col border-r border-gray-100 bg-white overflow-hidden transition-[margin] ${showSettings ? 'ml-[360px]' : ''}`}>
+          {/* Left panel */}
+          <div className={`no-print w-[320px] shrink-0 flex flex-col border-r border-gray-200 bg-white overflow-hidden transition-[margin] ${showSettings ? 'ml-[360px]' : ''}`}>
             <div className="p-3 border-b border-gray-100">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
@@ -998,11 +1117,9 @@ export default function HandbookBuilder() {
             </div>
           </div>
 
-          {/* Right - document preview with inline editing */}
-          <div className="flex-1 overflow-y-auto bg-[#F8F8F6]">
-            <div className="min-h-full bg-white shadow-sm mx-auto my-6 rounded-xl overflow-hidden" style={{ maxWidth: '780px' }}>
-              <DocumentPreview selected={selected} settings={settings} editedContent={editedContent} onEdit={handleEdit} />
-            </div>
+          {/* Right - A4 page preview */}
+          <div className="flex-1 overflow-y-auto bg-[#E8E8E6] px-8 py-4 pb-12">
+            <DocumentPreview selected={selected} settings={settings} editedContent={editedContent} onEdit={handleEdit} />
           </div>
         </div>
       </div>
