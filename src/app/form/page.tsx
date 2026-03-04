@@ -714,7 +714,7 @@ export default function GuldmannForm() {
         {/* Compact Header Strip */}
         <header className="h-[72px] bg-[#111111] text-white px-4 md:px-6 flex items-center justify-between shrink-0">
           <div className="flex items-center">
-            <Image src="/guldmann-logo-stacked-white.png" alt="Guldmann" width={40} height={29} className="object-contain" unoptimized />
+            <Image src="/guldmann-logo-stacked-white.png" alt="Guldmann" width={60} height={44} className="object-contain" unoptimized />
           </div>
           
           <div className="hidden md:flex items-center gap-3">
