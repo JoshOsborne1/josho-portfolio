@@ -54,7 +54,7 @@ const DEFAULT_SETTINGS: CompanySettings = {
   extraBenefit1: '',
   extraBenefit2: '',
   extraBenefit3: '',
-  versionDate: '2025',
+  versionDate: '2026',
 };
 
 function applySettings(content: string, s: CompanySettings): string {
@@ -78,7 +78,7 @@ function applySettings(content: string, s: CompanySettings): string {
     .replace(/\[EXPENSE_LUNCH\]/g, s.expenseLunch || '15')
     .replace(/\[EXPENSE_DINNER\]/g, s.expenseDinner || '25')
     .replace(/\[CARD_LIMIT\]/g, s.cardApprovalLimit || '200')
-    .replace(/\[VERSION_DATE\]/g, s.versionDate || '2025')
+    .replace(/\[VERSION_DATE\]/g, s.versionDate || '2026')
     .replace(/\[EXTRA_BENEFIT_1\]/g, s.extraBenefit1 || '')
     .replace(/\[EXTRA_BENEFIT_2\]/g, s.extraBenefit2 || '')
     .replace(/\[EXTRA_BENEFIT_3\]/g, s.extraBenefit3 || '');
@@ -771,7 +771,7 @@ function PageFooter({ settings }: { settings: CompanySettings }) {
   return (
     <div className="doc-page-footer">
       <div className="flex items-center justify-between pt-2 border-t border-gray-200">
-        <span className="text-[9px] text-gray-400 font-medium uppercase tracking-wide">Employee Handbook {settings.versionDate || '2025'} - Confidential</span>
+        <span className="text-[9px] text-gray-400 font-medium uppercase tracking-wide">Employee Handbook {settings.versionDate || '2026'} - Confidential</span>
         <span className="text-[10px] text-gray-400">{settings.companyName || 'Guldmann UK'}</span>
       </div>
     </div>
@@ -842,7 +842,7 @@ function DocumentPreview({ selected, settings, editedContent, onEdit }: {
             <h1 className="text-[48px] font-black text-[#111111] leading-none tracking-tight mb-8">Handbook</h1>
             <div className="w-12 h-0.5 bg-[#F4B626] mb-8 mx-auto" />
             <div className="text-[16px] font-medium text-gray-500">{settings.companyName || 'Guldmann UK'}</div>
-            <div className="text-[14px] text-gray-400 mt-1">Version 1.0 - {settings.versionDate || '2025'}</div>
+            <div className="text-[14px] text-gray-400 mt-1">Version 1.0 - {settings.versionDate || '2026'}</div>
           </div>
           {/* TOC */}
           <div className="border-t border-gray-100 pt-6 mt-auto">
@@ -958,7 +958,7 @@ export default function HandbookBuilder() {
       const children: InstanceType<typeof Paragraph>[] = [
         new Paragraph({ text: settings.companyName || 'Guldmann UK', heading: HeadingLevel.TITLE, alignment: AlignmentType.CENTER }),
         new Paragraph({ text: 'Employee Handbook', heading: HeadingLevel.HEADING_1, alignment: AlignmentType.CENTER }),
-        new Paragraph({ text: `Version 1.0 - ${settings.versionDate || '2025'}`, alignment: AlignmentType.CENTER, spacing: { after: 400 } }),
+        new Paragraph({ text: `Version 1.0 - ${settings.versionDate || '2026'}`, alignment: AlignmentType.CENTER, spacing: { after: 400 } }),
       ];
 
       for (const cat of selectedCats) {
@@ -989,7 +989,7 @@ export default function HandbookBuilder() {
       const base64 = await Packer.toBase64String(doc);
       const a = document.createElement('a');
       a.href = `data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,${base64}`;
-      a.download = `${(settings.companyName || 'Guldmann-UK').replace(/\s+/g, '-')}-Employee-Handbook-${settings.versionDate || '2025'}.docx`;
+      a.download = `${(settings.companyName || 'Guldmann-UK').replace(/\s+/g, '-')}-Employee-Handbook-${settings.versionDate || '2026'}.docx`;
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
     } catch (err) {
       console.error('Export failed', err);
