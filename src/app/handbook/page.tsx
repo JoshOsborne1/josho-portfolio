@@ -816,18 +816,27 @@ function CategoryAccordion({ category, selected, onToggleClause, onToggleAll }: 
 // INLINE EDITABLE CLAUSE
 // ---------------------------------------------------------------------------
 
-function renderContent(content: string): React.ReactNode {
-  return content.split('\n').map((line, i) => {
-    if (line.startsWith('## '))
-      return <h3 key={i} className="doc-section-heading text-[16px] font-bold text-[#111111] mt-5 mb-2 first:mt-0">{line.slice(3)}</h3>;
-    if (line.startsWith('- ')) {
-      const html = line.slice(2).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      return <li key={i} className="text-[12.5px] text-gray-700 ml-4 mb-1 leading-relaxed list-disc" dangerouslySetInnerHTML={{ __html: html }} />;
+function renderContent(text: string): React.ReactNode {
+  const lines = text.split('\n');
+  const result: React.ReactNode[] = [];
+  let listItems: React.ReactNode[] = [];
+  const flush = () => {
+    if (listItems.length) { result.push(<ul key={`ul${result.length}`} className="my-1.5">{listItems}</ul>); listItems = []; }
+  };
+  lines.forEach((line, i) => {
+    const t = line.trim();
+    if (!t) { flush(); return; }
+    if (t.startsWith('## ')) { flush(); result.push(<h2 key={i} className="text-[13.5px] font-black text-[#111] mb-2 mt-0 leading-tight">{t.slice(3)}</h2>); return; }
+    if (t.startsWith('### ')) { flush(); result.push(<h3 key={i} className="text-[12px] font-bold text-[#333] mb-1 mt-2 leading-tight">{t.slice(4)}</h3>); return; }
+    if (t.startsWith('- ') || t.startsWith('* ')) {
+      listItems.push(<li key={i} className="text-[11px] text-gray-600 mb-0.5 leading-relaxed list-disc ml-3" dangerouslySetInnerHTML={{ __html: t.slice(2).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />);
+      return;
     }
-    if (!line.trim()) return <div key={i} className="h-2" />;
-    const html = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    return <p key={i} className="text-[12.5px] text-gray-700 leading-relaxed mb-1.5" dangerouslySetInnerHTML={{ __html: html }} />;
+    flush();
+    result.push(<p key={i} className="text-[11px] text-gray-600 mb-1 leading-relaxed" dangerouslySetInnerHTML={{ __html: t.replace(/\*\*(.*?)\*\*/g, '<strong class=\"font-semibold text-gray-800\">$1</strong>') }} />);
   });
+  flush();
+  return result;
 }
 
 function InlineClause({ clause, settings, editedContent, onEdit, activeEdit, onSetActive }: {
@@ -901,8 +910,8 @@ function PageHeader({ section, pageNum, settings }: { section: string; pageNum?:
     <div className="doc-header flex items-center justify-between mb-0 pb-2.5 border-b-2 border-[#F4B626]">
       <Image src="/guldmann-logo-black.png" alt="Guldmann" width={110} height={18} className="object-contain" unoptimized />
       <div className="flex items-center gap-3">
-        <span className="text-[8.5px] font-bold uppercase tracking-[0.18em] text-gray-400">{section}</span>
-        {pageNum !== undefined && <span className="text-[8px] font-mono text-[#F4B626] font-bold">{String(pageNum).padStart(2,'0')}</span>}
+        <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-gray-400">{section}</span>
+        {pageNum !== undefined && <span className="text-[10px] font-mono text-[#F4B626] font-bold">{String(pageNum).padStart(2,'0')}</span>}
       </div>
     </div>
   );
@@ -911,8 +920,8 @@ function PageHeader({ section, pageNum, settings }: { section: string; pageNum?:
 function PageFooter({ settings, note }: { settings: CompanySettings; note?: string }) {
   return (
     <div className="doc-footer flex items-center justify-between pt-2 mt-auto border-t border-gray-100">
-      <span className="text-[7.5px] text-gray-300 uppercase tracking-wide font-medium">{note || `Employee Handbook ${settings.versionDate || '2026'} - Confidential`}</span>
-      <span className="text-[7.5px] text-gray-300">{settings.companyName || 'Guldmann UK'}</span>
+      <span className="text-[9px] text-gray-300 uppercase tracking-wide font-medium">{note || `Employee Handbook ${settings.versionDate || '2026'} - Confidential`}</span>
+      <span className="text-[9px] text-gray-300">{settings.companyName || 'Guldmann UK'}</span>
     </div>
   );
 }
@@ -954,56 +963,56 @@ function DocumentPreview({ selected, settings, editedContent, onEdit }: {
       </div>
 
       {/* ── COVER PAGE ── */}
-      <div className="doc-page doc-cover bg-[#111111]">
+      <div className="doc-page doc-cover bg-white">
         {/* Yellow accent bar top */}
         <div className="doc-cover-topbar bg-[#F4B626] flex items-center justify-between px-8 py-3">
           <Image src="/guldmann-logo-black.png" alt="Guldmann" width={120} height={20} className="object-contain" unoptimized />
-          <span className="text-[8px] font-black uppercase tracking-[0.25em] text-[#111111]">Confidential</span>
+          <span className="text-[9px] font-black uppercase tracking-[0.25em] text-[#111111]">Confidential</span>
         </div>
         {/* Main cover body */}
         <div className="doc-cover-body flex flex-col justify-between flex-1 px-10 py-8">
           {/* Hero */}
           <div className="flex flex-col justify-center flex-1">
             <div className="mb-6">
-              <div className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#F4B626] mb-4">
+              <div className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#F4B626] mb-4">
                 {settings.companyName || 'Guldmann UK'}
               </div>
-              <div className="text-[72px] font-black text-white leading-[0.9] tracking-tight">
+              <div className="text-[72px] font-black text-[#111111] leading-[0.9] tracking-tight">
                 Employee<br />
                 <span className="text-[#F4B626]">Handbook</span>
               </div>
               <div className="mt-5 flex items-center gap-3">
-                <div className="h-px flex-1 bg-white/10" />
-                <span className="text-[9px] font-mono text-white/30 uppercase tracking-widest">Version 1.0 / {settings.versionDate || '2026'}</span>
-                <div className="h-px flex-1 bg-white/10" />
+                <div className="h-px flex-1 bg-gray-200" />
+                <span className="text-[9px] font-mono text-gray-400 uppercase tracking-widest">Version 1.0 / {settings.versionDate || '2026'}</span>
+                <div className="h-px flex-1 bg-gray-200" />
               </div>
             </div>
             {/* Stats strip */}
             <div className="grid grid-cols-3 gap-4 mt-2">
-              <div className="bg-white/5 rounded-lg p-4">
+              <div className="bg-gray-50 border border-gray-100 rounded-lg p-4">
                 <div className="text-[28px] font-black text-[#F4B626] leading-none">{selectedCategories.length}</div>
-                <div className="text-[8px] text-white/40 uppercase tracking-wide mt-1 font-medium">Sections</div>
+                <div className="text-[9px] text-gray-400 uppercase tracking-wide mt-1 font-medium">Sections</div>
               </div>
-              <div className="bg-white/5 rounded-lg p-4">
+              <div className="bg-gray-50 border border-gray-100 rounded-lg p-4">
                 <div className="text-[28px] font-black text-[#F4B626] leading-none">{totalClauses}</div>
-                <div className="text-[8px] text-white/40 uppercase tracking-wide mt-1 font-medium">Policies</div>
+                <div className="text-[9px] text-gray-400 uppercase tracking-wide mt-1 font-medium">Policies</div>
               </div>
-              <div className="bg-white/5 rounded-lg p-4">
+              <div className="bg-gray-50 border border-gray-100 rounded-lg p-4">
                 <div className="text-[28px] font-black text-[#F4B626] leading-none">UK</div>
-                <div className="text-[8px] text-white/40 uppercase tracking-wide mt-1 font-medium">Operations</div>
+                <div className="text-[9px] text-gray-400 uppercase tracking-wide mt-1 font-medium">Operations</div>
               </div>
             </div>
           </div>
           {/* TOC */}
-          <div className="mt-6 pt-5 border-t border-white/10">
-            <div className="text-[7.5px] font-bold uppercase tracking-[0.2em] text-white/30 mb-3">Contents</div>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-1.5">
+          <div className="mt-6 pt-5 border-t border-gray-100">
+            <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-3">Contents</div>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-2">
               {selectedCategories.map((cat, i) => (
                 <div key={cat.id} className="flex items-center gap-2.5">
-                  <span className="text-[7px] font-black font-mono text-[#F4B626] w-5 shrink-0">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="text-[9px] font-black font-mono text-[#F4B626] w-5 shrink-0">{String(i + 1).padStart(2, '0')}</span>
                   <div className="flex-1 flex items-center gap-1.5">
-                    <span className="text-[8.5px] font-mono bg-white/5 text-white/40 px-1 py-0.5 rounded text-[7px]">{cat.label}</span>
-                    <span className="text-[9px] text-white/60 font-medium truncate">{cat.title}</span>
+                    <span className="text-[8px] font-mono bg-gray-100 text-gray-400 px-1 py-0.5 rounded">{cat.label}</span>
+                    <span className="text-[10px] text-gray-600 font-medium truncate">{cat.title}</span>
                   </div>
                 </div>
               ))}
@@ -1067,17 +1076,17 @@ function DocumentPreview({ selected, settings, editedContent, onEdit }: {
       })}
 
       {/* ── BACK PAGE ── */}
-      <div className="doc-page doc-page-break bg-[#111111]">
+      <div className="doc-page doc-page-break bg-white">
         <div className="doc-cover-topbar bg-[#F4B626] flex items-center justify-between px-8 py-3">
           <Image src="/guldmann-logo-black.png" alt="Guldmann" width={120} height={20} className="object-contain" unoptimized />
-          <span className="text-[8px] font-black uppercase tracking-[0.25em] text-[#111111]">Employee Handbook</span>
+          <span className="text-[9px] font-black uppercase tracking-[0.25em] text-[#111111]">Employee Handbook</span>
         </div>
         <div className="flex-1 flex flex-col items-center justify-center text-center px-10">
-          <Image src="/guldmann-logo-stacked-white.png" alt="Guldmann" width={180} height={128} className="object-contain mb-6" unoptimized />
-          <div className="text-[11px] font-medium text-white/50 mb-1 italic">Time to Care and Accessibility for All</div>
-          <div className="text-[9px] text-white/25 mt-1">www.guldmann.com/uk</div>
-          <div className="mt-8 pt-6 border-t border-white/10 max-w-xs">
-            <p className="text-[8px] text-white/25 leading-relaxed">
+          <Image src="/guldmann-logo-stacked.png" alt="Guldmann" width={180} height={128} className="object-contain mb-6" unoptimized />
+          <div className="text-[13px] font-medium text-gray-500 mb-1 italic">Time to Care and Accessibility for All</div>
+          <div className="text-[11px] text-gray-400 mt-1">www.guldmann.com/uk</div>
+          <div className="mt-8 pt-6 border-t border-gray-100 max-w-xs">
+            <p className="text-[10px] text-gray-400 leading-relaxed">
               This handbook is issued for informational purposes and does not form part of your contract of employment.
               For the most current version, contact {settings.hrContact || 'HR'} at {settings.hrEmail || settings.companyName || 'Guldmann UK'}.
             </p>
@@ -1294,30 +1303,30 @@ export default function HandbookBuilder() {
           overflow: hidden;
         }
         .doc-clause-card {
-          padding: 10px 12px;
+          padding: 12px 14px;
           border-bottom: 1px solid #f3f4f6;
-          font-size: 8.5px;
-          line-height: 1.55;
+          font-size: 11px;
+          line-height: 1.6;
         }
         .doc-clause-card:nth-child(odd) {
           border-right: 1px solid #f3f4f6;
         }
         .doc-clause-card h2 {
-          font-size: 10px;
+          font-size: 13px;
           font-weight: 800;
           color: #111;
           margin-bottom: 4px;
           line-height: 1.2;
         }
         .doc-clause-card h3 {
-          font-size: 9px;
+          font-size: 11.5px;
           font-weight: 700;
           color: #333;
           margin-top: 6px;
           margin-bottom: 3px;
         }
         .doc-clause-card p {
-          font-size: 8.5px;
+          font-size: 11px;
           color: #444;
           line-height: 1.55;
           margin-bottom: 4px;
@@ -1327,7 +1336,7 @@ export default function HandbookBuilder() {
           margin-bottom: 4px;
         }
         .doc-clause-card li {
-          font-size: 8px;
+          font-size: 10.5px;
           color: #555;
           line-height: 1.5;
           margin-bottom: 1px;
