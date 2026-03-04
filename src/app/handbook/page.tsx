@@ -757,7 +757,7 @@ function PageHeader({ section, settings }: { section: string; settings: CompanyS
   return (
     <div className="doc-page-header">
       <div className="flex items-center justify-between pb-3 border-b-2 border-[#F4B626]">
-        <Image src="/guldmann-logo-stacked.png" alt="Guldmann" width={90} height={64} className="object-contain" unoptimized />
+        <Image src="/guldmann-logo-black.png" alt="Guldmann" width={140} height={24} className="object-contain" unoptimized />
         <div className="text-right">
           <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#F4B626]">{settings.companyName || 'Guldmann UK'}</div>
           <div className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide">{section}</div>
