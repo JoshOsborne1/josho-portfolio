@@ -800,7 +800,7 @@ function DocumentPreview({ selected, settings, editedContent, onEdit }: {
       {/* Cover */}
       <div className="text-center mb-10 pb-8 border-b-2 border-[#F4B626]">
         <div className="flex justify-center mb-4">
-          <Image src="/guldmann-logo.svg" alt="Guldmann" width={150} height={34} />
+          <Image src="/guldmann-logo-real.png" alt="Guldmann" width={150} height={34} />
         </div>
         <h1 className="text-[28px] font-bold text-[#111] leading-tight">Employee Handbook</h1>
         <p className="text-[13px] text-gray-400 mt-2">{settings.companyName || 'Guldmann UK'} - Version 1.0 - {settings.versionDate || '2025'}</p>
@@ -941,7 +941,7 @@ export default function HandbookBuilder() {
         {/* Top bar */}
         <div className="no-print shrink-0 flex items-center gap-4 px-5 py-3 bg-white border-b border-gray-100 shadow-sm z-10">
           <div className="flex items-center gap-3">
-            <Image src="/guldmann-logo.svg" alt="Guldmann" width={110} height={26} />
+            <Image src="/guldmann-logo-real.png" alt="Guldmann" width={110} height={26} />
             <div className="h-5 w-px bg-gray-200" />
             <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Handbook Builder</span>
           </div>
