@@ -196,13 +196,11 @@ How we present ourselves reflects on Guldmann. We expect everyone to dress appro
 **Construction sites:** Safety jacket with Guldmann logo required. Site-specific PPE will be confirmed in advance.` },
       { id: 'notice-periods', title: 'Notice Periods', summary: 'Notice required from both sides', required: true, content: `## Notice Periods
 
-**During probation:** [NOTICE_PROBATION] notice required from either side.
+**During probation:** [NOTICE_PROBATION] notice from either side
+**Under 2 years service:** [NOTICE_UNDER_2] notice from either side
+**Over 2 years service:** [NOTICE_OVER_2]
 
-**Under 2 years service:** [NOTICE_UNDER_2] notice from either side.
-
-**2+ years service:** [NOTICE_OVER_2].
-
-Your specific notice period is confirmed in your contract.` },
+> Notice may be waived by mutual agreement or replaced with payment in lieu. Your contract is the definitive reference.` },
     ]
   },
   {
@@ -219,17 +217,17 @@ If you believe your pay is incorrect, contact [HR_CONTACT] immediately.` },
 
 Guldmann will reimburse all reasonable and legitimate business expenses.
 
-**Mileage (own vehicle):**
-- First 10,000 business miles/year: 45p per mile
-- Over 10,000 miles: 25p per mile
-- Daily commute to your normal workplace is not claimable
+**Mileage - own vehicle (HMRC 2024/25)**
+**First 10,000 miles/year:** 45p per mile
+**Over 10,000 miles:** 25p per mile
+**Commute to normal workplace:** Not claimable
 
-**Subsistence while travelling:**
-- Breakfast (away before 6:00am): up to £[EXPENSE_BREAKFAST]
-- Lunch: up to £[EXPENSE_LUNCH]
-- Evening meal (away past 8:00pm): up to £[EXPENSE_DINNER]
+**Subsistence (while away on business)**
+**Breakfast (before 06:00):** Up to £[EXPENSE_BREAKFAST]
+**Lunch:** Up to £[EXPENSE_LUNCH]
+**Evening meal (after 20:00):** Up to £[EXPENSE_DINNER]
 
-Always keep receipts. Submit claims within 30 days. All expenses must be approved by your manager.` },
+> Always keep receipts. Submit within 30 days. Manager approval required before claiming.` },
       { id: 'company-card', title: 'Company Credit Card', summary: 'Business use only, approval thresholds, reporting', required: false, content: `## Company Credit Card
 
 Some roles include a company credit card. The card is for business purchases only. Personal use is not permitted.
@@ -250,11 +248,12 @@ Company cars are available to certain roles where the business need is clear. El
 **Private use:** Any agreed private mileage creates a taxable Benefit in Kind.` },
       { id: 'pension', title: 'Pension', summary: 'Auto-enrolment, contributions, scheme details', required: true, content: `## Pension
 
-[COMPANY_NAME] operates a workplace pension scheme through [PENSION_PROVIDER] in line with UK auto-enrolment legislation. You will be enrolled automatically when you join.
+> You are automatically enrolled when you meet the qualifying criteria. You may opt out but this affects your retirement provision.
 
-**Contributions:**
-- Employer contribution: [EMPLOYER_PENSION]
-- Employee contribution: [EMPLOYEE_PENSION]
+**Pension provider:** [PENSION_PROVIDER]
+**Employer contribution:** [EMPLOYER_PENSION]
+**Your contribution:** [EMPLOYEE_PENSION]
+**Basis:** Qualifying earnings per HMRC guidelines
 
 Contact [HR_CONTACT] with any questions.` },
       { id: 'extra-benefits', title: 'Additional Benefits', summary: 'Company-specific perks and benefits', required: false, content: `## Additional Benefits
@@ -283,15 +282,14 @@ Guldmann UK marks the following milestones:
     clauses: [
       { id: 'holiday', title: 'Holiday Entitlement', summary: 'Days, holiday year, booking, carry-over', required: true, content: `## Holiday Entitlement
 
-You are entitled to [HOLIDAY_DAYS] days of paid holiday per year (inclusive of the eight UK bank holidays). Part-time entitlement is calculated pro-rata.
+Your entitlement is **[HOLIDAY_DAYS] days** per year, inclusive of 8 UK bank holidays. Part-time is pro-rated.
 
-**Holiday year:** Runs from [HOLIDAY_YEAR_START] each year.
+> Part-time staff: bank holidays that fall on non-working days do not automatically convert to lieu days.
 
-**Booking:** Request holiday through your manager. Summer preferences by end of March. Christmas plans by end of October.
-
-**Carry-over:** Up to 5 days may be carried over by agreement.
-
-**On leaving:** Accrued but untaken holiday is paid in your final salary.` },
+**Holiday year start:** [HOLIDAY_YEAR_START]
+**Carry-over:** Up to 5 days by agreement only
+**On leaving:** Accrued untaken days paid in final salary
+**Booking:** Via your manager - summer by March, Christmas by October` },
       { id: 'bank-holidays', title: 'Bank Holidays', summary: 'Eight UK bank holidays, substitute days, part-time pro-rata', required: false, content: `## Bank Holidays
 
 Your [HOLIDAY_DAYS]-day holiday entitlement includes the eight UK public bank holidays. If a bank holiday falls on a day you do not normally work, you do not receive an automatic substitute day - your entitlement is calculated pro-rata based on your contracted days.
@@ -353,9 +351,10 @@ If you are called for jury service, notify [HR_CONTACT] and your manager as soon
 
 **Notification:** Notify Guldmann by the 15th week before your due date. Provide your MATB1 certificate.
 
-**Statutory Maternity Pay (SMP):**
-- First 6 weeks: 90% of average weekly earnings
-- Remaining 33 weeks: £187.18/week or 90% of AWE, whichever is lower (2024/25 rate)
+**SMP breakdown (2024/25)**
+**Weeks 1-6:** 90% of your average weekly earnings
+**Weeks 7-39:** £187.18/week (or 90% AWE if lower)
+**Weeks 40-52:** Unpaid - you may use annual leave
 
 **Keeping in Touch (KIT) days:** Up to 10 voluntary KIT days during maternity leave.
 
@@ -816,27 +815,114 @@ function CategoryAccordion({ category, selected, onToggleClause, onToggleAll }: 
 // INLINE EDITABLE CLAUSE
 // ---------------------------------------------------------------------------
 
-function renderContent(text: string): React.ReactNode {
+// ─── RICH CONTENT RENDERER ───────────────────────────────────────────────────
+
+type Block =
+  | { type: 'heading'; level: 2 | 3; text: string }
+  | { type: 'para'; html: string }
+  | { type: 'bullets'; items: string[] }
+  | { type: 'defs'; pairs: { key: string; val: string }[] }
+  | { type: 'callout'; text: string }
+  | { type: 'divider' };
+
+function inlineHtml(s: string): string {
+  return s.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>');
+}
+
+function parseBlocks(text: string): Block[] {
   const lines = text.split('\n');
-  const result: React.ReactNode[] = [];
-  let listItems: React.ReactNode[] = [];
-  const flush = () => {
-    if (listItems.length) { result.push(<ul key={`ul${result.length}`} className="my-1.5">{listItems}</ul>); listItems = []; }
-  };
-  lines.forEach((line, i) => {
-    const t = line.trim();
-    if (!t) { flush(); return; }
-    if (t.startsWith('## ')) { flush(); result.push(<h2 key={i} className="text-[13.5px] font-black text-[#111] mb-2 mt-0 leading-tight">{t.slice(3)}</h2>); return; }
-    if (t.startsWith('### ')) { flush(); result.push(<h3 key={i} className="text-[12px] font-bold text-[#333] mb-1 mt-2 leading-tight">{t.slice(4)}</h3>); return; }
+  const blocks: Block[] = [];
+  let bulletAcc: string[] = [];
+  let defAcc: { key: string; val: string }[] = [];
+
+  const flushBullets = () => { if (bulletAcc.length) { blocks.push({ type: 'bullets', items: [...bulletAcc] }); bulletAcc = []; } };
+  const flushDefs = () => { if (defAcc.length) { blocks.push({ type: 'defs', pairs: [...defAcc] }); defAcc = []; } };
+  const flushAll = () => { flushBullets(); flushDefs(); };
+
+  for (const raw of lines) {
+    const t = raw.trim();
+    if (!t) { flushAll(); continue; }
+    if (t === '---') { flushAll(); blocks.push({ type: 'divider' }); continue; }
+    if (t.startsWith('## ')) { flushAll(); blocks.push({ type: 'heading', level: 2, text: t.slice(3) }); continue; }
+    if (t.startsWith('### ')) { flushAll(); blocks.push({ type: 'heading', level: 3, text: t.slice(4) }); continue; }
+    if (t.startsWith('> ')) { flushAll(); blocks.push({ type: 'callout', text: t.slice(2) }); continue; }
     if (t.startsWith('- ') || t.startsWith('* ')) {
-      listItems.push(<li key={i} className="text-[11px] text-gray-600 mb-0.5 leading-relaxed list-disc ml-3" dangerouslySetInnerHTML={{ __html: t.slice(2).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />);
-      return;
+      flushDefs();
+      bulletAcc.push(t.slice(2));
+      continue;
     }
-    flush();
-    result.push(<p key={i} className="text-[11px] text-gray-600 mb-1 leading-relaxed" dangerouslySetInnerHTML={{ __html: t.replace(/\*\*(.*?)\*\*/g, '<strong class=\"font-semibold text-gray-800\">$1</strong>') }} />);
-  });
-  flush();
-  return result;
+    // Detect "**Key:** value" definition pairs
+    const defMatch = t.match(/^\*\*(.+?):\*\*\s+(.+)$/);
+    if (defMatch) {
+      flushBullets();
+      defAcc.push({ key: defMatch[1], val: defMatch[2] });
+      continue;
+    }
+    flushAll();
+    blocks.push({ type: 'para', html: inlineHtml(t) });
+  }
+  flushAll();
+  return blocks;
+}
+
+function RichBlock({ block, idx }: { block: Block; idx: number }) {
+  switch (block.type) {
+    case 'heading':
+      return block.level === 2
+        ? <div key={idx} className="rc-h2 flex items-center gap-2 mb-2 mt-1">
+            <div className="w-2 h-2 bg-[#F4B626] rounded-sm shrink-0" />
+            <h2 className="text-[13px] font-black text-[#111] leading-tight tracking-tight">{block.text}</h2>
+          </div>
+        : <h3 key={idx} className="text-[11.5px] font-bold text-[#555] mb-1.5 mt-2 leading-tight pl-3 border-l-2 border-[#F4B626]/50">{block.text}</h3>;
+
+    case 'para':
+      return <p key={idx} className="text-[11px] text-gray-600 mb-2 leading-[1.65]" dangerouslySetInnerHTML={{ __html: block.html }} />;
+
+    case 'bullets':
+      return (
+        <ul key={idx} className="mb-2 space-y-0.5">
+          {block.items.map((item, j) => (
+            <li key={j} className="flex items-start gap-2">
+              <span className="mt-[5px] w-1.5 h-1.5 bg-[#F4B626] rounded-sm shrink-0" />
+              <span className="text-[11px] text-gray-600 leading-relaxed" dangerouslySetInnerHTML={{ __html: inlineHtml(item) }} />
+            </li>
+          ))}
+        </ul>
+      );
+
+    case 'defs':
+      return (
+        <table key={idx} className="rc-defs w-full mb-2 border-collapse">
+          <tbody>
+            {block.pairs.map((p, j) => (
+              <tr key={j} className={j % 2 === 0 ? 'bg-gray-50/80' : 'bg-white'}>
+                <td className="text-[10px] font-bold text-[#111] py-1 px-2 w-[38%] border border-gray-100 leading-snug align-top">{p.key}</td>
+                <td className="text-[11px] text-gray-600 py-1 px-2 border border-gray-100 leading-snug align-top" dangerouslySetInnerHTML={{ __html: inlineHtml(p.val) }} />
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+
+    case 'callout':
+      return (
+        <div key={idx} className="rc-callout flex items-start gap-2 bg-[#F4B626]/8 border-l-3 border-[#F4B626] pl-3 pr-2 py-2 mb-2 rounded-r-md">
+          <span className="text-[#F4B626] text-[11px] mt-px shrink-0 font-black">!</span>
+          <p className="text-[11px] font-medium text-gray-700 leading-relaxed">{block.text}</p>
+        </div>
+      );
+
+    case 'divider':
+      return <div key={idx} className="my-2 h-px bg-gray-100" />;
+
+    default:
+      return null;
+  }
+}
+
+function renderContent(text: string): React.ReactNode {
+  const blocks = parseBlocks(text);
+  return blocks.map((b, i) => <RichBlock key={i} block={b} idx={i} />);
 }
 
 function InlineClause({ clause, settings, editedContent, onEdit, activeEdit, onSetActive }: {
@@ -1037,18 +1123,27 @@ function DocumentPreview({ selected, settings, editedContent, onEdit }: {
                 <div className="text-[8px] text-gray-400 uppercase tracking-wide font-medium mt-0.5">{cat.clauses.length} polic{cat.clauses.length === 1 ? 'y' : 'ies'}</div>
               </div>
             </div>
-            {/* 2-col clause grid */}
-            <div className="doc-clause-grid">
+            {/* Rich clause mosaic */}
+            <div className="doc-clause-mosaic">
               {cat.clauses.map((clause) => {
                 const rawContent = editedContent[clause.id] ?? clause.content;
                 const displayContent = applySettings(rawContent, settings);
                 const isEditing = activeEdit === clause.id;
+                const blocks = parseBlocks(displayContent);
+                const hasTable = blocks.some(b => b.type === 'defs');
+                const hasManyBullets = blocks.filter(b => b.type === 'bullets').flatMap(b => b.type === 'bullets' ? b.items : []).length > 5;
+                const isWide = hasTable || hasManyBullets;
                 return (
-                  <div key={clause.id} className="doc-clause-card doc-clause-item">
+                  <div key={clause.id} className={`doc-clause-card doc-clause-item ${isWide ? 'doc-clause-wide' : ''}`}>
+                    {/* Clause label strip */}
+                    <div className="doc-clause-label">
+                      <span className="text-[8px] font-black uppercase tracking-[0.15em] text-[#F4B626]">{clause.title}</span>
+                      {clause.required && <span className="ml-1.5 text-[7px] font-bold uppercase tracking-wide text-white bg-[#F4B626] px-1 py-px rounded-sm">Required</span>}
+                    </div>
                     {isEditing ? (
                       <div>
-                        <div className="text-[8px] text-amber-600 font-medium mb-1 flex items-center justify-between">
-                          <span>## h2 | **bold** | - list</span>
+                        <div className="text-[8px] text-amber-600 font-medium mb-1 flex items-center justify-between mt-1">
+                          <span>## h2 | **Key:** val | - bullet | &gt; callout</span>
                           <button type="button" onClick={() => { onEdit(clause.id, rawContent); setActiveEdit(null); }}
                             className="text-[8px] font-bold text-[#F4B626] px-1.5 py-0.5 bg-[#F4B626]/10 rounded">Done</button>
                         </div>
@@ -1062,7 +1157,7 @@ function DocumentPreview({ selected, settings, editedContent, onEdit }: {
                         />
                       </div>
                     ) : (
-                      <div onClick={() => setActiveEdit(clause.id)} className="cursor-text">
+                      <div onClick={() => setActiveEdit(clause.id)} className="cursor-text doc-clause-body">
                         {renderContent(displayContent)}
                       </div>
                     )}
