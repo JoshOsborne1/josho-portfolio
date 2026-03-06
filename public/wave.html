@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Wavelength</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap');
+
+        :root {
+            --bg-base: #030305;
+            --bg-glow: #1e112a;
+            --surface: rgba(20, 20, 25, 0.6);
+            --wire: rgba(255, 255, 255, 0.1);
+            --wire-strong: rgba(255, 255, 255, 0.25);
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --violet: #8b5cf6;
+            --amber: #fbbf24;
+            --slate: #64748b;
+            --pink: #ec4899;
+            --font-sans: 'Inter', system-ui, sans-serif;
+            --font-serif: 'Playfair Display', serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: radial-gradient(circle at top center, var(--bg-glow) 0%, var(--bg-base) 70%);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 16px;
+            position: relative;
+        }
+
+        /* Header & Scores */
+        header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .title {
+            font-family: var(--font-serif);
+            font-size: 24px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .new-game-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: transparent;
+            border: 1px solid var(--wire);
+            color: var(--text-secondary);
+            font-size: 11px;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .teams-container {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .team {
+            flex: 1;
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--wire);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .team.active {
+            border-color: var(--violet);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .team-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            cursor: pointer;
+        }
+
+        .team.active .team-name {
+            color: var(--text-primary);
+        }
+
+        .team-score {
+            font-size: 28px;
+            font-weight: 600;
+            font-family: var(--font-serif);
+        }
+
+        /* Play Area */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        .game-message {
+            text-align: center;
+            font-size: 16px;
+            color: var(--text-secondary);
+            min-height: 48px;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .game-message strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .dial-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            touch-action: none;
+        }
+
+        .dial-svg-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 55%; /* Aspect ratio for semicircle */
+        }
+
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .word-pair {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 16px;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .word-left {
+            color: var(--text-secondary);
+            flex: 1;
+            text-align: left;
+            padding-right: 10px;
+        }
+
+        .word-right {
+            color: var(--text-secondary);
+            flex: 1;
+            text-align: right;
+            padding-left: 10px;
+        }
+
+        /* Controls */
+        footer {
+            margin-top: auto;
+            padding-top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .btn-primary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--wire-strong);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 16px;
+            font-weight: 600;
+            padding: 16px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-primary.highlight {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: var(--violet);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .score-display {
+            text-align: center;
+            font-size: 20px;
+            font-family: var(--font-serif);
+            color: var(--text-primary);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.4s ease;
+        }
+
+        .score-display.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .score-display.bullseye { color: var(--violet); text-shadow: 0 0 10px rgba(139, 92, 246, 0.6); }
+        .score-display.close { color: var(--amber); text-shadow: 0 0 10px rgba(245, 158, 11, 0.6); }
+        .score-display.near { color: var(--slate); }
+        .score-display.miss { color: var(--text-secondary); }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="title">Wavelength</div>
+            <button class="new-game-btn" onclick="resetGame()">New Game</button>
+            <div class="teams-container" id="teams-container">
+                <!-- Teams injected via JS -->
+            </div>
+        </header>
+
+        <main>
+            <div class="game-message" id="game-message">
+                <!-- Message injected via JS -->
+            </div>
+            
+            <div class="dial-container">
+                <div class="dial-svg-wrapper">
+                    <svg id="dial-svg" viewBox="0 0 400 220" preserveAspectRatio="xMidYMax meet">
+                        <defs>
+                            <filter id="glow-target" x="-20%" y="-20%" width="140%" height="140%">
+                                <feGaussianBlur stdDeviation="3" result="blur" />
+                                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                            </filter>
+                            <filter id="glow-needle" x="-50%" y="-50%" width="200%" height="200%">
+                                <feGaussianBlur stdDeviation="2" result="blur" />
+                                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                            </filter>
+                        </defs>
+                        
+                        <!-- Base Dial -->
+                        <path d="M 200 200 L 20 200 A 180 180 0 0 1 380 200 Z" fill="#0f172a" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+                        
+                        <!-- Target Zones Group -->
+                        <g id="target-group" style="display:none;" filter="url(#glow-target)">
+                            <path id="target-near" fill="var(--slate)" />
+                            <path id="target-close" fill="var(--amber)" />
+                            <path id="target-bullseye" fill="var(--violet)" />
+                        </g>
+                        
+                        <!-- Center Cover -->
+                        <circle cx="200" cy="200" r="24" fill="#030305" stroke="rgba(255,255,255,0.1)" stroke-width="2" />
+                        
+                        <!-- Needle Group -->
+                        <g id="needle-group" transform="rotate(90, 200, 200)" filter="url(#glow-needle)">
+                            <!-- Needle points LEFT at 0 rotation, so it sweeps 0 to 180 properly based on our math -->
+                            <line x1="200" y1="200" x2="30" y2="200" stroke="#ffffff" stroke-width="4" stroke-linecap="round" />
+                            <circle cx="200" cy="200" r="8" fill="#ffffff" />
+                        </g>
+                    </svg>
+                </div>
+                
+                <div class="word-pair">
+                    <div class="word-left" id="word-left">Word 1</div>
+                    <div class="word-right" id="word-right">Word 2</div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="score-display" id="score-display">0 Points</div>
+            <button class="btn-primary" id="action-btn" onclick="handleAction()">Start Game</button>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        // --- Game Data ---
+        const pairs = [
+            ["Bad Company","Good Company"],["Terrible Movie","Great Movie"],["Cold","Hot"],
+            ["Ugly","Beautiful"],["Worst Day Ever","Best Day Ever"],["Boring Hobby","Exciting Hobby"],
+            ["Useless Superpower","Awesome Superpower"],["Lame Party Trick","Cool Party Trick"],
+            ["Terrible First Date Spot","Perfect First Date Spot"],["Worst Pizza Topping","Best Pizza Topping"],
+            ["Annoying Sound","Satisfying Sound"],["Uncomfortable Clothing","Comfy Clothing"],
+            ["Worst Smell","Best Smell"],["Terrible Gift","Thoughtful Gift"],["Forgettable Song","Catchy Song"],
+            ["Terrible Pickup Line","Smooth Pickup Line"],["Annoying Habit","Endearing Quirk"],
+            ["Feels Bad","Feels Good"],["Hard","Soft"],["Villain","Hero"],["Common","Rare"],
+            ["Bad Influence","Role Model"],["Pointy Animal","Round Animal"],["Useless","Useful"],
+            ["Quiet Place","Loud Place"],["Worst Chore","Most Satisfying Chore"],
+            ["Worst Board Game","Addictive Board Game"],["Terrible Vacation Spot","Dream Vacation Destination"],
+            ["Terrible Roommate Habit","Ideal Roommate Quality"],["Terrible Wifi Network Name","Clever Wifi Network Name"]
+        ];
+
+        // --- State ---
+        let state = {
+            phase: 'setup', // setup, turn_start, psychic_view, guesser_view, score_view
+            teams: [
+                { id: 0, name: 'Team 1', score: 0 },
+                { id: 1, name: 'Team 2', score: 0 }
+            ],
+            currentTeamIndex: 0,
+            currentPair: ["", ""],
+            targetAngle: 90,
+            needleAngle: 90,
+            lastPoints: 0
+        };
+
+        // --- Persistence ---
+        function loadState() {
+            try {
+                const saved = localStorage.getItem('wavelength_teams');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    state.teams[0].name = parsed[0].name;
+                    state.teams[1].name = parsed[1].name;
+                }
+            } catch (e) {}
+        }
+
+        function saveState() {
+            localStorage.setItem('wavelength_teams', JSON.stringify(state.teams));
+        }
+
+        // --- Initialization ---
+        const svg = document.getElementById('dial-svg');
+        const needleGroup = document.getElementById('needle-group');
+        const targetGroup = document.getElementById('target-group');
+        let isDragging = false;
+
+        function init() {
+            loadState();
+            state.phase = 'turn_start';
+            setupRound();
+            render();
+        }
+
+        function setupRound() {
+            // Pick pair
+            const randomPair = pairs[Math.floor(Math.random() * pairs.length)];
+            state.currentPair = randomPair;
+            // Target angle between 22.5 and 157.5
+            state.targetAngle = Math.random() * (157.5 - 22.5) + 22.5;
+            state.needleAngle = 90;
+            drawTargetZones();
+        }
+
+        function resetGame() {
+            state.teams[0].score = 0;
+            state.teams[1].score = 0;
+            state.currentTeamIndex = 0;
+            saveState();
+            state.phase = 'turn_start';
+            setupRound();
+            render();
+        }
+
+        function renameTeam(index) {
+            const newName = prompt("Enter team name:", state.teams[index].name);
+            if (newName && newName.trim().length > 0) {
+                state.teams[index].name = newName.trim();
+                saveState();
+                render();
+            }
+        }
+
+        // --- Math & SVG Drawing ---
+        // Angle mapping: 0 is Left, 180 is Right. Center is 200,200. Radius is 180 max.
+        function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+            // Because 0 is Left and 180 is Right:
+            // x = cx - r * cos(angle)
+            // y = cy - r * sin(angle)
+            let angleInRadians = angleInDegrees * Math.PI / 180.0;
+            return {
+                x: centerX - (radius * Math.cos(angleInRadians)),
+                y: centerY - (radius * Math.sin(angleInRadians))
+            };
+        }
+
+        function describeWedge(x, y, radius, startAngle, endAngle) {
+            let start = polarToCartesian(x, y, radius, endAngle);
+            let end = polarToCartesian(x, y, radius, startAngle);
+            // sweep-flag is 0 because we draw from endAngle to startAngle (decreasing angle)
+            return [
+                "M", x, y,
+                "L", start.x, start.y,
+                "A", radius, radius, 0, 0, 0, end.x, end.y,
+                "Z"
+            ].join(" ");
+        }
+
+        function drawTargetZones() {
+            let t = state.targetAngle;
+            document.getElementById('target-near').setAttribute('d', describeWedge(200, 200, 180, t - 22.5, t + 22.5));
+            document.getElementById('target-close').setAttribute('d', describeWedge(200, 200, 180, t - 13.5, t + 13.5));
+            document.getElementById('target-bullseye').setAttribute('d', describeWedge(200, 200, 180, t - 4.5, t + 4.5));
+        }
+
+        // --- Drag Handling ---
+        function updateNeedleAngle(clientX, clientY) {
+            let rect = svg.getBoundingClientRect();
+            // True center mapped to screen
+            let scaleX = rect.width / 400;
+            let scaleY = rect.height / 220;
+            let trueCx = rect.left + 200 * scaleX;
+            let trueCy = rect.top + 200 * scaleY;
+
+            let dx = clientX - trueCx;
+            let dy = clientY - trueCy;
+            
+            let rad = Math.atan2(dy, dx);
+            // atan2 yields rad from -PI to PI.
+            // Map to 0 (Left) to 180 (Right)
+            let angle = (rad * 180 / Math.PI) + 180;
+            if (angle < 0) angle = 0;
+            if (angle > 180) angle = 180;
+            
+            state.needleAngle = angle;
+            needleGroup.setAttribute('transform', `rotate(${state.needleAngle}, 200, 200)`);
+        }
+
+        function handleTouchStart(e) {
+            if (state.phase !== 'guesser_view') return;
+            isDragging = true;
+            needleGroup.style.transition = 'none';
+            handleTouchMove(e);
+        }
+
+        function handleTouchMove(e) {
+            if (!isDragging || state.phase !== 'guesser_view') return;
+            e.preventDefault(); // prevent scrolling
+            let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            updateNeedleAngle(clientX, clientY);
+        }
+
+        function handleTouchEnd(e) {
+            if (isDragging) {
+                isDragging = false;
+                needleGroup.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
+            }
+        }
+
+        svg.addEventListener('mousedown', handleTouchStart);
+        window.addEventListener('mousemove', handleTouchMove, { passive: false });
+        window.addEventListener('mouseup', handleTouchEnd);
+
+        svg.addEventListener('touchstart', handleTouchStart, { passive: false });
+        window.addEventListener('touchmove', handleTouchMove, { passive: false });
+        window.addEventListener('touchend', handleTouchEnd);
+
+        // --- Flow Actions ---
+        function handleAction() {
+            if (state.phase === 'turn_start') {
+                state.phase = 'psychic_view';
+            } else if (state.phase === 'psychic_view') {
+                state.phase = 'guesser_view';
+            } else if (state.phase === 'guesser_view') {
+                calculateScore();
+                state.phase = 'score_view';
+            } else if (state.phase === 'score_view') {
+                state.currentTeamIndex = (state.currentTeamIndex + 1) % 2;
+                state.phase = 'turn_start';
+                setupRound();
+            }
+            render();
+        }
+
+        function calculateScore() {
+            let diff = Math.abs(state.targetAngle - state.needleAngle);
+            let points = 0;
+            if (diff <= 4.5) points = 5;
+            else if (diff <= 13.5) points = 3;
+            else if (diff <= 22.5) points = 1;
+            
+            state.lastPoints = points;
+            state.teams[state.currentTeamIndex].score += points;
+            saveState();
+
+            if (points === 5) {
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#8b5cf6', '#fbbf24', '#ffffff'] });
+            } else if (points === 3) {
+                confetti({ particleCount: 50, spread: 50, origin: { y: 0.6 }, colors: ['#fbbf24', '#ffffff'] });
+            }
+        }
+
+        // --- Render UI ---
+        function render() {
+            // Teams
+            const tCont = document.getElementById('teams-container');
+            tCont.innerHTML = state.teams.map((t, i) => `
+                <div class="team ${i === state.currentTeamIndex ? 'active' : ''}">
+                    <div class="team-name" onclick="renameTeam(${i})">${t.name}</div>
+                    <div class="team-score">${t.score}</div>
+                </div>
+            `).join('');
+
+            // Words
+            document.getElementById('word-left').innerText = state.currentPair[0];
+            document.getElementById('word-right').innerText = state.currentPair[1];
+
+            const msg = document.getElementById('game-message');
+            const btn = document.getElementById('action-btn');
+            const scoreDisp = document.getElementById('score-display');
+            const currTeamName = state.teams[state.currentTeamIndex].name;
+
+            // Needle transition state
+            needleGroup.style.transition = isDragging ? 'none' : 'transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)';
+            needleGroup.setAttribute('transform', `rotate(${state.needleAngle}, 200, 200)`);
+
+            // Phase UI
+            if (state.phase === 'turn_start') {
+                targetGroup.style.display = 'none';
+                needleGroup.style.display = 'none';
+                scoreDisp.classList.remove('visible');
+                msg.innerHTML = `Round Start<br><strong>${currTeamName} Psychic</strong>: Take the device.`;
+                btn.innerText = "Tap to Reveal Target";
+                btn.classList.remove('highlight');
+            } 
+            else if (state.phase === 'psychic_view') {
+                targetGroup.style.display = 'block';
+                needleGroup.style.display = 'none';
+                msg.innerHTML = `<strong>${currTeamName} Psychic</strong><br>Think of a clue, then hide the target.`;
+                btn.innerText = "Hide for Guessers";
+                btn.classList.add('highlight');
+            }
+            else if (state.phase === 'guesser_view') {
+                targetGroup.style.display = 'none';
+                needleGroup.style.display = 'block';
+                msg.innerHTML = `<strong>${currTeamName} Team</strong><br>Discuss and drag the needle to your guess.`;
+                btn.innerText = "Reveal Target";
+                btn.classList.remove('highlight');
+            }
+            else if (state.phase === 'score_view') {
+                targetGroup.style.display = 'block';
+                needleGroup.style.display = 'block';
+                
+                let scoreText = "";
+                scoreDisp.className = 'score-display visible';
+                if (state.lastPoints === 5) {
+                    scoreText = "BULLSEYE! +5 Points";
+                    scoreDisp.classList.add('bullseye');
+                } else if (state.lastPoints === 3) {
+                    scoreText = "CLOSE! +3 Points";
+                    scoreDisp.classList.add('close');
+                } else if (state.lastPoints === 1) {
+                    scoreText = "NEAR! +1 Point";
+                    scoreDisp.classList.add('near');
+                } else {
+                    scoreText = "MISS! 0 Points";
+                    scoreDisp.classList.add('miss');
+                }
+                
+                scoreDisp.innerText = scoreText;
+                msg.innerHTML = `Target Revealed!`;
+                btn.innerText = "Next Turn";
+                btn.classList.add('highlight');
+            }
+        }
+
+        // Start
+        init();
+    </script>
+</body>
+</html>
