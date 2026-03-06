@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta property="og:title" content="Sudoku — josho.pro">
+  <meta property="og:description" content="Classic Sudoku puzzle with three difficulty levels.">
+  <meta property="og:image" content="/og-games.png">
+  <meta property="og:url" content="https://josho.pro/sudoku.html">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Sudoku — josho.pro">
+  <meta name="twitter:description" content="Classic Sudoku puzzle with three difficulty levels.">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Sudoku</title>
+<style>
+:root {
+  --bg: #1a1a2e;
+  --surface: #16213e;
+  --primary: #e94560;
+  --text: #eee;
+  --text-dim: #888;
+  --border: #333;
+  --cell-bg: #0f0f23;
+  --cell-fixed: #252545;
+  --cell-selected: #e9456033;
+  --cell-highlight: #ffffff11;
+  --cell-conflict: #ff4444;
+  --cell-same: #4444ff22;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 20px;
+}
+h1 { font-size: 1.5rem; }
+.streak {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 1.1rem;
+  color: #ff9500;
+}
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+select, button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+select { background: var(--surface); color: var(--text); }
+button {
+  background: var(--primary);
+  color: white;
+  font-weight: 600;
+}
+button.secondary { background: var(--surface); }
+#ad-top {
+  width: 100%;
+  max-width: 728px;
+  height: 90px;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  color: var(--text-dim);
+}
+#ad-top.hidden { display: none; }
+.game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+.timer {
+  font-size: 1.2rem;
+  font-family: monospace;
+}
+.board {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.cell {
+  width: 44px;
+  height: 44px;
+  background: var(--cell-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+.cell.fixed { background: var(--cell-fixed); font-weight: 700; }
+.cell.selected { background: var(--cell-selected); }
+.cell.highlight { background: var(--cell-highlight); }
+.cell.same-number { background: var(--cell-same); }
+.cell.conflict { background: var(--cell-conflict); color: white; }
+.cell:nth-child(3n) { border-right: 2px solid var(--border); }
+.cell:nth-child(9n) { border-right: none; }
+.cell:nth-child(n+19):nth-child(-n+27),
+.cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 2px solid var(--border); }
+.numpad {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 5px;
+  margin-top: 15px;
+}
+.numpad button {
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+}
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+#ad-bottom {
+  width: 100%;
+  max-width: 728px;
+  height: 90px;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+  border-radius: 8px;
+  color: var(--text-dim);
+}
+#ad-bottom.hidden { display: none; }
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.modal-overlay.hidden { display: none; }
+.modal {
+  background: var(--surface);
+  padding: 30px;
+  border-radius: 16px;
+  text-align: center;
+  max-width: 400px;
+}
+.modal h2 { margin-bottom: 15px; color: var(--primary); }
+.modal p { margin-bottom: 20px; color: var(--text-dim); }
+.email-capture input {
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: none;
+  width: 200px;
+  margin-right: 10px;
+}
+.email-capture button { padding: 10px 20px; }
+.stats-modal .stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin: 20px 0;
+}
+.stats-grid div {
+  background: var(--bg);
+  padding: 15px;
+  border-radius: 8px;
+}
+.stats-grid .label { font-size: 0.8rem; color: var(--text-dim); }
+.stats-grid .value { font-size: 1.5rem; font-weight: 700; }
+.premium-btn {
+  background: linear-gradient(135deg, #ffd700, #ff9500);
+  color: #000;
+}
+.go-premium {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+.go-premium a { color: var(--primary); }
+@media (max-width: 500px) {
+  .cell { width: 36px; height: 36px; font-size: 1.1rem; }
+  .numpad { grid-template-columns: repeat(5, 1fr); }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Sudoku</h1>
+  <div class="streak" id="streak-display"><span id="streak-icon">🔥</span> <span id="streak-count">0</span></div>
+</header>
+<div id="ad-top" data-ad-slot="SUDOKU_TOP"><span>Advertisement</span></div>
+<div class="controls">
+  <button onclick="loadArchive(-1)" class="secondary" id="archive-prev">← Prev</button>
+  <button onclick="loadArchive(1)" class="secondary" id="archive-next">Next →</button>
+  <select id="difficulty">
+    <option value="easy">Easy</option>
+    <option value="medium" selected>Medium</option>
+    <option value="hard">Hard</option>
+  </select>
+  <label style="display:flex;align-items:center;gap:5px;">
+    <input type="checkbox" id="hard-mode" onchange="toggleHardMode()"> Hard
+  </label>
+  <button onclick="newGame()" class="secondary">New Game</button>
+</div>
+<div class="game-container">
+  <div class="timer" id="timer">00:00</div>
+  <div class="board" id="board"></div>
+  <div class="numpad">
+    <button onclick="inputNumber(1)">1</button>
+    <button onclick="inputNumber(2)">2</button>
+    <button onclick="inputNumber(3)">3</button>
+    <button onclick="inputNumber(4)">4</button>
+    <button onclick="inputNumber(5)">5</button>
+    <button onclick="inputNumber(6)">6</button>
+    <button onclick="inputNumber(7)">7</button>
+    <button onclick="inputNumber(8)">8</button>
+    <button onclick="inputNumber(9)">9</button>
+    <button onclick="inputNumber(0)" class="secondary">⌫</button>
+  </div>
+  <div class="actions">
+    <button onclick="checkSolution()">Check</button>
+    <button onclick="revealCell()" class="secondary">Reveal</button>
+    <button onclick="showStats()" class="secondary">Stats</button>
+  </div>
+</div>
+<div id="ad-bottom" data-ad-slot="SUDOKU_BOTTOM"><span>Advertisement</span></div>
+<div class="go-premium">
+  <button class="premium-btn" onclick="togglePremium()">Go Premium</button>
+  <span>Remove ads, unlimited hints, hard mode</span>
+</div>
+
+<!-- Win Modal -->
+<div class="modal-overlay hidden" id="win-modal">
+  <div class="modal">
+    <h2>Congratulations!</h2>
+    <p>You solved today's Sudoku!</p>
+    <p class="timer" id="final-time"></p>
+    <button onclick="shareResult()">Share Result</button>
+    <button onclick="closeModal('win-modal')" class="secondary">Close</button>
+  </div>
+</div>
+
+<!-- Email Capture Modal -->
+<div class="modal-overlay hidden" id="email-modal">
+  <div class="modal email-capture">
+    <h2>Get Tomorrow's Puzzle</h2>
+    <p>Never miss a day - get Sudoku delivered to your inbox</p>
+    <input type="email" id="email-input" placeholder="your@email.com">
+    <button onclick="subscribeEmail()">Subscribe Free</button>
+    <button onclick="closeModal('email-modal'); rememberEmailDismiss()" class="secondary">No Thanks</button>
+  </div>
+</div>
+
+<!-- Stats Modal -->
+<div class="modal-overlay hidden" id="stats-modal">
+  <div class="modal stats-modal">
+    <h2>Your Stats</h2>
+    <div class="stats-grid">
+      <div><div class="label">Current Streak</div><div class="value" id="stat-streak">0</div></div>
+      <div><div class="label">Best Streak</div><div class="value" id="stat-best">0</div></div>
+      <div><div class="label">Games Played</div><div class="value" id="stat-played">0</div></div>
+      <div><div class="label">Win Rate</div><div class="value" id="stat-winrate">0%</div></div>
+    </div>
+    <button onclick="closeModal('stats-modal')" class="secondary">Close</button>
+  </div>
+</div>
+
+<script>
+// === SEEDING ===
+let archiveOffset = 0;
+function getDailySeed(offset = 0) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  const dateStr = `${d.getFullYear()}${d.getMonth()+1}${d.getDate()}`;
+  let hash = 0;
+  for (let i = 0; i < dateStr.length; i++) {
+    hash = ((hash << 5) - hash) + dateStr.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+// === SUDOKU GENERATOR ===
+const SEED = getDailySeed();
+function seededRandom() {
+  SEED = (SEED * 1103515245 + 12345) & 0x7fffffff;
+  return SEED / 0x7fffffff;
+}
+
+function generateSolved() {
+  const grid = Array(81).fill(0);
+  function canPlace(n, i) {
+    const r = Math.floor(i / 9), c = i % 9;
+    const br = Math.floor(r / 3) * 3, bc = Math.floor(c / 3) * 3;
+    for (let x = 0; x < 9; x++) {
+      if (grid[r * 9 + x] === n || grid[x * 9 + c] === n) return false;
+      const bj = br + Math.floor(x / 3), bi = bc + (x % 3);
+      if (grid[bj * 9 + bi] === n) return false;
+    }
+    return true;
+  }
+  function solve(i) {
+    if (i === 81) return true;
+    if (grid[i]) return solve(i + 1);
+    const nums = [1,2,3,4,5,6,7,8,9];
+    for (let j = nums.length - 1; j > 0; j--) {
+      const k = Math.floor(seededRandom() * (j + 1));
+      [nums[j], nums[k]] = [nums[k], nums[j]];
+    }
+    for (const n of nums) {
+      if (canPlace(n, i)) {
+        grid[i] = n;
+        if (solve(i + 1)) return true;
+        grid[i] = 0;
+      }
+    }
+    return false;
+  }
+  solve(0);
+  return grid;
+}
+
+function createPuzzle(solved, difficulty) {
+  const counts = { easy: 35, medium: 45, hard: 55 };
+  const remove = counts[difficulty] || 45;
+  const puzzle = [...solved];
+  const positions = Array(81).fill(0).map((_, i) => i);
+  for (let i = positions.length - 1; i > 0; i--) {
+    const j = Math.floor(seededRandom() * (i + 1));
+    [positions[i], positions[j]] = [positions[j], positions[i]];
+  }
+  let removed = 0;
+  for (const pos of positions) {
+    if (removed >= remove) break;
+    puzzle[pos] = 0;
+    removed++;
+  }
+  return puzzle;
+}
+
+// === GAME STATE ===
+let solution = [];
+let puzzle = [];
+let current = [];
+let selected = -1;
+let timerInterval = null;
+let seconds = 0;
+let gameStarted = false;
+
+// === INIT ===
+function init() {
+  loadPremium();
+  loadStats();
+  checkEmailModal();
+  newGame();
+}
+
+function newGame() {
+  archiveOffset = 0;
+  const diff = document.getElementById('difficulty').value;
+  solution = generateSolved();
+  puzzle = createPuzzle(solution, diff);
+  current = [...puzzle];
+  selected = -1;
+  seconds = 0;
+  gameStarted = false;
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(updateTimer, 1000);
+  renderBoard();
+  updateTimer();
+}
+
+function loadArchive(offset) {
+  const isPremium = localStorage.getItem('isPremium') === 'true';
+  if (!isPremium && offset !== 0) {
+    alert('Archive access is a Premium feature');
+    return;
+  }
+  archiveOffset += offset;
+  const SEED_ORIG = SEED;
+  window.SEED = getDailySeed(archiveOffset);
+  const diff = document.getElementById('difficulty').value;
+  solution = generateSolved();
+  puzzle = createPuzzle(solution, diff);
+  current = [...puzzle];
+  selected = -1;
+  seconds = 0;
+  gameStarted = false;
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(updateTimer, 1000);
+  renderBoard();
+  updateTimer();
+  window.SEED = SEED_ORIG;
+}
+
+function toggleHardMode() {
+  const isHard = document.getElementById('hard-mode').checked;
+  const isPremium = localStorage.getItem('isPremium') === 'true';
+  if (isHard && !isPremium) {
+    alert('Hard Mode is a Premium feature');
+    document.getElementById('hard-mode').checked = false;
+    return;
+  }
+  renderBoard();
+}
+
+function renderBoard() {
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  for (let i = 0; i < 81; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    if (puzzle[i] !== 0) {
+      cell.textContent = puzzle[i];
+      cell.classList.add('fixed');
+    } else if (current[i] !== 0) {
+      cell.textContent = current[i];
+    }
+    if (i === selected) cell.classList.add('selected');
+    if (selected >= 0 && current[selected] && current[i] === current[selected]) {
+      cell.classList.add('same-number');
+    }
+    cell.onclick = () => selectCell(i);
+    board.appendChild(cell);
+  }
+}
+
+function selectCell(i) {
+  if (puzzle[i] === 0) {
+    selected = i;
+    renderBoard();
+  }
+}
+
+function inputNumber(n) {
+  if (selected < 0) return;
+  if (!gameStarted) {
+    gameStarted = true;
+  }
+  if (n === 0) {
+    current[selected] = 0;
+  } else {
+    current[selected] = n;
+  }
+  renderBoard();
+  checkWin();
+}
+
+function updateTimer() {
+  const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+  const s = (seconds % 60).toString().padStart(2, '0');
+  document.getElementById('timer').textContent = `${m}:${s}`;
+  seconds++;
+}
+
+function checkSolution() {
+  const cells = document.querySelectorAll('.cell');
+  cells.forEach((c, i) => {
+    c.classList.remove('conflict');
+    if (current[i] && current[i] !== solution[i]) {
+      c.classList.add('conflict');
+    }
+  });
+}
+
+function revealCell() {
+  if (selected < 0 || current[selected] === solution[selected]) return;
+  
+  const isPremium = localStorage.getItem('isPremium') === 'true';
+  const today = new Date().toDateString();
+  const lastHint = localStorage.getItem('lastHintDate');
+  const hintCount = parseInt(localStorage.getItem('hintCount') || '0');
+  
+  if (!isPremium && lastHint === today && hintCount >= 1) {
+    alert('Free hint limit reached. Go premium for unlimited hints.');
+    return;
+  }
+  
+  current[selected] = solution[selected];
+  renderBoard();
+  
+  if (!isPremium) {
+    if (lastHint !== today) {
+      localStorage.setItem('lastHintDate', today);
+      localStorage.setItem('hintCount', '1');
+    } else {
+      localStorage.setItem('hintCount', (hintCount + 1).toString());
+    }
+  }
+  
+  checkWin();
+}
+
+function checkWin() {
+  for (let i = 0; i < 81; i++) {
+    if (current[i] !== solution[i]) return;
+  }
+  clearInterval(timerInterval);
+  document.getElementById('final-time').textContent = document.getElementById('timer').textContent;
+  showModal('win-modal');
+  updateStreak(true);
+  saveStat('played');
+}
+
+// === MODALS ===
+function showModal(id) {
+  document.getElementById(id).classList.remove('hidden');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.add('hidden');
+}
+
+function showStats() {
+  document.getElementById('stat-streak').textContent = localStorage.getItem('streak') || '0';
+  document.getElementById('stat-best').textContent = localStorage.getItem('bestStreak') || '0';
+  document.getElementById('stat-played').textContent = localStorage.getItem('gamesPlayed') || '0';
+  const played = parseInt(localStorage.getItem('gamesPlayed') || '0');
+  const wins = parseInt(localStorage.getItem('gamesWon') || '0');
+  const wr = played > 0 ? Math.round((wins / played) * 100) : 0;
+  document.getElementById('stat-winrate').textContent = wr + '%';
+  showModal('stats-modal');
+}
+
+// === STATS ===
+function loadStats() {
+  updateStreakDisplay();
+}
+function updateStreak(won) {
+  const today = new Date().toDateString();
+  const lastPlayed = localStorage.getItem('lastPlayedDate');
+  let streak = parseInt(localStorage.getItem('streak') || '0');
+  
+  if (won) {
+    if (lastPlayed !== today) {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      if (lastPlayed === yesterday.toDateString()) {
+        streak++;
+      } else if (lastPlayed !== today) {
+        streak = 1;
+      }
+      localStorage.setItem('streak', streak);
+      if (streak > parseInt(localStorage.getItem('bestStreak') || '0')) {
+        localStorage.setItem('bestStreak', streak);
+      }
+    }
+    localStorage.setItem('gamesWon', (parseInt(localStorage.getItem('gamesWon') || '0') + 1).toString());
+  }
+  localStorage.setItem('lastPlayedDate', today);
+  updateStreakDisplay();
+}
+function updateStreakDisplay() {
+  document.getElementById('streak-count').textContent = localStorage.getItem('streak') || '0';
+}
+function saveStat(type) {
+  localStorage.setItem('gamesPlayed', (parseInt(localStorage.getItem('gamesPlayed') || '0') + 1).toString());
+}
+
+// === PREMIUM ===
+function loadPremium() {
+  if (localStorage.getItem('isPremium') === 'true') {
+    document.getElementById('ad-top').classList.add('hidden');
+    document.getElementById('ad-bottom').classList.add('hidden');
+  }
+}
+function togglePremium() {
+  const isPremium = localStorage.getItem('isPremium') === 'true';
+  localStorage.setItem('isPremium', (!isPremium).toString());
+  loadPremium();
+  alert(isPremium ? 'Premium deactivated' : 'Premium activated! (Demo mode)');
+}
+
+// === EMAIL CAPTURE ===
+function checkEmailModal() {
+  const dismissed = localStorage.getItem('emailModalDismissed');
+  const today = new Date().toDateString();
+  if (dismissed !== today && !localStorage.getItem('userEmail')) {
+    setTimeout(() => showModal('email-modal'), 3000);
+  }
+}
+function subscribeEmail() {
+  const email = document.getElementById('email-input').value;
+  if (email) {
+    localStorage.setItem('userEmail', email);
+    const list = JSON.parse(localStorage.getItem('emailList') || '[]');
+    list.push({ email, date: new Date().toISOString() });
+    localStorage.setItem('emailList', JSON.stringify(list));
+    console.log('Subscribed:', email);
+    closeModal('email-modal');
+  }
+}
+function rememberEmailDismiss() {
+  localStorage.setItem('emailModalDismissed', new Date().toDateString());
+}
+
+// === SHARE ===
+function shareResult() {
+  const time = document.getElementById('timer').textContent;
+  const text = `Sudoku - ${time} - Daily Puzzle`;
+  navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!'));
+  closeModal('win-modal');
+}
+
+// Keyboard support
+document.addEventListener('keydown', (e) => {
+  if (e.key >= '1' && e.key <= '9') inputNumber(parseInt(e.key));
+  if (e.key === 'Backspace' || e.key === 'Delete') inputNumber(0);
+  if (e.key === 'ArrowUp' && selected >= 9) selectCell(selected - 9);
+  if (e.key === 'ArrowDown' && selected < 72) selectCell(selected + 9);
+  if (e.key === 'ArrowLeft' && selected % 9 !== 0) selectCell(selected - 1);
+  if (e.key === 'ArrowRight' && selected % 9 !== 8) selectCell(selected + 1);
+});
+
+init();
+</script>
+</body>
+</html>

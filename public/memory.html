@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta property="og:title" content="Memory Match — josho.pro">
+  <meta property="og:description" content="Flip cards and find all matching pairs.">
+  <meta property="og:image" content="/og-games.png">
+  <meta property="og:url" content="https://josho.pro/memory.html">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Memory Match — josho.pro">
+  <meta name="twitter:description" content="Flip cards and find all matching pairs.">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memory Match - Daily Puzzle</title>
+<style>
+:root {
+  --bg: #1a1a2e;
+  --card-back: #16213e;
+  --card-front: #0f3460;
+  --accent: #e94560;
+  --text: #eee;
+  --text-muted: #888;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.hidden { display: none !important; }
+
+/* Header */
+header {
+  width: 100%;
+  max-width: 600px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+h1 { font-size: 32px; color: var(--accent); }
+.header-stats { display: flex; gap: 15px; align-items: center; }
+.stat-box {
+  background: var(--card-front);
+  padding: 8px 16px;
+  border-radius: 8px;
+  text-align: center;
+}
+.stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
+.stat-value { font-size: 20px; font-weight: 700; }
+.streak-badge {
+  background: linear-gradient(135deg, #ff6b35, #f7931e);
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.premium-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Ads */
+.ad-banner {
+  width: 100%;
+  max-width: 728px;
+  height: 90px;
+  background: #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px auto;
+  border-radius: 8px;
+  color: #666;
+}
+.ad-banner.mobile { max-width: 320px; height: 50px; }
+@media (max-width: 768px) {
+  .ad-banner.desktop { display: none; }
+  .ad-banner.mobile { display: flex; }
+}
+@media (min-width: 769px) { .ad-banner.mobile { display: none; } }
+
+/* Game */
+.game-container {
+  background: var(--card-front);
+  padding: 20px;
+  border-radius: 12px;
+  margin: 20px;
+  position: relative;
+}
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.new-game-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.new-game-btn:hover { opacity: 0.9; }
+
+.daily-theme {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  width: 400px;
+  height: 400px;
+}
+@media (max-width: 450px) {
+  .grid { width: 300px; height: 300px; gap: 8px; }
+}
+
+.card {
+  background: transparent;
+  perspective: 1000px;
+  cursor: pointer;
+}
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s;
+  transform-style: preserve-3d;
+}
+.card.flipped .card-inner { transform: rotateY(180deg); }
+.card.matched .card-inner { transform: rotateY(180deg); }
+.card-front, .card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+}
+.card-back {
+  background: var(--card-back);
+  border: 2px solid #333;
+}
+.card-front {
+  background: var(--card-front);
+  border: 2px solid var(--accent);
+  transform: rotateY(180deg);
+}
+.card.matched .card-front {
+  border-color: #4ade80;
+  background: #166534;
+}
+@media (max-width: 450px) {
+  .card-front, .card-back { font-size: 28px; }
+}
+
+/* Win overlay */
+.win-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(26, 26, 46, 0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+.win-title { font-size: 48px; color: #4ade80; margin-bottom: 20px; }
+.win-stats { font-size: 20px; margin-bottom: 20px; text-align: center; }
+.play-again-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  font-size: 18px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Controls */
+.controls { display: flex; gap: 10px; margin-top: 15px; }
+.control-btn {
+  background: var(--card-front);
+  color: var(--text);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Share */
+.share-section { margin: 20px; }
+.share-btn {
+  background: #4a90d9;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Hard mode */
+.hard-indicator {
+  background: #dc2626;
+  color: white;
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Modals */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal {
+  background: var(--card-front);
+  padding: 30px;
+  border-radius: 12px;
+  max-width: 400px;
+  text-align: center;
+}
+.modal h3 { margin-bottom: 15px; color: var(--accent); }
+.modal p { margin-bottom: 20px; color: var(--text-muted); }
+.modal ul { text-align: left; margin-bottom: 20px; color: var(--text); }
+.modal li { margin: 8px 0; }
+.modal input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #333;
+  border-radius: 8px;
+  font-size: 16px;
+  background: var(--bg);
+  color: var(--text);
+  margin-bottom: 15px;
+}
+.modal button {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  margin: 5px;
+}
+.modal .close-btn { background: #444; }
+
+/* Interstitial */
+.interstitial-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+.interstitial-content { text-align: center; }
+.interstitial-countdown { font-size: 64px; font-weight: 700; }
+.interstitial-skip {
+  margin-top: 20px;
+  background: #444;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Footer */
+footer {
+  margin-top: 30px;
+  font-size: 14px;
+  color: #666;
+}
+footer a { color: #888; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Memory Match</h1>
+  <div class="header-stats">
+    <div class="streak-badge">
+      <span>🔥</span>
+      <span id="streak">0</span>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Moves</div>
+      <div class="stat-value" id="moves">0</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Time</div>
+      <div class="stat-value" id="timer">0:00</div>
+    </div>
+    <button class="premium-btn" id="premium-btn" onclick="showPremiumModal()">Go Premium</button>
+  </div>
+</header>
+
+<div class="ad-banner desktop" data-ad-slot="MEMORY-TOP"></div>
+<div class="ad-banner mobile" data-ad-slot="MEMORY-MOBILE"></div>
+
+<div class="game-container">
+  <div class="game-header">
+    <span class="daily-theme" id="daily-theme">Today's Theme: Animals</span>
+    <div>
+      <span class="hard-indicator hidden" id="hard-indicator">HARD</span>
+      <button class="new-game-btn" onclick="initGame()">New Game</button>
+    </div>
+  </div>
+  
+  <div class="grid" id="grid"></div>
+  
+  <div class="win-overlay hidden" id="win-overlay">
+    <div class="win-title">You Win!</div>
+    <div class="win-stats">
+      <div>Moves: <span id="final-moves">0</span></div>
+      <div>Time: <span id="final-time">0:00</span></div>
+    </div>
+    <button class="play-again-btn" onclick="initGame()">Play Again</button>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="control-btn" onclick="toggleHardMode()">Hard Mode</button>
+  <button class="control-btn" onclick="showStatsModal()">Stats</button>
+  <button class="control-btn" onclick="showArchiveModal()">Archive</button>
+</div>
+
+<div class="share-section">
+  <button class="share-btn" onclick="shareResult()">Share Result</button>
+</div>
+
+<div class="ad-banner desktop" data-ad-slot="MEMORY-BOTTOM"></div>
+
+<footer>
+  More daily games at <a href="#">DailyPuzzle.io</a>
+</footer>
+
+<!-- Premium Modal -->
+<div class="modal-overlay hidden" id="premium-modal">
+  <div class="modal">
+    <h3>Go Premium</h3>
+    <p>Unlock all features for $3.99/month</p>
+    <ul>
+      <li>Remove all ads</li>
+      <li>Play Archive</li>
+      <li>Hard Mode</li>
+      <li>Stats Dashboard</li>
+    </ul>
+    <button onclick="upgradePremium()">Subscribe</button>
+    <button class="close-btn" onclick="closeModal('premium-modal')">Not Now</button>
+  </div>
+</div>
+
+<!-- Stats Modal -->
+<div class="modal-overlay hidden" id="stats-modal">
+  <div class="modal">
+    <h3>Your Stats</h3>
+    <div style="text-align:left; margin: 20px 0;">
+      <p>Current Streak: <span id="stat-streak">0</span></p>
+      <p>Longest Streak: <span id="stat-longest">0</span></p>
+      <p>Games Played: <span id="stat-played">0</span></p>
+      <p>Win Rate: <span id="stat-winrate">0</span>%</p>
+      <p>Best Time: <span id="stat-besttime">--</span></p>
+    </div>
+    <button onclick="closeModal('stats-modal')">Close</button>
+  </div>
+</div>
+
+<!-- Archive Modal -->
+<div class="modal-overlay hidden" id="archive-modal">
+  <div class="modal">
+    <h3>Play Archive</h3>
+    <p>Select a date</p>
+    <div style="margin: 20px 0;">
+      <button class="control-btn" onclick="changeArchiveDate(-1)">← Prev</button>
+      <span id="archive-date">Today</span>
+      <button class="control-btn" onclick="changeArchiveDate(1)">Next →</button>
+    </div>
+    <button onclick="closeModal('archive-modal')">Close</button>
+  </div>
+</div>
+
+<!-- Email Modal -->
+<div class="modal-overlay hidden" id="email-modal">
+  <div class="modal">
+    <h3>Get Tomorrow's Puzzle</h3>
+    <p>Never miss a day - daily puzzle delivered to your inbox</p>
+    <input type="email" id="email-input" placeholder="your@email.com">
+    <button onclick="subscribeEmail()">Subscribe</button>
+    <button class="close-btn" onclick="dismissEmailModal()">No Thanks</button>
+  </div>
+</div>
+
+<!-- Interstitial -->
+<div class="interstitial-overlay hidden" id="interstitial">
+  <div class="interstitial-content">
+    <div class="interstitial-countdown" id="interstitial-count">5</div>
+    <p>Ad plays in</p>
+    <button class="interstitial-skip" onclick="skipInterstitial()">Skip</button>
+  </div>
+</div>
+
+<script>
+// Emoji sets for daily themes
+const EMOJI_SETS = [
+  ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼'],  // Animals
+  ['🍎','🍊','🍋','🍇','🍓','🍒','🥝','🍑'],  // Fruits
+  ['🚗','🚕','🚙','🚌','🚒','🚑','🚓','🚜'],  // Vehicles
+  ['⚽','🏀','🏈','⚾','🎾','🏐','🏉','🎱'],  // Sports
+  ['🌞','🌝','🌛','🌜','🌚','🌕','🌖','🌗'],  // Moons
+  ['🌸','🌺','🌻','🌼','🏵️','🌹','🥀','💐'],  // Flowers
+  ['🎵','🎶','🎼','🎸','🎹','🎷','🎺','🎻'],  // Music
+  ['💎','💍','💄','👑','👜','👠','🕶️','💼'],  // Fashion
+];
+
+const STORAGE_KEYS = {
+  isPremium: 'MEMORY_isPremium',
+  streak: 'MEMORY_streak',
+  currentStreak: 'MEMORY_currentStreak',
+  longestStreak: 'MEMORY_longestStreak',
+  gamesPlayed: 'MEMORY_gamesPlayed',
+  gamesWon: 'MEMORY_gamesWon',
+  bestTime: 'MEMORY_bestTime',
+  streakDate: 'MEMORY_streakDate',
+  playsThisSession: 'MEMORY_playsThisSession',
+  emailDismissed: 'MEMORY_emailDismissed',
+  lastPlayed: 'MEMORY_lastPlayed',
+};
+
+let cards = [];
+let flippedCards = [];
+let matchedPairs = 0;
+let moves = 0;
+let timer = 0;
+let timerInterval = null;
+let gameWon = false;
+let hardMode = false;
+let archiveDate = 0;
+let canClick = true;
+
+// Get daily emoji set
+function getDailyEmojis() {
+  const today = new Date();
+  const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+  const setIndex = seed % EMOJI_SETS.length;
+  return EMOJI_SETS[setIndex];
+}
+
+function getDailyThemeName() {
+  const today = new Date();
+  const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+  const themes = ['Animals', 'Fruits', 'Vehicles', 'Sports', 'Moons', 'Flowers', 'Music', 'Fashion'];
+  return themes[seed % themes.length];
+}
+
+function init() {
+  // Premium check
+  if (localStorage.getItem(STORAGE_KEYS.isPremium) === 'true') {
+    document.getElementById('premium-btn').textContent = 'Premium';
+    document.querySelectorAll('.ad-banner').forEach(el => el.classList.add('hidden'));
+  }
+  
+  // Set daily theme
+  document.getElementById('daily-theme').textContent = `Today's Theme: ${getDailyThemeName()}`;
+  
+  // Update streak
+  updateStreak();
+  
+  // Reset session plays
+  localStorage.setItem(STORAGE_KEYS.playsThisSession, '0');
+  
+  // Email modal
+  checkEmailModal();
+  
+  initGame();
+}
+
+function initGame() {
+  // Reset state
+  cards = [];
+  flippedCards = [];
+  matchedPairs = 0;
+  moves = 0;
+  timer = 0;
+  gameWon = false;
+  canClick = true;
+  
+  document.getElementById('moves').textContent = '0';
+  document.getElementById('timer').textContent = '0:00';
+  document.getElementById('win-overlay').classList.add('hidden');
+  
+  // Stop existing timer
+  if (timerInterval) clearInterval(timerInterval);
+  
+  // Get emojis and create pairs
+  const emojis = getDailyEmojis();
+  const pairs = [...emojis, ...emojis];
+  
+  // Shuffle (seeded by date if archive, otherwise random)
+  for (let i = pairs.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pairs[i], pairs[j]] = [pairs[j], pairs[i]];
+  }
+  
+  // Create card elements
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  
+  pairs.forEach((emoji, index) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.index = index;
+    card.dataset.emoji = emoji;
+    card.innerHTML = `
+      <div class="card-inner">
+        <div class="card-back">?</div>
+        <div class="card-front">${emoji}</div>
+      </div>
+    `;
+    card.addEventListener('click', () => flipCard(card));
+    grid.appendChild(card);
+    cards.push(card);
+  });
+  
+  // Start timer
+  timerInterval = setInterval(() => {
+    timer++;
+    const mins = Math.floor(timer / 60);
+    const secs = timer % 60;
+    document.getElementById('timer').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+  }, 1000);
+  
+  // Hard mode
+  const isPremium = localStorage.getItem(STORAGE_KEYS.isPremium) === 'true';
+  if (hardMode && isPremium) {
+    document.getElementById('hard-indicator').classList.remove('hidden');
+  } else {
+    hardMode = false;
+    document.getElementById('hard-indicator').classList.add('hidden');
+  }
+  
+  // Increment plays
+  let plays = parseInt(localStorage.getItem(STORAGE_KEYS.playsThisSession)) || 0;
+  localStorage.setItem(STORAGE_KEYS.playsThisSession, (plays + 1).toString());
+  
+  if (plays >= 2 && !isPremium) {
+    showInterstitial();
+  }
+}
+
+function flipCard(card) {
+  if (!canClick || gameWon) return;
+  if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
+  if (flippedCards.length >= 2) return;
+  
+  card.classList.add('flipped');
+  flippedCards.push(card);
+  
+  if (flippedCards.length === 2) {
+    moves++;
+    document.getElementById('moves').textContent = moves;
+    checkMatch();
+  }
+}
+
+function checkMatch() {
+  canClick = false;
+  const [card1, card2] = flippedCards;
+  
+  if (card1.dataset.emoji === card2.dataset.emoji) {
+    // Match!
+    card1.classList.add('matched');
+    card2.classList.add('matched');
+    matchedPairs++;
+    flippedCards = [];
+    canClick = true;
+    
+    if (matchedPairs === 8) {
+      winGame();
+    }
+  } else {
+    // No match
+    setTimeout(() => {
+      card1.classList.remove('flipped');
+      card2.classList.remove('flipped');
+      flippedCards = [];
+      canClick = true;
+    }, hardMode ? 300 : 1000);
+  }
+}
+
+function winGame() {
+  gameWon = true;
+  clearInterval(timerInterval);
+  
+  const mins = Math.floor(timer / 60);
+  const secs = timer % 60;
+  const timeStr = `${mins}:${secs.toString().padStart(2, '0')}`;
+  
+  document.getElementById('final-moves').textContent = moves;
+  document.getElementById('final-time').textContent = timeStr;
+  document.getElementById('win-overlay').classList.remove('hidden');
+  
+  // Update stats
+  const today = new Date().toDateString();
+  let gamesPlayed = parseInt(localStorage.getItem(STORAGE_KEYS.gamesPlayed)) || 0;
+  let gamesWon = parseInt(localStorage.getItem(STORAGE_KEYS.gamesWon)) || 0;
+  gamesPlayed++;
+  gamesWon++;
+  localStorage.setItem(STORAGE_KEYS.gamesPlayed, gamesPlayed);
+  localStorage.setItem(STORAGE_KEYS.gamesWon, gamesWon);
+  
+  // Update streak
+  let currentStreak = parseInt(localStorage.getItem(STORAGE_KEYS.currentStreak)) || 0;
+  let longestStreak = parseInt(localStorage.getItem(STORAGE_KEYS.longestStreak)) || 0;
+  const lastPlayed = localStorage.getItem(STORAGE_KEYS.streakDate);
+  
+  if (lastPlayed !== today) {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    if (lastPlayed === yesterday.toDateString()) {
+      currentStreak++;
+    } else {
+      currentStreak = 1;
+    }
+  }
+  
+  if (currentStreak > longestStreak) longestStreak = currentStreak;
+  localStorage.setItem(STORAGE_KEYS.currentStreak, currentStreak);
+  localStorage.setItem(STORAGE_KEYS.longestStreak, longestStreak);
+  localStorage.setItem(STORAGE_KEYS.streakDate, today);
+  document.getElementById('streak').textContent = currentStreak;
+  
+  // Best time
+  let bestTime = parseInt(localStorage.getItem(STORAGE_KEYS.bestTime)) || Infinity;
+  if (timer < bestTime) {
+    localStorage.setItem(STORAGE_KEYS.bestTime, timer);
+  }
+  
+  localStorage.setItem(STORAGE_KEYS.lastPlayed, today);
+}
+
+function updateStreak() {
+  const today = new Date().toDateString();
+  const lastPlayed = localStorage.getItem(STORAGE_KEYS.streakDate);
+  let streak = parseInt(localStorage.getItem(STORAGE_KEYS.currentStreak)) || 0;
+  
+  if (lastPlayed !== today) {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    if (lastPlayed !== yesterday.toDateString()) {
+      streak = 0;
+    }
+  }
+  document.getElementById('streak').textContent = streak;
+}
+
+// Premium
+function showPremiumModal() {
+  document.getElementById('premium-modal').classList.remove('hidden');
+}
+
+function upgradePremium() {
+  localStorage.setItem(STORAGE_KEYS.isPremium, 'true');
+  document.getElementById('premium-btn').textContent = 'Premium';
+  document.querySelectorAll('.ad-banner').forEach(el => el.classList.add('hidden'));
+  closeModal('premium-modal');
+  initGame();
+}
+
+function toggleHardMode() {
+  const isPremium = localStorage.getItem(STORAGE_KEYS.isPremium) === 'true';
+  if (!isPremium) {
+    showPremiumModal();
+    return;
+  }
+  hardMode = !hardMode;
+  initGame();
+}
+
+// Stats
+function showStatsModal() {
+  const played = parseInt(localStorage.getItem(STORAGE_KEYS.gamesPlayed)) || 0;
+  const won = parseInt(localStorage.getItem(STORAGE_KEYS.gamesWon)) || 0;
+  const current = parseInt(localStorage.getItem(STORAGE_KEYS.currentStreak)) || 0;
+  const longest = parseInt(localStorage.getItem(STORAGE_KEYS.longestStreak)) || 0;
+  const best = parseInt(localStorage.getItem(STORAGE_KEYS.bestTime)) || 0;
+  
+  document.getElementById('stat-streak').textContent = current;
+  document.getElementById('stat-longest').textContent = longest;
+  document.getElementById('stat-played').textContent = played;
+  document.getElementById('stat-winrate').textContent = played > 0 ? Math.round((won / played) * 100) : 0;
+  document.getElementById('stat-besttime').textContent = best > 0 ? `${Math.floor(best / 60)}:${(best % 60).toString().padStart(2, '0')}` : '--';
+  
+  document.getElementById('stats-modal').classList.remove('hidden');
+}
+
+// Archive
+let archiveOffset = 0;
+function showArchiveModal() {
+  const isPremium = localStorage.getItem(STORAGE_KEYS.isPremium) === 'true';
+  if (!isPremium) {
+    showPremiumModal();
+    return;
+  }
+  archiveOffset = 0;
+  updateArchiveDisplay();
+  document.getElementById('archive-modal').classList.remove('hidden');
+}
+
+function changeArchiveDate(delta) {
+  archiveOffset += delta;
+  if (archiveOffset > 0) archiveOffset = 0;
+  if (archiveOffset < -29) archiveOffset = -29;
+  updateArchiveDisplay();
+}
+
+function updateArchiveDisplay() {
+  const date = new Date();
+  date.setDate(date.getDate() + archiveOffset);
+  document.getElementById('archive-date').textContent = archiveOffset === 0 ? 'Today' : date.toLocaleDateString();
+}
+
+// Share
+function shareResult() {
+  const emoji = '🃏🃏🃏';
+  const time = document.getElementById('timer').textContent;
+  const text = `Memory Match: ${moves} moves in ${time}\n${emoji}\nPlay at: https://dailypuzzle.io`;
+  navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!'));
+}
+
+// Email
+function checkEmailModal() {
+  const dismissed = localStorage.getItem(STORAGE_KEYS.emailDismissed);
+  const today = new Date().toDateString();
+  if (dismissed === today) return;
+  if (localStorage.getItem(STORAGE_KEYS.lastPlayed)) return;
+  
+  setTimeout(() => {
+    document.getElementById('email-modal').classList.remove('hidden');
+  }, 3000);
+}
+
+function subscribeEmail() {
+  const email = document.getElementById('email-input').value;
+  if (email) {
+    let list = JSON.parse(localStorage.getItem('MEMORY_emailList') || '[]');
+    list.push(email);
+    localStorage.setItem('MEMORY_emailList', JSON.stringify(list));
+    console.log('Subscribed:', email);
+    dismissEmailModal();
+  }
+}
+
+function dismissEmailModal() {
+  localStorage.setItem(STORAGE_KEYS.emailDismissed, new Date().toDateString());
+  closeModal('email-modal');
+}
+
+// Interstitial
+function showInterstitial() {
+  const overlay = document.getElementById('interstitial');
+  overlay.classList.remove('hidden');
+  let count = 5;
+  document.getElementById('interstitial-count').textContent = count;
+  
+  const interval = setInterval(() => {
+    count--;
+    document.getElementById('interstitial-count').textContent = count;
+    if (count <= 0) clearInterval(interval);
+  }, 1000);
+  
+  setTimeout(() => skipInterstitial(), 6000);
+}
+
+function skipInterstitial() {
+  document.getElementById('interstitial').classList.add('hidden');
+}
+
+// Modal helpers
+function closeModal(id) {
+  document.getElementById(id).classList.add('hidden');
+}
+
+init();
+</script>
+</body>
+</html>

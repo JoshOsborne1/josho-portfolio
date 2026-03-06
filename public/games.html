@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Games — josho.pro</title>
+  <meta name="description" content="A collection of browser games by Josh Osborne">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111;
+      --border: rgba(255,255,255,0.07);
+      --text: #e8e8e8;
+      --muted: #666;
+      --accent: #c8f568;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+      min-height: 100vh;
+      padding: 48px 24px 80px;
+    }
+    header {
+      max-width: 800px;
+      margin: 0 auto 48px;
+    }
+    header a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+    }
+    header a:hover { color: var(--text); }
+    h1 {
+      font-size: clamp(28px, 5vw, 42px);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-top: 24px;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .card {
+      display: block;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 20px;
+      text-decoration: none;
+      color: var(--text);
+      transition: border-color 0.15s, transform 0.15s, background 0.15s;
+    }
+    .card:hover {
+      border-color: rgba(255,255,255,0.18);
+      background: #161616;
+      transform: translateY(-2px);
+    }
+    .icon { font-size: 32px; margin-bottom: 14px; }
+    .game-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+    .game-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .tag {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 3px 8px;
+      background: rgba(200, 245, 104, 0.1);
+      color: var(--accent);
+      border-radius: 4px;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/">← josho.pro</a>
+    <h1>Games</h1>
+    <p class="subtitle">8 browser games. No ads, no tracking, no sign-ups.</p>
+  </header>
+
+  <div class="grid">
+    <a class="card" href="/word.html">
+      <div class="icon">🟩</div>
+      <div class="game-title">Word Guess</div>
+      <div class="game-desc">Guess the hidden 5-letter word in 6 attempts.</div>
+      <span class="tag">word</span>
+    </a>
+    <a class="card" href="/sudoku.html">
+      <div class="icon">🔢</div>
+      <div class="game-title">Sudoku</div>
+      <div class="game-desc">Classic 9×9 number puzzle. Three difficulty levels.</div>
+      <span class="tag">logic</span>
+    </a>
+    <a class="card" href="/2048.html">
+      <div class="icon">🎲</div>
+      <div class="game-title">2048</div>
+      <div class="game-desc">Slide tiles, merge numbers, reach 2048.</div>
+      <span class="tag">puzzle</span>
+    </a>
+    <a class="card" href="/trivia.html">
+      <div class="icon">❓</div>
+      <div class="game-title">Trivia</div>
+      <div class="game-desc">Test your knowledge across a range of categories.</div>
+      <span class="tag">quiz</span>
+    </a>
+    <a class="card" href="/memory.html">
+      <div class="icon">🃏</div>
+      <div class="game-title">Memory Match</div>
+      <div class="game-desc">Flip cards and find all the matching pairs.</div>
+      <span class="tag">memory</span>
+    </a>
+    <a class="card" href="/wordchain.html">
+      <div class="icon">🔗</div>
+      <div class="game-title">Word Chain</div>
+      <div class="game-desc">Chain words where each starts with the last letter.</div>
+      <span class="tag">word</span>
+    </a>
+    <a class="card" href="/math.html">
+      <div class="icon">➗</div>
+      <div class="game-title">Math Challenge</div>
+      <div class="game-desc">Speed arithmetic across operations and difficulties.</div>
+      <span class="tag">maths</span>
+    </a>
+    <a class="card" href="/crossword.html">
+      <div class="icon">📝</div>
+      <div class="game-title">Crossword</div>
+      <div class="game-desc">Fill the grid — across and down clues included.</div>
+      <span class="tag">word</span>
+    </a>
+  </div>
+</body>
+</html>

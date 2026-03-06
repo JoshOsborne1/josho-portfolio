@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta property="og:title" content="Trivia Quiz — josho.pro">
+  <meta property="og:description" content="Test your general knowledge across multiple categories.">
+  <meta property="og:image" content="/og-games.png">
+  <meta property="og:url" content="https://josho.pro/trivia.html">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Trivia Quiz — josho.pro">
+  <meta name="twitter:description" content="Test your general knowledge across multiple categories.">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Trivia Quiz</title>
+  <style>
+    :root {
+      --primary: #6366f1;
+      --secondary: #8b5cf6;
+      --correct: #22c55e;
+      --wrong: #ef4444;
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container { max-width: 600px; width: 100%; padding: 20px; }
+    
+    /* Header with streak */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+      border-bottom: 1px solid #334155;
+      margin-bottom: 20px;
+    }
+    .streak { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+    .streak .flame { color: #f97316; font-size: 1.4em; }
+    
+    /* Ad placeholders */
+    .ad-banner {
+      background: #334155;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .ad-top { width: 100%; height: 90px; }
+    .ad-bottom { width: 100%; height: 90px; margin-top: 20px; }
+    
+    /* Game card */
+    .game-card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+    }
+    .progress { color: var(--muted); font-size: 14px; margin-bottom: 10px; }
+    .question { font-size: 20px; font-weight: 600; margin-bottom: 30px; line-height: 1.4; }
+    
+    .options { display: flex; flex-direction: column; gap: 12px; }
+    .option {
+      background: #334155;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 16px 20px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 16px;
+    }
+    .option:hover { background: #475569; }
+    .option.correct { background: var(--correct); border-color: var(--correct); }
+    .option.wrong { background: var(--wrong); border-color: var(--wrong); }
+    .option.disabled { pointer-events: none; opacity: 0.6; }
+    
+    .timer { font-size: 48px; font-weight: 700; color: var(--primary); margin: 20px 0; }
+    .score-display { font-size: 64px; font-weight: 700; color: var(--correct); }
+    
+    /* Buttons */
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .btn:hover { transform: scale(1.02); }
+    .btn-secondary { background: #475569; }
+    
+    /* Premium badge */
+    .premium-badge {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: linear-gradient(135deg, #f97316, #ea580c);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      z-index: 100;
+      cursor: pointer;
+    }
+    .premium-badge.active { display: none; }
+    
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 30px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+    }
+    .modal h2 { margin-bottom: 15px; color: var(--primary); }
+    .modal p { color: var(--muted); margin-bottom: 20px; }
+    .modal input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #475569;
+      background: #0f172a;
+      color: white;
+      font-size: 16px;
+      margin-bottom: 15px;
+    }
+    .modal .btn-group { display: flex; gap: 10px; justify-content: center; }
+    
+    /* Share result */
+    .share-result {
+      background: #334155;
+      padding: 15px;
+      border-radius: 12px;
+      margin: 20px 0;
+      font-family: monospace;
+      font-size: 14px;
+      word-break: break-all;
+    }
+    
+    /* Welcome tooltip */
+    .welcome-tooltip {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--primary);
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      z-index: 150;
+      animation: fadeOut 5s forwards;
+    }
+    @keyframes fadeOut {
+      0%, 70% { opacity: 1; }
+      100% { opacity: 0; pointer-events: none; }
+    }
+    
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <!-- Premium badge -->
+  <div class="premium-badge" id="premiumBadge">UPGRADE</div>
+  
+  <div class="container">
+    <header>
+      <h1>Daily Trivia</h1>
+      <div class="streak">
+        <span class="flame">🔥</span>
+        <span id="streakCount">0</span>
+      </div>
+    </header>
+    
+    <div class="ad-top ad-banner" data-ad-slot="trivia-top-72890">
+      [AdSense 728x90 Banner Placeholder]
+    </div>
+    
+    <!-- Start screen -->
+    <div class="game-card" id="startScreen">
+      <div class="timer" id="dailyTimer">--:--</div>
+      <h2>10 Questions Daily</h2>
+      <p style="color: var(--muted); margin: 15px 0;">Test your knowledge across categories</p>
+      <button class="btn" onclick="startGame()">Start Quiz</button>
+    </div>
+    
+    <!-- Quiz screen -->
+    <div class="game-card hidden" id="quizScreen">
+      <div class="progress">Question <span id="qNum">1</span>/10</div>
+      <div class="question" id="questionText">Loading...</div>
+      <div class="options" id="optionsContainer"></div>
+    </div>
+    
+    <!-- Results screen -->
+    <div class="game-card hidden" id="resultScreen">
+      <h2>Quiz Complete!</h2>
+      <div class="score-display" id="finalScore">0/10</div>
+      <p style="color: var(--muted); margin: 10px 0;" id="resultMessage"></p>
+      <div class="share-result" id="shareText"></div>
+      <button class="btn" onclick="shareResult()">Share Result</button>
+    </div>
+    
+    <div class="ad-bottom ad-banner" data-ad-slot="trivia-bottom-72890">
+      [AdSense 728x90 Banner Placeholder]
+    </div>
+  </div>
+  
+  <!-- Email capture modal -->
+  <div class="modal-overlay hidden" id="emailModal">
+    <div class="modal">
+      <h2>Get Tomorrow's Quiz!</h2>
+      <p>Never miss a daily trivia challenge. Subscribe free.</p>
+      <input type="email" id="emailInput" placeholder="your@email.com">
+      <div class="btn-group">
+        <button class="btn btn-secondary" onclick="dismissEmail(24)">Not now</button>
+        <button class="btn" onclick="subscribeEmail()">Subscribe</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Premium modal -->
+  <div class="modal-overlay hidden" id="premiumModal">
+    <div class="modal">
+      <h2>Go Premium</h2>
+      <p>Remove ads, get unlimited hints, and unlock Hard Mode!</p>
+      <p style="font-size: 24px; font-weight: 700; color: var(--primary);">$3.99/month</p>
+      <div class="btn-group" style="margin-top: 20px;">
+        <button class="btn btn-secondary" onclick="closePremiumModal()">Maybe later</button>
+        <button class="btn" onclick="upgradePremium()">Upgrade</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Welcome tooltip (first visit) -->
+  <div class="welcome-tooltip hidden" id="welcomeTooltip">
+    Tap an answer to select. You have one hint per day free!
+  </div>
+
+  <script>
+    // 200+ trivia questions organized by category
+    const QUESTIONS = [
+      // General Knowledge (40)
+      { q: "What is the capital of Australia?", a: "Canberra", c: ["Sydney", "Melbourne", "Canberra", "Brisbane"], cat: "geo" },
+      { q: "Which planet is known as the Red Planet?", a: "Mars", c: ["Venus", "Jupiter", "Mars", "Saturn"], cat: "sci" },
+      { q: "What is the largest ocean on Earth?", a: "Pacific Ocean", c: ["Atlantic", "Indian", "Pacific", "Arctic"], cat: "geo" },
+      { q: "Who painted the Mona Lisa?", a: "Leonardo da Vinci", c: ["Michelangelo", "Raphael", "Leonardo da Vinci", "Donatello"], cat: "art" },
+      { q: "What year did World War II end?", a: "1945", c: ["1943", "1944", "1945", "1946"], cat: "hist" },
+      { q: "What is the chemical symbol for gold?", a: "Au", c: ["Ag", "Au", "Fe", "Cu"], cat: "sci" },
+      { q: "Which country has the most time zones?", a: "France", c: ["Russia", "USA", "China", "France"], cat: "geo" },
+      { q: "What is the smallest prime number?", a: "2", c: ["1", "2", "3", "5"], cat: "sci" },
+      { q: "Who wrote 'Romeo and Juliet'?", a: "William Shakespeare", c: ["Charles Dickens", "Jane Austen", "William Shakespeare", "Mark Twain"], cat: "lit" },
+      { q: "What is the largest mammal?", a: "Blue Whale", c: ["Elephant", "Blue Whale", "Giraffe", "Hippopotamus"], cat: "sci" },
+      { q: "What is the hardest natural substance?", a: "Diamond", c: ["Gold", "Iron", "Diamond", "Platinum"], cat: "sci" },
+      { q: "Which element has the atomic number 1?", a: "Hydrogen", c: ["Helium", "Hydrogen", "Oxygen", "Carbon"], cat: "sci" },
+      { q: "What is the currency of Japan?", a: "Yen", c: ["Yuan", "Yen", "Won", "Ringgit"], cat: "geo" },
+      { q: "How many continents are there?", a: "7", c: ["5", "6", "7", "8"], cat: "geo" },
+      { q: "What is the tallest building in the world?", a: "Burj Khalifa", c: ["Shanghai Tower", "Burj Khalifa", "One World Trade", "Taipei 101"], cat: "geo" },
+      { q: "Who invented the printing press?", a: "Johannes Gutenberg", c: ["Thomas Edison", "Johannes Gutenberg", "Benjamin Franklin", "Isaac Newton"], cat: "hist" },
+      { q: "What gas do plants absorb from the atmosphere?", a: "Carbon dioxide", c: ["Oxygen", "Nitrogen", "Carbon dioxide", "Hydrogen"], cat: "sci" },
+      { q: "What is the largest desert in the world?", a: "Sahara", c: ["Arabian", "Gobi", "Sahara", "Antarctic"], cat: "geo" },
+      { q: "Which language has the most native speakers?", a: "Mandarin Chinese", c: ["English", "Spanish", "Mandarin Chinese", "Hindi"], cat: "hist" },
+      { q: "What year did the Berlin Wall fall?", a: "1989", c: ["1987", "1989", "1991", "1993"], cat: "hist" },
+      { q: "What is the speed of light in km/s (approx)?", a: "300,000", c: ["150,000", "300,000", "500,000", "1,000,000"], cat: "sci" },
+      { q: "Who discovered penicillin?", a: "Alexander Fleming", c: ["Marie Curie", "Alexander Fleming", "Isaac Newton", "Louis Pasteur"], cat: "sci" },
+      { q: "What is the capital of Canada?", a: "Ottawa", c: ["Toronto", "Vancouver", "Ottawa", "Montreal"], cat: "geo" },
+      { q: "How many players are on a soccer team?", a: "11", c: ["9", "10", "11", "12"], cat: "sport" },
+      { q: "What is the main ingredient in guacamole?", a: "Avocado", c: ["Tomato", "Avocado", "Lime", "Onion"], cat: "food" },
+      { q: "Which planet has the most moons?", a: "Saturn", c: ["Jupiter", "Saturn", "Uranus", "Neptune"], cat: "sci" },
+      { q: "What year did man first land on the moon?", a: "1969", c: ["1967", "1969", "1971", "1973"], cat: "hist" },
+      { q: "What is the largest bird in the world?", a: "Ostrich", c: ["Eagle", "Ostrich", "Albatross", "Pelican"], cat: "sci" },
+      { q: "Who painted 'The Starry Night'?", a: "Vincent van Gogh", c: ["Claude Monet", "Vincent van Gogh", "Pablo Picasso", "Salvador Dali"], cat: "art" },
+      { q: "What is the deepest ocean trench?", a: "Mariana Trench", c: ["Puerto Rico Trench", "Mariana Trench", "Java Trench", "Philippine Trench"], cat: "geo" },
+      { q: "What is the capital of Brazil?", a: "Brasilia", c: ["Rio de Janeiro", "Sao Paulo", "Brasilia", "Salvador"], cat: "geo" },
+      { q: "How many strings does a standard guitar have?", a: "6", c: ["4", "5", "6", "8"], cat: "music" },
+      { q: "What is the tallest mountain in the world?", a: "Mount Everest", c: ["K2", "Mount Everest", "Kangchenjunga", "Lhotse"], cat: "geo" },
+      { q: "Which element is needed for combustion?", a: "Oxygen", c: ["Hydrogen", "Oxygen", "Nitrogen", "Carbon"], cat: "sci" },
+      { q: "Who was the first person to reach the South Pole?", a: "Roald Amundsen", c: ["Robert Falcon Scott", "Roald Amundsen", "Ernest Shackleton", "Amundsen"], cat: "hist" },
+      { q: "What is the largest fish in the ocean?", a: "Whale Shark", c: ["Great White Shark", "Whale Shark", "Manta Ray", "Hammerhead"], cat: "sci" },
+      { q: "What year did the Titanic sink?", a: "1912", c: ["1910", "1912", "1914", "1916"], cat: "hist" },
+      { q: "What is the currency of the United Kingdom?", a: "Pound Sterling", c: ["Euro", "Pound Sterling", "Dollar", "Franc"], cat: "geo" },
+      { q: "How many bones are in the adult human body?", a: "206", c: ["186", "206", "226", "256"], cat: "sci" },
+      { q: "What is the brightest star in the night sky?", a: "Sirius", c: ["Polaris", "Sirius", "Betelgeuse", "Vega"], cat: "sci" },
+      
+      // Science (40)
+      { q: "What is the powerhouse of the cell?", a: "Mitochondria", c: ["Nucleus", "Ribosome", "Mitochondria", "Golgi body"], cat: "sci" },
+      { q: "What is the most abundant gas in Earth's atmosphere?", a: "Nitrogen", c: ["Oxygen", "Nitrogen", "Carbon dioxide", "Argon"], cat: "sci" },
+      { q: "What is absolute zero in Celsius?", a: "-273.15C", c: ["-100C", "-273.15C", "-373C", "0C"], cat: "sci" },
+      { q: "How many chromosomes do humans have?", a: "46", c: ["23", "44", "46", "48"], cat: "sci" },
+      { q: "What is the closest star to our sun?", a: "Proxima Centauri", c: ["Alpha Centauri", "Proxima Centauri", "Barnard's Star", "Sirius"], cat: "sci" },
+      { q: "What is the process by which plants make food?", a: "Photosynthesis", c: ["Respiration", "Photosynthesis", "Fermentation", "Transpiration"], cat: "sci" },
+      { q: "What is the strongest force in nature?", a: "Gravity", c: ["Electromagnetism", "Strong nuclear", "Weak nuclear", "Gravity"], cat: "sci" },
+      { q: "What is H2O commonly known as?", a: "Water", c: ["Hydrogen", "Oxygen", "Water", "Helium"], cat: "sci" },
+      { q: "What is the study of earthquakes called?", a: "Seismology", c: ["Geology", "Meteorology", "Seismology", "Volcanology"], cat: "sci" },
+      { q: "What is the largest organ in the human body?", a: "Skin", c: ["Liver", "Skin", "Brain", "Heart"], cat: "sci" },
+      { q: "What planet has the Great Red Spot?", a: "Jupiter", c: ["Mars", "Jupiter", "Saturn", "Neptune"], cat: "sci" },
+      { q: "What is the unit of electrical resistance?", a: "Ohm", c: ["Volt", "Ampere", "Ohm", "Watt"], cat: "sci" },
+      { q: "What type of animal is a Komodo dragon?", a: "Reptile", c: ["Mammal", "Amphibian", "Reptile", "Bird"], cat: "sci" },
+      { q: "What is the main function of white blood cells?", a: "Fight infection", c: ["Carry oxygen", "Fight infection", "Clot blood", "Digest food"], cat: "sci" },
+      { q: "What is the chemical formula for table salt?", a: "NaCl", c: ["KCl", "NaCl", "CaCl2", "MgCl2"], cat: "sci" },
+      { q: "What is the center of an atom called?", a: "Nucleus", c: ["Electron", "Proton", "Nucleus", "Neutron"], cat: "sci" },
+      { q: "What is the main gas in the sun?", a: "Hydrogen", c: ["Helium", "Hydrogen", "Oxygen", "Carbon"], cat: "sci" },
+      { q: "How many teeth does an adult human have?", a: "32", c: ["28", "30", "32", "34"], cat: "sci" },
+      { q: "What is the fastest animal on land?", a: "Cheetah", c: ["Lion", "Cheetah", "Gazelle", "Leopard"], cat: "sci" },
+      { q: "What does photosynthesis produce?", a: "Glucose", c: ["Oxygen", "Glucose", "Carbon dioxide", "Water"], cat: "sci" },
+      { q: "What is the hardest rock?", a: "Diamond", c: ["Granite", "Marble", "Diamond", "Obsidian"], cat: "sci" },
+      { q: "What blood type is the universal donor?", a: "O negative", c: ["A positive", "O negative", "AB positive", "B negative"], cat: "sci" },
+      { q: "What is the smallest unit of matter?", a: "Atom", c: ["Molecule", "Atom", "Electron", "Quark"], cat: "sci" },
+      { q: "What is the fear of spiders called?", a: "Arachnophobia", c: ["Acrophobia", "Arachnophobia", "Claustrophobia", "Hydrophobia"], cat: "sci" },
+      { q: "What planet is closest to the sun?", a: "Mercury", c: ["Venus", "Mercury", "Mars", "Earth"], cat: "sci" },
+      { q: "What is the boiling point of water at sea level?", a: "100C", c: ["90C", "100C", "110C", "212C"], cat: "sci" },
+      { q: "How many vertebrae does a human have?", a: "33", c: ["26", "30", "33", "35"], cat: "sci" },
+      { q: "What is the most common element in the universe?", a: "Hydrogen", c: ["Helium", "Hydrogen", "Oxygen", "Carbon"], cat: "sci" },
+      { q: "What is the largest primate?", a: "Gorilla", c: ["Chimpanzee", "Orangutan", "Gorilla", "Baboon"], cat: "sci" },
+      { q: "What is the pH of pure water?", a: "7", c: ["6", "7", "8", "9"], cat: "sci" },
+      { q: "What type of bond involves sharing electrons?", a: "Covalent", c: ["Ionic", "Covalent", "Metallic", "Hydrogen"], cat: "sci" },
+      { q: "What is the longest bone in the human body?", a: "Femur", c: ["Tibia", "Femur", "Humerus", "Fibula"], cat: "sci" },
+      { q: "What is the coldest planet?", a: "Neptune", c: ["Uranus", "Neptune", "Pluto", "Saturn"], cat: "sci" },
+      { q: "What is the study of fossils called?", a: "Paleontology", c: ["Archaeology", "Paleontology", "Geology", "Biology"], cat: "sci" },
+      { q: "What vitamin is produced by sunlight?", a: "Vitamin D", c: ["Vitamin A", "Vitamin C", "Vitamin D", "Vitamin K"], cat: "sci" },
+      { q: "What is the most venomous snake?", a: "Inland Taipan", c: ["Black Mamba", "King Cobra", "Inland Taipan", "Rattlesnake"], cat: "sci" },
+      { q: "What is the capital letter for sodium on the periodic table?", a: "Na", c: ["S", "So", "Na", "Sd"], cat: "sci" },
+      { q: "What is the largest organelle in a cell?", a: "Nucleus", c: ["Mitochondria", "Nucleus", "Ribosome", "Golgi"], cat: "sci" },
+      { q: "What type of rock is marble?", a: "Metamorphic", c: ["Sedimentary", "Metamorphic", "Igneous", "Mineral"], cat: "sci" },
+      { q: "What is the fear of heights called?", a: "Acrophobia", c: ["Agoraphobia", "Acrophobia", "Claustrophobia", "Astraphobia"], cat: "sci" },
+      
+      // History (40)
+      { q: "Who was the first King of England?", a: "William the Conqueror", c: ["Henry VII", "William the Conqueror", "Edward I", "Alfred the Great"], cat: "hist" },
+      { q: "What year did the French Revolution begin?", a: "1789", c: ["1776", "1789", "1799", "1815"], cat: "hist" },
+      { q: "Who was the first female Prime Minister of the UK?", a: "Margaret Thatcher", c: ["Theresa May", "Margaret Thatcher", "Indira Gandhi", "Golda Meir"], cat: "hist" },
+      { q: "What ancient wonder was located in Alexandria?", a: "Lighthouse", c: ["Colossus", "Hanging Gardens", "Lighthouse", "Mausoleum"], cat: "hist" },
+      { q: "Who discovered America in 1492?", a: "Christopher Columbus", c: ["Amerigo Vespucci", "Christopher Columbus", "Leif Erikson", "Ferdinand Magellan"], cat: "hist" },
+      { q: "What empire was ruled by Julius Caesar?", a: "Roman Empire", c: ["Greek Empire", "Roman Empire", "Persian Empire", "Ottoman Empire"], cat: "hist" },
+      { q: "What year did World War I begin?", a: "1914", c: ["1912", "1914", "1916", "1918"], cat: "hist" },
+      { q: "Who was the first President of the United States?", a: "George Washington", c: ["Thomas Jefferson", "John Adams", "George Washington", "Benjamin Franklin"], cat: "hist" },
+      { q: "What was the name of the ship that brought Pilgrims to America?", a: "Mayflower", c: ["Santa Maria", "Mayflower", "Endeavour", "Victory"], cat: "hist" },
+      { q: "Who built the Great Wall of China?", a: "Various Chinese dynasties", c: ["Mongols", "Various Chinese dynasties", "Qin Dynasty", "Han Dynasty"], cat: "hist" },
+      { q: "What year did the Soviet Union collapse?", a: "1991", c: ["1989", "1991", "1993", "1995"], cat: "hist" },
+      { q: "Who was the British Prime Minister during WWII?", a: "Winston Churchill", c: ["Neville Chamberlain", "Winston Churchill", "Clement Attlee", "Anthony Eden"], cat: "hist" },
+      { q: "What ancient civilization built the pyramids?", a: "Ancient Egyptians", c: ["Romans", "Ancient Egyptians", "Greeks", "Mayans"], cat: "hist" },
+      { q: "Who wrote the Communist Manifesto?", a: "Karl Marx", c: ["Lenin", "Stalin", "Karl Marx", "Engels"], cat: "hist" },
+      { q: "What was the longest war in history?", a: "Reconquista", c: ["Hundred Years War", "Reconquista", "Thirty Years War", "Three Hundred Thirty-Five Years War"], cat: "hist" },
+      { q: "Who was the first man to walk on the moon?", a: "Neil Armstrong", c: ["Buzz Aldrin", "Neil Armstrong", "Michael Collins", "John Glenn"], cat: "hist" },
+      { q: "What year did the Magna Carta get signed?", a: "1215", c: ["1066", "1215", "1415", "1515"], cat: "hist" },
+      { q: "Who was the Egyptian queen who allied with Julius Caesar?", a: "Cleopatra", c: ["Nefertiti", "Cleopatra", "Hatshepsut", "Tutankhamun"], cat: "hist" },
+      { q: "What was the name of the first satellite in space?", a: "Sputnik 1", c: ["Explorer 1", "Sputnik 1", "Vanguard 1", "Luna 1"], cat: "hist" },
+      { q: "Who painted the ceiling of the Sistine Chapel?", a: "Michelangelo", c: ["Raphael", "Leonardo da Vinci", "Michelangelo", "Donatello"], cat: "hist" },
+      { q: "What year did the United Nations form?", a: "1945", c: ["1943", "1945", "1947", "1949"], cat: "hist" },
+      { q: "Who was the first Emperor of Japan?", a: "Emperor Jimmu", c: ["Emperor Meiji", "Emperor Jimmu", "Emperor Hirohito", "Emperor Taizu"], cat: "hist" },
+      { q: "What was the name of the ship Darwin sailed on?", a: "HMS Beagle", c: ["HMS Endeavour", "HMS Beagle", "HMS Victory", "HMS Challenger"], cat: "hist" },
+      { q: "Who invented the telephone?", a: "Alexander Graham Bell", c: ["Thomas Edison", "Alexander Graham Bell", "Nikola Tesla", "Guglielmo Marconi"], cat: "hist" },
+      { q: "What year did the US enter WWII?", a: "1941", c: ["1939", "1941", "1943", "1945"], cat: "hist" },
+      { q: "Who was the last Tsar of Russia?", a: "Nicholas II", c: ["Alexander II", "Nicholas II", "Alexander III", "Peter the Great"], cat: "hist" },
+      { q: "What was the Renaissance?", a: "Cultural rebirth in Europe", c: ["A war", "Cultural rebirth in Europe", "A religion", "A plague"], cat: "hist" },
+      { q: "Who was the first woman to fly solo across the Atlantic?", a: "Amelia Earhart", c: ["Amelia Earhart", "Harriet Quimby", "Jacqueline Cochran", "Bessie Coleman"], cat: "hist" },
+      { q: "What ancient city was destroyed by a volcano in 79 AD?", a: "Pompeii", c: ["Athens", "Rome", "Pompeii", "Herculaneum"], cat: "hist" },
+      { q: "Who was known as the Sun King?", a: "Louis XIV", c: ["Louis XIII", "Louis XIV", "Louis XV", "Napoleon"], cat: "hist" },
+      { q: "What year was the Declaration of Independence signed?", a: "1776", c: ["1774", "1776", "1778", "1780"], cat: "hist" },
+      { q: "Who led the Mongol Empire?", a: "Genghis Khan", c: ["Kublai Khan", "Genghis Khan", "Tamerlane", "Attila"], cat: "hist" },
+      { q: "What was the name of the first atomic bomb test?", a: "Trinity", c: ["Trinity", "Manhattan", "Hiroshima", "Little Boy"], cat: "hist" },
+      { q: "Who discovered the penicillin?", a: "Alexander Fleming", c: ["Alexander Fleming", "Louis Pasteur", "Joseph Lister", "Robert Koch"], cat: "hist" },
+      { q: "What year was the Berlin Wall built?", a: "1961", c: ["1959", "1961", "1963", "1965"], cat: "hist" },
+      { q: "Who was the first king of unified Italy?", a: "Victor Emmanuel II", c: ["Garibaldi", "Victor Emmanuel II", "Cavour", "Napoleon III"], cat: "hist" },
+      { q: "What was the name of the ship of the Argonauts?", a: "Argo", c: ["Argo", "Nostromo", "Endeavour", "Mayflower"], cat: "hist" },
+      { q: "Who wrote 'The Art of War'?", a: "Sun Tzu", c: ["Confucius", "Lao Tzu", "Sun Tzu", "Mencius"], cat: "hist" },
+      { q: "What year did the Great Fire of London occur?", a: "1666", c: ["1664", "1666", "1668", "1670"], cat: "hist" },
+      { q: "Who was the first British explorer to reach Australia?", a: "James Cook", c: ["William Dampier", "James Cook", "Vitus Bering", "Abel Tasman"], cat: "hist" },
+      
+      // Geography (40)
+      { q: "What is the longest river in the world?", a: "Nile", c: ["Amazon", "Nile", "Yangtze", "Mississippi"], cat: "geo" },
+      { q: "What is the smallest country in the world?", a: "Vatican City", c: ["Monaco", "Vatican City", "San Marino", "Liechtenstein"], cat: "geo" },
+      { q: "What is the capital of Japan?", a: "Tokyo", c: ["Osaka", "Kyoto", "Tokyo", "Yokohama"], cat: "geo" },
+      { q: "Which ocean is the deepest?", a: "Pacific", c: ["Atlantic", "Indian", "Pacific", "Arctic"], cat: "geo" },
+      { q: "What is the largest country by area?", a: "Russia", c: ["China", "USA", "Russia", "Canada"], cat: "geo" },
+      { q: "What is the capital of Germany?", a: "Berlin", c: ["Munich", "Hamburg", "Berlin", "Frankfurt"], cat: "geo" },
+      { q: "What mountain range separates Europe from Asia?", a: "Ural Mountains", c: ["Alps", "Ural Mountains", "Caucasus", "Carpathians"], cat: "geo" },
+      { q: "What is the driest place on Earth?", a: "Atacama Desert", c: ["Sahara", "Atacama Desert", "Gobi", "Antarctic"], cat: "geo" },
+      { q: "What is the capital of Italy?", a: "Rome", c: ["Milan", "Venice", "Rome", "Florence"], cat: "geo" },
+      { q: "What is the largest lake in Africa?", a: "Lake Victoria", c: ["Lake Tanganyika", "Lake Victoria", "Lake Malawi", "Lake Chad"], cat: "geo" },
+      { q: "What country has the most pyramids?", a: "Sudan", c: ["Egypt", "Sudan", "Mexico", "Peru"], cat: "geo" },
+      { q: "What is the capital of Australia?", a: "Canberra", c: ["Sydney", "Melbourne", "Canberra", "Brisbane"], cat: "geo" },
+      { q: "What strait separates Europe from Africa?", a: "Gibraltar", c: ["Bosporus", "Gibraltar", "Strait of Hormuz", "Malacca"], cat: "geo" },
+      { q: "What is the highest waterfall in the world?", a: "Angel Falls", c: ["Victoria Falls", "Niagara Falls", "Angel Falls", "Iguazu Falls"], cat: "geo" },
+      { q: "What is the capital of Spain?", a: "Madrid", c: ["Barcelona", "Valencia", "Madrid", "Seville"], cat: "geo" },
+      { q: "What sea is the saltiest?", a: "Dead Sea", c: ["Mediterranean", "Dead Sea", "Red Sea", "Caspian Sea"], cat: "geo" },
+      { q: "What is the longest mountain range?", a: "Andes", c: ["Himalayas", "Andes", "Rockies", "Alps"], cat: "geo" },
+      { q: "What is the capital of South Korea?", a: "Seoul", c: ["Busan", "Incheon", "Seoul", "Daegu"], cat: "geo" },
+      { q: "What country has the most natural lakes?", a: "Canada", c: ["USA", "Russia", "Canada", "Finland"], cat: "geo" },
+      { q: "What is the capital of France?", a: "Paris", c: ["Lyon", "Paris", "Marseille", "Nice"], cat: "geo" },
+      { q: "What ocean lies between Africa and Australia?", a: "Indian Ocean", c: ["Pacific Ocean", "Atlantic Ocean", "Indian Ocean", "Arctic Ocean"], cat: "geo" },
+      { q: "What is the wettest place on Earth?", a: "Mawsynram", c: ["Cherrapunji", "Mawsynram", "Quibdo", "Henderson"], cat: "geo" },
+      { q: "What is the capital of Mexico?", a: "Mexico City", c: ["Guadalajara", "Cancun", "Mexico City", "Monterrey"], cat: "geo" },
+      { q: "What desert is the largest hot desert?", a: "Sahara", c: ["Arabian", "Gobi", "Sahara", "Kalahari"], cat: "geo" },
+      { q: "What is the capital of Argentina?", a: "Buenos Aires", c: ["Cordoba", "Rosario", "Buenos Aires", "Mendoza"], cat: "geo" },
+      { q: "What country is home to Machu Picchu?", a: "Peru", c: ["Chile", "Bolivia", "Peru", "Ecuador"], cat: "geo" },
+      { q: "What is the deepest lake in the world?", a: "Lake Baikal", c: ["Lake Superior", "Lake Baikal", "Lake Tanganyika", "Caspian Sea"], cat: "geo" },
+      { q: "What is the capital of India?", a: "New Delhi", c: ["Mumbai", "Kolkata", "New Delhi", "Bangalore"], cat: "geo" },
+      { q: "What is the largest island in the world?", a: "Greenland", c: ["Australia", "Greenland", "Borneo", "Madagascar"], cat: "geo" },
+      { q: "What country has the longest coastline?", a: "Canada", c: ["Indonesia", "Russia", "Canada", "Australia"], cat: "geo" },
+      { q: "What is the capital of Egypt?", a: "Cairo", c: ["Alexandria", "Cairo", "Luxor", "Giza"], cat: "geo" },
+      { q: "What sea is connected to the Mediterranean?", a: "Red Sea", c: ["Black Sea", "Red Sea", "Caspian Sea", "Adriatic Sea"], cat: "geo" },
+      { q: "What is the tallest waterfall in the US?", a: "Yosemite Falls", c: ["Niagara Falls", "Yosemite Falls", "Manitou Falls", "Rattlesnake Falls"], cat: "geo" },
+      { q: "What is the capital of Turkey?", a: "Ankara", c: ["Istanbul", "Ankara", "Izmir", "Antalya"], cat: "geo" },
+      { q: "What is the flattest country?", a: "Maldives", c: ["Maldives", "Qatar", "Kuwait", "Luxembourg"], cat: "geo" },
+      { q: "What is the capital of Poland?", a: "Warsaw", c: ["Krakow", "Warsaw", "Gdansk", "Wroclaw"], cat: "geo" },
+      { q: "What mountain is called the Roof of the World?", a: "Mount Everest", c: ["K2", "Mount Everest", "Kangchenjunga", "Lhotse"], cat: "geo" },
+      { q: "What is the capital of Thailand?", a: "Bangkok", c: ["Phuket", "Chiang Mai", "Bangkok", "Pattaya"], cat: "geo" },
+      { q: "What country spans 11 time zones?", a: "Russia", c: ["USA", "China", "Russia", "France"], cat: "geo" },
+      { q: "What is the capital of Sweden?", a: "Stockholm", c: ["Gothenburg", "Malmo", "Stockholm", "Uppsala"], cat: "geo" },
+      
+      // Pop Culture (40)
+      { q: "What year was the first iPhone released?", a: "2007", c: ["2005", "2007", "2009", "2011"], cat: "tech" },
+      { q: "Who played Iron Man in the Marvel movies?", a: "Robert Downey Jr.", c: ["Chris Evans", "Robert Downey Jr.", "Chris Hemsworth", "Mark Ruffalo"], cat: "film" },
+      { q: "What is the highest-grossing film of all time?", a: "Avatar", c: ["Avengers: Endgame", "Avatar", "Titanic", "Star Wars"], cat: "film" },
+      { q: "Who is the lead singer of Queen?", a: "Freddie Mercury", c: ["Brian May", "Freddie Mercury", "Roger Taylor", "John Deacon"], cat: "music" },
+      { q: "What year did Netflix start streaming?", a: "2007", c: ["2005", "2007", "2009", "2011"], cat: "tech" },
+      { q: "What was the first video game?", a: "Tennis for Two", c: ["Pong", "Spacewar!", "Tennis for Two", "Tetris"], cat: "tech" },
+      { q: "Who wrote the Harry Potter series?", a: "J.K. Rowling", c: ["Stephenie Meyer", "J.K. Rowling", "George R.R. Martin", "Tolkien"], cat: "lit" },
+      { q: "What social media platform started in 2006?", a: "Twitter", c: ["Facebook", "Twitter", "Instagram", "TikTok"], cat: "tech" },
+      { q: "Who directed 'Inception'?", a: "Christopher Nolan", c: ["Steven Spielberg", "Christopher Nolan", "James Cameron", "Ridley Scott"], cat: "film" },
+      { q: "What band performed 'Bohemian Rhapsody'?", a: "Queen", c: ["The Beatles", "Led Zeppelin", "Queen", "Pink Floyd"], cat: "music" },
+      { q: "What year was YouTube created?", a: "2005", c: ["2003", "2005", "2007", "2009"], cat: "tech" },
+      { q: "Who played Jack in 'Titanic'?", a: "Leonardo DiCaprio", c: ["Brad Pitt", "Tom Cruise", "Leonardo DiCaprio", "Johnny Depp"], cat: "film" },
+      { q: "What was Facebook's original name?", a: "Thefacebook", c: ["Facebook", "Thefacebook", "Facebank", "Friendbook"], cat: "tech" },
+      { q: "Who is the richest person in the world (2024)?", a: "Elon Musk", c: ["Jeff Bezos", "Elon Musk", "Bill Gates", "Bernard Arnault"], cat: "tech" },
+      { q: "What TV show features dragons and White Walkers?", a: "Game of Thrones", c: ["Lord of the Rings", "Game of Thrones", "The Witcher", "Vikings"], cat: "tv" },
+      { q: "Who sang 'Bad Guy'?", a: "Billie Eilish", c: ["Billie Eilish", "Ariana Grande", "Dua Lipa", "Taylor Swift"], cat: "music" },
+      { q: "What year did Spotify launch?", a: "2008", c: ["2006", "2008", "2010", "2012"], cat: "tech" },
+      { q: "Who directed 'Jurassic Park'?", a: "Steven Spielberg", c: ["James Cameron", "Steven Spielberg", "George Lucas", "Ridley Scott"], cat: "film" },
+      { q: "What is the best-selling video game?", a: "Minecraft", c: ["Tetris", "GTA V", "Minecraft", "Wii Sports"], cat: "tech" },
+      { q: "Who played The Joker in 'The Dark Knight'?", a: "Heath Ledger", c: ["Joaquin Phoenix", "Jack Nicholson", "Heath Ledger", "Jared Leto"], cat: "film" },
+      { q: "What streaming service produces 'Stranger Things'?", a: "Netflix", c: ["Netflix", "Hulu", "Amazon Prime", "Disney+"], cat: "tv" },
+      { q: "Who is the most-followed person on Instagram?", a: "Cristiano Ronaldo", c: ["Kylie Jenner", "Dwayne Johnson", "Cristiano Ronaldo", "Selena Gomez"], cat: "tech" },
+      { q: "What movie franchise features 'May the Force be with you'?", a: "Star Wars", c: ["Star Trek", "Star Wars", "Guardians of the Galaxy", "Avatar"], cat: "film" },
+      { q: "Who created Mickey Mouse?", a: "Walt Disney", c: ["Walt Disney", "Warner Bros", "Pixar", "DreamWorks"], cat: "film" },
+      { q: "What is the best-selling album of all time?", a: "Thriller", c: ["Back in Black", "Thriller", "The Dark Side of the Moon", "Rumours"], cat: "music" },
+      { q: "What year was TikTok launched internationally?", a: "2017", c: ["2015", "2017", "2019", "2021"], cat: "tech" },
+      { q: "Who played Hermione in Harry Potter?", a: "Emma Watson", c: ["Emma Watson", "Emma Stone", "Emily Blunt", "Rachel McAdams"], cat: "film" },
+      { q: "What company owns Instagram?", a: "Meta", c: ["Google", "Meta", "Twitter", "Microsoft"], cat: "tech" },
+      { q: "Who directed 'The Avengers'?", a: "Joss Whedon", c: ["Joss Whedon", "James Gunn", "J.J. Abrams", "Anthony Russo"], cat: "film" },
+      { q: "What is the longest-running TV show?", a: "The Simpsons", c: ["The Simpsons", "SNL", "Doctor Who", "Coronation Street"], cat: "tv" },
+      { q: "Who sang 'Shake It Off'?", a: "Taylor Swift", c: ["Taylor Swift", "Katy Perry", "Ariana Grande", "Lady Gaga"], cat: "music" },
+      { q: "What was the first movie in the MCU?", a: "Iron Man", c: ["The Avengers", "Iron Man", "Thor", "Captain America"], cat: "film" },
+      { q: "Who founded Amazon?", a: "Jeff Bezos", c: ["Elon Musk", "Jeff Bezos", "Bill Gates", "Mark Zuckerberg"], cat: "tech" },
+      { q: "What is the name of the fictional country in Black Panther?", a: "Wakanda", c: ["Zamunda", "Wakanda", "Genovia", "Latveria"], cat: "film" },
+      { q: "Who played Frodo in Lord of the Rings?", a: "Elijah Wood", c: ["Orlando Bloom", "Elijah Wood", "Sean Bean", "Viggo Mortensen"], cat: "film" },
+      { q: "What video game features a plumber named Mario?", a: "Super Mario Bros", c: ["Super Mario Bros", "Donkey Kong", "Sonic", "Pac-Man"], cat: "tech" },
+      { q: "Who sang 'Uptown Funk'?", a: "Bruno Mars", c: ["Bruno Mars", "Pharrell Williams", "Justin Timberlake", "Usher"], cat: "music" },
+      { q: "What year was GTA V released?", a: "2013", c: ["2011", "2013", "2015", "2017"], cat: "tech" },
+      { q: "Who played Tony Stark's daughter?", a: "Abbey", c: ["Ella", "Abbey", "Sophie", "Mia"], cat: "film" },
+    ];
+
+    // Game state
+    let currentQuestion = 0;
+    let score = 0;
+    let selectedQuestions = [];
+    let streak = 0;
+    let lastPlayedDate = null;
+    let hintsUsed = 0;
+    let maxHints = 1;
+    let isPremium = false;
+
+    // Get today's date as seed
+    function getTodaySeed() {
+      const today = new Date();
+      return today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+    }
+
+    // Seeded random
+    function seededRandom(seed) {
+      const x = Math.sin(seed++) * 10000;
+      return x - Math.floor(x);
+    }
+
+    // Get daily questions
+    function getDailyQuestions() {
+      const seed = getTodaySeed();
+      const shuffled = [...QUESTIONS];
+      
+      // Fisher-Yates shuffle with seeded random
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(seededRandom(seed + i) * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      
+      return shuffled.slice(0, 10);
+    }
+
+    // Initialize
+    function init() {
+      // Load premium status
+      isPremium = localStorage.getItem('isPremium') === 'true';
+      if (isPremium) {
+        document.getElementById('premiumBadge').classList.add('active');
+        document.querySelectorAll('.ad-banner').forEach(ad => ad.classList.add('hidden'));
+      }
+
+      // Load streak
+      streak = parseInt(localStorage.getItem('triviaStreak') || '0');
+      document.getElementById('streakCount').textContent = streak;
+
+      // Check last played
+      const today = new Date().toDateString();
+      const lastPlayed = localStorage.getItem('triviaLastPlayed');
+      
+      if (lastPlayed !== today) {
+        // New day - check if streak should reset
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        if (lastPlayed !== yesterday.toDateString() && lastPlayed !== null) {
+          streak = 0;
+          localStorage.setItem('triviaStreak', '0');
+          document.getElementById('streakCount').textContent = 0;
+        }
+        hintsUsed = 0;
+      }
+
+      // Show welcome tooltip on first visit
+      if (!localStorage.getItem('triviaVisited')) {
+        document.getElementById('welcomeTooltip').classList.remove('hidden');
+        localStorage.setItem('triviaVisited', 'true');
+      }
+
+      // Load questions
+      selectedQuestions = getDailyQuestions();
+
+      // Show interstitial after 3 plays
+      const playCount = parseInt(localStorage.getItem('triviaPlayCount') || '0');
+      if (playCount >= 3 && !isPremium) {
+        // Show interstitial ad placeholder
+      }
+    }
+
+    function startGame() {
+      document.getElementById('startScreen').classList.add('hidden');
+      document.getElementById('quizScreen').classList.remove('hidden');
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const q = selectedQuestions[currentQuestion];
+      document.getElementById('qNum').textContent = currentQuestion + 1;
+      document.getElementById('questionText').textContent = q.q;
+
+      const container = document.getElementById('optionsContainer');
+      container.innerHTML = '';
+
+      // Shuffle options
+      const options = [...q.c];
+      const seed = getTodaySeed() + currentQuestion;
+      for (let i = options.length - 1; i > 0; i--) {
+        const j = Math.floor(seededRandom(seed + i) * (i + 1));
+        [options[i], options[j]] = [options[j], options[i]];
+      }
+
+      options.forEach(opt => {
+        const btn = document.createElement('div');
+        btn.className = 'option';
+        btn.textContent = opt;
+        btn.onclick = () => selectAnswer(opt, q.a, btn);
+        container.appendChild(btn);
+      });
+    }
+
+    function selectAnswer(selected, correct, btn) {
+      const options = document.querySelectorAll('.option');
+      options.forEach(o => o.classList.add('disabled'));
+
+      if (selected === correct) {
+        btn.classList.add('correct');
+        score++;
+      } else {
+        btn.classList.add('wrong');
+        options.forEach(o => {
+          if (o.textContent === correct) o.classList.add('correct');
+        });
+      }
+
+      setTimeout(() => {
+        currentQuestion++;
+        if (currentQuestion < 10) {
+          showQuestion();
+        } else {
+          showResults();
+        }
+      }, 1500);
+    }
+
+    function showResults() {
+      document.getElementById('quizScreen').classList.add('hidden');
+      document.getElementById('resultScreen').classList.remove('hidden');
+
+      document.getElementById('finalScore').textContent = score + '/10';
+
+      // Update streak
+      if (score >= 7) {
+        streak++;
+        document.getElementById('resultMessage').textContent = 'Great job! You kept your streak going!';
+      } else {
+        streak = 0;
+        document.getElementById('resultMessage').textContent = 'Keep practicing to build your streak!';
+      }
+
+      localStorage.setItem('triviaStreak', streak);
+      localStorage.setItem('triviaLastPlayed', new Date().toDateString());
+      document.getElementById('streakCount').textContent = streak;
+
+      // Track plays
+      const playCount = parseInt(localStorage.getItem('triviaPlayCount') || '0') + 1;
+      localStorage.setItem('triviaPlayCount', playCount);
+
+      // Generate share text
+      const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const emojis = score >= 7 ? 'GGGGG' : score >= 4 ? 'YYYYY' : 'RRRRR';
+      document.getElementById('shareText').textContent = 
+        'Daily Trivia ' + date + ': ' + score + '/10 ' + emojis + '\nStreak: ' + streak;
+
+      // Show email modal
+      setTimeout(() => {
+        const emailDismissed = localStorage.getItem('triviaEmailDismissed');
+        const dismissedTime = parseInt(localStorage.getItem('triviaEmailDismissedTime') || '0');
+        const now = Date.now();
+        
+        if (!emailDismissed || now - dismissedTime > 24 * 60 * 60 * 1000) {
+          document.getElementById('emailModal').classList.remove('hidden');
+        }
+      }, 2000);
+    }
+
+    function shareResult() {
+      const text = document.getElementById('shareText').textContent + '\n\nPlay Daily Trivia!';
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Result copied to clipboard!');
+      });
+    }
+
+    function subscribeEmail() {
+      const email = document.getElementById('emailInput').value;
+      if (email) {
+        const list = JSON.parse(localStorage.getItem('emailList') || '[]');
+        list.push({ email: email, date: new Date().toISOString() });
+        localStorage.setItem('emailList', JSON.stringify(list));
+        
+        // Log to console (placeholder for API)
+        console.log('Email subscribed:', email);
+        
+        document.getElementById('emailModal').classList.add('hidden');
+        alert('Subscribed! Check your inbox tomorrow.');
+      }
+    }
+
+    function dismissEmail(hours) {
+      localStorage.setItem('triviaEmailDismissed', 'true');
+      localStorage.setItem('triviaEmailDismissedTime', Date.now().toString());
+      document.getElementById('emailModal').classList.add('hidden');
+    }
+
+    // Premium functions
+    document.getElementById('premiumBadge').onclick = function() {
+      document.getElementById('premiumModal').classList.remove('hidden');
+    };
+
+    function closePremiumModal() {
+      document.getElementById('premiumModal').classList.add('hidden');
+    }
+
+    function upgradePremium() {
+      localStorage.setItem('isPremium', 'true');
+      isPremium = true;
+      document.getElementById('premiumBadge').classList.add('active');
+      document.querySelectorAll('.ad-banner').forEach(ad => ad.classList.add('hidden'));
+      closePremiumModal();
+      alert('Welcome to Premium!');
+    }
+
+    // Init
+    init();
+  </script>
+</body>
+</html>
