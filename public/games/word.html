@@ -1,1056 +1,415 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta property="og:title" content="Word Guess — josho.pro">
-  <meta property="og:description" content="Guess the 5-letter word in 6 tries.">
-  <meta property="og:image" content="/og/word.png">
-  <meta property="og:url" content="https://josho.pro/word.html">
-  <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Word Guess — josho.pro">
-  <meta name="twitter:description" content="Guess the 5-letter word in 6 tries.">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daily Word Guess</title>
-  <style>
-    :root {
-      --correct: #6aaa64;
-      --present: #c9b458;
-      --absent: #787c7e;
-      --bg: #121213;
-      --surface: #121213;
-      --border: #3a3a3c;
-      --text: #ffffff;
-      --text-dim: #818384;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    header {
-      width: 100%;
-      max-width: 500px;
-      border-bottom: 1px solid var(--border);
-      padding: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    h1 { font-size: 24px; font-weight: 700; letter-spacing: 2px; }
-    .streak { display: flex; align-items: center; gap: 4px; font-size: 14px; color: #f59e0b; }
-    .streak.hidden { display: none; }
-    #game-board {
-      display: grid;
-      grid-template-rows: repeat(6, 1fr);
-      gap: 5px;
-      padding: 20px;
-    }
-    .row {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 5px;
-    }
-    .tile {
-      width: 52px;
-      height: 52px;
-      border: 2px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      font-weight: 700;
-      text-transform: uppercase;
-      transition: transform 0.1s;
-    }
-    .tile.filled { border-color: var(--text-dim); }
-    .tile.correct { background: var(--correct); border-color: var(--correct); }
-    .tile.present { background: var(--present); border-color: var(--present); }
-    .tile.absent { background: var(--absent); border-color: var(--absent); }
-    .tile.flip { animation: flip 0.5s ease; }
-    @keyframes flip {
-      0% { transform: rotateX(0); }
-      50% { transform: rotateX(90deg); }
-      100% { transform: rotateX(0); }
-    }
-    #keyboard {
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      max-width: 500px;
-      width: 100%;
-    }
-    .key-row { display: flex; justify-content: center; gap: 6px; }
-    .key {
-      height: 58px;
-      flex: 1;
-      max-width: 43px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      color: var(--text);
-      font-weight: 700;
-      font-size: 14px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .key.wide { flex: 1.5; max-width: 65px; }
-    .key.correct { background: var(--correct); }
-    .key.present { background: var(--present); }
-    .key.absent { background: var(--absent); }
-    /* Ad placeholders */
-    .ad-slot {
-      width: 100%;
-      max-width: 728px;
-      height: 90px;
-      background: #1a1a1a;
-      border: 1px dashed var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-dim);
-      font-size: 12px;
-      margin: 10px 0;
-    }
-    .ad-slot.mobile { max-width: 320px; height: 50px; }
-    .ad-slot.hidden { display: none; }
-    /* Modal */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.8);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-    }
-    .modal-overlay.active { display: flex; }
-    .modal {
-      background: #1a1a1a;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px;
-      max-width: 400px;
-      width: 90%;
-      text-align: center;
-    }
-    .modal h2 { margin-bottom: 16px; font-size: 20px; }
-    .modal p { margin-bottom: 16px; color: var(--text-dim); }
-    .modal input {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--bg);
-      color: var(--text);
-      font-size: 16px;
-      margin-bottom: 12px;
-    }
-    .modal button {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-bottom: 8px;
-    }
-    .btn-primary { background: var(--correct); color: white; }
-    .btn-secondary { background: var(--border); color: var(--text); }
-    .btn-premium { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-    .premium-banner {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-size: 12px;
-      cursor: pointer;
-    }
-    /* Stats dashboard */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin: 16px 0;
-    }
-    .stat-box {
-      background: var(--bg);
-      padding: 12px;
-      border-radius: 8px;
-    }
-    .stat-value { font-size: 24px; font-weight: 700; }
-    .stat-label { font-size: 12px; color: var(--text-dim); }
-    /* Hard mode indicator */
-    .hard-mode .tile { border-color: #ef4444; }
-    .hard-mode .tile.hint-reveal { background: #3a3a3c; }
-    /* Archive navigation */
-    .archive-nav {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      font-size: 12px;
-    }
-    .archive-nav.hidden { display: none; }
-    .archive-nav button {
-      background: var(--border);
-      border: none;
-      color: var(--text);
-      padding: 4px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .welcome-tooltip {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: var(--correct);
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-weight: 600;
-      animation: fadeOut 3s forwards;
-      z-index: 200;
-    }
-    @keyframes fadeOut {
-      70% { opacity: 1; }
-      100% { opacity: 0; pointer-events: none; }
-    }
-    /* Share result */
-    .share-result {
-      background: var(--correct);
-      padding: 12px 24px;
-      border-radius: 6px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 16px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Word — josho.pro/games</title>
+<meta name="description" content="5-letter word game. Six guesses. Internet slang, tech terms, cultural touchstones.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --s1: #111115;
+    --s2: #18181d;
+    --border: rgba(255,255,255,0.07);
+    --text: #f2f2f5;
+    --dim: rgba(255,255,255,0.38);
+    --muted: rgba(255,255,255,0.18);
+    --accent: #8b5cf6;
+    --accent-dim: rgba(139,92,246,0.12);
+    --green: #4ade80;
+    --amber: #f59e0b;
+    --wrong: #1c1c23;
+    --f: 'Inter', -apple-system, sans-serif;
+  }
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html { background:var(--bg); color:var(--text); font-family:var(--f); -webkit-font-smoothing:antialiased; }
+  body { min-height:100vh; padding:0 20px; }
+
+  #app { max-width:480px; margin:0 auto; }
+
+  a.back { position:fixed; top:16px; left:16px; font-size:10px; color:var(--dim); text-decoration:none; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; }
+  a.back:hover { color:var(--text); }
+
+  header {
+    padding:20px 0 16px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .hdr-title { font-size:11px; font-weight:800; letter-spacing:0.14em; text-transform:uppercase; color:var(--dim); }
+  .hdr-title b { color:var(--text); }
+  .hdr-right { display:flex; gap:8px; align-items:center; }
+  .badge { padding:4px 10px; border-radius:6px; background:var(--accent-dim); border:1px solid rgba(139,92,246,0.15); font-size:10px; font-weight:700; color:#c4b5fd; }
+
+  #board { display:grid; gap:6px; margin:24px 0 20px; }
+  .row { display:grid; grid-template-columns:repeat(5, 1fr); gap:6px; }
+  .tile {
+    aspect-ratio:1; border-radius:8px; border:2px solid var(--border);
+    background:var(--s1); display:flex; align-items:center; justify-content:center;
+    font-size:24px; font-weight:900; letter-spacing:-0.03em; transition:all 0.1s;
+    user-select:none; position:relative;
+  }
+  .tile.filled { border-color:rgba(255,255,255,0.2); }
+  .tile.flip { animation:flip-out 0.35s ease forwards; }
+  .tile[data-state="correct"] { background:var(--green); border-color:var(--green); color:#000; font-weight:900; }
+  .tile[data-state="present"] { background:var(--amber); border-color:var(--amber); color:#000; font-weight:900; }
+  .tile[data-state="absent"] { background:var(--wrong); border-color:var(--wrong); color:rgba(255,255,255,0.2); font-weight:900; }
+  .row.shake { animation:shake 0.4s ease; }
+
+  @keyframes flip-out {
+    0% { transform:scaleY(1); }
+    50% { transform:scaleY(0); }
+    100% { transform:scaleY(1); }
+  }
+  @keyframes shake {
+    0%,100% { transform:translateX(0); }
+    12%,88% { transform:translateX(-4px); }
+    25%,75% { transform:translateX(4px); }
+  }
+
+  #keyboard { display:flex; flex-direction:column; gap:6px; }
+  .kb-row { display:flex; gap:4px; justify-content:center; }
+  .key {
+    min-width:30px; height:42px; border-radius:6px; background:var(--s1);
+    border:1px solid var(--border); color:var(--text); font-size:11px; font-weight:700;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:all 0.12s; flex:1; max-width:40px; user-select:none;
+  }
+  .key:active { transform:scale(0.92); }
+  .key.wide { min-width:50px; max-width:60px; font-size:9px; letter-spacing:0.06em; }
+  .key[data-state="correct"] { background:var(--green); border-color:var(--green); color:#000; }
+  .key[data-state="present"] { background:var(--amber); border-color:var(--amber); color:#000; }
+  .key[data-state="absent"] { background:var(--wrong); border-color:var(--wrong); color:rgba(255,255,255,0.15); }
+
+  #toast-area { position:fixed; top:90px; left:50%; transform:translateX(-50%); z-index:100; }
+  .toast {
+    background:var(--text); color:var(--bg); padding:10px 18px; border-radius:8px;
+    font-size:12px; font-weight:700; white-space:nowrap;
+    animation:toast-pop 0.25s ease; margin-bottom:6px;
+  }
+  @keyframes toast-pop {
+    from { opacity:0; transform:translateY(-8px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+
+  #result { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9);
+    align-items:center; justify-content:center; z-index:200; backdrop-filter:blur(10px); }
+  #result.show { display:flex; }
+  .result-card {
+    background:var(--s1); border:1px solid var(--border); border-radius:16px;
+    padding:32px 24px; max-width:340px; width:calc(100%-40px); text-align:center;
+  }
+  .result-title { font-size:22px; font-weight:900; margin-bottom:4px; }
+  .result-word { font-size:26px; font-weight:900; letter-spacing:-0.03em; color:var(--green); margin:16px 0 12px; font-variant-numeric:tabular-nums; }
+  .result-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin:16px 0 20px; }
+  .stat-item .val { font-size:20px; font-weight:900; color:var(--text); }
+  .stat-item .lbl { font-size:9px; color:var(--dim); text-transform:uppercase; letter-spacing:0.1em; margin-top:2px; }
+  .share-btn { width:100%; padding:12px; background:var(--accent); border:none; color:#fff; font-size:12px; font-weight:700; border-radius:8px; cursor:pointer; transition:opacity 0.15s; }
+  .share-btn:hover { opacity:0.85; }
+  .copy-feedback { font-size:10px; color:var(--green); margin-top:8px; min-height:12px; }
+  .close-btn { width:100%; padding:10px; background:transparent; border:1px solid var(--border); color:var(--text); font-size:11px; font-weight:600; border-radius:8px; cursor:pointer; margin-top:8px; }
+
+  @media(max-width:420px) {
+    .key { max-width:36px; font-size:10px; }
+    .tile { font-size:20px; }
+  }
+</style>
 </head>
 <body>
-  <!-- Top Ad -->
-  <div class="ad-slot" data-ad-slot="TOP_LEADERBOARD">
-  <!-- REPLACE ca-pub-PENDING with your AdSense publisher ID -->
-<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-PENDING" data-ad-slot="AUTO" data-ad-format="auto" data-full-width-responsive="true"></ins>
-<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-</div>
-  
+<a class="back" href="/games/">Back</a>
+<div id="app">
   <header>
-    <div class="streak hidden" id="streak-display">
-      <span>🔥</span><span id="streak-count">0</span>
-    </div>
-    <h1>WORD GUESS</h1>
-    <div style="display: flex; gap: 8px; align-items: center;">
-      <button class="premium-banner hidden" id="premium-btn" onclick="showPremiumModal()">Go Premium</button>
-      <button onclick="showStats()" style="background:none;border:none;color:var(--text);cursor:pointer;font-size:20px">📊</button>
-      <button onclick="toggleArchive()" id="archive-btn" class="premium-banner hidden" style="background:var(--border)">📅</button>
+    <div class="hdr-title">josho.pro / <b>Word</b></div>
+    <div class="hdr-right">
+      <div class="badge" id="dayBadge">Day 1</div>
+      <div class="badge" id="streakBadge">0 streak</div>
     </div>
   </header>
-
-  <div class="archive-nav hidden" id="archive-nav">
-    <button onclick="loadPrevDay()">← Prev</button>
-    <span id="archive-date"></span>
-    <button onclick="loadNextDay()">Next →</button>
-  </div>
-
-  <div id="game-board"></div>
+  <div id="board"></div>
   <div id="keyboard"></div>
-
-  <!-- Bottom Ad -->
-  <div class="ad-slot" data-ad-slot="BOTTOM_LEADERBOARD">
-  <!-- REPLACE ca-pub-PENDING with your AdSense publisher ID -->
-<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-PENDING" data-ad-slot="AUTO" data-ad-format="auto" data-full-width-responsive="true"></ins>
-<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  <div id="toast-area"></div>
 </div>
 
-  <!-- Results Modal -->
-  <div class="modal-overlay" id="result-modal">
-    <div class="modal">
-      <h2 id="result-title">You Won!</h2>
-      <p id="result-message">Great job!</p>
-      <div class="share-result" onclick="shareResult()">📤 Share Result</div>
-      <button class="btn-secondary" style="margin-top:12px" onclick="closeModal('result-modal')">Close</button>
+<div id="result">
+  <div class="result-card">
+    <div class="result-title" id="resultTitle">Done</div>
+    <div class="result-word" id="resultWord"></div>
+    <div class="result-stats">
+      <div class="stat-item"><div class="val" id="statGuesses">-</div><div class="lbl">Guesses</div></div>
+      <div class="stat-item"><div class="val" id="statTime">-</div><div class="lbl">Time</div></div>
+      <div class="stat-item"><div class="val" id="statStreak">-</div><div class="lbl">Streak</div></div>
     </div>
+    <button class="share-btn" id="shareBtn">Copy to share</button>
+    <div class="copy-feedback" id="copyMsg"></div>
+    <button class="close-btn" id="closeBtn">Close</button>
   </div>
-
-  <!-- Stats Modal -->
-  <div class="modal-overlay" id="stats-modal">
-    <div class="modal">
-      <h2>Statistics</h2>
-      <div class="stats-grid">
-        <div class="stat-box"><div class="stat-value" id="stat-played">0</div><div class="stat-label">Played</div></div>
-        <div class="stat-box"><div class="stat-value" id="stat-win">0</div><div class="stat-label">Win %</div></div>
-        <div class="stat-box"><div class="stat-value" id="stat-streak">0</div><div class="stat-label">Current Streak</div></div>
-        <div class="stat-box"><div class="stat-value" id="stat-max">0</div><div class="stat-label">Max Streak</div></div>
-      </div>
-      <button class="btn-secondary" onclick="closeModal('stats-modal')">Close</button>
-    </div>
-  </div>
-
-  <!-- Premium Modal -->
-  <div class="modal-overlay" id="premium-modal">
-    <div class="modal">
-      <h2>Go Premium</h2>
-      <p>Unlock all premium features for $3.99/month or $29.99/year</p>
-      <div style="text-align:left;margin:16px 0;font-size:14px">
-        ✓ Remove Ads<br>
-        ✓ Play Archive (30 days)<br>
-        ✓ Hard Mode<br>
-        ✓ Unlimited Hints<br>
-        ✓ Stats Dashboard
-      </div>
-      <button class="btn-premium" onclick="activatePremium()">Subscribe $3.99/mo</button>
-      <button class="btn-secondary" onclick="closeModal('premium-modal')">Maybe Later</button>
-    </div>
-  </div>
-
-  <!-- Email Capture Modal -->
-  <div class="modal-overlay" id="email-modal">
-    <div class="modal">
-      <h2>Get Tomorrow's Word!</h2>
-      <p>Never miss a daily puzzle - get it in your inbox</p>
-      <input type="email" id="email-input" placeholder="your@email.com">
-      <button class="btn-primary" onclick="subscribeEmail()">Subscribe Free</button>
-      <button class="btn-secondary" onclick="dismissEmail()">Maybe Later</button>
-    </div>
-  </div>
-
-  <!-- Hint Used Modal -->
-  <div class="modal-overlay" id="hint-modal">
-    <div class="modal">
-      <h2>Hint Used Today</h2>
-      <p>Free users get 1 hint per day. Upgrade for unlimited hints!</p>
-      <button class="btn-premium" onclick="activatePremium();closeModal('hint-modal')">Go Premium</button>
-      <button class="btn-secondary" onclick="closeModal('hint-modal')">OK</button>
-    </div>
-  </div>
-
-  <script>
-    // Word list - 200+ common 5-letter words
-    const WORD_LIST = [
-      'about','above','abuse','actor','acute','admit','adopt','adult','after','again',
-      'agent','agree','ahead','alarm','album','alert','alike','alive','allow','alone',
-      'along','alter','among','anger','angle','angry','apart','apple','apply','arena',
-      'argue','arise','array','aside','asset','audio','audit','avoid','award','aware',
-      'badly','baker','bases','basic','basis','beach','began','begin','begun','being',
-      'below','bench','billy','birth','black','blame','blank','blast','blend','bless',
-      'blind','block','blood','bloom','blown','board','boost','booth','bound','brain',
-      'brand','brass','brave','bread','break','breed','brick','bride','brief','bring',
-      'broad','broke','brown','build','built','bunch','burst','buyer','cable','calif',
-      'carry','catch','cause','chain','chair','chart','chase','cheap','check','chest',
-      'chief','child','china','chose','chunk','civic','civil','claim','class','clean',
-      'clear','climb','clock','close','cloth','cloud','coach','coast','color','couch',
-      'could','count','court','cover','craft','crash','cream','crime','cross','crowd',
-      'crown','crude','curve','cycle','daily','dance','dated','dealt','death','debut',
-      'delay','depth','doing','doubt','dozen','draft','drain','drama','drank','drawn',
-      'dream','dress','drill','drink','drive','drove','dying','eager','early','earth',
-      'eight','elite','empty','enemy','enjoy','enter','entry','equal','error','essay',
-      'event','every','exact','exist','extra','faith','false','fault','fiber','field',
-      'fifth','fifty','fight','final','first','fixed','flame','flash','fleet','floor',
-      'fluid','focus','force','forge','forth','forty','forum','found','frame','frank',
-      'fraud','fresh','front','fruit','fully','funny','giant','given','glass','globe',
-      'glory','going','grace','grade','grain','grand','grant','grass','grave','great',
-      'green','gross','group','grown','guard','guess','guest','guide','guilt','happy',
-      'harry','heart','heavy','hence','henry','horse','hotel','house','human','ideal',
-      'image','imply','index','inner','input','issue','japan','jimmy','joint','jones',
-      'judge','juice','knife','knock','known','label','labor','large','laser','later',
-      'laugh','layer','learn','lease','least','leave','legal','level','lewis','light',
-      'limit','links','liver','lives','local','logic','loose','lower','lucky','lunch',
-      'lying','magic','major','maker','march','maria','match','maybe','mayor','meant',
-      'media','metal','might','minor','minus','mixed','model','money','month','moral',
-      'motor','mount','mouse','mouth','movie','music','needs','never','newly','night',
-      'noise','north','noted','novel','nurse','occur','ocean','offer','often','order',
-      'other','ought','outer','owner','oxide','ozone','paint','panel','panic','paper',
-      'party','pasta','patch','pause','peace','peter','phase','phone','photo','piano',
-      'piece','pilot','pitch','place','plain','plane','plant','plate','plays','point',
-      'poker','polar','pound','power','press','price','pride','prime','print','prior',
-      'prize','proof','proud','prove','proxy','pulse','punch','pupil','queen','query',
-      'quest','quick','quiet','quite','quote','radio','raise','rally','ranch','range',
-      'rapid','ratio','reach','react','ready','realm','rebel','refer','reign','relax',
-      'reply','rider','ridge','rifle','right','rigid','risky','rival','river','robin',
-      'robot','rocky','roman','rough','round','route','royal','rural','saint','salad',
-      'sales','sandy','santa','sauce','saved','scale','scene','scope','score','scout',
-      'scrap','sense','serve','seven','shade','shake','shall','shame','shape','share',
-      'shark','sharp','sheet','shelf','shell','shift','shirt','shock','shoot','shore',
-      'short','shout','shown','sight','sigma','silly','simon','since','sixth','sixty',
-      'sized','skill','sleep','slide','small','smart','smell','smile','smith','smoke',
-      'snake','solid','solve','sorry','sound','south','space','spare','speak','speed',
-      'spend','spent','spite','split','spoke','sport','spray','squad','stack','staff',
-      'stage','stake','stand','stark','start','state','steam','steel','steep','stick',
-      'still','stock','stone','stood','store','storm','story','strip','stuck','study',
-      'stuff','style','sugar','suite','super','sweet','table','taken','taste','taxes',
-      'teach','teeth','terry','texas','thank','theft','their','theme','there','these',
-      'thick','thing','think','third','those','three','threw','throw','thumb','tiger',
-      'tight','times','tired','title','today','token','tooth','topic','total','touch',
-      'tough','tower','track','trade','trail','train','trash','treat','trend','trial',
-      'tribe','trick','tried','troop','truck','truly','trunk','trust','truth','twice',
-      'twist','tyler','ultra','uncle','under','union','unity','until','upper','upset',
-      'urban','usage','usual','valid','value','video','virus','visit','vital','voice',
-      'waste','watch','water','wave','weigh','weird','whale','wheat','wheel','where',
-      'which','while','white','whole','whose','widen','wider','widow','width','witch',
-      'woman','world','worry','worse','worst','worth','would','wound','write','wrong',
-      'wrote','yield','young','youth','zebra','zesty'
-    ];
-
-    const GAME_DATE = getGameDate();
-    let gameState = {
-      guesses: [],
-      currentGuess: '',
-      gameOver: false,
-      won: false,
-      hardMode: false,
-      hintsUsed: 0,
-      lastHintDate: null
-    };
-
-    // Seed word by date
-    function getGameDate() {
-      const params = new URLSearchParams(window.location.search);
-      if (params.has('date')) return params.get('date');
-      return new Date().toISOString().split('T')[0];
-    }
-
-    function getDailyWord(date) {
-      const seed = date.replace(/-/g, '');
-      let hash = 0;
-      for (let i = 0; i < seed.length; i++) {
-        hash = ((hash << 5) - hash) + seed.charCodeAt(i);
-        hash = hash & hash;
-      }
-      const index = Math.abs(hash) % WORD_LIST.length;
-      return WORD_LIST[index].toUpperCase();
-    }
-
-    const TARGET_WORD = getDailyWord(GAME_DATE);
-
-    // Storage keys
-    const STORAGE_KEYS = {
-      stats: 'wordguess_stats',
-      streak: 'wordguess_streak',
-      lastPlayed: 'wordguess_last',
-      premium: 'wordguess_premium',
-      hintDate: 'wordguess_hint_date',
-      emailShown: 'wordguess_email_shown',
-      welcomeSeen: 'wordguess_welcome'
-    };
-
-    // Load stats
-    function loadStats() {
-      const stats = JSON.parse(localStorage.getItem(STORAGE_KEYS.stats) || '{"played":0,"won":0,"streak":0,"maxStreak":0}');
-      return stats;
-    }
-
-    function saveStats(stats) {
-      localStorage.setItem(STORAGE_KEYS.stats, JSON.stringify(stats));
-    }
-
-    function isPremium() {
-      return localStorage.getItem(STORAGE_KEYS.premium) === 'true';
-    }
-
-    function getStreak() {
-      return parseInt(localStorage.getItem(STORAGE_KEYS.streak) || '0');
-    }
-
-    function getLastPlayedDate() {
-      return localStorage.getItem(STORAGE_KEYS.lastPlayed);
-    }
-
-    function updateStreak() {
-      const lastPlayed = getLastPlayedDate();
-      const today = GAME_DATE;
-      const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-      
-      if (lastPlayed === yesterday || !lastPlayed) {
-        const streak = getStreak() + (lastPlayed === today ? 0 : 1);
-        localStorage.setItem(STORAGE_KEYS.streak, streak.toString());
-      } else if (lastPlayed !== today) {
-        localStorage.setItem(STORAGE_KEYS.streak', '1');
-      }
-      localStorage.setItem(STORAGE_KEYS.lastPlayed, today);
-      
-      // Update display
-      const streakEl = document.getElementById('streak-display');
-      const countEl = document.getElementById('streak-count');
-      const streak = getStreak();
-      if (streak > 2) {
-        streakEl.classList.remove('hidden');
-        countEl.textContent = streak;
-      }
-    }
-
-    // Show return visitor message
-    function checkReturnVisitor() {
-      const streak = getStreak();
-      if (streak > 2) {
-        const msg = document.createElement('div');
-        msg.className = 'welcome-tooltip';
-        msg.textContent = `You're on a ${streak} day streak - keep it going!`;
-        document.body.appendChild(msg);
-        setTimeout(() => msg.remove(), 3000);
-      }
-    }
-
-    // First play welcome
-    function checkFirstPlay() {
-      if (!localStorage.getItem(STORAGE_KEYS.welcomeSeen)) {
-        const msg = document.createElement('div');
-        msg.className = 'welcome-tooltip';
-        msg.textContent = 'Guess the word in 6 tries!';
-        document.body.appendChild(msg);
-        localStorage.setItem(STORAGE_KEYS.welcomeSeen, 'true');
-        setTimeout(() => msg.remove(), 3000);
-      }
-    }
-
-    // Initialize premium UI
-    function initPremium() {
-      if (isPremium()) {
-        document.querySelectorAll('.ad-slot').forEach(el => el.classList.add('hidden'));
-        document.getElementById('premium-btn').classList.add('hidden');
-        document.getElementById('archive-btn').classList.remove('hidden');
-        document.getElementById('archive-nav').classList.remove('hidden');
-      }
-    }
-
-    // Check hint availability
-    function canUseHint() {
-      if (isPremium()) return true;
-      const today = new Date().toISOString().split('T')[0];
-      const lastHint = localStorage.getItem(STORAGE_KEYS.hintDate);
-      if (lastHint !== today) {
-        localStorage.setItem(STORAGE_KEYS.hintDate, today);
-        return true;
-      }
-      return false;
-    }
-
-    // Use hint
-    function useHint() {
-      if (!canUseHint()) {
-        document.getElementById('hint-modal').classList.add('active');
-        return;
-      }
-      // Reveal one correct letter
-      const nextLetter = gameState.guesses.length;
-      if (nextLetter < TARGET_WORD.length) {
-        gameState.hintsUsed++;
-        // Add correct letter to current guess
-        gameState.currentGuess = TARGET_WORD.slice(0, gameState.currentGuess.length + 1).padEnd(5, '_');
-        renderBoard();
-      }
-    }
-
-    // Show premium modal
-    function showPremiumModal() {
-      document.getElementById('premium-modal').classList.add('active');
-    }
-
-    // Activate premium
-    function activatePremium() {
-      localStorage.setItem(STORAGE_KEYS.premium, 'true');
-      closeModal('premium-modal');
-      initPremium();
-    }
-
-    // Show stats
-    function showStats() {
-      const stats = loadStats();
-      document.getElementById('stat-played').textContent = stats.played;
-      document.getElementById('stat-win').textContent = stats.played ? Math.round(stats.won / stats.played * 100) : 0;
-      document.getElementById('stat-streak').textContent = stats.streak;
-      document.getElementById('stat-max').textContent = stats.maxStreak;
-      document.getElementById('stats-modal').classList.add('active');
-    }
-
-    // Email capture
-    function showEmailModal() {
-      const today = new Date().toISOString().split('T')[0];
-      const lastShown = localStorage.getItem(STORAGE_KEYS.emailShown);
-      if (lastShown !== today && !isPremium()) {
-        document.getElementById('email-modal').classList.add('active');
-        localStorage.setItem(STORAGE_KEYS.emailShown, today);
-      }
-    }
-
-    function subscribeEmail() {
-      const email = document.getElementById('email-input').value;
-      if (email) {
-        const list = JSON.parse(localStorage.getItem('emailList') || '[]');
-        list.push({ email, date: GAME_DATE });
-        localStorage.setItem('emailList', JSON.stringify(list));
-        // In production: POST to /api/subscribe
-        console.log('Subscribed:', email);
-      }
-      closeModal('email-modal');
-    }
-
-    function dismissEmail() {
-      closeModal('email-modal');
-    }
-
-    // Archive navigation
-    function toggleArchive() {
-      const nav = document.getElementById('archive-nav');
-      nav.classList.toggle('hidden');
-    }
-
-    let archiveOffset = 0;
-    function loadPrevDay() {
-      archiveOffset--;
-      const date = new Date();
-      date.setDate(date.getDate() + archiveOffset);
-      window.location.href = `?date=${date.toISOString().split('T')[0]}`;
-    }
-
-    function loadNextDay() {
-      if (archiveOffset < 0) {
-        archiveOffset++;
-        const date = new Date();
-        date.setDate(date.getDate() + archiveOffset);
-        window.location.href = `?date=${date.toISOString().split('T')[0]}`;
-      }
-    }
-
-    // Share result
-    function shareResult() {
-      const emoji = gameState.guesses.map(guess => {
-        return guess.split('').map((letter, i) => {
-          if (TARGET_WORD[i] === letter) return '🟩';
-          if (TARGET_WORD.includes(letter)) return '🟨';
-          return '⬛';
-        }).join('');
-      }).join('\n');
-      
-      const text = `Word Guess ${GAME_DATE}\n${emoji}\n\nPlay: [URL]`;
-      navigator.clipboard.writeText(text).then(() => {
-        alert('Copied to clipboard!');
-      });
-    }
-
-    // Close modal
-    function closeModal(id) {
-      document.getElementById(id).classList.remove('active');
-    }
-
-    // Render board
-    function renderBoard() {
-      const board = document.getElementById('game-board');
-      board.innerHTML = '';
-      
-      for (let i = 0; i < 6; i++) {
-        const row = document.createElement('div');
-        row.className = 'row';
-        
-        for (let j = 0; j < 5; j++) {
-          const tile = document.createElement('div');
-          tile.className = 'tile';
-          
-          if (i < gameState.guesses.length) {
-            tile.textContent = gameState.guesses[j];
-            // Apply result colors from previous guesses
-            for (let g = 0; g < gameState.guesses.length; g++) {
-              const guess = gameState.guesses[g];
-              if (guess[j] === TARGET_WORD[j]) {
-                tile.classList.add('correct');
-              } else if (TARGET_WORD.includes(guess[j]) && !tile.classList.contains('correct')) {
-                tile.classList.add('present');
-              } else if (!tile.classList.contains('correct') && !tile.classList.contains('present')) {
-                tile.classList.add('absent');
-              }
-            }
-          } else if (i === gameState.guesses.length) {
-            tile.textContent = gameState.currentGuess[j] || '';
-            if (tile.textContent) tile.classList.add('filled');
-          }
-          
-          row.appendChild(tile);
-        }
-        board.appendChild(row);
-      }
-      
-      // Update keyboard
-      updateKeyboard();
-    }
-
-    // Update keyboard colors
-    function updateKeyboard() {
-      const keyboard = document.getElementById('keyboard');
-      const rows = [
-        'QWERTYUIOP',
-        'ASDFGHJKL',
-        'ZXCVBNM'
-      ];
-      
-      keyboard.innerHTML = '';
-      
-      rows.forEach((row, idx) => {
-        const rowDiv = document.createElement('div');
-        rowDiv.className = 'key-row';
-        
-        if (idx === 2) {
-          const hintBtn = document.createElement('button');
-          hintBtn.className = 'key wide';
-          hintBtn.textContent = 'HINT';
-          hintBtn.onclick = useHint;
-          rowDiv.appendChild(hintBtn);
-        }
-        
-        for (const char of row) {
-          const key = document.createElement('button');
-          key.className = 'key';
-          key.textContent = char;
-          
-          // Color based on guesses
-          gameState.guesses.forEach(guess => {
-            if (guess.includes(char)) {
-              if (TARGET_WORD.includes(char)) {
-                key.classList.add('present');
-              }
-              guess.split('').forEach((c, i) => {
-                if (c === char && TARGET_WORD[i] === char) {
-                  key.classList.remove('present');
-                  key.classList.add('correct');
-                }
-              });
-            }
-          });
-          
-          key.onclick = () => handleKey(char);
-          rowDiv.appendChild(key);
-        }
-        
-        if (idx === 2) {
-          const enterBtn = document.createElement('button');
-          enterBtn.className = 'key wide';
-          enterBtn.textContent = 'ENTER';
-          enterBtn.onclick = submitGuess;
-          rowDiv.appendChild(enterBtn);
-        }
-        
-        keyboard.appendChild(rowDiv);
-      });
-    }
-
-    // Handle key input
-    function handleKey(char) {
-      if (gameState.gameOver) return;
-      if (gameState.currentGuess.length < 5) {
-        gameState.currentGuess += char;
-        renderBoard();
-      }
-    }
-
-    // Submit guess
-    function submitGuess() {
-      if (gameState.gameOver) return;
-      if (gameState.currentGuess.length !== 5) return;
-      
-      const guess = gameState.currentGuess;
-      gameState.guesses.push(guess);
-      gameState.currentGuess = '';
-      
-      renderBoard();
-      
-      // Check win
-      if (guess === TARGET_WORD) {
-        gameState.gameOver = true;
-        gameState.won = true;
-        const stats = loadStats();
-        stats.played++;
-        stats.won++;
-        stats.streak++;
-        if (stats.streak > stats.maxStreak) stats.maxStreak = stats.streak;
-        saveStats(stats);
-        updateStreak();
-        
-        setTimeout(() => {
-          document.getElementById('result-title').textContent = 'You Won!';
-          document.getElementById('result-message').textContent = `Got it in ${gameState.guesses.length} tries!`;
-          document.getElementById('result-modal').classList.add('active');
-          showEmailModal();
-        }, 1000);
-      } else if (gameState.guesses.length >= 6) {
-        gameState.gameOver = true;
-        const stats = loadStats();
-        stats.played++;
-        stats.streak = 0;
-        saveStats(stats);
-        
-        setTimeout(() => {
-          document.getElementById('result-title').textContent = 'Game Over';
-          document.getElementById('result-message').textContent = `The word was ${TARGET_WORD}`;
-          document.getElementById('result-modal').classList.add('active');
-          showEmailModal();
-        }, 1000);
-      }
-    }
-
-    // Keyboard events
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        submitGuess();
-      } else if (e.key === 'Backspace') {
-        gameState.currentGuess = gameState.currentGuess.slice(0, -1);
-        renderBoard();
-      } else if (/^[a-zA-Z]$/.test(e.key)) {
-        handleKey(e.key.toUpperCase());
-      }
-    });
-
-    // Init
-    renderBoard();
-    checkFirstPlay();
-    checkReturnVisitor();
-    initPremium();
-
-    // Show archive date
-    document.getElementById('archive-date').textContent = GAME_DATE;
-  </script>
+</div>
 
 <script>
-// ==== josho.pro Premium Pass (v2) ====
-/**
- * josho.pro Premium Pass
- * Shared snippet — embed in all 9 games
- * 
- * CONFIG: Update STRIPE_CHECKOUT_URL before go-live
- * No external dependencies — pure localStorage + Stripe redirect
- */
+const WORDS = ["ABOUT","ABUSE","ACTOR","ACUTE","ADMIT","ADOPT","ADULT","AFTER","AGAIN","AGENT","AGREE","AHEAD","ALARM","ALBUM","ALERT","ALIKE","ALIVE","ALLEY","ALLOW","ALONE","ALONG","ALTER","ANGEL","ANGER","ANGLE","ANGRY","ANNOY","APART","APPLY","ARENA","ARGUE","ARISE","ARMOR","AROMA","ARROW","AUDIO","AUDIT","AVOID","AWFUL","BACON","BADGE","BADLY","BAKER","BAKED","BANGS","BANKS","BELLE","BENCH","BINGE","BLACK","BLAND","BLANK","BLAST","BLEED","BLEND","BLISS","BLOOM","BLOWN","BOARD","BOOST","BOOTH","BOXER","BRAIN","BRAVE","BREAK","BRIDE","BRIEF","BRINE","BRISK","BROAD","BROKE","BRUSH","BUDGE","BUNCH","BURST","BUYER","CABLE","CACHE","CANDY","CARGO","CARRY","CAUSE","CHAIN","CHAIR","CHAMP","CHAOS","CHARM","CHASE","CHEAP","CHEAT","CHECK","CHEEK","CHESS","CHEST","CHILD","CHIME","CHIMP","CHOKE","CHOSE","CHURN","CIVIC","CLAIM","CLAMP","CLANK","CLASH","CLASP","CLEAN","CLEAR","CLIMB","CLING","CLOSE","CLOUD","CLUNK","COACH","COAST","COMET","COMIC","CORAL","COUNT","COVER","CRAFT","CRANE","CRAVE","CRAWL","CRAZY","CREAK","CREEK","CREEP","CRIMP","CROSS","CROWD","CROWN","CRUMB","CRUST","CURLY","CURVE","CYCLE","DAILY","DANCE","DAZED","DEALT","DECAY","DECOY","DELAY","DEPOT","DEPTH","DERBY","DIGIT","DISCO","DIZZY","DODGE","DONOR","DOUBT","DOUGH","DOZEN","DRAMA","DRAWN","DREAM","DRESS","DRIED","DRINK","DRIVE","DRONE","DROVE","DRUNK","DRYER","DUMMY","DUSTY","DYING","EAGER","EARLY","EARTH","EIGHT","EMOJI","EMPTY","ENEMY","ENJOY","ENTER","EQUAL","ERROR","ESSAY","EXACT","EVENT","EVERY","EXIST","FABLE","FAINT","FAIRY","FAITH","FANCY","FATAL","FAULT","FEAST","FIELD","FIFTH","FIFTY","FIGHT","FLAIR","FLAME","FLANK","FLARE","FLESH","FLOCK","FLOOD","FLOSS","FLUID","FOCUS","FOGGY","FORCE","FORGE","FORTE","FOUND","FRAUD","FREAK","FRESH","FRONT","FROZE","FRUIT","FULLY","FUNNY","FUZZY","GENRE","GHOST","GIANT","GIVEN","GLARE","GLASS","GLAZE","GLIDE","GLOBE","GLOSS","GLOVE","GONNA","GOOFY","GRACE","GRADE","GRASP","GRASS","GRAVE","GREAT","GREET","GRIEF","GRUFF","GUARD","GUEST","GUSTO","HABIT","HAPPY","HARSH","HEART","HEAVY","HEDGE","HEIST","HELLO","HIPPO","HOARD","HONEY","HONOR","HOTEL","HOUND","HOUSE","HOVER","HUMAN","HUMID","HUMOR","HURRY","HYPER","IDIOM","IMPLY","INDEX","INDIE","INPUT","IRONY","ISSUE","IVORY","JEWEL","JOKER","JUMBO","JUMPY","JUICY","LABEL","LANCE","LARGE","LATER","LAUGH","LAYER","LEARN","LEAVE","LEGAL","LEMON","LEVEL","LIGHT","LIMIT","LINEN","LINER","LIVER","LOCAL","LODGE","LOGIC","LOOSE","LOVER","LUCKY","LUMPY","LUNCH","LYRIC","MACRO","MAKER","MANOR","MAPLE","MARCH","MARSH","MATCH","MAYOR","MEDIA","MERCY","MESSY","METAL","MIGHT","MIMIC","MIRTH","MISER","MIXED","MODEL","MONEY","MONTH","MORAL","MOTIF","MOUND","MOUNT","MOURN","MOVER","MOVIE","MUDDY","MUSHY","MUSKY","MUSTY","NAIVE","NASTY","NAVAL","NEEDY","NEVER","NEXUS","NIGHT","NINJA","NOBLE","NOISY","NORTH","NOTCH","NOVEL","NUDGE","OFFER","OFTEN","ORDER","OUTER","PACED","PANEL","PANIC","PAUSE","PEACE","PEACH","PEARL","PEDAL","PEPPY","PERKY","PETTY","PIANO","PIECE","PILOT","PINCH","PIXIE","PLACE","PLAIN","PLANE","PLANT","PLATE","PLAZA","PLEAD","PLEAT","PLUCK","PLUME","PLUMP","POINT","POKER","POLAR","POTTY","POWER","PRANK","PRESS","PRICE","PRIDE","PRIME","PRINT","PRIOR","PRIZE","PROBE","PROOF","PROSE","PROUD","PROVE","PROWL","PULSE","PUNCH","PUPIL","PURSE","PUSHY","QUEEN","QUERY","QUEUE","QUICK","QUIET","QUOTA","QUOTE","RABID","RADIO","RALLY","RAMEN","RANCH","RAPID","RAVEN","REACH","REALM","REBEL","RECAP","REFER","REIGN","RELAX","RELAY","REPAY","RIDER","RIDGE","RIFLE","RIGHT","RIGOR","RISEN","RIVET","ROCKY","ROUGH","ROUND","ROWDY","ROYAL","RUGBY","RULER","RUMOR","RUSTY","SADLY","SAINT","SALAD","SAUNA","SAVOR","SCENE","SCORE","SCOUT","SHAKE","SHAME","SHAPE","SHELF","SHELL","SHIFT","SHINE","SHIRT","SHOCK","SHORE","SHORT","SHOUT","SIGHT","SILLY","SINCE","SIXTH","SIXTY","SKILL","SKULL","SLASH","SLATE","SLEEP","SLEEK","SLICE","SLIDE","SLIME","SLOPE","SLOTH","SLUMP","SMALL","SMART","SMELL","SMILE","SMOKE","SNEAK","SNIFF","SOLAR","SOLVE","SORRY","SOUTH","SPACE","SPARE","SPARK","SPEAK","SPEAR","SPEED","SPEND","SPICE","SPIKE","SPILL","SPINE","SPITE","SPLIT","SPOKE","SPOOL","SPOON","SPORT","SPRAY","SQUAD","STAIN","STAKE","STALE","STAND","STARE","START","STATE","STEEP","STEER","STERN","STICK","STILL","STING","STOCK","STOMP","STONE","STOOL","STOUT","STORM","STORY","STRAW","STRIP","STUCK","STUDY","STUMP","STUNT","STYLE","SUGAR","SUNNY","SUPER","SURGE","SUSHI","SWEAR","SWEAT","SWEEP","SWEET","SWORD","TABOO","TAUNT","THORN","THREE","TIGER","TIGHT","TIMER","TIRED","TITLE","TODAY","TORCH","TOTAL","TOUCH","TOUGH","TOWEL","TOWER","TRACK","TRADE","TRAIN","TRAIT","TRASH","TREAT","TREND","TRIAL","TRICK","TROLL","TRUNK","TRUST","TRUTH","TWIST","UNDER","UNTIL","USUAL","UTTER","VAGUE","VALUE","VERSE","VIDEO","VIGOR","VIVID","VOCAB","VODKA","VOICE","VOTER","WACKY","WALTZ","WATCH","WATER","WEARY","WEDGE","WEIRD","WHILE","WITCH","WOMAN","WORLD","WORRY","WORSE","WORST","WORTH","WOUND","WRONG","WROTE","YOUNG","YOUTH","ZEBRA","VIRAL","CLOUT","RATIO","BASED","VALID","VIBES","SALTY","SHOOK","EXTRA","SAUCE","GRIND","SQUAD","SHADE","SPILL","TOXIC","GOATS","DRIPS","BRAND","DROPS","HYPES","BLOCK","CODED","ALPHA","STACK","TOKEN","BUILD","CLONE","MERGE","PATCH","DEBUG","CRASH","SPAWN","PIXEL","NODES","BULLS","BEARS","CALLS","PUMPS","POOLS","STAKE","YIELD","DELTA","HEDGE","SWAPS","LOANS","BONDS","COINS","BURNS","FLOOR","MINTS","WHALE","SHIPS","STANS","SPOIL","CANON","TROPE","SWIFT","FEVER","GOLDS","SMASH","CRUSH","MOODS","READS","BLAZE","CRISP","DREAD","ELITE","FLASH","GLOOM","HAVOC","NERVE","ORBIT","QUEST","RISKY","SIREN","UPPER","VITAL","WRATH","BLUNT","CHUNK","DRAFT","EPOCH","FLICK","GRASP","HASTE","INBOX","KARMA","LASER","MINOR","NOISE","PIVOT","QUIRK","RADAR","SLICK","TASTY","ULTRA","VENOM","WHIFF","YEARN","ZILCH"];
 
-// ============================================================
-// CONFIG (update these before go-live)
-// ============================================================
-const PREMIUM_CONFIG = {
-  STRIPE_CHECKOUT_URL: 'https://checkout.stripe.com/c/pay/cs_test_a1BG7d236UKlxCk4VQHUKCIRuAFpjrYNQ7S4zDXgp5Q3BOisfVKvRgmg6e#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdkdWxOYHwnPyd1blpxYHZxWjA0UTNGcH0wcnNhNWNmUWRSR0tuZG5JU111X3ZwXXRSTHBxMTJdTVZWa0M2dEBvM11BSl9PSFJDPFB1cDNofTN9R0JwQWB2TWp8NDQ2PTRzQzVsV3VtT0pWNTUxTHVsSFFSQycpJ2N3amhWYHdzYHcnP3F3cGApJ2dkZm5id2pwa2FGamlqdyc%2FJyZjY2NjY2MnKSdpZHxqcHFRfHVgJz8ndmxrYmlgWmxxYGgnKSdga2RnaWBVaWRmYG1qaWFgd3YnP3F3cGB4JSUl', // GM07 will populate this
-  PRICE_DISPLAY: '£2.99/month',
-  PRODUCT_NAME: 'josho.pro Premium Pass',
-  STORAGE_KEY: 'josho_premium_expires',  // localStorage key (timestamp ms)
-  FEATURES: {
-    removeAds: true,
-    hardMode: true,
-    archive: true,
+const MAX_TRIES = 6;
+let target, tries, guesses, startMs, gameOver;
+
+function dayIndex() {
+  const origin = new Date('2026-03-01T00:00:00Z');
+  return Math.floor((new Date() - origin) / 86400000) % WORDS.length;
+}
+
+function todayKey() {
+  const d = new Date();
+  return `josho-word-${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+}
+
+function init() {
+  const day = dayIndex();
+  target = WORDS[day];
+  tries = 0;
+  guesses = [];
+  startMs = Date.now();
+  gameOver = false;
+
+  document.getElementById('dayBadge').textContent = `Day ${day + 1}`;
+  updateStreakDisplay();
+
+  buildBoard();
+  buildKeyboard();
+
+  const saved = JSON.parse(localStorage.getItem(todayKey()) || 'null');
+  if (saved) {
+    guesses = saved.guesses || [];
+    tries = saved.tries || 0;
+    gameOver = saved.gameOver || false;
+    restoreBoard();
+    if (gameOver) setTimeout(() => showResult(), 500);
   }
-};
 
-// ============================================================
-// CORE FUNCTIONS
-// ============================================================
-
-/**
- * Check if the user currently has an active premium pass
- * Returns true if premium, false if not
- */
-function isPremium() {
-  try {
-    const expires = parseInt(localStorage.getItem(PREMIUM_CONFIG.STORAGE_KEY) || '0', 10);
-    return expires > Date.now();
-  } catch (e) {
-    return false;
-  }
-}
-
-/**
- * Activate premium locally (call after Stripe webhook confirms payment)
- * Sets expiry to 31 days from now by default
- * In production: set expiry from webhook payload
- * @param {number} durationMs - duration in milliseconds (default: 31 days)
- */
-function activatePremium(durationMs = 31 * 24 * 60 * 60 * 1000) {
-  const expires = Date.now() + durationMs;
-  localStorage.setItem(PREMIUM_CONFIG.STORAGE_KEY, String(expires));
-  applyPremiumState();
-}
-
-/**
- * Deactivate premium (for testing or expiry handling)
- */
-function deactivatePremium() {
-  localStorage.removeItem(PREMIUM_CONFIG.STORAGE_KEY);
-  applyPremiumState();
-}
-
-/**
- * Redirect to Stripe Checkout
- */
-function startCheckout() {
-  if (PREMIUM_CONFIG.STRIPE_CHECKOUT_URL === 'https://checkout.stripe.com/c/pay/cs_test_a1BG7d236UKlxCk4VQHUKCIRuAFpjrYNQ7S4zDXgp5Q3BOisfVKvRgmg6e#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdkdWxOYHwnPyd1blpxYHZxWjA0UTNGcH0wcnNhNWNmUWRSR0tuZG5JU111X3ZwXXRSTHBxMTJdTVZWa0M2dEBvM11BSl9PSFJDPFB1cDNofTN9R0JwQWB2TWp8NDQ2PTRzQzVsV3VtT0pWNTUxTHVsSFFSQycpJ2N3amhWYHdzYHcnP3F3cGApJ2dkZm5id2pwa2FGamlqdyc%2FJyZjY2NjY2MnKSdpZHxqcHFRfHVgJz8ndmxrYmlgWmxxYGgnKSdga2RnaWBVaWRmYG1qaWFgd3YnP3F3cGB4JSUl') {
-    console.warn('Premium Pass: Stripe URL not configured yet');
-    return;
-  }
-  window.location.href = PREMIUM_CONFIG.STRIPE_CHECKOUT_URL;
-}
-
-// ============================================================
-// UI STATE
-// ============================================================
-
-/**
- * Apply or remove premium state across the page
- * Hides/shows ads, unlocks hard mode toggle, enables archive
- */
-function applyPremiumState() {
-  const premium = isPremium();
-
-  // Ad slots: hide if premium
-  document.querySelectorAll('.ad-slot').forEach(el => {
-    el.style.display = premium ? 'none' : '';
+  document.addEventListener('keydown', e => {
+    if (gameOver) return;
+    if (/^[a-z]$/i.test(e.key)) addLetter(e.key.toUpperCase());
+    else if (e.key === 'Backspace') removeLetter();
+    else if (e.key === 'Enter') submit();
   });
-
-  // Hard mode: enable if premium
-  const hardModeBtn = document.getElementById('hardModeToggle');
-  if (hardModeBtn) {
-    hardModeBtn.disabled = !premium;
-    hardModeBtn.title = premium ? 'Hard mode unlocked' : 'Premium feature';
-  }
-
-  // Archive button: enable if premium
-  const archiveBtn = document.getElementById('archiveBtn');
-  if (archiveBtn) {
-    archiveBtn.disabled = !premium;
-    archiveBtn.title = premium ? 'View archive' : 'Premium feature — upgrade to unlock';
-  }
-
-  // Premium badge: show/hide
-  const premiumBadge = document.getElementById('premiumBadge');
-  if (premiumBadge) {
-    premiumBadge.style.display = premium ? 'flex' : 'none';
-  }
-
-  // Upgrade banner: show/hide
-  const upgradeBanner = document.getElementById('upgradeBanner');
-  if (upgradeBanner) {
-    upgradeBanner.style.display = premium ? 'none' : '';
-  }
-}
-
-// ============================================================
-// UPGRADE MODAL
-// ============================================================
-
-/**
- * Render and inject upgrade modal into DOM
- * Call once per page — idempotent
- */
-function renderUpgradeModal() {
-  if (document.getElementById('premiumModal')) return; // already rendered
-
-  const modal = document.createElement('div');
-  modal.id = 'premiumModal';
-  modal.style.cssText = `
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  `;
-
-  modal.innerHTML = `
-    <div style="
-      background: #1a1a2e;
-      border: 1px solid #e91e8c33;
-      border-radius: 16px;
-      padding: 32px 24px;
-      max-width: 380px;
-      width: 90%;
-      text-align: center;
-      color: #f0f0f0;
-    ">
-      <div style="font-size: 2rem; margin-bottom: 8px;">⭐</div>
-      <h2 style="margin: 0 0 8px; font-size: 1.4rem; color: #fff;">josho.pro Premium</h2>
-      <p style="margin: 0 0 20px; color: #aaa; font-size: 0.95rem;">${PREMIUM_CONFIG.PRICE_DISPLAY} — cancel any time</p>
-      
-      <ul style="text-align: left; padding: 0 0 0 16px; margin: 0 0 24px; color: #ccc; font-size: 0.9rem; line-height: 1.8;">
-        <li>🚫 Remove all ads across every game</li>
-        <li>🔥 Hard mode unlocked</li>
-        <li>📅 Full archive access</li>
-        <li>🎮 All 9 games, all features</li>
-      </ul>
-
-      <button onclick="startCheckout()" style="
-        background: linear-gradient(135deg, #e91e8c, #9c27b0);
-        color: white;
-        border: none;
-        padding: 14px 32px;
-        border-radius: 8px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        width: 100%;
-        margin-bottom: 12px;
-      ">Upgrade for ${PREMIUM_CONFIG.PRICE_DISPLAY}</button>
-
-      <button onclick="document.getElementById('premiumModal').style.display='none'" style="
-        background: transparent;
-        color: #666;
-        border: none;
-        cursor: pointer;
-        font-size: 0.85rem;
-        padding: 4px;
-      ">Maybe later</button>
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-}
-
-/**
- * Show the upgrade modal
- */
-function showUpgradeModal() {
-  renderUpgradeModal();
-  const modal = document.getElementById('premiumModal');
-  if (modal) modal.style.display = 'flex';
-}
-
-// ============================================================
-// INIT
-// ============================================================
-
-/**
- * Initialise premium pass on page load
- * Call this at the bottom of each game's <script> block
- */
-function initPremiumPass() {
-  // Render modal (lazy — doesn't show until needed)
-  renderUpgradeModal();
   
-  // Apply current premium state
-  applyPremiumState();
+  document.getElementById('shareBtn').onclick = share;
+  document.getElementById('closeBtn').onclick = () => document.getElementById('result').classList.remove('show');
+}
 
-  // Handle Stripe success redirect: ?premium_activated=1
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('premium_activated') === '1') {
-    activatePremium();
-    // Clean URL
-    const url = new URL(window.location);
-    url.searchParams.delete('premium_activated');
-    window.history.replaceState({}, '', url);
+function buildBoard() {
+  const bd = document.getElementById('board');
+  bd.innerHTML = '';
+  for (let r = 0; r < MAX_TRIES; r++) {
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.id = `row-${r}`;
+    for (let c = 0; c < 5; c++) {
+      const tile = document.createElement('div');
+      tile.className = 'tile';
+      tile.id = `tile-${r}-${c}`;
+      row.appendChild(tile);
+    }
+    bd.appendChild(row);
   }
-
-  console.log(`josho.pro Premium Pass loaded. Status: ${isPremium() ? 'ACTIVE' : 'inactive'}`);
 }
 
-// Auto-init on DOM ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initPremiumPass);
-} else {
-  initPremiumPass();
+function buildKeyboard() {
+  const kbRows = [
+    ['Q','W','E','R','T','Y','U','I','O','P'],
+    ['A','S','D','F','G','H','J','K','L'],
+    ['ENTER','Z','X','C','V','B','N','M','DEL']
+  ];
+  const kb = document.getElementById('keyboard');
+  kb.innerHTML = '';
+  kbRows.forEach(row => {
+    const div = document.createElement('div');
+    div.className = 'kb-row';
+    row.forEach(k => {
+      const btn = document.createElement('div');
+      btn.className = 'key' + (k.length > 1 ? ' wide' : '');
+      btn.textContent = k;
+      btn.dataset.key = k;
+      btn.onclick = () => {
+        if (k === 'ENTER') submit();
+        else if (k === 'DEL') removeLetter();
+        else addLetter(k);
+      };
+      div.appendChild(btn);
+    });
+    kb.appendChild(div);
+  });
 }
 
+function currentGuess() {
+  if (tries >= guesses.length) return '';
+  return guesses[tries];
+}
+
+function addLetter(k) {
+  if (currentGuess().length >= 5) return;
+  const row = currentGuess() + k;
+  
+  const col = row.length - 1;
+  const tile = document.getElementById(`tile-${tries}-${col}`);
+  tile.textContent = k;
+  tile.classList.add('filled');
+  
+  guesses[tries] = row;
+  save();
+}
+
+function removeLetter() {
+  const g = currentGuess();
+  if (g.length === 0) return;
+  const col = g.length - 1;
+  guesses[tries] = g.slice(0, -1);
+  
+  const tile = document.getElementById(`tile-${tries}-${col}`);
+  tile.textContent = '';
+  tile.classList.remove('filled');
+  save();
+}
+
+function submit() {
+  const g = currentGuess();
+  if (g.length !== 5) { toast('Need 5 letters'); return; }
+  if (!WORDS.includes(g)) { shake(tries); toast('Not a word'); return; }
+  
+  revealRow(tries, g, () => {
+    if (g === target) {
+      gameOver = true;
+      updateStreak(true);
+      save();
+      setTimeout(() => showResult(), 500);
+    } else if (tries + 1 >= MAX_TRIES) {
+      gameOver = true;
+      updateStreak(false);
+      save();
+      setTimeout(() => showResult(), 500);
+    } else {
+      tries++;
+      save();
+    }
+  });
+}
+
+function score(guess) {
+  const s = Array(5).fill('absent');
+  const t = target.split('');
+  const used = new Set();
+  
+  for (let i = 0; i < 5; i++) {
+    if (guess[i] === t[i]) { s[i] = 'correct'; used.add(i); }
+  }
+  for (let i = 0; i < 5; i++) {
+    if (s[i] === 'correct') continue;
+    for (let j = 0; j < 5; j++) {
+      if (!used.has(j) && guess[i] === t[j]) { s[i] = 'present'; used.add(j); break; }
+    }
+  }
+  return s;
+}
+
+function revealRow(r, guess, cb) {
+  const s = score(guess);
+  let done = 0;
+  for (let c = 0; c < 5; c++) {
+    const tile = document.getElementById(`tile-${r}-${c}`);
+    setTimeout(() => {
+      tile.classList.add('flip');
+      setTimeout(() => {
+        tile.dataset.state = s[c];
+        done++;
+        if (done === 5) cb();
+      }, 175);
+    }, c * 80);
+  }
+  s.forEach((st, i) => {
+    const keys = document.querySelectorAll(`.key[data-key="${guess[i]}"]`);
+    keys.forEach(k => {
+      const cur = k.dataset.state || '';
+      const pri = { correct: 3, present: 2, absent: 1 };
+      if ((pri[st] || 0) > (pri[cur] || 0)) k.dataset.state = st;
+    });
+  });
+}
+
+function restoreBoard() {
+  guesses.forEach((g, r) => {
+    const s = score(g);
+    g.split('').forEach((c, col) => {
+      const tile = document.getElementById(`tile-${r}-${col}`);
+      tile.textContent = c;
+      tile.dataset.state = s[col];
+    });
+  });
+}
+
+function shake(r) {
+  const row = document.getElementById(`row-${r}`);
+  row.classList.add('shake');
+  setTimeout(() => row.classList.remove('shake'), 400);
+}
+
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.getElementById('toast-area').appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 250); }, 1800);
+}
+
+function updateStreakDisplay() {
+  const s = parseInt(localStorage.getItem('josho-word-streak') || '0');
+  document.getElementById('streakBadge').textContent = s + ' streak';
+}
+
+function updateStreak(won) {
+  const lastKey = 'josho-word-last';
+  const streakKey = 'josho-word-streak';
+  const day = dayIndex();
+  const lastDay = parseInt(localStorage.getItem(lastKey) || '-1');
+  
+  if (won) {
+    if (lastDay === day - 1) {
+      const s = parseInt(localStorage.getItem(streakKey) || '0') + 1;
+      localStorage.setItem(streakKey, s);
+    } else if (lastDay !== day) {
+      localStorage.setItem(streakKey, '1');
+    }
+    localStorage.setItem(lastKey, day);
+  }
+  updateStreakDisplay();
+}
+
+function showResult() {
+  const won = guesses[tries] === target;
+  const time = Math.round((Date.now() - startMs) / 1000);
+  
+  document.getElementById('resultTitle').textContent = won ? 'Solved' : 'Game Over';
+  document.getElementById('resultWord').textContent = target;
+  document.getElementById('statGuesses').textContent = won ? (tries + 1) + '/6' : 'X/6';
+  document.getElementById('statTime').textContent = time + 's';
+  document.getElementById('statStreak').textContent = localStorage.getItem('josho-word-streak') || '0';
+  
+  document.getElementById('result').classList.add('show');
+}
+
+function share() {
+  const blocks = ['⬛','🟨','🟩'];
+  const won = guesses[tries] === target;
+  const lines = guesses.map(g => score(g).map(s => blocks[['absent','present','correct'].indexOf(s)]).join('')).join('\n');
+  const text = `josho.pro/games/word\nDay ${dayIndex() + 1}  ${won ? (tries + 1) : 'X'}/6\n\n${lines}`;
+  
+  navigator.clipboard.writeText(text).then(() => {
+    document.getElementById('copyMsg').textContent = 'Copied';
+    setTimeout(() => document.getElementById('copyMsg').textContent = '', 2000);
+  });
+}
+
+function save() {
+  localStorage.setItem(todayKey(), JSON.stringify({ guesses, tries, gameOver }));
+}
+
+init();
 </script>
-<script src="/streak.js"></script>
-<script src="/premium-gate.js"></script>
 </body>
 </html>
