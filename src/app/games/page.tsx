@@ -2,9 +2,6 @@
 
 import Link from 'next/link'
 
-  title: 'Games | josho.pro',
-  description: 'Free daily games — word, puzzle, logic and more',
-}
 
 const games = [
   { slug: 'word',        title: 'Word Guess',    emoji: '🔤', desc: 'Guess the 5-letter word in 6 tries' },
