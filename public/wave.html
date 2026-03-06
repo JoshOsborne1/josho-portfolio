@@ -1,611 +1,500 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wavelength</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap');
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Wavelength</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;900&display=swap');
 
-        :root {
-            --bg-base: #030305;
-            --bg-glow: #1e112a;
-            --surface: rgba(20, 20, 25, 0.6);
-            --wire: rgba(255, 255, 255, 0.1);
-            --wire-strong: rgba(255, 255, 255, 0.25);
-            --text-primary: #ffffff;
-            --text-secondary: #a1a1aa;
-            --violet: #8b5cf6;
-            --amber: #fbbf24;
-            --slate: #64748b;
-            --pink: #ec4899;
-            --font-sans: 'Inter', system-ui, sans-serif;
-            --font-serif: 'Playfair Display', serif;
-        }
+:root {
+    --bg-dark: #09090b;
+    --bg-panel: #18181b;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent-violet: #7c3aed;
+    --accent-amber: #f59e0b;
+    --accent-slate: #64748b;
+    --wire: rgba(255, 255, 255, 0.08);
+}
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-        body {
-            background-color: var(--bg-base);
-            background-image: radial-gradient(circle at top center, var(--bg-glow) 0%, var(--bg-base) 70%);
-            color: var(--text-primary);
-            font-family: var(--font-sans);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            user-select: none;
-            -webkit-user-select: none;
-        }
+body {
+    background-color: var(--bg-dark);
+    background-image: radial-gradient(circle at top, rgba(124, 58, 237, 0.15) 0%, var(--bg-dark) 80%);
+    color: var(--text-main);
+    font-family: 'Outfit', system-ui, sans-serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+}
 
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            padding: 24px 16px;
-            position: relative;
-        }
+.app-container {
+    max-width: 500px;
+    margin: 0 auto;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 20px;
+    position: relative;
+}
 
-        /* Header & Scores */
-        header {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 24px;
-            position: relative;
-        }
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-panel);
+    border: 1px solid var(--wire);
+    border-radius: 20px;
+    padding: 8px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.team {
+    flex: 1;
+    text-align: center;
+    padding: 12px 8px;
+    border-radius: 14px;
+    transition: all 0.3s;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+.team.active {
+    background: rgba(124, 58, 237, 0.1);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    box-shadow: inset 0 0 20px rgba(124, 58, 237, 0.05);
+}
+.team-name {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+.team.active .team-name { color: var(--accent-violet); }
+.team-score {
+    font-size: 2rem;
+    font-weight: 900;
+    line-height: 1;
+}
+.divider { width: 1px; height: 40px; background: var(--wire); margin: 0 8px; }
 
-        .title {
-            font-family: var(--font-serif);
-            font-size: 24px;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.9);
-            margin-bottom: 20px;
-            text-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
-        }
+/* Message Banner */
+.message-banner {
+    text-align: center;
+    margin-top: 32px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    min-height: 48px;
+    line-height: 1.4;
+}
+.message-banner .highlight { color: var(--text-main); font-weight: 700; }
 
-        .new-game-btn {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background: transparent;
-            border: 1px solid var(--wire);
-            color: var(--text-secondary);
-            font-size: 11px;
-            padding: 6px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+/* Dial */
+.dial-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    margin: 20px 0;
+}
+#dial {
+    width: 100%;
+    overflow: visible;
+    touch-action: none;
+}
+#target-group {
+    transition: opacity 0.4s ease;
+}
 
-        .teams-container {
-            display: flex;
-            width: 100%;
-            justify-content: space-between;
-            gap: 16px;
-        }
+/* Words */
+.word-pair {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+    padding: 0;
+    gap: 12px;
+}
+.word {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    background: var(--bg-panel);
+    border: 1px solid var(--wire);
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    flex: 1;
+    text-align: center;
+    line-height: 1.2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-        .team {
-            flex: 1;
-            background: var(--surface);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid var(--wire);
-            border-radius: 12px;
-            padding: 12px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
+/* Bottom Actions */
+.bottom-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: auto;
+    padding-bottom: 12px;
+}
+.result-display {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 900;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0;
+}
+.result-display.bullseye { color: var(--accent-violet); text-shadow: 0 0 15px rgba(124, 58, 237, 0.5); }
+.result-display.close { color: var(--accent-amber); text-shadow: 0 0 15px rgba(245, 158, 11, 0.5); }
+.result-display.near { color: var(--accent-slate); text-shadow: 0 0 15px rgba(100, 116, 139, 0.5); }
+.result-display.miss { color: var(--text-muted); }
 
-        .team.active {
-            border-color: var(--violet);
-            box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
-            background: rgba(139, 92, 246, 0.1);
-        }
-
-        .team-name {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-            cursor: pointer;
-        }
-
-        .team.active .team-name {
-            color: var(--text-primary);
-        }
-
-        .team-score {
-            font-size: 28px;
-            font-weight: 600;
-            font-family: var(--font-serif);
-        }
-
-        /* Play Area */
-        main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            position: relative;
-        }
-
-        .game-message {
-            text-align: center;
-            font-size: 16px;
-            color: var(--text-secondary);
-            min-height: 48px;
-            margin-bottom: 16px;
-            line-height: 1.4;
-        }
-
-        .game-message strong {
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
-        .dial-container {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
-            touch-action: none;
-        }
-
-        .dial-svg-wrapper {
-            position: relative;
-            width: 100%;
-            padding-bottom: 55%; /* Aspect ratio for semicircle */
-        }
-
-        svg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: visible;
-        }
-
-        .word-pair {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 16px;
-            font-size: 14px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-
-        .word-left {
-            color: var(--text-secondary);
-            flex: 1;
-            text-align: left;
-            padding-right: 10px;
-        }
-
-        .word-right {
-            color: var(--text-secondary);
-            flex: 1;
-            text-align: right;
-            padding-left: 10px;
-        }
-
-        /* Controls */
-        footer {
-            margin-top: auto;
-            padding-top: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .btn-primary {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--wire-strong);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            color: var(--text-primary);
-            font-family: var(--font-sans);
-            font-size: 16px;
-            font-weight: 600;
-            padding: 16px 24px;
-            border-radius: 12px;
-            cursor: pointer;
-            width: 100%;
-            transition: all 0.2s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn-primary:active {
-            transform: scale(0.98);
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .btn-primary.highlight {
-            background: rgba(139, 92, 246, 0.2);
-            border-color: var(--violet);
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
-        }
-
-        .score-display {
-            text-align: center;
-            font-size: 20px;
-            font-family: var(--font-serif);
-            color: var(--text-primary);
-            opacity: 0;
-            transform: translateY(10px);
-            transition: all 0.4s ease;
-        }
-
-        .score-display.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .score-display.bullseye { color: var(--violet); text-shadow: 0 0 10px rgba(139, 92, 246, 0.6); }
-        .score-display.close { color: var(--amber); text-shadow: 0 0 10px rgba(245, 158, 11, 0.6); }
-        .score-display.near { color: var(--slate); }
-        .score-display.miss { color: var(--text-secondary); }
-
-    </style>
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent-violet), #9333ea);
+    border: none;
+    border-radius: 16px;
+    color: white;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.25);
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: pointer;
+    letter-spacing: 0.05em;
+}
+.btn-primary:active {
+    transform: scale(0.96);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
+}
+.btn-primary.alt {
+    background: var(--bg-panel);
+    border: 1px solid var(--wire);
+    box-shadow: none;
+    color: var(--text-main);
+}
+.btn-secondary {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    padding: 12px;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="title">Wavelength</div>
-            <button class="new-game-btn" onclick="resetGame()">New Game</button>
-            <div class="teams-container" id="teams-container">
-                <!-- Teams injected via JS -->
-            </div>
-        </header>
 
-        <main>
-            <div class="game-message" id="game-message">
-                <!-- Message injected via JS -->
-            </div>
-            
-            <div class="dial-container">
-                <div class="dial-svg-wrapper">
-                    <svg id="dial-svg" viewBox="0 0 400 220" preserveAspectRatio="xMidYMax meet">
-                        <defs>
-                            <filter id="glow-target" x="-20%" y="-20%" width="140%" height="140%">
-                                <feGaussianBlur stdDeviation="3" result="blur" />
-                                <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                            </filter>
-                            <filter id="glow-needle" x="-50%" y="-50%" width="200%" height="200%">
-                                <feGaussianBlur stdDeviation="2" result="blur" />
-                                <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                            </filter>
-                        </defs>
-                        
-                        <!-- Base Dial -->
-                        <path d="M 200 200 L 20 200 A 180 180 0 0 1 380 200 Z" fill="#0f172a" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
-                        
-                        <!-- Target Zones Group -->
-                        <g id="target-group" style="display:none;" filter="url(#glow-target)">
-                            <path id="target-near" fill="var(--slate)" />
-                            <path id="target-close" fill="var(--amber)" />
-                            <path id="target-bullseye" fill="var(--violet)" />
-                        </g>
-                        
-                        <!-- Center Cover -->
-                        <circle cx="200" cy="200" r="24" fill="#030305" stroke="rgba(255,255,255,0.1)" stroke-width="2" />
-                        
-                        <!-- Needle Group -->
-                        <g id="needle-group" transform="rotate(90, 200, 200)" filter="url(#glow-needle)">
-                            <!-- Needle points LEFT at 0 rotation, so it sweeps 0 to 180 properly based on our math -->
-                            <line x1="200" y1="200" x2="30" y2="200" stroke="#ffffff" stroke-width="4" stroke-linecap="round" />
-                            <circle cx="200" cy="200" r="8" fill="#ffffff" />
-                        </g>
-                    </svg>
-                </div>
-                
-                <div class="word-pair">
-                    <div class="word-left" id="word-left">Word 1</div>
-                    <div class="word-right" id="word-right">Word 2</div>
-                </div>
-            </div>
-        </main>
-
-        <footer>
-            <div class="score-display" id="score-display">0 Points</div>
-            <button class="btn-primary" id="action-btn" onclick="handleAction()">Start Game</button>
-        </footer>
+<div class="app-container">
+    <div class="header">
+        <div class="team" id="team-0" onclick="editTeamName(0)">
+            <div class="team-name" id="tname-0">TEAM 1</div>
+            <div class="team-score" id="tscore-0">0</div>
+        </div>
+        <div class="divider"></div>
+        <div class="team" id="team-1" onclick="editTeamName(1)">
+            <div class="team-name" id="tname-1">TEAM 2</div>
+            <div class="team-score" id="tscore-1">0</div>
+        </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <script>
-        // --- Game Data ---
-        const pairs = [
-            ["Bad Company","Good Company"],["Terrible Movie","Great Movie"],["Cold","Hot"],
-            ["Ugly","Beautiful"],["Worst Day Ever","Best Day Ever"],["Boring Hobby","Exciting Hobby"],
-            ["Useless Superpower","Awesome Superpower"],["Lame Party Trick","Cool Party Trick"],
-            ["Terrible First Date Spot","Perfect First Date Spot"],["Worst Pizza Topping","Best Pizza Topping"],
-            ["Annoying Sound","Satisfying Sound"],["Uncomfortable Clothing","Comfy Clothing"],
-            ["Worst Smell","Best Smell"],["Terrible Gift","Thoughtful Gift"],["Forgettable Song","Catchy Song"],
-            ["Terrible Pickup Line","Smooth Pickup Line"],["Annoying Habit","Endearing Quirk"],
-            ["Feels Bad","Feels Good"],["Hard","Soft"],["Villain","Hero"],["Common","Rare"],
-            ["Bad Influence","Role Model"],["Pointy Animal","Round Animal"],["Useless","Useful"],
-            ["Quiet Place","Loud Place"],["Worst Chore","Most Satisfying Chore"],
-            ["Worst Board Game","Addictive Board Game"],["Terrible Vacation Spot","Dream Vacation Destination"],
-            ["Terrible Roommate Habit","Ideal Roommate Quality"],["Terrible Wifi Network Name","Clever Wifi Network Name"]
-        ];
+    <div class="message-banner" id="message-banner"></div>
 
-        // --- State ---
-        let state = {
-            phase: 'setup', // setup, turn_start, psychic_view, guesser_view, score_view
-            teams: [
-                { id: 0, name: 'Team 1', score: 0 },
-                { id: 1, name: 'Team 2', score: 0 }
-            ],
-            currentTeamIndex: 0,
-            currentPair: ["", ""],
-            targetAngle: 90,
-            needleAngle: 90,
-            lastPoints: 0
-        };
-
-        // --- Persistence ---
-        function loadState() {
-            try {
-                const saved = localStorage.getItem('wavelength_teams');
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-                    state.teams[0].name = parsed[0].name;
-                    state.teams[1].name = parsed[1].name;
-                }
-            } catch (e) {}
-        }
-
-        function saveState() {
-            localStorage.setItem('wavelength_teams', JSON.stringify(state.teams));
-        }
-
-        // --- Initialization ---
-        const svg = document.getElementById('dial-svg');
-        const needleGroup = document.getElementById('needle-group');
-        const targetGroup = document.getElementById('target-group');
-        let isDragging = false;
-
-        function init() {
-            loadState();
-            state.phase = 'turn_start';
-            setupRound();
-            render();
-        }
-
-        function setupRound() {
-            // Pick pair
-            const randomPair = pairs[Math.floor(Math.random() * pairs.length)];
-            state.currentPair = randomPair;
-            // Target angle between 22.5 and 157.5
-            state.targetAngle = Math.random() * (157.5 - 22.5) + 22.5;
-            state.needleAngle = 90;
-            drawTargetZones();
-        }
-
-        function resetGame() {
-            state.teams[0].score = 0;
-            state.teams[1].score = 0;
-            state.currentTeamIndex = 0;
-            saveState();
-            state.phase = 'turn_start';
-            setupRound();
-            render();
-        }
-
-        function renameTeam(index) {
-            const newName = prompt("Enter team name:", state.teams[index].name);
-            if (newName && newName.trim().length > 0) {
-                state.teams[index].name = newName.trim();
-                saveState();
-                render();
-            }
-        }
-
-        // --- Math & SVG Drawing ---
-        // Angle mapping: 0 is Left, 180 is Right. Center is 200,200. Radius is 180 max.
-        function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
-            // Because 0 is Left and 180 is Right:
-            // x = cx - r * cos(angle)
-            // y = cy - r * sin(angle)
-            let angleInRadians = angleInDegrees * Math.PI / 180.0;
-            return {
-                x: centerX - (radius * Math.cos(angleInRadians)),
-                y: centerY - (radius * Math.sin(angleInRadians))
-            };
-        }
-
-        function describeWedge(x, y, radius, startAngle, endAngle) {
-            let start = polarToCartesian(x, y, radius, endAngle);
-            let end = polarToCartesian(x, y, radius, startAngle);
-            // sweep-flag is 0 because we draw from endAngle to startAngle (decreasing angle)
-            return [
-                "M", x, y,
-                "L", start.x, start.y,
-                "A", radius, radius, 0, 0, 0, end.x, end.y,
-                "Z"
-            ].join(" ");
-        }
-
-        function drawTargetZones() {
-            let t = state.targetAngle;
-            document.getElementById('target-near').setAttribute('d', describeWedge(200, 200, 180, t - 22.5, t + 22.5));
-            document.getElementById('target-close').setAttribute('d', describeWedge(200, 200, 180, t - 13.5, t + 13.5));
-            document.getElementById('target-bullseye').setAttribute('d', describeWedge(200, 200, 180, t - 4.5, t + 4.5));
-        }
-
-        // --- Drag Handling ---
-        function updateNeedleAngle(clientX, clientY) {
-            let rect = svg.getBoundingClientRect();
-            // True center mapped to screen
-            let scaleX = rect.width / 400;
-            let scaleY = rect.height / 220;
-            let trueCx = rect.left + 200 * scaleX;
-            let trueCy = rect.top + 200 * scaleY;
-
-            let dx = clientX - trueCx;
-            let dy = clientY - trueCy;
+    <div class="dial-wrapper">
+        <svg id="dial" viewBox="0 0 400 240">
+            <defs>
+               <filter id="glow-violet" x="-50%" y="-50%" width="200%" height="200%">
+                   <feGaussianBlur stdDeviation="4" result="blur" />
+                   <feComposite in="SourceGraphic" in2="blur" operator="over" />
+               </filter>
+               <filter id="glow-white" x="-50%" y="-50%" width="200%" height="200%">
+                   <feGaussianBlur stdDeviation="2" result="blur" />
+                   <feComposite in="SourceGraphic" in2="blur" operator="over" />
+               </filter>
+            </defs>
             
-            let rad = Math.atan2(dy, dx);
-            // atan2 yields rad from -PI to PI.
-            // Map to 0 (Left) to 180 (Right)
-            let angle = (rad * 180 / Math.PI) + 180;
-            if (angle < 0) angle = 0;
-            if (angle > 180) angle = 180;
+            <!-- Base track -->
+            <path d="M 40 200 A 160 160 0 0 1 360 200" fill="none" stroke="#1e293b" stroke-width="30" stroke-linecap="round"/>
             
-            state.needleAngle = angle;
-            needleGroup.setAttribute('transform', `rotate(${state.needleAngle}, 200, 200)`);
-        }
+            <!-- Target arcs -->
+            <g id="target-group" fill="none" stroke-linecap="butt">
+                <path id="arc-near" stroke="var(--accent-slate)" stroke-width="30" />
+                <path id="arc-close" stroke="var(--accent-amber)" stroke-width="30" />
+                <path id="arc-bullseye" stroke="var(--accent-violet)" stroke-width="30" filter="url(#glow-violet)" />
+            </g>
 
-        function handleTouchStart(e) {
-            if (state.phase !== 'guesser_view') return;
-            isDragging = true;
-            needleGroup.style.transition = 'none';
-            handleTouchMove(e);
-        }
+            <!-- Base markers / decorative ticks -->
+            <path d="M 200 25 L 200 35 M 40 200 L 50 200 M 360 200 L 350 200" stroke="rgba(255,255,255,0.2)" stroke-width="2" stroke-linecap="round"/>
 
-        function handleTouchMove(e) {
-            if (!isDragging || state.phase !== 'guesser_view') return;
-            e.preventDefault(); // prevent scrolling
-            let clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            let clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            updateNeedleAngle(clientX, clientY);
-        }
+            <!-- Needle -->
+            <g id="needle" transform="rotate(90, 200, 200)" style="transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                <line x1="200" y1="200" x2="35" y2="200" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+                <circle cx="35" cy="200" r="4" fill="#ffffff" filter="url(#glow-white)"/>
+            </g>
 
-        function handleTouchEnd(e) {
-            if (isDragging) {
-                isDragging = false;
-                needleGroup.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
-            }
-        }
+            <!-- Center hub -->
+            <circle cx="200" cy="200" r="24" fill="var(--bg-dark)" stroke="#1e293b" stroke-width="4"/>
+            <circle cx="200" cy="200" r="6" fill="#334155" />
+        </svg>
 
-        svg.addEventListener('mousedown', handleTouchStart);
-        window.addEventListener('mousemove', handleTouchMove, { passive: false });
-        window.addEventListener('mouseup', handleTouchEnd);
+        <div class="word-pair">
+            <div class="word left" id="word-left"></div>
+            <div class="word right" id="word-right"></div>
+        </div>
+    </div>
 
-        svg.addEventListener('touchstart', handleTouchStart, { passive: false });
-        window.addEventListener('touchmove', handleTouchMove, { passive: false });
-        window.addEventListener('touchend', handleTouchEnd);
+    <div class="bottom-actions">
+        <div class="result-display" id="result-display">
+            <span id="result-text"></span>
+        </div>
+        <button class="btn-primary" id="main-btn" onclick="handleMainAction()">REVEAL TARGET</button>
+        <button class="btn-secondary" onclick="resetGame()">NEW GAME</button>
+    </div>
+</div>
 
-        // --- Flow Actions ---
-        function handleAction() {
-            if (state.phase === 'turn_start') {
-                state.phase = 'psychic_view';
-            } else if (state.phase === 'psychic_view') {
-                state.phase = 'guesser_view';
-            } else if (state.phase === 'guesser_view') {
-                calculateScore();
-                state.phase = 'score_view';
-            } else if (state.phase === 'score_view') {
-                state.currentTeamIndex = (state.currentTeamIndex + 1) % 2;
-                state.phase = 'turn_start';
-                setupRound();
-            }
-            render();
-        }
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+const WORD_PAIRS = [
+    ["Bad Company","Good Company"],["Terrible Movie","Great Movie"],["Cold","Hot"],
+    ["Ugly","Beautiful"],["Worst Day Ever","Best Day Ever"],["Boring Hobby","Exciting Hobby"],
+    ["Useless Superpower","Awesome Superpower"],["Lame Party Trick","Cool Party Trick"],
+    ["Terrible First Date Spot","Perfect First Date Spot"],["Worst Pizza Topping","Best Pizza Topping"],
+    ["Annoying Sound","Satisfying Sound"],["Uncomfortable Clothing","Comfy Clothing"],
+    ["Worst Smell","Best Smell"],["Terrible Gift","Thoughtful Gift"],["Forgettable Song","Catchy Song"],
+    ["Terrible Pickup Line","Smooth Pickup Line"],["Annoying Habit","Endearing Quirk"],
+    ["Feels Bad","Feels Good"],["Hard","Soft"],["Villain","Hero"],["Common","Rare"],
+    ["Bad Influence","Role Model"],["Pointy Animal","Round Animal"],["Useless","Useful"],
+    ["Quiet Place","Loud Place"],["Worst Chore","Most Satisfying Chore"],
+    ["Worst Board Game","Addictive Board Game"],["Terrible Vacation Spot","Dream Vacation Destination"],
+    ["Terrible Roommate Habit","Ideal Roommate Quality"],["Terrible Wifi Network Name","Clever Wifi Network Name"]
+];
 
-        function calculateScore() {
-            let diff = Math.abs(state.targetAngle - state.needleAngle);
-            let points = 0;
-            if (diff <= 4.5) points = 5;
-            else if (diff <= 13.5) points = 3;
-            else if (diff <= 22.5) points = 1;
-            
-            state.lastPoints = points;
-            state.teams[state.currentTeamIndex].score += points;
-            saveState();
+let state = {
+    teams: [{name: "TEAM 1", score: 0}, {name: "TEAM 2", score: 0}],
+    currentTeamIndex: 0,
+    phase: 'START',
+    targetAngle: 90,
+    needleAngle: 90,
+    currentPair: ["", ""]
+};
 
-            if (points === 5) {
-                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#8b5cf6', '#fbbf24', '#ffffff'] });
-            } else if (points === 3) {
-                confetti({ particleCount: 50, spread: 50, origin: { y: 0.6 }, colors: ['#fbbf24', '#ffffff'] });
-            }
-        }
+const dial = document.getElementById('dial');
+const needle = document.getElementById('needle');
+let isDragging = false;
 
-        // --- Render UI ---
-        function render() {
-            // Teams
-            const tCont = document.getElementById('teams-container');
-            tCont.innerHTML = state.teams.map((t, i) => `
-                <div class="team ${i === state.currentTeamIndex ? 'active' : ''}">
-                    <div class="team-name" onclick="renameTeam(${i})">${t.name}</div>
-                    <div class="team-score">${t.score}</div>
-                </div>
-            `).join('');
+window.onload = () => {
+    try {
+        const saved = localStorage.getItem('wavelength_teams');
+        if (saved) state.teams = JSON.parse(saved);
+    } catch(e) {}
+    initRound();
+};
 
-            // Words
-            document.getElementById('word-left').innerText = state.currentPair[0];
-            document.getElementById('word-right').innerText = state.currentPair[1];
+function resetGame() {
+    state.teams[0].score = 0;
+    state.teams[1].score = 0;
+    state.currentTeamIndex = 0;
+    state.phase = 'START';
+    localStorage.setItem('wavelength_teams', JSON.stringify(state.teams));
+    initRound();
+}
 
-            const msg = document.getElementById('game-message');
-            const btn = document.getElementById('action-btn');
-            const scoreDisp = document.getElementById('score-display');
-            const currTeamName = state.teams[state.currentTeamIndex].name;
+function editTeamName(index) {
+    const newName = prompt("Enter team name (max 15 chars):", state.teams[index].name);
+    if (newName && newName.trim().length > 0) {
+        state.teams[index].name = newName.trim().substring(0, 15).toUpperCase();
+        localStorage.setItem('wavelength_teams', JSON.stringify(state.teams));
+        updateUI();
+    }
+}
 
-            // Needle transition state
-            needleGroup.style.transition = isDragging ? 'none' : 'transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)';
-            needleGroup.setAttribute('transform', `rotate(${state.needleAngle}, 200, 200)`);
+function initRound() {
+    state.targetAngle = Math.random() * (155 - 25) + 25;
+    state.needleAngle = 90;
+    const pairIndex = Math.floor(Math.random() * WORD_PAIRS.length);
+    state.currentPair = WORD_PAIRS[pairIndex];
+    renderTarget();
+    updateUI();
+}
 
-            // Phase UI
-            if (state.phase === 'turn_start') {
-                targetGroup.style.display = 'none';
-                needleGroup.style.display = 'none';
-                scoreDisp.classList.remove('visible');
-                msg.innerHTML = `Round Start<br><strong>${currTeamName} Psychic</strong>: Take the device.`;
-                btn.innerText = "Tap to Reveal Target";
-                btn.classList.remove('highlight');
-            } 
-            else if (state.phase === 'psychic_view') {
-                targetGroup.style.display = 'block';
-                needleGroup.style.display = 'none';
-                msg.innerHTML = `<strong>${currTeamName} Psychic</strong><br>Think of a clue, then hide the target.`;
-                btn.innerText = "Hide for Guessers";
-                btn.classList.add('highlight');
-            }
-            else if (state.phase === 'guesser_view') {
-                targetGroup.style.display = 'none';
-                needleGroup.style.display = 'block';
-                msg.innerHTML = `<strong>${currTeamName} Team</strong><br>Discuss and drag the needle to your guess.`;
-                btn.innerText = "Reveal Target";
-                btn.classList.remove('highlight');
-            }
-            else if (state.phase === 'score_view') {
-                targetGroup.style.display = 'block';
-                needleGroup.style.display = 'block';
-                
-                let scoreText = "";
-                scoreDisp.className = 'score-display visible';
-                if (state.lastPoints === 5) {
-                    scoreText = "BULLSEYE! +5 Points";
-                    scoreDisp.classList.add('bullseye');
-                } else if (state.lastPoints === 3) {
-                    scoreText = "CLOSE! +3 Points";
-                    scoreDisp.classList.add('close');
-                } else if (state.lastPoints === 1) {
-                    scoreText = "NEAR! +1 Point";
-                    scoreDisp.classList.add('near');
-                } else {
-                    scoreText = "MISS! 0 Points";
-                    scoreDisp.classList.add('miss');
-                }
-                
-                scoreDisp.innerText = scoreText;
-                msg.innerHTML = `Target Revealed!`;
-                btn.innerText = "Next Turn";
-                btn.classList.add('highlight');
-            }
-        }
+function handleMainAction() {
+    if (state.phase === 'START') {
+        state.phase = 'PSYCHIC';
+    } else if (state.phase === 'PSYCHIC') {
+        state.phase = 'GUESS';
+    } else if (state.phase === 'GUESS') {
+        state.phase = 'REVEAL';
+        scoreRound();
+    } else if (state.phase === 'REVEAL') {
+        state.currentTeamIndex = (state.currentTeamIndex + 1) % 2;
+        state.phase = 'START';
+        initRound();
+    }
+    updateUI();
+}
 
-        // Start
-        init();
-    </script>
+function scoreRound() {
+    const diff = Math.abs(state.targetAngle - state.needleAngle);
+    let pts = 0;
+    if (diff <= 4.5) pts = 5;
+    else if (diff <= 13.5) pts = 3;
+    else if (diff <= 22.5) pts = 1;
+    
+    state.teams[state.currentTeamIndex].score += pts;
+    localStorage.setItem('wavelength_teams', JSON.stringify(state.teams));
+    
+    if (pts === 5) {
+        confetti({ particleCount: 150, spread: 80, origin: { y: 0.7 }, colors: ['#7c3aed', '#f59e0b', '#ffffff'] });
+    } else if (pts === 3) {
+        confetti({ particleCount: 50, spread: 50, origin: { y: 0.7 }, colors: ['#f59e0b', '#ffffff'] });
+    }
+    
+    const rd = document.getElementById('result-display');
+    rd.className = 'result-display'; 
+    let displayStr = "";
+    
+    if (pts === 5) { displayStr = "BULLSEYE! +5"; rd.classList.add('bullseye'); }
+    else if (pts === 3) { displayStr = "CLOSE! +3"; rd.classList.add('close'); }
+    else if (pts === 1) { displayStr = "NEAR! +1"; rd.classList.add('near'); }
+    else { displayStr = "MISS! +0"; rd.classList.add('miss'); }
+    
+    document.getElementById('result-text').innerText = displayStr;
+}
+
+function describeArcStroke(cx, cy, r, startAngle, endAngle) {
+    function getPt(angle) {
+        let rad = (180 - angle) * Math.PI / 180;
+        return { x: cx + r * Math.cos(rad), y: cy - r * Math.sin(rad) };
+    }
+    const start = getPt(startAngle);
+    const end = getPt(endAngle);
+    return ["M", start.x, start.y, "A", r, r, 0, 0, 1, end.x, end.y].join(" ");
+}
+
+function renderTarget() {
+    const t = state.targetAngle;
+    document.getElementById('arc-near').setAttribute('d', describeArcStroke(200, 200, 160, t - 22.5, t + 22.5));
+    document.getElementById('arc-close').setAttribute('d', describeArcStroke(200, 200, 160, t - 13.5, t + 13.5));
+    document.getElementById('arc-bullseye').setAttribute('d', describeArcStroke(200, 200, 160, t - 4.5, t + 4.5));
+}
+
+function updateUI() {
+    document.getElementById('tname-0').innerText = state.teams[0].name;
+    document.getElementById('tscore-0').innerText = state.teams[0].score;
+    document.getElementById('tname-1').innerText = state.teams[1].name;
+    document.getElementById('tscore-1').innerText = state.teams[1].score;
+    
+    document.getElementById('team-0').className = `team ${state.currentTeamIndex === 0 ? 'active' : ''}`;
+    document.getElementById('team-1').className = `team ${state.currentTeamIndex === 1 ? 'active' : ''}`;
+
+    document.getElementById('word-left').innerText = state.currentPair[0];
+    document.getElementById('word-right').innerText = state.currentPair[1];
+
+    const tg = document.getElementById('target-group');
+    const msg = document.getElementById('message-banner');
+    const btn = document.getElementById('main-btn');
+    const res = document.getElementById('result-display');
+    const tName = state.teams[state.currentTeamIndex].name;
+
+    needle.setAttribute('transform', `rotate(${state.needleAngle}, 200, 200)`);
+
+    if (state.phase === 'START') {
+        tg.style.opacity = '0';
+        res.style.opacity = '0';
+        msg.innerHTML = `<span class="highlight">${tName} Psychic</span>: Take the device.`;
+        btn.innerText = "TAP TO REVEAL TARGET";
+        btn.className = "btn-primary";
+        needle.style.transition = "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)";
+    } else if (state.phase === 'PSYCHIC') {
+        tg.style.opacity = '1';
+        res.style.opacity = '0';
+        msg.innerHTML = `Give your clue, then hide the target.`;
+        btn.innerText = "HIDE FOR GUESSERS";
+        btn.className = "btn-primary alt";
+    } else if (state.phase === 'GUESS') {
+        tg.style.opacity = '0';
+        res.style.opacity = '0';
+        msg.innerHTML = `<span class="highlight">${tName} Team</span>: Discuss and drag the needle.`;
+        btn.innerText = "LOCK IN GUESS";
+        btn.className = "btn-primary";
+        needle.style.transition = "none";
+    } else if (state.phase === 'REVEAL') {
+        tg.style.opacity = '1';
+        res.style.opacity = '1';
+        msg.innerHTML = `Target Revealed!`;
+        btn.innerText = "NEXT ROUND";
+        btn.className = "btn-primary";
+        needle.style.transition = "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)";
+    }
+}
+
+function updateNeedleAngle(e) {
+    const pt = dial.createSVGPoint();
+    pt.x = e.touches ? e.touches[0].clientX : e.clientX;
+    pt.y = e.touches ? e.touches[0].clientY : e.clientY;
+    const svgP = pt.matrixTransform(dial.getScreenCTM().inverse());
+    
+    const dx = svgP.x - 200;
+    const dy = svgP.y - 200;
+    
+    if (dy > 0) {
+        state.needleAngle = dx > 0 ? 180 : 0;
+    } else {
+        let angle = Math.atan2(dy, dx) * 180 / Math.PI; 
+        state.needleAngle = angle + 180;
+    }
+    needle.setAttribute('transform', `rotate(${state.needleAngle}, 200, 200)`);
+}
+
+function onDown(e) {
+    if (state.phase !== 'GUESS') return;
+    isDragging = true;
+    needle.style.transition = "none";
+    updateNeedleAngle(e);
+}
+
+function onMove(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+    updateNeedleAngle(e);
+}
+
+function onUp(e) {
+    if (isDragging) {
+        isDragging = false;
+        needle.style.transition = "transform 0.2s ease-out";
+    }
+}
+
+dial.addEventListener('mousedown', onDown);
+dial.addEventListener('touchstart', onDown, {passive: false});
+window.addEventListener('mousemove', onMove, {passive: false});
+window.addEventListener('touchmove', onMove, {passive: false});
+window.addEventListener('mouseup', onUp);
+window.addEventListener('touchend', onUp);
+</script>
 </body>
 </html>
