@@ -2,29 +2,31 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
 const games: Record<string, { title: string; desc: string }> = {
-  'word':         { title: 'Word Guess',     desc: 'Guess the 5-letter word in 6 tries' },
-  'sudoku':       { title: 'Sudoku',          desc: 'Classic 9x9 number puzzle' },
-  '2048':         { title: '2048',            desc: 'Slide and merge to reach 2048' },
-  'trivia':       { title: 'Trivia',          desc: 'Test your general knowledge' },
-  'memory':       { title: 'Memory Match',    desc: 'Flip and match the pairs' },
-  'wordchain':    { title: 'Word Chain',      desc: 'Chain words together as fast as you can' },
-  'math':         { title: 'Math Challenge',  desc: 'Speed maths — beat the clock' },
-  'crossword':    { title: 'Crossword',       desc: 'Daily mini crossword puzzle' },
-  'wordscramble': { title: 'Word Scramble',   desc: 'Unscramble the jumbled letters' },
+  word:         { title: 'Word Guess',     desc: 'Guess the 5-letter word in 6 tries' },
+  sudoku:       { title: 'Sudoku',          desc: 'Classic 9x9 number puzzle' },
+  '2048':       { title: '2048',            desc: 'Slide and merge to reach 2048' },
+  trivia:       { title: 'Trivia',          desc: 'Test your general knowledge' },
+  memory:       { title: 'Memory Match',    desc: 'Flip and match the pairs' },
+  wordchain:    { title: 'Word Chain',      desc: 'Chain words together as fast as you can' },
+  math:         { title: 'Math Challenge',  desc: 'Speed maths - beat the clock' },
+  crossword:    { title: 'Crossword',       desc: 'Daily mini crossword puzzle' },
+  wordscramble: { title: 'Word Scramble',   desc: 'Unscramble the jumbled letters' },
 }
+
+type Props = { params: Promise<{ game: string }> }
 
 export async function generateStaticParams() {
-  return Object.keys(games).map(game => ({ game }))
+  return Object.keys(games).map((game) => ({ game }))
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ game: string }> }): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { game } = await params
   const g = games[game]
   if (!g) return {}
   return { title: `${g.title} | josho.pro`, description: g.desc }
 }
 
-export default async function GamePage({ params }: { params: Promise<{ game: string }> }) {
+export default async function GamePage({ params }: Props) {
   const { game } = await params
   if (!games[game]) notFound()
   return (
