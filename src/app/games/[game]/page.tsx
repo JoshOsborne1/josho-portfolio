@@ -17,22 +17,21 @@ export async function generateStaticParams() {
   return Object.keys(games).map(game => ({ game }))
 }
 
-export async function generateMetadata({ params }: { params: { game: string } }): Promise<Metadata> {
-  const g = games[params.game]
+export async function generateMetadata({ params }: { params: Promise<{ game: string }> }): Promise<Metadata> {
+  const { game } = await params
+  const g = games[game]
   if (!g) return {}
-  return {
-    title: `${g.title} | josho.pro`,
-    description: g.desc,
-  }
+  return { title: `${g.title} | josho.pro`, description: g.desc }
 }
 
-export default function GamePage({ params }: { params: { game: string } }) {
-  if (!games[params.game]) notFound()
+export default async function GamePage({ params }: { params: Promise<{ game: string }> }) {
+  const { game } = await params
+  if (!games[game]) notFound()
   return (
     <iframe
-      src={`/games/${params.game}.html`}
+      src={`/games/${game}.html`}
       className="w-full h-screen border-0"
-      title={games[params.game].title}
+      title={games[game].title}
     />
   )
 }
