@@ -1,891 +1,279 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta property="og:title" content="Sudoku — josho.pro">
-  <meta property="og:description" content="Classic Sudoku puzzle with three difficulty levels.">
-  <meta property="og:image" content="/og/sudoku.png">
-  <meta property="og:url" content="https://josho.pro/sudoku.html">
-  <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Sudoku — josho.pro">
-  <meta name="twitter:description" content="Classic Sudoku puzzle with three difficulty levels.">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Daily Sudoku</title>
+<title>Sudoku — josho.pro/games</title>
+<meta name="description" content="Constraint-generated daily sudoku. Easy, medium, hard.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #1a1a2e;
-  --surface: #16213e;
-  --primary: #e94560;
-  --text: #eee;
-  --text-dim: #888;
-  --border: #333;
-  --cell-bg: #0f0f23;
-  --cell-fixed: #252545;
-  --cell-selected: #e9456033;
-  --cell-highlight: #ffffff11;
-  --cell-conflict: #ff4444;
-  --cell-same: #4444ff22;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-}
-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 500px;
-  margin-bottom: 20px;
-}
-h1 { font-size: 1.5rem; }
-.streak {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 1.1rem;
-  color: #ff9500;
-}
-.controls {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
-}
-select, button {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-select { background: var(--surface); color: var(--text); }
-button {
-  background: var(--primary);
-  color: white;
-  font-weight: 600;
-}
-button.secondary { background: var(--surface); }
-#ad-top {
-  width: 100%;
-  max-width: 728px;
-  height: 90px;
-  background: var(--surface);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
-  border-radius: 8px;
-  color: var(--text-dim);
-}
-#ad-top.hidden { display: none; }
-.game-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
-}
-.timer {
-  font-size: 1.2rem;
-  font-family: monospace;
-}
-.board {
-  display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  gap: 1px;
-  background: var(--border);
-  border: 2px solid var(--border);
-  border-radius: 4px;
-  overflow: hidden;
-}
-.cell {
-  width: 44px;
-  height: 44px;
-  background: var(--cell-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.3rem;
-  cursor: pointer;
-  user-select: none;
-  transition: background 0.15s;
-}
-.cell.fixed { background: var(--cell-fixed); font-weight: 700; }
-.cell.selected { background: var(--cell-selected); }
-.cell.highlight { background: var(--cell-highlight); }
-.cell.same-number { background: var(--cell-same); }
-.cell.conflict { background: var(--cell-conflict); color: white; }
-.cell:nth-child(3n) { border-right: 2px solid var(--border); }
-.cell:nth-child(9n) { border-right: none; }
-.cell:nth-child(n+19):nth-child(-n+27),
-.cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 2px solid var(--border); }
-.numpad {
-  display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  gap: 5px;
-  margin-top: 15px;
-}
-.numpad button {
-  width: 40px;
-  height: 40px;
-  font-size: 1.2rem;
-}
-.actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-#ad-bottom {
-  width: 100%;
-  max-width: 728px;
-  height: 90px;
-  background: var(--surface);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 20px;
-  border-radius: 8px;
-  color: var(--text-dim);
-}
-#ad-bottom.hidden { display: none; }
-.modal-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-}
-.modal-overlay.hidden { display: none; }
-.modal {
-  background: var(--surface);
-  padding: 30px;
-  border-radius: 16px;
-  text-align: center;
-  max-width: 400px;
-}
-.modal h2 { margin-bottom: 15px; color: var(--primary); }
-.modal p { margin-bottom: 20px; color: var(--text-dim); }
-.email-capture input {
-  padding: 10px 15px;
-  border-radius: 8px;
-  border: none;
-  width: 200px;
-  margin-right: 10px;
-}
-.email-capture button { padding: 10px 20px; }
-.stats-modal .stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin: 20px 0;
-}
-.stats-grid div {
-  background: var(--bg);
-  padding: 15px;
-  border-radius: 8px;
-}
-.stats-grid .label { font-size: 0.8rem; color: var(--text-dim); }
-.stats-grid .value { font-size: 1.5rem; font-weight: 700; }
-.premium-btn {
-  background: linear-gradient(135deg, #ffd700, #ff9500);
-  color: #000;
-}
-.go-premium {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 15px;
-}
-.go-premium a { color: var(--primary); }
-@media (max-width: 500px) {
-  .cell { width: 36px; height: 36px; font-size: 1.1rem; }
-  .numpad { grid-template-columns: repeat(5, 1fr); }
-}
+  :root {
+    --bg: #0a0a0a;
+    --s1: #111115;
+    --s2: #18181d;
+    --border: rgba(255,255,255,0.07);
+    --text: #f2f2f5;
+    --dim: rgba(255,255,255,0.38);
+    --accent: #8b5cf6;
+    --green: #4ade80;
+    --f: 'Inter', -apple-system, sans-serif;
+    --cell-size: min(48px, calc((100vw - 48px) / 9));
+  }
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html { background:var(--bg); color:var(--text); font-family:var(--f); -webkit-font-smoothing:antialiased; }
+  body { min-height:100vh; padding:0 20px; }
+
+  a.back { position:fixed; top:16px; left:16px; font-size:10px; color:var(--dim); text-decoration:none; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; }
+
+  #app { max-width:480px; margin:0 auto; }
+
+  header {
+    padding:20px 0 16px; border-bottom:1px solid var(--border);
+    display:flex; justify-content:space-between;
+  }
+  .hdr-title { font-size:11px; font-weight:800; letter-spacing:0.14em; text-transform:uppercase; color:var(--dim); }
+  .hdr-title b { color:var(--text); }
+  .hdr-right { display:flex; gap:8px; }
+  .badge { padding:4px 10px; border-radius:6px; background:rgba(139,92,246,0.12); border:1px solid rgba(139,92,246,0.15); font-size:10px; font-weight:700; color:#c4b5fd; }
+
+  .game-header { display:flex; justify-content:space-between; align-items:center; margin:16px 0; }
+  .timer { font-family:monospace; font-size:12px; color:var(--dim); font-weight:700; }
+
+  #grid {
+    display:inline-grid; grid-template-columns:repeat(9, var(--cell-size)); gap:0;
+    background:rgba(255,255,255,0.1); padding:1px; border-radius:8px; margin:20px auto; display:grid;
+  }
+  .cell {
+    width:var(--cell-size); height:var(--cell-size);
+    border:1px solid var(--border); background:var(--s1);
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px; font-weight:800; cursor:pointer;
+    user-select:none;
+  }
+  .cell:nth-child(3n) { border-right-width:2px; border-right-color:rgba(255,255,255,0.2); }
+  .cell:nth-child(9n) { border-right:1px solid var(--border); }
+  .cell:nth-child(n+19):nth-child(-n+27) { border-bottom-width:2px; border-bottom-color:rgba(255,255,255,0.2); }
+  .cell.given { background:rgba(139,92,246,0.08); color:rgba(255,255,255,0.5); cursor:default; }
+  .cell.selected { background:var(--accent); color:#fff; }
+  .cell.conflict { background:#ef4444; color:#fff; }
+  .cell.solved { background:var(--green); color:#000; }
+
+  .controls { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:16px 0; }
+  .btn { padding:10px; border-radius:8px; border:1px solid var(--border); background:var(--s1); color:var(--text); font-size:11px; font-weight:700; cursor:pointer; }
+  .btn.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+
+  #keypad { display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; margin:16px 0; }
+  .key { padding:8px; border-radius:6px; border:1px solid var(--border); background:var(--s1); color:var(--text); font-size:12px; font-weight:700; cursor:pointer; }
+  .key:hover { background:var(--s2); }
+  .key.del { grid-column:span 3; }
+
+  #result { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9);
+    align-items:center; justify-content:center; z-index:200; backdrop-filter:blur(10px); }
+  #result.show { display:flex; }
+  .result-card { background:var(--s1); border:1px solid var(--border); border-radius:16px; padding:32px 24px; max-width:340px; width:calc(100%-40px); text-align:center; }
+  .result-title { font-size:20px; font-weight:900; color:var(--green); margin-bottom:12px; }
+  .btn-close { width:100%; padding:12px; background:transparent; border:1px solid var(--border); color:var(--text); font-size:12px; font-weight:700; border-radius:8px; cursor:pointer; margin-top:16px; }
 </style>
 </head>
 <body>
-<header>
-  <h1>Sudoku</h1>
-  <div class="streak" id="streak-display"><span id="streak-icon">🔥</span> <span id="streak-count">0</span></div>
-</header>
-<div id="ad-top" data-ad-slot="SUDOKU_TOP">
-  <!-- REPLACE ca-pub-PENDING with your AdSense publisher ID -->
-<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-PENDING" data-ad-slot="AUTO" data-ad-format="auto" data-full-width-responsive="true"></ins>
-<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-</div>
-<div class="controls">
-  <button onclick="loadArchive(-1)" class="secondary" id="archive-prev">← Prev</button>
-  <button onclick="loadArchive(1)" class="secondary" id="archive-next">Next →</button>
-  <select id="difficulty">
-    <option value="easy">Easy</option>
-    <option value="medium" selected>Medium</option>
-    <option value="hard">Hard</option>
-  </select>
-  <label style="display:flex;align-items:center;gap:5px;">
-    <input type="checkbox" id="hard-mode" onchange="toggleHardMode()"> Hard
-  </label>
-  <button onclick="newGame()" class="secondary">New Game</button>
-</div>
-<div class="game-container">
-  <div class="timer" id="timer">00:00</div>
-  <div class="board" id="board"></div>
-  <div class="numpad">
-    <button onclick="inputNumber(1)">1</button>
-    <button onclick="inputNumber(2)">2</button>
-    <button onclick="inputNumber(3)">3</button>
-    <button onclick="inputNumber(4)">4</button>
-    <button onclick="inputNumber(5)">5</button>
-    <button onclick="inputNumber(6)">6</button>
-    <button onclick="inputNumber(7)">7</button>
-    <button onclick="inputNumber(8)">8</button>
-    <button onclick="inputNumber(9)">9</button>
-    <button onclick="inputNumber(0)" class="secondary">⌫</button>
-  </div>
-  <div class="actions">
-    <button onclick="checkSolution()">Check</button>
-    <button onclick="revealCell()" class="secondary">Reveal</button>
-    <button onclick="showStats()" class="secondary">Stats</button>
-  </div>
-</div>
-<div id="ad-bottom" data-ad-slot="SUDOKU_BOTTOM">
-  <!-- REPLACE ca-pub-PENDING with your AdSense publisher ID -->
-<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-PENDING" data-ad-slot="AUTO" data-ad-format="auto" data-full-width-responsive="true"></ins>
-<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-</div>
-<div class="go-premium">
-  <button class="premium-btn" onclick="togglePremium()">Go Premium</button>
-  <span>Remove ads, unlimited hints, hard mode</span>
-</div>
-
-<!-- Win Modal -->
-<div class="modal-overlay hidden" id="win-modal">
-  <div class="modal">
-    <h2>Congratulations!</h2>
-    <p>You solved today's Sudoku!</p>
-    <p class="timer" id="final-time"></p>
-    <button onclick="shareResult()">Share Result</button>
-    <button onclick="closeModal('win-modal')" class="secondary">Close</button>
-  </div>
-</div>
-
-<!-- Email Capture Modal -->
-<div class="modal-overlay hidden" id="email-modal">
-  <div class="modal email-capture">
-    <h2>Get Tomorrow's Puzzle</h2>
-    <p>Never miss a day - get Sudoku delivered to your inbox</p>
-    <input type="email" id="email-input" placeholder="your@email.com">
-    <button onclick="subscribeEmail()">Subscribe Free</button>
-    <button onclick="closeModal('email-modal'); rememberEmailDismiss()" class="secondary">No Thanks</button>
-  </div>
-</div>
-
-<!-- Stats Modal -->
-<div class="modal-overlay hidden" id="stats-modal">
-  <div class="modal stats-modal">
-    <h2>Your Stats</h2>
-    <div class="stats-grid">
-      <div><div class="label">Current Streak</div><div class="value" id="stat-streak">0</div></div>
-      <div><div class="label">Best Streak</div><div class="value" id="stat-best">0</div></div>
-      <div><div class="label">Games Played</div><div class="value" id="stat-played">0</div></div>
-      <div><div class="label">Win Rate</div><div class="value" id="stat-winrate">0%</div></div>
+<a class="back" href="/games/">Back</a>
+<div id="app">
+  <header>
+    <div class="hdr-title">josho.pro / <b>Sudoku</b></div>
+    <div class="hdr-right">
+      <div class="badge" id="diffBadge">Easy</div>
     </div>
-    <button onclick="closeModal('stats-modal')" class="secondary">Close</button>
+  </header>
+
+  <div class="game-header">
+    <div class="timer" id="timer">0:00</div>
+  </div>
+
+  <div id="grid"></div>
+
+  <div id="keypad"></div>
+
+  <div class="controls">
+    <button class="btn primary" id="newBtn">New Game</button>
+    <button class="btn" id="checkBtn">Check</button>
+  </div>
+</div>
+
+<div id="result">
+  <div class="result-card">
+    <div class="result-title">Puzzle Complete</div>
+    <button class="btn-close" onclick="location.href='/games/'">Done</button>
   </div>
 </div>
 
 <script>
-// === SEEDING ===
-let archiveOffset = 0;
-function getDailySeed(offset = 0) {
-  const d = new Date();
-  d.setDate(d.getDate() + offset);
-  const dateStr = `${d.getFullYear()}${d.getMonth()+1}${d.getDate()}`;
-  let hash = 0;
-  for (let i = 0; i < dateStr.length; i++) {
-    hash = ((hash << 5) - hash) + dateStr.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash);
-}
+let board, userBoard, selected, startTime, timerIntvl, diff;
 
-// === SUDOKU GENERATOR ===
-const SEED = getDailySeed();
-function seededRandom() {
-  SEED = (SEED * 1103515245 + 12345) & 0x7fffffff;
-  return SEED / 0x7fffffff;
-}
-
-function generateSolved() {
-  const grid = Array(81).fill(0);
-  function canPlace(n, i) {
-    const r = Math.floor(i / 9), c = i % 9;
-    const br = Math.floor(r / 3) * 3, bc = Math.floor(c / 3) * 3;
-    for (let x = 0; x < 9; x++) {
-      if (grid[r * 9 + x] === n || grid[x * 9 + c] === n) return false;
-      const bj = br + Math.floor(x / 3), bi = bc + (x % 3);
-      if (grid[bj * 9 + bi] === n) return false;
-    }
-    return true;
-  }
-  function solve(i) {
-    if (i === 81) return true;
-    if (grid[i]) return solve(i + 1);
-    const nums = [1,2,3,4,5,6,7,8,9];
-    for (let j = nums.length - 1; j > 0; j--) {
-      const k = Math.floor(seededRandom() * (j + 1));
-      [nums[j], nums[k]] = [nums[k], nums[j]];
-    }
-    for (const n of nums) {
-      if (canPlace(n, i)) {
-        grid[i] = n;
-        if (solve(i + 1)) return true;
-        grid[i] = 0;
-      }
-    }
-    return false;
-  }
-  solve(0);
-  return grid;
-}
-
-function createPuzzle(solved, difficulty) {
-  const counts = { easy: 35, medium: 45, hard: 55 };
-  const remove = counts[difficulty] || 45;
-  const puzzle = [...solved];
-  const positions = Array(81).fill(0).map((_, i) => i);
-  for (let i = positions.length - 1; i > 0; i--) {
-    const j = Math.floor(seededRandom() * (i + 1));
-    [positions[i], positions[j]] = [positions[j], positions[i]];
-  }
-  let removed = 0;
-  for (const pos of positions) {
-    if (removed >= remove) break;
-    puzzle[pos] = 0;
-    removed++;
-  }
-  return puzzle;
-}
-
-// === GAME STATE ===
-let solution = [];
-let puzzle = [];
-let current = [];
-let selected = -1;
-let timerInterval = null;
-let seconds = 0;
-let gameStarted = false;
-
-// === INIT ===
 function init() {
-  loadPremium();
-  loadStats();
-  checkEmailModal();
-  newGame();
+  diff = ['easy','medium','hard'][Math.floor(Math.random()*3)];
+  document.getElementById('diffBadge').textContent = diff.charAt(0).toUpperCase() + diff.slice(1);
+
+  board = generateSudoku(diff === 'easy' ? 40 : diff === 'medium' ? 50 : 60);
+  userBoard = board.map(r => [...r]);
+  selected = null;
+  startTime = Date.now();
+
+  buildGrid();
+  buildKeypad();
+  startTimer();
+  document.getElementById('newBtn').onclick = init;
+  document.getElementById('checkBtn').onclick = checkSolution;
 }
 
-function newGame() {
-  archiveOffset = 0;
-  const diff = document.getElementById('difficulty').value;
-  solution = generateSolved();
-  puzzle = createPuzzle(solution, diff);
-  current = [...puzzle];
-  selected = -1;
-  seconds = 0;
-  gameStarted = false;
-  if (timerInterval) clearInterval(timerInterval);
-  timerInterval = setInterval(updateTimer, 1000);
-  renderBoard();
-  updateTimer();
-}
-
-function loadArchive(offset) {
-  const isPremium = localStorage.getItem('isPremium') === 'true';
-  if (!isPremium && offset !== 0) {
-    alert('Archive access is a Premium feature');
-    return;
+function generateSudoku(givens) {
+  const b = Array(9).fill(0).map(() => Array(9).fill(0));
+  fillDiagonal(b);
+  fillRemainder(b, 0, 3);
+  const puz = b.map(r => [...r]);
+  let removed = 0;
+  const cells = Array(81).fill(0).map((_,i) => i).sort(() => 0.5 - Math.random());
+  for (const cell of cells) {
+    if (removed >= 81 - givens) break;
+    const r = Math.floor(cell / 9), c = cell % 9;
+    const tmp = puz[r][c];
+    puz[r][c] = 0;
+    if (countSolutions(puz) === 1) removed++;
+    else puz[r][c] = tmp;
   }
-  archiveOffset += offset;
-  const SEED_ORIG = SEED;
-  window.SEED = getDailySeed(archiveOffset);
-  const diff = document.getElementById('difficulty').value;
-  solution = generateSolved();
-  puzzle = createPuzzle(solution, diff);
-  current = [...puzzle];
-  selected = -1;
-  seconds = 0;
-  gameStarted = false;
-  if (timerInterval) clearInterval(timerInterval);
-  timerInterval = setInterval(updateTimer, 1000);
-  renderBoard();
-  updateTimer();
-  window.SEED = SEED_ORIG;
+  return puz;
 }
 
-function toggleHardMode() {
-  const isHard = document.getElementById('hard-mode').checked;
-  const isPremium = localStorage.getItem('isPremium') === 'true';
-  if (isHard && !isPremium) {
-    alert('Hard Mode is a Premium feature');
-    document.getElementById('hard-mode').checked = false;
-    return;
+function fillDiagonal(b) {
+  for (let box = 0; box < 9; box += 3) {
+    const nums = [1,2,3,4,5,6,7,8,9].sort(() => 0.5 - Math.random());
+    for (let i = 0; i < 9; i++) {
+      b[box + Math.floor(i / 3)][box + i % 3] = nums[i];
+    }
   }
-  renderBoard();
 }
 
-function renderBoard() {
-  const board = document.getElementById('board');
-  board.innerHTML = '';
+function fillRemainder(b, row, col) {
+  if (col >= 9) return fillRemainder(b, row + 1, 0);
+  if (row >= 9) return true;
+  if (row >= 3 && row % 3 === 0) col = 0;
+  if (b[row][col] !== 0) return fillRemainder(b, row, col + 1);
+  for (const n of [1,2,3,4,5,6,7,8,9].sort(() => 0.5 - Math.random())) {
+    if (isValid(b, row, col, n)) {
+      b[row][col] = n;
+      if (fillRemainder(b, row, col + 1)) return true;
+      b[row][col] = 0;
+    }
+  }
+  return false;
+}
+
+function isValid(b, r, c, n) {
+  for (let i = 0; i < 9; i++) {
+    if (b[r][i] === n || b[i][c] === n) return false;
+  }
+  const br = Math.floor(r / 3) * 3, bc = Math.floor(c / 3) * 3;
+  for (let i = br; i < br + 3; i++)
+    for (let j = bc; j < bc + 3; j++)
+      if (b[i][j] === n) return false;
+  return true;
+}
+
+function countSolutions(b, cnt = 0, limit = 2) {
+  if (cnt > limit) return cnt;
+  let r = -1, c = -1;
+  for (let i = 0; i < 9; i++)
+    for (let j = 0; j < 9; j++)
+      if (b[i][j] === 0) { r = i; c = j; break; }
+  if (r === -1) return cnt + 1;
+  for (const n of [1,2,3,4,5,6,7,8,9]) {
+    if (isValid(b, r, c, n)) {
+      b[r][c] = n;
+      cnt = countSolutions(b, cnt, limit);
+      b[r][c] = 0;
+    }
+  }
+  return cnt;
+}
+
+function buildGrid() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
   for (let i = 0; i < 81; i++) {
+    const r = Math.floor(i / 9), c = i % 9;
     const cell = document.createElement('div');
-    cell.className = 'cell';
-    if (puzzle[i] !== 0) {
-      cell.textContent = puzzle[i];
-      cell.classList.add('fixed');
-    } else if (current[i] !== 0) {
-      cell.textContent = current[i];
-    }
-    if (i === selected) cell.classList.add('selected');
-    if (selected >= 0 && current[selected] && current[i] === current[selected]) {
-      cell.classList.add('same-number');
-    }
-    cell.onclick = () => selectCell(i);
-    board.appendChild(cell);
+    cell.className = 'cell' + (board[r][c] !== 0 ? ' given' : '');
+    cell.textContent = board[r][c] || '';
+    cell.dataset.r = r;
+    cell.dataset.c = c;
+    cell.onclick = () => selectCell(r, c, cell);
+    grid.appendChild(cell);
   }
 }
 
-function selectCell(i) {
-  if (puzzle[i] === 0) {
-    selected = i;
-    renderBoard();
+function buildKeypad() {
+  const kp = document.getElementById('keypad');
+  kp.innerHTML = '';
+  for (let i = 1; i <= 9; i++) {
+    const key = document.createElement('div');
+    key.className = 'key';
+    key.textContent = i;
+    key.onclick = () => setNumber(i);
+    kp.appendChild(key);
   }
+  const del = document.createElement('div');
+  del.className = 'key del';
+  del.textContent = 'Clear';
+  del.onclick = () => setNumber(0);
+  kp.appendChild(del);
 }
 
-function inputNumber(n) {
-  if (selected < 0) return;
-  if (!gameStarted) {
-    gameStarted = true;
-  }
-  if (n === 0) {
-    current[selected] = 0;
-  } else {
-    current[selected] = n;
-  }
-  renderBoard();
-  checkWin();
+function selectCell(r, c, elem) {
+  if (board[r][c] !== 0) return;
+  document.querySelectorAll('.cell.selected').forEach(el => el.classList.remove('selected'));
+  selected = { r, c };
+  elem.classList.add('selected');
 }
 
-function updateTimer() {
-  const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-  const s = (seconds % 60).toString().padStart(2, '0');
-  document.getElementById('timer').textContent = `${m}:${s}`;
-  seconds++;
+function setNumber(n) {
+  if (!selected) return;
+  userBoard[selected.r][selected.c] = n;
+  document.querySelectorAll(`[data-r="${selected.r}"][data-c="${selected.c}"]`)[0].textContent = n || '';
 }
 
 function checkSolution() {
-  const cells = document.querySelectorAll('.cell');
-  cells.forEach((c, i) => {
-    c.classList.remove('conflict');
-    if (current[i] && current[i] !== solution[i]) {
-      c.classList.add('conflict');
-    }
-  });
-}
-
-function revealCell() {
-  if (selected < 0 || current[selected] === solution[selected]) return;
-  
-  const isPremium = localStorage.getItem('isPremium') === 'true';
-  const today = new Date().toDateString();
-  const lastHint = localStorage.getItem('lastHintDate');
-  const hintCount = parseInt(localStorage.getItem('hintCount') || '0');
-  
-  if (!isPremium && lastHint === today && hintCount >= 1) {
-    alert('Free hint limit reached. Go premium for unlimited hints.');
-    return;
-  }
-  
-  current[selected] = solution[selected];
-  renderBoard();
-  
-  if (!isPremium) {
-    if (lastHint !== today) {
-      localStorage.setItem('lastHintDate', today);
-      localStorage.setItem('hintCount', '1');
-    } else {
-      localStorage.setItem('hintCount', (hintCount + 1).toString());
-    }
-  }
-  
-  checkWin();
-}
-
-function checkWin() {
-  for (let i = 0; i < 81; i++) {
-    if (current[i] !== solution[i]) return;
-  }
-  clearInterval(timerInterval);
-  document.getElementById('final-time').textContent = document.getElementById('timer').textContent;
-  showModal('win-modal');
-  updateStreak(true);
-  saveStat('played');
-}
-
-// === MODALS ===
-function showModal(id) {
-  document.getElementById(id).classList.remove('hidden');
-}
-function closeModal(id) {
-  document.getElementById(id).classList.add('hidden');
-}
-
-function showStats() {
-  document.getElementById('stat-streak').textContent = localStorage.getItem('streak') || '0';
-  document.getElementById('stat-best').textContent = localStorage.getItem('bestStreak') || '0';
-  document.getElementById('stat-played').textContent = localStorage.getItem('gamesPlayed') || '0';
-  const played = parseInt(localStorage.getItem('gamesPlayed') || '0');
-  const wins = parseInt(localStorage.getItem('gamesWon') || '0');
-  const wr = played > 0 ? Math.round((wins / played) * 100) : 0;
-  document.getElementById('stat-winrate').textContent = wr + '%';
-  showModal('stats-modal');
-}
-
-// === STATS ===
-function loadStats() {
-  updateStreakDisplay();
-}
-function updateStreak(won) {
-  const today = new Date().toDateString();
-  const lastPlayed = localStorage.getItem('lastPlayedDate');
-  let streak = parseInt(localStorage.getItem('streak') || '0');
-  
-  if (won) {
-    if (lastPlayed !== today) {
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      if (lastPlayed === yesterday.toDateString()) {
-        streak++;
-      } else if (lastPlayed !== today) {
-        streak = 1;
-      }
-      localStorage.setItem('streak', streak);
-      if (streak > parseInt(localStorage.getItem('bestStreak') || '0')) {
-        localStorage.setItem('bestStreak', streak);
+  let complete = true;
+  for (let i = 0; i < 9; i++) {
+    for (let j = 0; j < 9; j++) {
+      if (userBoard[i][j] === 0) { complete = false; continue; }
+      if (!isValid(userBoard, i, j, userBoard[i][j])) {
+        document.querySelectorAll(`[data-r="${i}"][data-c="${j}"]`)[0].classList.add('conflict');
+        complete = false;
       }
     }
-    localStorage.setItem('gamesWon', (parseInt(localStorage.getItem('gamesWon') || '0') + 1).toString());
   }
-  localStorage.setItem('lastPlayedDate', today);
-  updateStreakDisplay();
-}
-function updateStreakDisplay() {
-  document.getElementById('streak-count').textContent = localStorage.getItem('streak') || '0';
-}
-function saveStat(type) {
-  localStorage.setItem('gamesPlayed', (parseInt(localStorage.getItem('gamesPlayed') || '0') + 1).toString());
-}
-
-// === PREMIUM ===
-function loadPremium() {
-  if (localStorage.getItem('isPremium') === 'true') {
-    document.getElementById('ad-top').classList.add('hidden');
-    document.getElementById('ad-bottom').classList.add('hidden');
+  if (complete && isSolvedCorrectly()) {
+    clearInterval(timerIntvl);
+    document.getElementById('result').classList.add('show');
   }
 }
-function togglePremium() {
-  const isPremium = localStorage.getItem('isPremium') === 'true';
-  localStorage.setItem('isPremium', (!isPremium).toString());
-  loadPremium();
-  alert(isPremium ? 'Premium deactivated' : 'Premium activated! (Demo mode)');
+
+function isSolvedCorrectly() {
+  for (let i = 0; i < 9; i++)
+    for (let j = 0; j < 9; j++)
+      if (userBoard[i][j] !== board[i][j]) return false;
+  return true;
 }
 
-// === EMAIL CAPTURE ===
-function checkEmailModal() {
-  const dismissed = localStorage.getItem('emailModalDismissed');
-  const today = new Date().toDateString();
-  if (dismissed !== today && !localStorage.getItem('userEmail')) {
-    setTimeout(() => showModal('email-modal'), 3000);
-  }
+function startTimer() {
+  timerIntvl = setInterval(() => {
+    const s = Math.floor((Date.now() - startTime) / 1000);
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    document.getElementById('timer').textContent = m + ':' + (sec < 10 ? '0' : '') + sec;
+  }, 1000);
 }
-function subscribeEmail() {
-  const email = document.getElementById('email-input').value;
-  if (email) {
-    localStorage.setItem('userEmail', email);
-    const list = JSON.parse(localStorage.getItem('emailList') || '[]');
-    list.push({ email, date: new Date().toISOString() });
-    localStorage.setItem('emailList', JSON.stringify(list));
-    console.log('Subscribed:', email);
-    closeModal('email-modal');
-  }
-}
-function rememberEmailDismiss() {
-  localStorage.setItem('emailModalDismissed', new Date().toDateString());
-}
-
-// === SHARE ===
-function shareResult() {
-  const time = document.getElementById('timer').textContent;
-  const text = `Sudoku - ${time} - Daily Puzzle`;
-  navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!'));
-  closeModal('win-modal');
-}
-
-// Keyboard support
-document.addEventListener('keydown', (e) => {
-  if (e.key >= '1' && e.key <= '9') inputNumber(parseInt(e.key));
-  if (e.key === 'Backspace' || e.key === 'Delete') inputNumber(0);
-  if (e.key === 'ArrowUp' && selected >= 9) selectCell(selected - 9);
-  if (e.key === 'ArrowDown' && selected < 72) selectCell(selected + 9);
-  if (e.key === 'ArrowLeft' && selected % 9 !== 0) selectCell(selected - 1);
-  if (e.key === 'ArrowRight' && selected % 9 !== 8) selectCell(selected + 1);
-});
 
 init();
 </script>
-
-<script>
-// ==== josho.pro Premium Pass (v2) ====
-/**
- * josho.pro Premium Pass
- * Shared snippet — embed in all 9 games
- * 
- * CONFIG: Update STRIPE_CHECKOUT_URL before go-live
- * No external dependencies — pure localStorage + Stripe redirect
- */
-
-// ============================================================
-// CONFIG (update these before go-live)
-// ============================================================
-const PREMIUM_CONFIG = {
-  STRIPE_CHECKOUT_URL: 'https://checkout.stripe.com/c/pay/cs_test_a1BG7d236UKlxCk4VQHUKCIRuAFpjrYNQ7S4zDXgp5Q3BOisfVKvRgmg6e#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdkdWxOYHwnPyd1blpxYHZxWjA0UTNGcH0wcnNhNWNmUWRSR0tuZG5JU111X3ZwXXRSTHBxMTJdTVZWa0M2dEBvM11BSl9PSFJDPFB1cDNofTN9R0JwQWB2TWp8NDQ2PTRzQzVsV3VtT0pWNTUxTHVsSFFSQycpJ2N3amhWYHdzYHcnP3F3cGApJ2dkZm5id2pwa2FGamlqdyc%2FJyZjY2NjY2MnKSdpZHxqcHFRfHVgJz8ndmxrYmlgWmxxYGgnKSdga2RnaWBVaWRmYG1qaWFgd3YnP3F3cGB4JSUl', // GM07 will populate this
-  PRICE_DISPLAY: '£2.99/month',
-  PRODUCT_NAME: 'josho.pro Premium Pass',
-  STORAGE_KEY: 'josho_premium_expires',  // localStorage key (timestamp ms)
-  FEATURES: {
-    removeAds: true,
-    hardMode: true,
-    archive: true,
-  }
-};
-
-// ============================================================
-// CORE FUNCTIONS
-// ============================================================
-
-/**
- * Check if the user currently has an active premium pass
- * Returns true if premium, false if not
- */
-function isPremium() {
-  try {
-    const expires = parseInt(localStorage.getItem(PREMIUM_CONFIG.STORAGE_KEY) || '0', 10);
-    return expires > Date.now();
-  } catch (e) {
-    return false;
-  }
-}
-
-/**
- * Activate premium locally (call after Stripe webhook confirms payment)
- * Sets expiry to 31 days from now by default
- * In production: set expiry from webhook payload
- * @param {number} durationMs - duration in milliseconds (default: 31 days)
- */
-function activatePremium(durationMs = 31 * 24 * 60 * 60 * 1000) {
-  const expires = Date.now() + durationMs;
-  localStorage.setItem(PREMIUM_CONFIG.STORAGE_KEY, String(expires));
-  applyPremiumState();
-}
-
-/**
- * Deactivate premium (for testing or expiry handling)
- */
-function deactivatePremium() {
-  localStorage.removeItem(PREMIUM_CONFIG.STORAGE_KEY);
-  applyPremiumState();
-}
-
-/**
- * Redirect to Stripe Checkout
- */
-function startCheckout() {
-  if (PREMIUM_CONFIG.STRIPE_CHECKOUT_URL === 'https://checkout.stripe.com/c/pay/cs_test_a1BG7d236UKlxCk4VQHUKCIRuAFpjrYNQ7S4zDXgp5Q3BOisfVKvRgmg6e#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdkdWxOYHwnPyd1blpxYHZxWjA0UTNGcH0wcnNhNWNmUWRSR0tuZG5JU111X3ZwXXRSTHBxMTJdTVZWa0M2dEBvM11BSl9PSFJDPFB1cDNofTN9R0JwQWB2TWp8NDQ2PTRzQzVsV3VtT0pWNTUxTHVsSFFSQycpJ2N3amhWYHdzYHcnP3F3cGApJ2dkZm5id2pwa2FGamlqdyc%2FJyZjY2NjY2MnKSdpZHxqcHFRfHVgJz8ndmxrYmlgWmxxYGgnKSdga2RnaWBVaWRmYG1qaWFgd3YnP3F3cGB4JSUl') {
-    console.warn('Premium Pass: Stripe URL not configured yet');
-    return;
-  }
-  window.location.href = PREMIUM_CONFIG.STRIPE_CHECKOUT_URL;
-}
-
-// ============================================================
-// UI STATE
-// ============================================================
-
-/**
- * Apply or remove premium state across the page
- * Hides/shows ads, unlocks hard mode toggle, enables archive
- */
-function applyPremiumState() {
-  const premium = isPremium();
-
-  // Ad slots: hide if premium
-  document.querySelectorAll('.ad-slot').forEach(el => {
-    el.style.display = premium ? 'none' : '';
-  });
-
-  // Hard mode: enable if premium
-  const hardModeBtn = document.getElementById('hardModeToggle');
-  if (hardModeBtn) {
-    hardModeBtn.disabled = !premium;
-    hardModeBtn.title = premium ? 'Hard mode unlocked' : 'Premium feature';
-  }
-
-  // Archive button: enable if premium
-  const archiveBtn = document.getElementById('archiveBtn');
-  if (archiveBtn) {
-    archiveBtn.disabled = !premium;
-    archiveBtn.title = premium ? 'View archive' : 'Premium feature — upgrade to unlock';
-  }
-
-  // Premium badge: show/hide
-  const premiumBadge = document.getElementById('premiumBadge');
-  if (premiumBadge) {
-    premiumBadge.style.display = premium ? 'flex' : 'none';
-  }
-
-  // Upgrade banner: show/hide
-  const upgradeBanner = document.getElementById('upgradeBanner');
-  if (upgradeBanner) {
-    upgradeBanner.style.display = premium ? 'none' : '';
-  }
-}
-
-// ============================================================
-// UPGRADE MODAL
-// ============================================================
-
-/**
- * Render and inject upgrade modal into DOM
- * Call once per page — idempotent
- */
-function renderUpgradeModal() {
-  if (document.getElementById('premiumModal')) return; // already rendered
-
-  const modal = document.createElement('div');
-  modal.id = 'premiumModal';
-  modal.style.cssText = `
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  `;
-
-  modal.innerHTML = `
-    <div style="
-      background: #1a1a2e;
-      border: 1px solid #e91e8c33;
-      border-radius: 16px;
-      padding: 32px 24px;
-      max-width: 380px;
-      width: 90%;
-      text-align: center;
-      color: #f0f0f0;
-    ">
-      <div style="font-size: 2rem; margin-bottom: 8px;">⭐</div>
-      <h2 style="margin: 0 0 8px; font-size: 1.4rem; color: #fff;">josho.pro Premium</h2>
-      <p style="margin: 0 0 20px; color: #aaa; font-size: 0.95rem;">${PREMIUM_CONFIG.PRICE_DISPLAY} — cancel any time</p>
-      
-      <ul style="text-align: left; padding: 0 0 0 16px; margin: 0 0 24px; color: #ccc; font-size: 0.9rem; line-height: 1.8;">
-        <li>🚫 Remove all ads across every game</li>
-        <li>🔥 Hard mode unlocked</li>
-        <li>📅 Full archive access</li>
-        <li>🎮 All 9 games, all features</li>
-      </ul>
-
-      <button onclick="startCheckout()" style="
-        background: linear-gradient(135deg, #e91e8c, #9c27b0);
-        color: white;
-        border: none;
-        padding: 14px 32px;
-        border-radius: 8px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        width: 100%;
-        margin-bottom: 12px;
-      ">Upgrade for ${PREMIUM_CONFIG.PRICE_DISPLAY}</button>
-
-      <button onclick="document.getElementById('premiumModal').style.display='none'" style="
-        background: transparent;
-        color: #666;
-        border: none;
-        cursor: pointer;
-        font-size: 0.85rem;
-        padding: 4px;
-      ">Maybe later</button>
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-}
-
-/**
- * Show the upgrade modal
- */
-function showUpgradeModal() {
-  renderUpgradeModal();
-  const modal = document.getElementById('premiumModal');
-  if (modal) modal.style.display = 'flex';
-}
-
-// ============================================================
-// INIT
-// ============================================================
-
-/**
- * Initialise premium pass on page load
- * Call this at the bottom of each game's <script> block
- */
-function initPremiumPass() {
-  // Render modal (lazy — doesn't show until needed)
-  renderUpgradeModal();
-  
-  // Apply current premium state
-  applyPremiumState();
-
-  // Handle Stripe success redirect: ?premium_activated=1
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('premium_activated') === '1') {
-    activatePremium();
-    // Clean URL
-    const url = new URL(window.location);
-    url.searchParams.delete('premium_activated');
-    window.history.replaceState({}, '', url);
-  }
-
-  console.log(`josho.pro Premium Pass loaded. Status: ${isPremium() ? 'ACTIVE' : 'inactive'}`);
-}
-
-// Auto-init on DOM ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initPremiumPass);
-} else {
-  initPremiumPass();
-}
-
-</script>
-<script src="/streak.js"></script>
-<script src="/premium-gate.js"></script>
 </body>
 </html>

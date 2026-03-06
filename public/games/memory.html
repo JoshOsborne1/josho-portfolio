@@ -1,1069 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta property="og:title" content="Memory Match — josho.pro">
-  <meta property="og:description" content="Flip cards and find all matching pairs.">
-  <meta property="og:image" content="/og/memory.png">
-  <meta property="og:url" content="https://josho.pro/memory.html">
-  <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Memory Match — josho.pro">
-  <meta name="twitter:description" content="Flip cards and find all matching pairs.">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Memory Match - Daily Puzzle</title>
+<title>Memory — josho.pro/games</title>
+<meta name="description" content="Flip cards and match pairs. Internet icons as the deck.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #1a1a2e;
-  --card-back: #16213e;
-  --card-front: #0f3460;
-  --accent: #e94560;
-  --text: #eee;
-  --text-muted: #888;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'Segoe UI', system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.hidden { display: none !important; }
+  :root {
+    --bg: #0a0a0a;
+    --s1: #111115;
+    --border: rgba(255,255,255,0.07);
+    --text: #f2f2f5;
+    --dim: rgba(255,255,255,0.38);
+    --accent: #8b5cf6;
+    --green: #4ade80;
+    --f: 'Inter', -apple-system, sans-serif;
+  }
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html { background:var(--bg); color:var(--text); font-family:var(--f); -webkit-font-smoothing:antialiased; }
+  body { min-height:100vh; padding:0 20px; }
 
-/* Header */
-header {
-  width: 100%;
-  max-width: 600px;
-  padding: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-h1 { font-size: 32px; color: var(--accent); }
-.header-stats { display: flex; gap: 15px; align-items: center; }
-.stat-box {
-  background: var(--card-front);
-  padding: 8px 16px;
-  border-radius: 8px;
-  text-align: center;
-}
-.stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
-.stat-value { font-size: 20px; font-weight: 700; }
-.streak-badge {
-  background: linear-gradient(135deg, #ff6b35, #f7931e);
-  padding: 8px 14px;
-  border-radius: 20px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.premium-btn {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-weight: 600;
-  cursor: pointer;
-}
+  a.back { position:fixed; top:16px; left:16px; font-size:10px; color:var(--dim); text-decoration:none; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; }
 
-/* Ads */
-.ad-banner {
-  width: 100%;
-  max-width: 728px;
-  height: 90px;
-  background: #222;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 10px auto;
-  border-radius: 8px;
-  color: #666;
-}
-.ad-banner.mobile { max-width: 320px; height: 50px; }
-@media (max-width: 768px) {
-  .ad-banner.desktop { display: none; }
-  .ad-banner.mobile { display: flex; }
-}
-@media (min-width: 769px) { .ad-banner.mobile { display: none; } }
+  #app { max-width:520px; margin:0 auto; }
 
-/* Game */
-.game-container {
-  background: var(--card-front);
-  padding: 20px;
-  border-radius: 12px;
-  margin: 20px;
-  position: relative;
-}
-.game-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-.new-game-btn {
-  background: var(--accent);
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 700;
-  cursor: pointer;
-}
-.new-game-btn:hover { opacity: 0.9; }
+  header {
+    padding:20px 0 16px; border-bottom:1px solid var(--border);
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .hdr-title { font-size:11px; font-weight:800; letter-spacing:0.14em; text-transform:uppercase; color:var(--dim); }
+  .hdr-title b { color:var(--text); }
+  .stats { display:flex; gap:12px; }
+  .badge { padding:4px 10px; border-radius:6px; background:rgba(139,92,246,0.12); border:1px solid rgba(139,92,246,0.15); font-size:10px; font-weight:700; color:#c4b5fd; }
 
-.daily-theme {
-  color: var(--text-muted);
-  font-size: 14px;
-}
+  .game-info { margin:20px 0; display:flex; justify-content:space-between; align-items:center; }
+  .timer { font-family:monospace; font-size:12px; color:var(--dim); font-weight:700; }
+  .moves { font-size:10px; color:var(--dim); text-transform:uppercase; letter-spacing:0.08em; }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  width: 400px;
-  height: 400px;
-}
-@media (max-width: 450px) {
-  .grid { width: 300px; height: 300px; gap: 8px; }
-}
+  #board {
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:8px;
+    margin:20px 0;
+  }
+  .card {
+    aspect-ratio:1; border-radius:8px; background:var(--s1); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-size:28px;
+    cursor:pointer; transition:all 0.15s; position:relative;
+    -webkit-user-select:none; user-select:none;
+  }
+  .card:hover { border-color:rgba(255,255,255,0.15); }
+  .card.flipped { background:var(--accent); border-color:var(--accent); }
+  .card.matched { background:var(--green); border-color:var(--green); cursor:default; }
+  .card.flipped.showing-back { color:transparent; }
 
-.card {
-  background: transparent;
-  perspective: 1000px;
-  cursor: pointer;
-}
-.card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.5s;
-  transform-style: preserve-3d;
-}
-.card.flipped .card-inner { transform: rotateY(180deg); }
-.card.matched .card-inner { transform: rotateY(180deg); }
-.card-front, .card-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 40px;
-}
-.card-back {
-  background: var(--card-back);
-  border: 2px solid #333;
-}
-.card-front {
-  background: var(--card-front);
-  border: 2px solid var(--accent);
-  transform: rotateY(180deg);
-}
-.card.matched .card-front {
-  border-color: #4ade80;
-  background: #166534;
-}
-@media (max-width: 450px) {
-  .card-front, .card-back { font-size: 28px; }
-}
+  .controls { display:flex; gap:8px; }
+  .btn { flex:1; padding:12px; border-radius:8px; border:1px solid var(--border); background:var(--s1); color:var(--text); font-size:12px; font-weight:700; cursor:pointer; }
+  .btn.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
 
-/* Win overlay */
-.win-overlay {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(26, 26, 46, 0.95);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-}
-.win-title { font-size: 48px; color: #4ade80; margin-bottom: 20px; }
-.win-stats { font-size: 20px; margin-bottom: 20px; text-align: center; }
-.play-again-btn {
-  background: var(--accent);
-  color: white;
-  border: none;
-  padding: 15px 30px;
-  font-size: 18px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-/* Controls */
-.controls { display: flex; gap: 10px; margin-top: 15px; }
-.control-btn {
-  background: var(--card-front);
-  color: var(--text);
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-/* Share */
-.share-section { margin: 20px; }
-.share-btn {
-  background: #4a90d9;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 25px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-/* Hard mode */
-.hard-indicator {
-  background: #dc2626;
-  color: white;
-  padding: 5px 12px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-/* Modals */
-.modal-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-.modal {
-  background: var(--card-front);
-  padding: 30px;
-  border-radius: 12px;
-  max-width: 400px;
-  text-align: center;
-}
-.modal h3 { margin-bottom: 15px; color: var(--accent); }
-.modal p { margin-bottom: 20px; color: var(--text-muted); }
-.modal ul { text-align: left; margin-bottom: 20px; color: var(--text); }
-.modal li { margin: 8px 0; }
-.modal input {
-  width: 100%;
-  padding: 12px;
-  border: 2px solid #333;
-  border-radius: 8px;
-  font-size: 16px;
-  background: var(--bg);
-  color: var(--text);
-  margin-bottom: 15px;
-}
-.modal button {
-  background: var(--accent);
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-  margin: 5px;
-}
-.modal .close-btn { background: #444; }
-
-/* Interstitial */
-.interstitial-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-}
-.interstitial-content { text-align: center; }
-.interstitial-countdown { font-size: 64px; font-weight: 700; }
-.interstitial-skip {
-  margin-top: 20px;
-  background: #444;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-/* Footer */
-footer {
-  margin-top: 30px;
-  font-size: 14px;
-  color: #666;
-}
-footer a { color: #888; text-decoration: none; }
+  #result { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9);
+    align-items:center; justify-content:center; z-index:200; backdrop-filter:blur(10px); }
+  #result.show { display:flex; }
+  .result-card { background:var(--s1); border:1px solid var(--border); border-radius:16px; padding:32px 24px; max-width:340px; width:calc(100%-40px); text-align:center; }
+  .result-score { font-size:28px; font-weight:900; color:var(--green); margin-bottom:12px; }
+  .result-text { font-size:12px; color:var(--dim); margin-bottom:20px; }
+  .btn-close { width:100%; padding:12px; background:transparent; border:1px solid var(--border); color:var(--text); font-size:12px; font-weight:700; border-radius:8px; cursor:pointer; }
 </style>
 </head>
 <body>
+<a class="back" href="/games/">Back</a>
+<div id="app">
+  <header>
+    <div class="hdr-title">josho.pro / <b>Memory</b></div>
+    <div class="stats">
+      <div class="badge" id="levelBadge">Easy</div>
+    </div>
+  </header>
 
-<header>
-  <h1>Memory Match</h1>
-  <div class="header-stats">
-    <div class="streak-badge">
-      <span>🔥</span>
-      <span id="streak">0</span>
-    </div>
-    <div class="stat-box">
-      <div class="stat-label">Moves</div>
-      <div class="stat-value" id="moves">0</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-label">Time</div>
-      <div class="stat-value" id="timer">0:00</div>
-    </div>
-    <button class="premium-btn" id="premium-btn" onclick="showPremiumModal()">Go Premium</button>
+  <div class="game-info">
+    <div class="timer" id="timer">0:00</div>
+    <div class="moves" id="moves">0 moves</div>
   </div>
-</header>
 
-<div class="ad-banner desktop" data-ad-slot="MEMORY-TOP">
-  <!-- REPLACE ca-pub-PENDING with your AdSense publisher ID -->
-<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-PENDING" data-ad-slot="AUTO" data-ad-format="auto" data-full-width-responsive="true"></ins>
-<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-</div>
-<div class="ad-banner mobile" data-ad-slot="MEMORY-MOBILE">
-  <!-- REPLACE ca-pub-PENDING with your AdSense publisher ID -->
-<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-PENDING" data-ad-slot="AUTO" data-ad-format="auto" data-full-width-responsive="true"></ins>
-<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-</div>
+  <div id="board"></div>
 
-<div class="game-container">
-  <div class="game-header">
-    <span class="daily-theme" id="daily-theme">Today's Theme: Animals</span>
-    <div>
-      <span class="hard-indicator hidden" id="hard-indicator">HARD</span>
-      <button class="new-game-btn" onclick="initGame()">New Game</button>
-    </div>
-  </div>
-  
-  <div class="grid" id="grid"></div>
-  
-  <div class="win-overlay hidden" id="win-overlay">
-    <div class="win-title">You Win!</div>
-    <div class="win-stats">
-      <div>Moves: <span id="final-moves">0</span></div>
-      <div>Time: <span id="final-time">0:00</span></div>
-    </div>
-    <button class="play-again-btn" onclick="initGame()">Play Again</button>
+  <div class="controls">
+    <button class="btn primary" id="newBtn">New Game</button>
   </div>
 </div>
 
-<div class="controls">
-  <button class="control-btn" onclick="toggleHardMode()">Hard Mode</button>
-  <button class="control-btn" onclick="showStatsModal()">Stats</button>
-  <button class="control-btn" onclick="showArchiveModal()">Archive</button>
-</div>
-
-<div class="share-section">
-  <button class="share-btn" onclick="shareResult()">Share Result</button>
-</div>
-
-<div class="ad-banner desktop" data-ad-slot="MEMORY-BOTTOM">
-  <!-- REPLACE ca-pub-PENDING with your AdSense publisher ID -->
-<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-PENDING" data-ad-slot="AUTO" data-ad-format="auto" data-full-width-responsive="true"></ins>
-<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-</div>
-
-<footer>
-  More daily games at <a href="#">DailyPuzzle.io</a>
-</footer>
-
-<!-- Premium Modal -->
-<div class="modal-overlay hidden" id="premium-modal">
-  <div class="modal">
-    <h3>Go Premium</h3>
-    <p>Unlock all features for $3.99/month</p>
-    <ul>
-      <li>Remove all ads</li>
-      <li>Play Archive</li>
-      <li>Hard Mode</li>
-      <li>Stats Dashboard</li>
-    </ul>
-    <button onclick="upgradePremium()">Subscribe</button>
-    <button class="close-btn" onclick="closeModal('premium-modal')">Not Now</button>
-  </div>
-</div>
-
-<!-- Stats Modal -->
-<div class="modal-overlay hidden" id="stats-modal">
-  <div class="modal">
-    <h3>Your Stats</h3>
-    <div style="text-align:left; margin: 20px 0;">
-      <p>Current Streak: <span id="stat-streak">0</span></p>
-      <p>Longest Streak: <span id="stat-longest">0</span></p>
-      <p>Games Played: <span id="stat-played">0</span></p>
-      <p>Win Rate: <span id="stat-winrate">0</span>%</p>
-      <p>Best Time: <span id="stat-besttime">--</span></p>
-    </div>
-    <button onclick="closeModal('stats-modal')">Close</button>
-  </div>
-</div>
-
-<!-- Archive Modal -->
-<div class="modal-overlay hidden" id="archive-modal">
-  <div class="modal">
-    <h3>Play Archive</h3>
-    <p>Select a date</p>
-    <div style="margin: 20px 0;">
-      <button class="control-btn" onclick="changeArchiveDate(-1)">← Prev</button>
-      <span id="archive-date">Today</span>
-      <button class="control-btn" onclick="changeArchiveDate(1)">Next →</button>
-    </div>
-    <button onclick="closeModal('archive-modal')">Close</button>
-  </div>
-</div>
-
-<!-- Email Modal -->
-<div class="modal-overlay hidden" id="email-modal">
-  <div class="modal">
-    <h3>Get Tomorrow's Puzzle</h3>
-    <p>Never miss a day - daily puzzle delivered to your inbox</p>
-    <input type="email" id="email-input" placeholder="your@email.com">
-    <button onclick="subscribeEmail()">Subscribe</button>
-    <button class="close-btn" onclick="dismissEmailModal()">No Thanks</button>
-  </div>
-</div>
-
-<!-- Interstitial -->
-<div class="interstitial-overlay hidden" id="interstitial">
-  <div class="interstitial-content">
-    <div class="interstitial-countdown" id="interstitial-count">5</div>
-    <p>Ad plays in</p>
-    <button class="interstitial-skip" onclick="skipInterstitial()">Skip</button>
+<div id="result">
+  <div class="result-card">
+    <div class="result-score" id="resultScore">32</div>
+    <div class="result-text" id="resultText">You win!</div>
+    <button class="btn-close" onclick="location.href='/games/'">Done</button>
   </div>
 </div>
 
 <script>
-// Emoji sets for daily themes
-const EMOJI_SETS = [
-  ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼'],  // Animals
-  ['🍎','🍊','🍋','🍇','🍓','🍒','🥝','🍑'],  // Fruits
-  ['🚗','🚕','🚙','🚌','🚒','🚑','🚓','🚜'],  // Vehicles
-  ['⚽','🏀','🏈','⚾','🎾','🏐','🏉','🎱'],  // Sports
-  ['🌞','🌝','🌛','🌜','🌚','🌕','🌖','🌗'],  // Moons
-  ['🌸','🌺','🌻','🌼','🏵️','🌹','🥀','💐'],  // Flowers
-  ['🎵','🎶','🎼','🎸','🎹','🎷','🎺','🎻'],  // Music
-  ['💎','💍','💄','👑','👜','👠','🕶️','💼'],  // Fashion
-];
+const ICONS = ['🎮','🎯','🎨','🎭','🎪','🎬','📱','💻','🎸','🎹','📚','🎓','🏆','⚡','🚀','✨'];
 
-const STORAGE_KEYS = {
-  isPremium: 'MEMORY_isPremium',
-  streak: 'MEMORY_streak',
-  currentStreak: 'MEMORY_currentStreak',
-  longestStreak: 'MEMORY_longestStreak',
-  gamesPlayed: 'MEMORY_gamesPlayed',
-  gamesWon: 'MEMORY_gamesWon',
-  bestTime: 'MEMORY_bestTime',
-  streakDate: 'MEMORY_streakDate',
-  playsThisSession: 'MEMORY_playsThisSession',
-  emailDismissed: 'MEMORY_emailDismissed',
-  lastPlayed: 'MEMORY_lastPlayed',
-};
-
-let cards = [];
-let flippedCards = [];
-let matchedPairs = 0;
-let moves = 0;
-let timer = 0;
-let timerInterval = null;
-let gameWon = false;
-let hardMode = false;
-let archiveDate = 0;
-let canClick = true;
-
-// Get daily emoji set
-function getDailyEmojis() {
-  const today = new Date();
-  const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-  const setIndex = seed % EMOJI_SETS.length;
-  return EMOJI_SETS[setIndex];
-}
-
-function getDailyThemeName() {
-  const today = new Date();
-  const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-  const themes = ['Animals', 'Fruits', 'Vehicles', 'Sports', 'Moons', 'Flowers', 'Music', 'Fashion'];
-  return themes[seed % themes.length];
-}
+let cards, flipped, matched, moves, startTime, timerIntvl, level;
 
 function init() {
-  // Premium check
-  if (localStorage.getItem(STORAGE_KEYS.isPremium) === 'true') {
-    document.getElementById('premium-btn').textContent = 'Premium';
-    document.querySelectorAll('.ad-banner').forEach(el => el.classList.add('hidden'));
-  }
-  
-  // Set daily theme
-  document.getElementById('daily-theme').textContent = `Today's Theme: ${getDailyThemeName()}`;
-  
-  // Update streak
-  updateStreak();
-  
-  // Reset session plays
-  localStorage.setItem(STORAGE_KEYS.playsThisSession, '0');
-  
-  // Email modal
-  checkEmailModal();
-  
-  initGame();
+  level = 0;
+  cards = shuffleArray([...ICONS, ...ICONS]);
+  flipped = [];
+  matched = new Set();
+  moves = 0;
+  startTime = Date.now();
+
+  document.getElementById('levelBadge').textContent = 'Easy';
+  buildBoard();
+  startTimer();
+  document.getElementById('newBtn').onclick = init;
 }
 
-function initGame() {
-  // Reset state
-  cards = [];
-  flippedCards = [];
-  matchedPairs = 0;
-  moves = 0;
-  timer = 0;
-  gameWon = false;
-  canClick = true;
-  
-  document.getElementById('moves').textContent = '0';
-  document.getElementById('timer').textContent = '0:00';
-  document.getElementById('win-overlay').classList.add('hidden');
-  
-  // Stop existing timer
-  if (timerInterval) clearInterval(timerInterval);
-  
-  // Get emojis and create pairs
-  const emojis = getDailyEmojis();
-  const pairs = [...emojis, ...emojis];
-  
-  // Shuffle (seeded by date if archive, otherwise random)
-  for (let i = pairs.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [pairs[i], pairs[j]] = [pairs[j], pairs[i]];
-  }
-  
-  // Create card elements
-  const grid = document.getElementById('grid');
-  grid.innerHTML = '';
-  
-  pairs.forEach((emoji, index) => {
+function buildBoard() {
+  const bd = document.getElementById('board');
+  bd.innerHTML = '';
+  cards.forEach((icon, i) => {
     const card = document.createElement('div');
     card.className = 'card';
-    card.dataset.index = index;
-    card.dataset.emoji = emoji;
-    card.innerHTML = `
-      <div class="card-inner">
-        <div class="card-back">?</div>
-        <div class="card-front">${emoji}</div>
-      </div>
-    `;
-    card.addEventListener('click', () => flipCard(card));
-    grid.appendChild(card);
-    cards.push(card);
+    card.textContent = '?';
+    card.dataset.idx = i;
+    card.onclick = () => flipCard(i, card);
+    bd.appendChild(card);
   });
-  
-  // Start timer
-  timerInterval = setInterval(() => {
-    timer++;
-    const mins = Math.floor(timer / 60);
-    const secs = timer % 60;
-    document.getElementById('timer').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-  }, 1000);
-  
-  // Hard mode
-  const isPremium = localStorage.getItem(STORAGE_KEYS.isPremium) === 'true';
-  if (hardMode && isPremium) {
-    document.getElementById('hard-indicator').classList.remove('hidden');
-  } else {
-    hardMode = false;
-    document.getElementById('hard-indicator').classList.add('hidden');
-  }
-  
-  // Increment plays
-  let plays = parseInt(localStorage.getItem(STORAGE_KEYS.playsThisSession)) || 0;
-  localStorage.setItem(STORAGE_KEYS.playsThisSession, (plays + 1).toString());
-  
-  if (plays >= 2 && !isPremium) {
-    showInterstitial();
-  }
 }
 
-function flipCard(card) {
-  if (!canClick || gameWon) return;
-  if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
-  if (flippedCards.length >= 2) return;
-  
-  card.classList.add('flipped');
-  flippedCards.push(card);
-  
-  if (flippedCards.length === 2) {
-    moves++;
-    document.getElementById('moves').textContent = moves;
-    checkMatch();
-  }
-}
+function flipCard(idx, elem) {
+  if (matched.has(idx) || flipped.includes(idx)) return;
+  if (flipped.length >= 2) return;
 
-function checkMatch() {
-  canClick = false;
-  const [card1, card2] = flippedCards;
-  
-  if (card1.dataset.emoji === card2.dataset.emoji) {
-    // Match!
-    card1.classList.add('matched');
-    card2.classList.add('matched');
-    matchedPairs++;
-    flippedCards = [];
-    canClick = true;
-    
-    if (matchedPairs === 8) {
-      winGame();
-    }
-  } else {
-    // No match
+  flipped.push(idx);
+  elem.textContent = cards[idx];
+  elem.classList.add('flipped');
+
+  if (flipped.length === 2) {
     setTimeout(() => {
-      card1.classList.remove('flipped');
-      card2.classList.remove('flipped');
-      flippedCards = [];
-      canClick = true;
-    }, hardMode ? 300 : 1000);
+      moves++;
+      document.getElementById('moves').textContent = moves + ' moves';
+
+      if (cards[flipped[0]] === cards[flipped[1]]) {
+        matched.add(flipped[0]);
+        matched.add(flipped[1]);
+        document.querySelectorAll(`.card[data-idx="${flipped[0]}"], .card[data-idx="${flipped[1]}"]`).forEach(c => {
+          c.classList.add('matched');
+          c.classList.remove('flipped');
+        });
+      } else {
+        document.querySelectorAll('.card.flipped').forEach(c => {
+          c.classList.remove('flipped');
+          setTimeout(() => { c.textContent = '?'; }, 150);
+        });
+      }
+      flipped = [];
+
+      if (matched.size === cards.length) endGame();
+    }, 600);
   }
 }
 
-function winGame() {
-  gameWon = true;
-  clearInterval(timerInterval);
-  
-  const mins = Math.floor(timer / 60);
-  const secs = timer % 60;
-  const timeStr = `${mins}:${secs.toString().padStart(2, '0')}`;
-  
-  document.getElementById('final-moves').textContent = moves;
-  document.getElementById('final-time').textContent = timeStr;
-  document.getElementById('win-overlay').classList.remove('hidden');
-  
-  // Update stats
-  const today = new Date().toDateString();
-  let gamesPlayed = parseInt(localStorage.getItem(STORAGE_KEYS.gamesPlayed)) || 0;
-  let gamesWon = parseInt(localStorage.getItem(STORAGE_KEYS.gamesWon)) || 0;
-  gamesPlayed++;
-  gamesWon++;
-  localStorage.setItem(STORAGE_KEYS.gamesPlayed, gamesPlayed);
-  localStorage.setItem(STORAGE_KEYS.gamesWon, gamesWon);
-  
-  // Update streak
-  let currentStreak = parseInt(localStorage.getItem(STORAGE_KEYS.currentStreak)) || 0;
-  let longestStreak = parseInt(localStorage.getItem(STORAGE_KEYS.longestStreak)) || 0;
-  const lastPlayed = localStorage.getItem(STORAGE_KEYS.streakDate);
-  
-  if (lastPlayed !== today) {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    if (lastPlayed === yesterday.toDateString()) {
-      currentStreak++;
-    } else {
-      currentStreak = 1;
-    }
-  }
-  
-  if (currentStreak > longestStreak) longestStreak = currentStreak;
-  localStorage.setItem(STORAGE_KEYS.currentStreak, currentStreak);
-  localStorage.setItem(STORAGE_KEYS.longestStreak, longestStreak);
-  localStorage.setItem(STORAGE_KEYS.streakDate, today);
-  document.getElementById('streak').textContent = currentStreak;
-  
-  // Best time
-  let bestTime = parseInt(localStorage.getItem(STORAGE_KEYS.bestTime)) || Infinity;
-  if (timer < bestTime) {
-    localStorage.setItem(STORAGE_KEYS.bestTime, timer);
-  }
-  
-  localStorage.setItem(STORAGE_KEYS.lastPlayed, today);
-}
-
-function updateStreak() {
-  const today = new Date().toDateString();
-  const lastPlayed = localStorage.getItem(STORAGE_KEYS.streakDate);
-  let streak = parseInt(localStorage.getItem(STORAGE_KEYS.currentStreak)) || 0;
-  
-  if (lastPlayed !== today) {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    if (lastPlayed !== yesterday.toDateString()) {
-      streak = 0;
-    }
-  }
-  document.getElementById('streak').textContent = streak;
-}
-
-// Premium
-function showPremiumModal() {
-  document.getElementById('premium-modal').classList.remove('hidden');
-}
-
-function upgradePremium() {
-  localStorage.setItem(STORAGE_KEYS.isPremium, 'true');
-  document.getElementById('premium-btn').textContent = 'Premium';
-  document.querySelectorAll('.ad-banner').forEach(el => el.classList.add('hidden'));
-  closeModal('premium-modal');
-  initGame();
-}
-
-function toggleHardMode() {
-  const isPremium = localStorage.getItem(STORAGE_KEYS.isPremium) === 'true';
-  if (!isPremium) {
-    showPremiumModal();
-    return;
-  }
-  hardMode = !hardMode;
-  initGame();
-}
-
-// Stats
-function showStatsModal() {
-  const played = parseInt(localStorage.getItem(STORAGE_KEYS.gamesPlayed)) || 0;
-  const won = parseInt(localStorage.getItem(STORAGE_KEYS.gamesWon)) || 0;
-  const current = parseInt(localStorage.getItem(STORAGE_KEYS.currentStreak)) || 0;
-  const longest = parseInt(localStorage.getItem(STORAGE_KEYS.longestStreak)) || 0;
-  const best = parseInt(localStorage.getItem(STORAGE_KEYS.bestTime)) || 0;
-  
-  document.getElementById('stat-streak').textContent = current;
-  document.getElementById('stat-longest').textContent = longest;
-  document.getElementById('stat-played').textContent = played;
-  document.getElementById('stat-winrate').textContent = played > 0 ? Math.round((won / played) * 100) : 0;
-  document.getElementById('stat-besttime').textContent = best > 0 ? `${Math.floor(best / 60)}:${(best % 60).toString().padStart(2, '0')}` : '--';
-  
-  document.getElementById('stats-modal').classList.remove('hidden');
-}
-
-// Archive
-let archiveOffset = 0;
-function showArchiveModal() {
-  const isPremium = localStorage.getItem(STORAGE_KEYS.isPremium) === 'true';
-  if (!isPremium) {
-    showPremiumModal();
-    return;
-  }
-  archiveOffset = 0;
-  updateArchiveDisplay();
-  document.getElementById('archive-modal').classList.remove('hidden');
-}
-
-function changeArchiveDate(delta) {
-  archiveOffset += delta;
-  if (archiveOffset > 0) archiveOffset = 0;
-  if (archiveOffset < -29) archiveOffset = -29;
-  updateArchiveDisplay();
-}
-
-function updateArchiveDisplay() {
-  const date = new Date();
-  date.setDate(date.getDate() + archiveOffset);
-  document.getElementById('archive-date').textContent = archiveOffset === 0 ? 'Today' : date.toLocaleDateString();
-}
-
-// Share
-function shareResult() {
-  const emoji = '🃏🃏🃏';
-  const time = document.getElementById('timer').textContent;
-  const text = `Memory Match: ${moves} moves in ${time}\n${emoji}\nPlay at: https://dailypuzzle.io`;
-  navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!'));
-}
-
-// Email
-function checkEmailModal() {
-  const dismissed = localStorage.getItem(STORAGE_KEYS.emailDismissed);
-  const today = new Date().toDateString();
-  if (dismissed === today) return;
-  if (localStorage.getItem(STORAGE_KEYS.lastPlayed)) return;
-  
-  setTimeout(() => {
-    document.getElementById('email-modal').classList.remove('hidden');
-  }, 3000);
-}
-
-function subscribeEmail() {
-  const email = document.getElementById('email-input').value;
-  if (email) {
-    let list = JSON.parse(localStorage.getItem('MEMORY_emailList') || '[]');
-    list.push(email);
-    localStorage.setItem('MEMORY_emailList', JSON.stringify(list));
-    console.log('Subscribed:', email);
-    dismissEmailModal();
-  }
-}
-
-function dismissEmailModal() {
-  localStorage.setItem(STORAGE_KEYS.emailDismissed, new Date().toDateString());
-  closeModal('email-modal');
-}
-
-// Interstitial
-function showInterstitial() {
-  const overlay = document.getElementById('interstitial');
-  overlay.classList.remove('hidden');
-  let count = 5;
-  document.getElementById('interstitial-count').textContent = count;
-  
-  const interval = setInterval(() => {
-    count--;
-    document.getElementById('interstitial-count').textContent = count;
-    if (count <= 0) clearInterval(interval);
+function startTimer() {
+  timerIntvl = setInterval(() => {
+    const s = Math.floor((Date.now() - startTime) / 1000);
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    document.getElementById('timer').textContent = m + ':' + (sec < 10 ? '0' : '') + sec;
   }, 1000);
-  
-  setTimeout(() => skipInterstitial(), 6000);
 }
 
-function skipInterstitial() {
-  document.getElementById('interstitial').classList.add('hidden');
+function endGame() {
+  clearInterval(timerIntvl);
+  const time = Math.round((Date.now() - startTime) / 1000);
+  document.getElementById('resultScore').textContent = moves + ' moves in ' + time + 's';
+  document.getElementById('resultText').textContent = moves < 18 ? 'Perfect memory!' : moves < 24 ? 'Nice job' : 'Keep practicing';
+  document.getElementById('result').classList.add('show');
 }
 
-// Modal helpers
-function closeModal(id) {
-  document.getElementById(id).classList.add('hidden');
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 init();
 </script>
-
-<script>
-// ==== josho.pro Premium Pass (v2) ====
-/**
- * josho.pro Premium Pass
- * Shared snippet — embed in all 9 games
- * 
- * CONFIG: Update STRIPE_CHECKOUT_URL before go-live
- * No external dependencies — pure localStorage + Stripe redirect
- */
-
-// ============================================================
-// CONFIG (update these before go-live)
-// ============================================================
-const PREMIUM_CONFIG = {
-  STRIPE_CHECKOUT_URL: 'https://checkout.stripe.com/c/pay/cs_test_a1BG7d236UKlxCk4VQHUKCIRuAFpjrYNQ7S4zDXgp5Q3BOisfVKvRgmg6e#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdkdWxOYHwnPyd1blpxYHZxWjA0UTNGcH0wcnNhNWNmUWRSR0tuZG5JU111X3ZwXXRSTHBxMTJdTVZWa0M2dEBvM11BSl9PSFJDPFB1cDNofTN9R0JwQWB2TWp8NDQ2PTRzQzVsV3VtT0pWNTUxTHVsSFFSQycpJ2N3amhWYHdzYHcnP3F3cGApJ2dkZm5id2pwa2FGamlqdyc%2FJyZjY2NjY2MnKSdpZHxqcHFRfHVgJz8ndmxrYmlgWmxxYGgnKSdga2RnaWBVaWRmYG1qaWFgd3YnP3F3cGB4JSUl', // GM07 will populate this
-  PRICE_DISPLAY: '£2.99/month',
-  PRODUCT_NAME: 'josho.pro Premium Pass',
-  STORAGE_KEY: 'josho_premium_expires',  // localStorage key (timestamp ms)
-  FEATURES: {
-    removeAds: true,
-    hardMode: true,
-    archive: true,
-  }
-};
-
-// ============================================================
-// CORE FUNCTIONS
-// ============================================================
-
-/**
- * Check if the user currently has an active premium pass
- * Returns true if premium, false if not
- */
-function isPremium() {
-  try {
-    const expires = parseInt(localStorage.getItem(PREMIUM_CONFIG.STORAGE_KEY) || '0', 10);
-    return expires > Date.now();
-  } catch (e) {
-    return false;
-  }
-}
-
-/**
- * Activate premium locally (call after Stripe webhook confirms payment)
- * Sets expiry to 31 days from now by default
- * In production: set expiry from webhook payload
- * @param {number} durationMs - duration in milliseconds (default: 31 days)
- */
-function activatePremium(durationMs = 31 * 24 * 60 * 60 * 1000) {
-  const expires = Date.now() + durationMs;
-  localStorage.setItem(PREMIUM_CONFIG.STORAGE_KEY, String(expires));
-  applyPremiumState();
-}
-
-/**
- * Deactivate premium (for testing or expiry handling)
- */
-function deactivatePremium() {
-  localStorage.removeItem(PREMIUM_CONFIG.STORAGE_KEY);
-  applyPremiumState();
-}
-
-/**
- * Redirect to Stripe Checkout
- */
-function startCheckout() {
-  if (PREMIUM_CONFIG.STRIPE_CHECKOUT_URL === 'https://checkout.stripe.com/c/pay/cs_test_a1BG7d236UKlxCk4VQHUKCIRuAFpjrYNQ7S4zDXgp5Q3BOisfVKvRgmg6e#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdkdWxOYHwnPyd1blpxYHZxWjA0UTNGcH0wcnNhNWNmUWRSR0tuZG5JU111X3ZwXXRSTHBxMTJdTVZWa0M2dEBvM11BSl9PSFJDPFB1cDNofTN9R0JwQWB2TWp8NDQ2PTRzQzVsV3VtT0pWNTUxTHVsSFFSQycpJ2N3amhWYHdzYHcnP3F3cGApJ2dkZm5id2pwa2FGamlqdyc%2FJyZjY2NjY2MnKSdpZHxqcHFRfHVgJz8ndmxrYmlgWmxxYGgnKSdga2RnaWBVaWRmYG1qaWFgd3YnP3F3cGB4JSUl') {
-    console.warn('Premium Pass: Stripe URL not configured yet');
-    return;
-  }
-  window.location.href = PREMIUM_CONFIG.STRIPE_CHECKOUT_URL;
-}
-
-// ============================================================
-// UI STATE
-// ============================================================
-
-/**
- * Apply or remove premium state across the page
- * Hides/shows ads, unlocks hard mode toggle, enables archive
- */
-function applyPremiumState() {
-  const premium = isPremium();
-
-  // Ad slots: hide if premium
-  document.querySelectorAll('.ad-slot').forEach(el => {
-    el.style.display = premium ? 'none' : '';
-  });
-
-  // Hard mode: enable if premium
-  const hardModeBtn = document.getElementById('hardModeToggle');
-  if (hardModeBtn) {
-    hardModeBtn.disabled = !premium;
-    hardModeBtn.title = premium ? 'Hard mode unlocked' : 'Premium feature';
-  }
-
-  // Archive button: enable if premium
-  const archiveBtn = document.getElementById('archiveBtn');
-  if (archiveBtn) {
-    archiveBtn.disabled = !premium;
-    archiveBtn.title = premium ? 'View archive' : 'Premium feature — upgrade to unlock';
-  }
-
-  // Premium badge: show/hide
-  const premiumBadge = document.getElementById('premiumBadge');
-  if (premiumBadge) {
-    premiumBadge.style.display = premium ? 'flex' : 'none';
-  }
-
-  // Upgrade banner: show/hide
-  const upgradeBanner = document.getElementById('upgradeBanner');
-  if (upgradeBanner) {
-    upgradeBanner.style.display = premium ? 'none' : '';
-  }
-}
-
-// ============================================================
-// UPGRADE MODAL
-// ============================================================
-
-/**
- * Render and inject upgrade modal into DOM
- * Call once per page — idempotent
- */
-function renderUpgradeModal() {
-  if (document.getElementById('premiumModal')) return; // already rendered
-
-  const modal = document.createElement('div');
-  modal.id = 'premiumModal';
-  modal.style.cssText = `
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  `;
-
-  modal.innerHTML = `
-    <div style="
-      background: #1a1a2e;
-      border: 1px solid #e91e8c33;
-      border-radius: 16px;
-      padding: 32px 24px;
-      max-width: 380px;
-      width: 90%;
-      text-align: center;
-      color: #f0f0f0;
-    ">
-      <div style="font-size: 2rem; margin-bottom: 8px;">⭐</div>
-      <h2 style="margin: 0 0 8px; font-size: 1.4rem; color: #fff;">josho.pro Premium</h2>
-      <p style="margin: 0 0 20px; color: #aaa; font-size: 0.95rem;">${PREMIUM_CONFIG.PRICE_DISPLAY} — cancel any time</p>
-      
-      <ul style="text-align: left; padding: 0 0 0 16px; margin: 0 0 24px; color: #ccc; font-size: 0.9rem; line-height: 1.8;">
-        <li>🚫 Remove all ads across every game</li>
-        <li>🔥 Hard mode unlocked</li>
-        <li>📅 Full archive access</li>
-        <li>🎮 All 9 games, all features</li>
-      </ul>
-
-      <button onclick="startCheckout()" style="
-        background: linear-gradient(135deg, #e91e8c, #9c27b0);
-        color: white;
-        border: none;
-        padding: 14px 32px;
-        border-radius: 8px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        width: 100%;
-        margin-bottom: 12px;
-      ">Upgrade for ${PREMIUM_CONFIG.PRICE_DISPLAY}</button>
-
-      <button onclick="document.getElementById('premiumModal').style.display='none'" style="
-        background: transparent;
-        color: #666;
-        border: none;
-        cursor: pointer;
-        font-size: 0.85rem;
-        padding: 4px;
-      ">Maybe later</button>
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-}
-
-/**
- * Show the upgrade modal
- */
-function showUpgradeModal() {
-  renderUpgradeModal();
-  const modal = document.getElementById('premiumModal');
-  if (modal) modal.style.display = 'flex';
-}
-
-// ============================================================
-// INIT
-// ============================================================
-
-/**
- * Initialise premium pass on page load
- * Call this at the bottom of each game's <script> block
- */
-function initPremiumPass() {
-  // Render modal (lazy — doesn't show until needed)
-  renderUpgradeModal();
-  
-  // Apply current premium state
-  applyPremiumState();
-
-  // Handle Stripe success redirect: ?premium_activated=1
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('premium_activated') === '1') {
-    activatePremium();
-    // Clean URL
-    const url = new URL(window.location);
-    url.searchParams.delete('premium_activated');
-    window.history.replaceState({}, '', url);
-  }
-
-  console.log(`josho.pro Premium Pass loaded. Status: ${isPremium() ? 'ACTIVE' : 'inactive'}`);
-}
-
-// Auto-init on DOM ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initPremiumPass);
-} else {
-  initPremiumPass();
-}
-
-</script>
-<script src="/streak.js"></script>
-<script src="/premium-gate.js"></script>
 </body>
 </html>
