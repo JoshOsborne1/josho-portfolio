@@ -1,1267 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta property="og:title" content="Math Challenge — josho.pro">
-  <meta property="og:description" content="Speed arithmetic challenge — all four operations.">
-  <meta property="og:image" content="/og/math.png">
-  <meta property="og:url" content="https://josho.pro/math.html">
-  <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Math Challenge — josho.pro">
-  <meta name="twitter:description" content="Speed arithmetic challenge — all four operations.">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daily Math Challenge</title>
-  <style>
-    :root {
-      --correct: #6aaa64;
-      --present: #c9b458;
-      --absent: #787c7e;
-      --bg: #121213;
-      --surface: #3a3a3c;
-      --text: #ffffff;
-      --border: #3a3a3c;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px 24px;
-      border-bottom: 1px solid var(--border);
-      width: 100%;
-      max-width: 500px;
-    }
-    .streak {
-      font-size: 14px;
-      color: #f97316;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .title {
-      font-size: 24px;
-      font-weight: 700;
-      letter-spacing: 2px;
-    }
-    .controls {
-      display: flex;
-      gap: 8px;
-    }
-    .btn-icon {
-      background: var(--surface);
-      border: none;
-      color: var(--text);
-      padding: 8px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    .btn-icon:hover { background: #4a4a4c; }
-    
-    /* Ads */
-    .ad-banner {
-      width: 100%;
-      max-width: 728px;
-      height: 90px;
-      background: var(--surface);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 8px auto;
-      border-radius: 4px;
-      font-size: 12px;
-      color: #888;
-    }
-    @media (max-width: 500px) {
-      .ad-banner { max-width: 320px; height: 50px; }
-    }
-    .premium .ad-banner { display: none; }
-    
-    /* Game */
-    .game-container {
-      padding: 16px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .difficulty-select {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-    .diff-btn {
-      background: var(--surface);
-      border: 2px solid transparent;
-      color: var(--text);
-      padding: 8px 16px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 12px;
-      text-transform: uppercase;
-    }
-    .diff-btn.active { border-color: var(--correct); }
-    .diff-btn:hover:not(.active) { background: #4a4a4c; }
-    
-    .grid {
-      display: grid;
-      gap: 4px;
-      margin-bottom: 16px;
-    }
-    .row {
-      display: grid;
-      gap: 4px;
-    }
-    .tile {
-      width: 52px;
-      height: 52px;
-      border: 2px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-    .tile.filled { border-color: #565758; }
-    .tile.correct { background: var(--correct); border-color: var(--correct); }
-    .tile.present { background: var(--present); border-color: var(--present); }
-    .tile.absent { background: var(--absent); border-color: var(--absent); }
-    .tile.current { border-color: #565758; animation: pulse 0.5s; }
-    @keyframes pulse { 50% { border-color: #787c7e; } }
-    
-    /* Keyboard */
-    .keyboard {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-top: auto;
-    }
-    .key-row {
-      display: flex;
-      justify-content: center;
-      gap: 4px;
-    }
-    .key {
-      min-width: 40px;
-      height: 52px;
-      background: var(--surface);
-      border: none;
-      border-radius: 4px;
-      color: var(--text);
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 8px;
-    }
-    .key:hover { background: #4a4a4c; }
-    .key.wide { min-width: 60px; font-size: 12px; }
-    .key.correct { background: var(--correct); }
-    .key.present { background: var(--present); }
-    .key.absent { background: var(--absent); }
-    
-    /* Message */
-    .message {
-      position: fixed;
-      top: 80px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--text);
-      color: var(--bg);
-      padding: 12px 24px;
-      border-radius: 4px;
-      font-weight: 600;
-      display: none;
-      z-index: 100;
-    }
-    .message.show { display: block; animation: fade 2s forwards; }
-    @keyframes fade { 70% { opacity: 1; } 100% { opacity: 0; } }
-    
-    /* Modal */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.8);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 200;
-    }
-    .modal-overlay.show { display: flex; }
-    .modal {
-      background: #1a1a1b;
-      padding: 24px;
-      border-radius: 8px;
-      max-width: 400px;
-      width: 90%;
-      text-align: center;
-    }
-    .modal h2 { margin-bottom: 16px; }
-    .modal p { margin-bottom: 12px; color: #aaa; }
-    .modal .result-emoji { font-size: 48px; margin: 16px 0; }
-    .modal-btn {
-      background: var(--correct);
-      border: none;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 4px;
-      font-weight: 600;
-      cursor: pointer;
-      margin: 4px;
-    }
-    .modal-btn.secondary { background: var(--surface); }
-    .modal-btn:hover { opacity: 0.9; }
-    
-    /* Premium */
-    .premium-badge {
-      background: linear-gradient(135deg, #f97316, #ea580c);
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 10px;
-      font-weight: 700;
-    }
-    
-    /* Stats */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin: 16px 0;
-    }
-    .stat-box {
-      background: var(--surface);
-      padding: 12px;
-      border-radius: 4px;
-    }
-    .stat-value { font-size: 24px; font-weight: 700; }
-    .stat-label { font-size: 10px; color: #888; text-transform: uppercase; }
-    
-    /* Hard Mode */
-    .hard-hint {
-      display: none;
-    }
-    .hard-mode .hard-hint { display: block; color: #f97316; font-size: 12px; margin: 8px 0; }
-    .hard-mode .tile.present { background: var(--absent); border-color: var(--absent); }
-    
-    /* Hidden class */
-    .hidden { display: none !important; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Sprint — josho.pro/games</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#0a0a0a; --s1:#111115; --border:rgba(255,255,255,0.07); --text:#f2f2f5; --dim:rgba(255,255,255,0.38); --accent:#8b5cf6; --green:#4ade80; --f:'Inter',-apple-system,sans-serif; }
+  *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+  html { background:var(--bg); color:var(--text); font-family:var(--f); }
+  body { min-height:100vh; padding:0 20px; }
+  a.back { position:fixed; top:16px; left:16px; font-size:10px; color:var(--dim); text-decoration:none; font-weight:700; letter-spacing:0.08em; }
+  #app { max-width:520px; margin:0 auto; }
+  header { padding:20px 0 16px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; }
+  .hdr-title { font-size:11px; font-weight:800; letter-spacing:0.14em; text-transform:uppercase; color:var(--dim); }
+  .hdr-title b { color:var(--text); }
+  .badge { padding:4px 10px; border-radius:6px; background:rgba(139,92,246,0.12); border:1px solid rgba(139,92,246,0.15); font-size:10px; font-weight:700; color:#c4b5fd; }
+  .timer { font-family:monospace; font-size:12px; color:var(--dim); font-weight:700; }
+  .stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin:20px 0; }
+  .stat { background:var(--s1); border:1px solid var(--border); border-radius:8px; padding:12px; text-align:center; }
+  .stat-val { font-size:20px; font-weight:900; color:var(--accent); }
+  .stat-lbl { font-size:9px; color:var(--dim); text-transform:uppercase; letter-spacing:0.08em; margin-top:4px; }
+  .problem { background:var(--s1); border:2px solid var(--border); border-radius:12px; padding:32px; text-align:center; margin:24px 0; }
+  .problem-text { font-size:32px; font-weight:900; letter-spacing:-0.03em; margin-bottom:24px; }
+  .input-area { display:flex; gap:8px; }
+  #answer { flex:1; padding:14px 16px; border-radius:8px; background:transparent; border:2px solid var(--accent); color:var(--text); font-size:18px; font-weight:800; font-family:var(--f); text-align:center; }
+  #answer:focus { outline:none; }
+  .submit-btn { padding:14px 24px; background:var(--accent); border:none; color:#fff; font-size:14px; font-weight:800; border-radius:8px; cursor:pointer; }
+  #result { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); align-items:center; justify-content:center; z-index:200; backdrop-filter:blur(10px); }
+  #result.show { display:flex; }
+  .result-card { background:var(--s1); border:1px solid var(--border); border-radius:16px; padding:32px 24px; max-width:340px; width:calc(100%-40px); text-align:center; }
+  .result-score { font-size:32px; font-weight:900; color:var(--green); margin-bottom:12px; }
+  .btn-close { width:100%; padding:12px; background:transparent; border:1px solid var(--border); color:var(--text); font-size:12px; font-weight:700; border-radius:8px; cursor:pointer; margin-top:16px; }
+</style>
 </head>
 <body>
-  <!-- Ad Banner Top -->
-  <div class="ad-banner" data-ad-slot="MATH_TOP">
-  <!-- REPLACE ca-pub-PENDING with your AdSense publisher ID -->
-<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-PENDING" data-ad-slot="AUTO" data-ad-format="auto" data-full-width-responsive="true"></ins>
-<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-</div>
-  
-  <header class="header">
-    <div class="streak">
-      <span id="streakIcon">🔥</span>
-      <span id="streakCount">0</span>
-    </div>
-    <div class="title">MATH</div>
-    <div class="controls">
-      <button class="btn-icon" id="prevDay" onclick="navigateDay(-1)">◀</button>
-      <button class="btn-icon" onclick="showHelp()">?</button>
-      <button class="btn-icon" onclick="showStats()">📊</button>
-      <button class="btn-icon" id="premiumBtn" onclick="showPremium()">⭐</button>
-      <button class="btn-icon" id="nextDay" onclick="navigateDay(1)">▶</button>
-    </div>
+<a class="back" href="/games/">Back</a>
+<div id="app">
+  <header>
+    <div class="hdr-title">josho.pro / <b>Math</b></div>
+    <div class="timer" id="timer">0:00</div>
   </header>
-  
-  <div class="game-container" id="gameContainer">
-    <!-- Ad Banner in-game -->
-    <div class="ad-banner" data-ad-slot="MATH_GAME">
-  <!-- REPLACE ca-pub-PENDING with your AdSense publisher ID -->
-<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-PENDING" data-ad-slot="AUTO" data-ad-format="auto" data-full-width-responsive="true"></ins>
-<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  <div class="stats">
+    <div class="stat"><div class="stat-val" id="score">0</div><div class="stat-lbl">Correct</div></div>
+    <div class="stat"><div class="stat-val" id="streak">0</div><div class="stat-lbl">Streak</div></div>
+    <div class="stat"><div class="stat-val" id="wrong">0</div><div class="stat-lbl">Wrong</div></div>
+  </div>
+  <div class="problem">
+    <div class="problem-text" id="problem">12 + 5</div>
+    <div class="input-area">
+      <input type="number" id="answer" inputmode="numeric" placeholder="?">
+      <button class="submit-btn" onclick="submit()">Go</button>
+    </div>
+  </div>
 </div>
-    
-    <div class="difficulty-select">
-      <button class="diff-btn" data-diff="easy" onclick="setDifficulty('easy')">Easy</button>
-      <button class="diff-btn active" data-diff="medium" onclick="setDifficulty('medium')">Medium</button>
-      <button class="diff-btn" data-diff="hard" onclick="setDifficulty('hard')">Hard</button>
-    </div>
-    
-    <div class="hard-hint">Hard Mode: No colour hints until row is complete</div>
-    
-    <div class="grid" id="grid"></div>
-    
-    <div class="message" id="message"></div>
-    
-    <div class="keyboard" id="keyboard"></div>
+<div id="result">
+  <div class="result-card">
+    <div style="font-size:20px; font-weight:900; margin-bottom:12px;">Time</div>
+    <div class="result-score" id="resultScore">15 seconds</div>
+    <button class="btn-close" onclick="location.href='/games/'">Done</button>
   </div>
-  
-  <!-- Results Modal -->
-  <div class="modal-overlay" id="resultModal">
-    <div class="modal">
-      <h2 id="resultTitle">You Won!</h2>
-      <div class="result-emoji" id="resultEmoji">🎉</div>
-      <p id="resultText">Solved in X attempts</p>
-      <div class="stats-grid">
-        <div class="stat-box"><div class="stat-value" id="statStreak">0</div><div class="stat-label">Streak</div></div>
-        <div class="stat-box"><div class="stat-value" id="statPlayed">0</div><div class="stat-label">Played</div></div>
-        <div class="stat-box"><div class="stat-value" id="statWinRate">0%</div><div class="stat-label">Win %</div></div>
-      </div>
-      <button class="modal-btn" onclick="shareResult()">Share</button>
-      <button class="modal-btn secondary" onclick="closeModal()">Close</button>
-    </div>
-  </div>
-  
-  <!-- Stats Modal -->
-  <div class="modal-overlay" id="statsModal">
-    <div class="modal">
-      <h2>Statistics</h2>
-      <div class="stats-grid">
-        <div class="stat-box"><div class="stat-value" id="sPlayed">0</div><div class="stat-label">Played</div></div>
-        <div class="stat-box"><div class="stat-value" id="sWinRate">0%</div><div class="stat-label">Win %</div></div>
-        <div class="stat-box"><div class="stat-value" id="sStreak">0</div><div class="stat-label">Streak</div></div>
-        <div class="stat-box"><div class="stat-value" id="sBestStreak">0</div><div class="stat-label">Best</div></div>
-        <div class="stat-box"><div class="stat-value" id="sBestTime">--</div><div class="stat-label">Best Time</div></div>
-      </div>
-      <button class="modal-btn" onclick="closeStats()">Close</button>
-    </div>
-  </div>
-  
-  <!-- Premium Modal -->
-  <div class="modal-overlay" id="premiumModal">
-    <div class="modal">
-      <h2>Go Premium</h2>
-      <p>Unlock all premium features:</p>
-      <div style="text-align:left;margin:16px 0;font-size:14px;">
-        ✓ Remove all ads<br>
-        ✓ Unlimited hints<br>
-        ✓ Play archive (past puzzles)<br>
-        ✓ Hard mode always on<br>
-        ✓ Advanced stats
-      </div>
-      <p style="font-size:24px;font-weight:700;">$3.99/mo</p>
-      <button class="modal-btn" onclick="upgradePremium()">Upgrade</button>
-      <button class="modal-btn secondary" onclick="closePremium()">Close</button>
-    </div>
-  </div>
-  
-  <!-- Email Capture Modal -->
-  <div class="modal-overlay" id="emailModal">
-    <div class="modal">
-      <h2>Get Tomorrow's Puzzle</h2>
-      <p>Never miss a day - get the daily challenge in your inbox</p>
-      <input type="email" id="emailInput" placeholder="your@email.com" 
-             style="width:100%;padding:12px;margin:12px 0;border-radius:4px;border:none;">
-      <button class="modal-btn" onclick="subscribeEmail()">Subscribe Free</button>
-      <button class="modal-btn secondary" onclick="dismissEmail()">Not Now</button>
-    </div>
-  </div>
-  
-  <!-- Help Modal -->
-  <div class="modal-overlay" id="helpModal">
-    <div class="modal">
-      <h2>How to Play</h2>
-      <p style="text-align:left;font-size:14px;">
-        Guess the equation in 6 tries.<br><br>
-        Each guess must be a valid equation.<br>
-        Green = correct digit in correct position<br>
-        Yellow = digit is in the equation but wrong position<br>
-        Grey = digit is not in the equation<br><br>
-        <strong>Easy:</strong> 4 numbers/operators<br>
-        <strong>Medium:</strong> 5 numbers/operators<br>
-        <strong>Hard:</strong> 6 numbers/operators
-      </p>
-      <button class="modal-btn" onclick="closeHelp()">Got It</button>
-    </div>
-  </div>
-
-  <script>
-    // Config
-    const OPS = ['+', '-', '*', '/'];
-    const DIFFICULTY = { easy: 4, medium: 5, hard: 6 };
-    const MAX_GUESSES = 6;
-    
-    // State
-    let difficulty = 'medium';
-    let currentRow = 0;
-    let currentTile = 0;
-    let equation = '';
-    let guesses = [];
-    let gameOver = false;
-    let startTime = null;
-    let archiveDate = null; // null = today, otherwise YYYY-MM-DD
-    
-    // Archive navigation
-    function navigateDay(dir) {
-      const isPremium = localStorage.getItem('isPremium') === 'true';
-      if (!isPremium) {
-        showMessage('Premium required for archive');
-        showPremium();
-        return;
-      }
-      
-      const today = new Date();
-      const current = archiveDate ? new Date(archiveDate) : today;
-      current.setDate(current.getDate() + dir);
-      
-      const diffDays = Math.floor((today - current) / (1000 * 60 * 60 * 24));
-      if (diffDays < 0 || diffDays > 30) {
-        showMessage('Archive limited to 30 days');
-        return;
-      }
-      
-      archiveDate = current.toISOString().split('T')[0];
-      loadArchiveState();
-      render();
-    }
-    
-    function loadArchiveState() {
-      if (!archiveDate) {
-        loadState();
-        return;
-      }
-      
-      const key = 'math_' + difficulty + '_' + archiveDate;
-      const saved = localStorage.getItem(key);
-      if (saved) {
-        const state = JSON.parse(saved);
-        equation = state.equation || '';
-        guesses = state.guesses || [];
-        currentRow = guesses.length;
-        gameOver = state.gameOver || false;
-      } else {
-        // Generate for that date
-        generateEquation();
-      }
-    }
-    
-    function saveArchiveState() {
-      if (!archiveDate) {
-        saveArchiveState();
-        return;
-      }
-      
-      const key = 'math_' + difficulty + '_' + archiveDate;
-      localStorage.setItem(key, JSON.stringify({
-        date: archiveDate,
-        equation,
-        guesses,
-        gameOver,
-        startTime
-      }));
-    }
-    
-    // Load state
-    function loadState() {
-      const today = getTodayKey();
-      const saved = localStorage.getItem('math_' + difficulty);
-      if (saved) {
-        const state = JSON.parse(saved);
-        if (state.date === today && state.equation) {
-          equation = state.equation;
-          guesses = state.guesses || [];
-          currentRow = guesses.length;
-          gameOver = state.gameOver || false;
-          startTime = state.startTime || null;
-          if (gameOver) currentRow = MAX_GUESSES;
-        } else {
-          generateEquation();
-        }
-      } else {
-        generateEquation();
-      }
-      checkPremium();
-    }
-    
-    function getTodayKey() {
-      const dateStr = archiveDate || new Date().toISOString().split('T')[0];
-      return dateStr + '_' + difficulty;
-    }
-    
-    function getDateSeed() {
-      const dateStr = archiveDate || new Date().toISOString().split('T')[0];
-      // Simple hash of date string for seeding
-      let hash = 0;
-      for (let i = 0; i < dateStr.length; i++) {
-        hash = ((hash << 5) - hash) + dateStr.charCodeAt(i);
-        hash |= 0;
-      }
-      return Math.abs(hash);
-    }
-    
-    function generateEquation() {
-      const len = DIFFICULTY[difficulty];
-      const seed = getDateSeed();
-      
-      // Use seeded random
-      const seededRandom = () => {
-        seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-        return seed / 0x7fffffff;
-      };
-      
-      let eq = '';
-      let attempts = 0;
-      
-      while (!isValidEquation(eq) && attempts < 1000) {
-        eq = generateRandomEquation(len, seededRandom);
-        attempts++;
-      }
-      
-      if (!eq) {
-        eq = '12+3=15';
-        while (eq.length < len) {
-          eq = generateRandomEquation(len, seededRandom);
-        }
-      }
-      
-      equation = eq.replace(/=/g, '');
-      saveArchiveState();
-    }
-    
-    function generateRandomEquation(len, randFunc) {
-      const rand = randFunc || Math.random;
-      // Generate: [num][op][num][op][num]=[result]
-      const numOps = Math.floor((len - 1) / 2);
-      let result = '';
-      
-      // Generate left side
-      let remaining = len - numOps;
-      for (let i = 0; i < numOps; i++) {
-        const numLen = Math.max(1, Math.floor(remaining / (numOps - i)));
-        const num = String(Math.floor(rand() * Math.pow(10, numLen)));
-        result += num;
-        remaining -= numLen;
-        if (i < numOps - 1) {
-          result += OPS[Math.floor(rand() * OPS.length)];
-        }
-      }
-      while (result.length < len - 1) {
-        result += String(Math.floor(rand() * 10));
-      }
-      
-      // Calculate result (+ and - only)
-      try {
-        let res = 0;
-        let num = '';
-        let op = '+';
-        for (const c of result) {
-          if (OPS.includes(c)) {
-            res = op === '+' ? res + parseInt(num) : res - parseInt(num);
-            op = c;
-            num = '';
-          } else {
-            num += c;
-          }
-        }
-        if (num) res = op === '+' ? res + parseInt(num) : res - parseInt(num);
-        
-        if (res >= 0 && res < 1000) {
-          result += '=' + res;
-        } else {
-          result = '12+3=15';
-        }
-      } catch (e) {
-        result = '12+3=15';
-      }
-      
-      return result;
-    }
-    
-    function isValidEquation(eq) {
-      if (!eq.includes('=')) return false;
-      const [left, right] = eq.split('=');
-      if (!left || !right) return false;
-      if (!/^[\d\+\-\*\/]+$/.test(left) || !/^\d+$/.test(right)) return false;
-      try {
-        const lr = left.replace(/[*\/]/g, m => m);
-        let res = 0, num = '', op = '+';
-        for (const c of lr) {
-          if (OPS.includes(c)) {
-            res = op === '+' ? res + parseInt(num) : res - parseInt(num);
-            op = c;
-            num = '';
-          } else if (/\d/.test(c)) {
-            num += c;
-          }
-        }
-        if (num) res = op === '+' ? res + parseInt(num) : res - parseInt(num);
-        return res === parseInt(right) && res >= 0;
-      } catch { return false; }
-    }
-    
-    function saveState() {
-      const key = 'math_' + difficulty;
-      localStorage.setItem(key, JSON.stringify({
-        date: getTodayKey(),
-        equation,
-        guesses,
-        gameOver,
-        startTime
-      }));
-    }
-    
-    // Render
-    function render() {
-      const len = DIFFICULTY[difficulty];
-      const grid = document.getElementById('grid');
-      grid.style.gridTemplateColumns = `repeat(${len}, 52px)`;
-      grid.innerHTML = '';
-      
-      for (let r = 0; r < MAX_GUESSES; r++) {
-        const row = document.createElement('div');
-        row.className = 'row';
-        for (let c = 0; c < len; c++) {
-          const tile = document.createElement('div');
-          tile.className = 'tile';
-          if (guesses[r] && guesses[r][c]) {
-            tile.textContent = guesses[r][c];
-            tile.classList.add('filled');
-          }
-          if (r === currentRow && c === currentTile) {
-            tile.classList.add('current');
-          }
-          row.appendChild(tile);
-        }
-        grid.appendChild(row);
-      }
-      
-      renderKeyboard();
-      applyColours();
-    }
-    
-    function renderKeyboard() {
-      const keys = ['1234567890'.split(''), OPS, ['ENTER', '⌫']];
-      const keyboard = document.getElementById('keyboard');
-      keyboard.innerHTML = '';
-      
-      keys.forEach(row => {
-        const rowDiv = document.createElement('div');
-        rowDiv.className = 'key-row';
-        row.forEach(key => {
-          const btn = document.createElement('button');
-          btn.className = 'key';
-          btn.textContent = key;
-          if (key === 'ENTER' || key === '⌫') btn.classList.add('wide');
-          btn.onclick = () => handleKey(key);
-          rowDiv.appendChild(btn);
-        });
-        keyboard.appendChild(rowDiv);
-      });
-    }
-    
-    function applyColours() {
-      const len = DIFFICULTY[difficulty];
-      if (currentRow === 0) return;
-      
-      // Build colour map
-      const eqChars = equation.split('');
-      const colours = new Array(len).fill('absent');
-      
-      // First pass: correct positions
-      const lastGuess = guesses[currentRow - 1];
-      for (let i = 0; i < len; i++) {
-        if (lastGuess[i] === eqChars[i]) {
-          colours[i] = 'correct';
-          eqChars[i] = null;
-        }
-      }
-      
-      // Second pass: present
-      for (let i = 0; i < len; i++) {
-        if (colours[i] !== 'correct' && eqChars.includes(lastGuess[i])) {
-          colours[i] = 'present';
-          eqChars[eqChars.indexOf(lastGuess[i])] = null;
-        }
-      }
-      
-      // Apply to grid
-      const rows = document.querySelectorAll('.row');
-      if (guesses[currentRow - 1]) {
-        for (let c = 0; c < len; c++) {
-          if (currentRow > 0 && currentRow <= MAX_GUESSES) {
-            const tile = rows[currentRow - 1].children[c];
-            if (guesses[currentRow - 1][c]) {
-              tile.classList.remove('present', 'absent', 'correct');
-              tile.classList.add(colours[c]);
-            }
-          }
-        }
-      }
-      
-      // Apply to keyboard
-      document.querySelectorAll('.key').forEach(k => {
-        const key = k.textContent;
-        if (key === 'ENTER' || key === '⌫') return;
-        let colour = null;
-        for (let i = 0; i < len; i++) {
-          if (lastGuess[i] === key && colours[i] === 'correct') {
-            colour = 'correct';
-          }
-        }
-        if (!colour) {
-          for (let i = 0; i < len; i++) {
-            if (lastGuess[i] === key && colours[i] === 'present' && colour !== 'correct') {
-              colour = 'present';
-            }
-          }
-        }
-        if (!colour && lastGuess.includes(key)) {
-          colour = 'absent';
-        }
-        if (colour) {
-          k.classList.remove('present', 'absent', 'correct');
-          k.classList.add(colour);
-        }
-      });
-    }
-    
-    // Input
-    function handleKey(key) {
-      if (gameOver) return;
-      
-      if (key === '⌫') {
-        if (currentTile > 0) {
-          currentTile--;
-          const row = document.querySelectorAll('.row')[currentRow];
-          row.children[currentTile].textContent = '';
-          row.children[currentTile].classList.remove('filled');
-        }
-        return;
-      }
-      
-      if (key === 'ENTER') {
-        submitGuess();
-        return;
-      }
-      
-      const len = DIFFICULTY[difficulty];
-      if (currentTile < len) {
-        const row = document.querySelectorAll('.row')[currentRow];
-        row.children[currentTile].textContent = key;
-        row.children[currentTile].classList.add('filled');
-        currentTile++;
-      }
-    }
-    
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Enter') handleKey('ENTER');
-      else if (e.key === 'Backspace') handleKey('⌫');
-      else if (/^[0-9\+\-\*\/\=]$/.test(e.key)) handleKey(e.key);
-    });
-    
-    function submitGuess() {
-      const len = DIFFICULTY[difficulty];
-      const row = document.querySelectorAll('.row')[currentRow];
-      let guess = '';
-      for (let c = 0; c < len; c++) {
-        guess += row.children[c].textContent;
-      }
-      
-      if (guess.length < len) {
-        showMessage('Not enough characters');
-        return;
-      }
-      
-      // Check if valid equation
-      if (!guess.includes('=')) {
-        showMessage('Need an = sign');
-        return;
-      }
-      
-      const [left, right] = guess.split('=');
-      if (!left || !right || !/^[\d\+\-\*\/]+$/.test(left) || !/^\d+$/.test(right)) {
-        showMessage('Invalid equation');
-        return;
-      }
-      
-      // Validate maths
-      if (!isValidEquation(guess)) {
-        showMessage('Equation doesn\'t balance');
-        return;
-      }
-      
-      guesses.push(guess);
-      
-      if (guess.replace('=', '') === equation) {
-        gameOver = true;
-        saveArchiveState();
-        updateStreak();
-        setTimeout(() => showResult(true), 500);
-      } else if (currentRow >= MAX_GUESSES - 1) {
-        gameOver = true;
-        saveArchiveState();
-        updateStreak(0); // Reset streak
-        setTimeout(() => showResult(false), 500);
-      } else {
-        currentRow++;
-        currentTile = 0;
-        saveArchiveState();
-      }
-      
-      render();
-    }
-    
-    function showMessage(msg) {
-      const m = document.getElementById('message');
-      m.textContent = msg;
-      m.classList.add('show');
-      setTimeout(() => m.classList.remove('show'), 1500);
-    }
-    
-    function showResult(won) {
-      const modal = document.getElementById('resultModal');
-      document.getElementById('resultTitle').textContent = won ? 'You Won!' : 'Game Over';
-      document.getElementById('resultEmoji').textContent = won ? '🎉' : '😔';
-      document.getElementById('resultText').textContent = won 
-        ? `Solved in ${currentRow} attempt${currentRow > 1 ? 's' : ''}`
-        : `The equation was: ${equation}`;
-      document.getElementById('statStreak').textContent = getStreak();
-      document.getElementById('statPlayed').textContent = getPlayed();
-      document.getElementById('statWinRate').textContent = getWinRate() + '%';
-      modal.classList.add('show');
-      
-      // Check for email capture
-      if (won && !localStorage.getItem('math_email_dismissed')) {
-        setTimeout(() => {
-          modal.classList.remove('show');
-          document.getElementById('emailModal').classList.add('show');
-        }, 2000);
-      }
-    }
-    
-    // Difficulty
-    function setDifficulty(diff) {
-      difficulty = diff;
-      document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
-      document.querySelector(`[data-diff="${diff}"]`).classList.add('active');
-      localStorage.setItem('math_difficulty', diff);
-      resetGame();
-    }
-    
-    function resetGame() {
-      guesses = [];
-      currentRow = 0;
-      currentTile = 0;
-      gameOver = false;
-      startTime = Date.now();
-      generateEquation();
-      render();
-    }
-    
-    // Premium
-    function checkPremium() {
-      const isPremium = localStorage.getItem('isPremium') === 'true';
-      if (isPremium) {
-        document.body.classList.add('premium');
-        document.getElementById('premiumBtn').innerHTML = '⭐ Premium';
-      }
-    }
-    
-    function showPremium() {
-      if (localStorage.getItem('isPremium') === 'true') {
-        showMessage('Already premium!');
-      } else {
-        document.getElementById('premiumModal').classList.add('show');
-      }
-    }
-    
-    function closePremium() {
-      document.getElementById('premiumModal').classList.remove('show');
-    }
-    
-    function upgradePremium() {
-      localStorage.setItem('isPremium', 'true');
-      checkPremium();
-      closePremium();
-      showMessage('Welcome to Premium!');
-    }
-    
-    // Stats
-    function getPlayed() {
-      return parseInt(localStorage.getItem('math_played') || '0');
-    }
-    function getWinRate() {
-      const played = getPlayed();
-      const wins = parseInt(localStorage.getItem('math_wins') || '0');
-      return played ? Math.round((wins / played) * 100) : 0;
-    }
-    function getStreak() {
-      return parseInt(localStorage.getItem('math_streak') || '0');
-    }
-    
-    function updateStreak(newStreak) {
-      const played = getPlayed() + 1;
-      const wins = parseInt(localStorage.getItem('math_wins') || '0');
-      let streak = getStreak();
-      
-      if (newStreak !== undefined) {
-        streak = newStreak;
-      } else {
-        streak++;
-      }
-      
-      localStorage.setItem('math_played', played);
-      localStorage.setItem('math_wins', newStreak === 0 ? wins : wins + 1);
-      localStorage.setItem('math_streak', streak);
-      
-      const best = parseInt(localStorage.getItem('math_best_streak') || '0');
-      if (streak > best) {
-        localStorage.setItem('math_best_streak', streak);
-      }
-      
-      // Save best time
-      if (startTime && newStreak !== 0) {
-        const time = Math.round((Date.now() - startTime) / 1000);
-        const bestTime = localStorage.getItem('math_best_time');
-        if (!bestTime || time < parseInt(bestTime)) {
-          localStorage.setItem('math_best_time', time);
-        }
-      }
-    }
-    
-    function showStats() {
-      document.getElementById('sPlayed').textContent = getPlayed();
-      document.getElementById('sWinRate').textContent = getWinRate() + '%';
-      document.getElementById('sStreak').textContent = getStreak();
-      document.getElementById('sBestStreak').textContent = localStorage.getItem('math_best_streak') || '0';
-      const bestTime = localStorage.getItem('math_best_time');
-      document.getElementById('sBestTime').textContent = bestTime ? bestTime + 's' : '--';
-      document.getElementById('statsModal').classList.add('show');
-    }
-    
-    function closeStats() {
-      document.getElementById('statsModal').classList.remove('show');
-    }
-    
-    // Streak display
-    function updateStreakDisplay() {
-      const streak = getStreak();
-      document.getElementById('streakCount').textContent = streak;
-      document.getElementById('streakIcon').textContent = streak > 0 ? '🔥' : '🔥';
-    }
-    
-    // Share
-    function shareResult() {
-      const len = DIFFICULTY[difficulty];
-      let emoji = '';
-      for (let r = 0; r < currentRow; r++) {
-        const row = document.querySelectorAll('.row')[r];
-        for (let c = 0; c < len; c++) {
-          const tile = row.children[c];
-          if (tile.classList.contains('correct')) emoji += '🟩';
-          else if (tile.classList.contains('present')) emoji += '🟨';
-          else emoji += '⬛';
-        }
-        emoji += '\n';
-      }
-      
-      const text = `Daily Math Challenge ${new Date().toISOString().split('T')[0]}\n${emoji}https://math.example.com`;
-      navigator.clipboard.writeText(text).then(() => {
-        showMessage('Copied to clipboard!');
-      });
-      closeModal();
-    }
-    
-    function closeModal() {
-      document.getElementById('resultModal').classList.remove('show');
-    }
-    
-    // Email
-    function subscribeEmail() {
-      const email = document.getElementById('emailInput').value;
-      if (email) {
-        const list = JSON.parse(localStorage.getItem('math_email_list') || '[]');
-        list.push({ email, date: new Date().toISOString() });
-        localStorage.setItem('math_email_list', JSON.stringify(list));
-        
-        // Try POST to placeholder
-        fetch('/api/subscribe', {
-          method: 'POST',
-          body: JSON.stringify({ email, game: 'math' })
-        }).catch(() => console.log('Email saved locally'));
-        
-        showMessage('Subscribed!');
-        dismissEmail();
-      }
-    }
-    
-    function dismissEmail() {
-      document.getElementById('emailModal').classList.remove('show');
-      localStorage.setItem('math_email_dismissed', Date.now().toString());
-    }
-    
-    // Help
-    function showHelp() {
-      document.getElementById('helpModal').classList.add('show');
-    }
-    function closeHelp() {
-      document.getElementById('helpModal').classList.remove('show');
-    }
-    
-    // Init
-    const savedDiff = localStorage.getItem('math_difficulty');
-    if (savedDiff && DIFFICULTY[savedDiff]) {
-      difficulty = savedDiff;
-      document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
-      document.querySelector(`[data-diff="${savedDiff}"]`)?.classList.add('active');
-    }
-    
-    loadState();
-    startTime = Date.now();
-    render();
-    updateStreakDisplay();
-    
-    // Check if returning user with streak
-    if (getStreak() > 2) {
-      showMessage(`You're on a ${getStreak()} day streak!`);
-    }
-  </script>
-
+</div>
 <script>
-// ==== josho.pro Premium Pass (v2) ====
-/**
- * josho.pro Premium Pass
- * Shared snippet — embed in all 9 games
- * 
- * CONFIG: Update STRIPE_CHECKOUT_URL before go-live
- * No external dependencies — pure localStorage + Stripe redirect
- */
+let score, streak, wrong, count, startTime, timerIntvl;
 
-// ============================================================
-// CONFIG (update these before go-live)
-// ============================================================
-const PREMIUM_CONFIG = {
-  STRIPE_CHECKOUT_URL: 'https://checkout.stripe.com/c/pay/cs_test_a1BG7d236UKlxCk4VQHUKCIRuAFpjrYNQ7S4zDXgp5Q3BOisfVKvRgmg6e#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdkdWxOYHwnPyd1blpxYHZxWjA0UTNGcH0wcnNhNWNmUWRSR0tuZG5JU111X3ZwXXRSTHBxMTJdTVZWa0M2dEBvM11BSl9PSFJDPFB1cDNofTN9R0JwQWB2TWp8NDQ2PTRzQzVsV3VtT0pWNTUxTHVsSFFSQycpJ2N3amhWYHdzYHcnP3F3cGApJ2dkZm5id2pwa2FGamlqdyc%2FJyZjY2NjY2MnKSdpZHxqcHFRfHVgJz8ndmxrYmlgWmxxYGgnKSdga2RnaWBVaWRmYG1qaWFgd3YnP3F3cGB4JSUl', // GM07 will populate this
-  PRICE_DISPLAY: '£2.99/month',
-  PRODUCT_NAME: 'josho.pro Premium Pass',
-  STORAGE_KEY: 'josho_premium_expires',  // localStorage key (timestamp ms)
-  FEATURES: {
-    removeAds: true,
-    hardMode: true,
-    archive: true,
-  }
-};
-
-// ============================================================
-// CORE FUNCTIONS
-// ============================================================
-
-/**
- * Check if the user currently has an active premium pass
- * Returns true if premium, false if not
- */
-function isPremium() {
-  try {
-    const expires = parseInt(localStorage.getItem(PREMIUM_CONFIG.STORAGE_KEY) || '0', 10);
-    return expires > Date.now();
-  } catch (e) {
-    return false;
-  }
+function genProblem() {
+  const op = ['+','-','*'][Math.floor(Math.random()*3)];
+  const a = Math.floor(Math.random() * 20) + 1;
+  const b = Math.floor(Math.random() * 20) + 1;
+  const answer = op === '+' ? a + b : op === '-' ? a - b : a * b;
+  return { expr: `${a} ${op} ${b}`, answer };
 }
 
-/**
- * Activate premium locally (call after Stripe webhook confirms payment)
- * Sets expiry to 31 days from now by default
- * In production: set expiry from webhook payload
- * @param {number} durationMs - duration in milliseconds (default: 31 days)
- */
-function activatePremium(durationMs = 31 * 24 * 60 * 60 * 1000) {
-  const expires = Date.now() + durationMs;
-  localStorage.setItem(PREMIUM_CONFIG.STORAGE_KEY, String(expires));
-  applyPremiumState();
+function init() {
+  score = 0;
+  streak = 0;
+  wrong = 0;
+  count = 0;
+  startTime = Date.now();
+  showProblem();
+  startTimer();
+  document.getElementById('answer').onkeydown = e => e.key === 'Enter' && submit();
 }
 
-/**
- * Deactivate premium (for testing or expiry handling)
- */
-function deactivatePremium() {
-  localStorage.removeItem(PREMIUM_CONFIG.STORAGE_KEY);
-  applyPremiumState();
+function showProblem() {
+  const p = genProblem();
+  document.getElementById('problem').dataset.answer = p.answer;
+  document.getElementById('problem').textContent = p.expr;
+  document.getElementById('answer').value = '';
+  document.getElementById('answer').focus();
 }
 
-/**
- * Redirect to Stripe Checkout
- */
-function startCheckout() {
-  if (PREMIUM_CONFIG.STRIPE_CHECKOUT_URL === 'https://checkout.stripe.com/c/pay/cs_test_a1BG7d236UKlxCk4VQHUKCIRuAFpjrYNQ7S4zDXgp5Q3BOisfVKvRgmg6e#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdkdWxOYHwnPyd1blpxYHZxWjA0UTNGcH0wcnNhNWNmUWRSR0tuZG5JU111X3ZwXXRSTHBxMTJdTVZWa0M2dEBvM11BSl9PSFJDPFB1cDNofTN9R0JwQWB2TWp8NDQ2PTRzQzVsV3VtT0pWNTUxTHVsSFFSQycpJ2N3amhWYHdzYHcnP3F3cGApJ2dkZm5id2pwa2FGamlqdyc%2FJyZjY2NjY2MnKSdpZHxqcHFRfHVgJz8ndmxrYmlgWmxxYGgnKSdga2RnaWBVaWRmYG1qaWFgd3YnP3F3cGB4JSUl') {
-    console.warn('Premium Pass: Stripe URL not configured yet');
-    return;
-  }
-  window.location.href = PREMIUM_CONFIG.STRIPE_CHECKOUT_URL;
-}
-
-// ============================================================
-// UI STATE
-// ============================================================
-
-/**
- * Apply or remove premium state across the page
- * Hides/shows ads, unlocks hard mode toggle, enables archive
- */
-function applyPremiumState() {
-  const premium = isPremium();
-
-  // Ad slots: hide if premium
-  document.querySelectorAll('.ad-slot').forEach(el => {
-    el.style.display = premium ? 'none' : '';
-  });
-
-  // Hard mode: enable if premium
-  const hardModeBtn = document.getElementById('hardModeToggle');
-  if (hardModeBtn) {
-    hardModeBtn.disabled = !premium;
-    hardModeBtn.title = premium ? 'Hard mode unlocked' : 'Premium feature';
-  }
-
-  // Archive button: enable if premium
-  const archiveBtn = document.getElementById('archiveBtn');
-  if (archiveBtn) {
-    archiveBtn.disabled = !premium;
-    archiveBtn.title = premium ? 'View archive' : 'Premium feature — upgrade to unlock';
-  }
-
-  // Premium badge: show/hide
-  const premiumBadge = document.getElementById('premiumBadge');
-  if (premiumBadge) {
-    premiumBadge.style.display = premium ? 'flex' : 'none';
-  }
-
-  // Upgrade banner: show/hide
-  const upgradeBanner = document.getElementById('upgradeBanner');
-  if (upgradeBanner) {
-    upgradeBanner.style.display = premium ? 'none' : '';
-  }
-}
-
-// ============================================================
-// UPGRADE MODAL
-// ============================================================
-
-/**
- * Render and inject upgrade modal into DOM
- * Call once per page — idempotent
- */
-function renderUpgradeModal() {
-  if (document.getElementById('premiumModal')) return; // already rendered
-
-  const modal = document.createElement('div');
-  modal.id = 'premiumModal';
-  modal.style.cssText = `
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  `;
-
-  modal.innerHTML = `
-    <div style="
-      background: #1a1a2e;
-      border: 1px solid #e91e8c33;
-      border-radius: 16px;
-      padding: 32px 24px;
-      max-width: 380px;
-      width: 90%;
-      text-align: center;
-      color: #f0f0f0;
-    ">
-      <div style="font-size: 2rem; margin-bottom: 8px;">⭐</div>
-      <h2 style="margin: 0 0 8px; font-size: 1.4rem; color: #fff;">josho.pro Premium</h2>
-      <p style="margin: 0 0 20px; color: #aaa; font-size: 0.95rem;">${PREMIUM_CONFIG.PRICE_DISPLAY} — cancel any time</p>
-      
-      <ul style="text-align: left; padding: 0 0 0 16px; margin: 0 0 24px; color: #ccc; font-size: 0.9rem; line-height: 1.8;">
-        <li>🚫 Remove all ads across every game</li>
-        <li>🔥 Hard mode unlocked</li>
-        <li>📅 Full archive access</li>
-        <li>🎮 All 9 games, all features</li>
-      </ul>
-
-      <button onclick="startCheckout()" style="
-        background: linear-gradient(135deg, #e91e8c, #9c27b0);
-        color: white;
-        border: none;
-        padding: 14px 32px;
-        border-radius: 8px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        width: 100%;
-        margin-bottom: 12px;
-      ">Upgrade for ${PREMIUM_CONFIG.PRICE_DISPLAY}</button>
-
-      <button onclick="document.getElementById('premiumModal').style.display='none'" style="
-        background: transparent;
-        color: #666;
-        border: none;
-        cursor: pointer;
-        font-size: 0.85rem;
-        padding: 4px;
-      ">Maybe later</button>
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-}
-
-/**
- * Show the upgrade modal
- */
-function showUpgradeModal() {
-  renderUpgradeModal();
-  const modal = document.getElementById('premiumModal');
-  if (modal) modal.style.display = 'flex';
-}
-
-// ============================================================
-// INIT
-// ============================================================
-
-/**
- * Initialise premium pass on page load
- * Call this at the bottom of each game's <script> block
- */
-function initPremiumPass() {
-  // Render modal (lazy — doesn't show until needed)
-  renderUpgradeModal();
+function submit() {
+  const ans = parseInt(document.getElementById('answer').value);
+  const correct = parseInt(document.getElementById('problem').dataset.answer);
   
-  // Apply current premium state
-  applyPremiumState();
-
-  // Handle Stripe success redirect: ?premium_activated=1
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('premium_activated') === '1') {
-    activatePremium();
-    // Clean URL
-    const url = new URL(window.location);
-    url.searchParams.delete('premium_activated');
-    window.history.replaceState({}, '', url);
+  if (isNaN(ans)) return;
+  
+  if (ans === correct) {
+    score++;
+    streak++;
+    count++;
+  } else {
+    wrong++;
+    streak = 0;
   }
-
-  console.log(`josho.pro Premium Pass loaded. Status: ${isPremium() ? 'ACTIVE' : 'inactive'}`);
+  
+  if (count >= 10) {
+    clearInterval(timerIntvl);
+    showFinalResult();
+  } else {
+    document.getElementById('score').textContent = score;
+    document.getElementById('streak').textContent = streak;
+    document.getElementById('wrong').textContent = wrong;
+    showProblem();
+  }
 }
 
-// Auto-init on DOM ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initPremiumPass);
-} else {
-  initPremiumPass();
+function startTimer() {
+  timerIntvl = setInterval(() => {
+    const s = Math.floor((Date.now() - startTime) / 1000);
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    document.getElementById('timer').textContent = m + ':' + (sec < 10 ? '0' : '') + sec;
+  }, 1000);
 }
 
+function showFinalResult() {
+  const time = Math.round((Date.now() - startTime) / 1000);
+  document.getElementById('resultScore').textContent = `${score}/10 in ${time}s`;
+  document.getElementById('result').classList.add('show');
+}
+
+init();
 </script>
-<script src="/streak.js"></script>
-<script src="/premium-gate.js"></script>
 </body>
 </html>
