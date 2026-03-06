@@ -4,16 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Games — josho.pro</title>
-  <meta name="description" content="A collection of browser games by Josh Osborne">
+  <meta name="description" content="9 free browser games by Josh Osborne. No download, no sign-up. Just play.">
+  <meta property="og:title" content="Games — josho.pro">
+  <meta property="og:description" content="9 free browser games. Word games, puzzles, trivia and more.">
+  <meta property="og:url" content="https://josho.pro/games">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --bg: #0a0a0a;
       --surface: #111;
+      --surface-hover: #171717;
       --border: rgba(255,255,255,0.07);
       --text: #e8e8e8;
       --muted: #666;
       --accent: #c8f568;
+      --accent-dim: rgba(200,245,104,0.12);
     }
     body {
       background: var(--bg);
@@ -23,7 +30,7 @@
       padding: 48px 24px 80px;
     }
     header {
-      max-width: 800px;
+      max-width: 860px;
       margin: 0 auto 48px;
     }
     header a {
@@ -31,53 +38,125 @@
       text-decoration: none;
       font-size: 13px;
       letter-spacing: 0.04em;
+      transition: color 0.15s;
     }
     header a:hover { color: var(--text); }
     h1 {
-      font-size: clamp(28px, 5vw, 42px);
-      font-weight: 600;
-      letter-spacing: -0.02em;
+      font-size: clamp(28px, 5vw, 44px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
       margin-top: 24px;
       margin-bottom: 8px;
     }
     .subtitle {
       color: var(--muted);
       font-size: 15px;
+      line-height: 1.5;
     }
+    .filter-bar {
+      max-width: 860px;
+      margin: 0 auto 28px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      padding: 6px 14px;
+      text-transform: uppercase;
+      transition: all 0.15s;
+    }
+    .filter-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
+    .filter-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 16px;
-      max-width: 800px;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 14px;
+      max-width: 860px;
       margin: 0 auto;
     }
     .card {
-      display: block;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 24px 20px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 20px;
       text-decoration: none;
-      color: var(--text);
-      transition: border-color 0.15s, transform 0.15s, background 0.15s;
+      transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--accent-dim) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.2s;
     }
     .card:hover {
-      border-color: rgba(255,255,255,0.18);
-      background: #161616;
+      background: var(--surface-hover);
+      border-color: rgba(255,255,255,0.14);
       transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
     }
-    .icon { font-size: 32px; margin-bottom: 14px; }
-    .game-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
-    .game-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
-    .tag {
-      display: inline-block;
-      margin-top: 12px;
-      padding: 3px 8px;
-      background: rgba(200, 245, 104, 0.1);
-      color: var(--accent);
-      border-radius: 4px;
+    .card:hover::before { opacity: 1; }
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .emoji { font-size: 28px; line-height: 1; }
+    .plays {
       font-size: 11px;
-      letter-spacing: 0.04em;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+      margin-top: 2px;
+    }
+    .game-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+    .game-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .tag {
+      background: rgba(255,255,255,0.05);
+      border-radius: 4px;
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      padding: 3px 7px;
+      text-transform: uppercase;
+      width: fit-content;
+    }
+    .card.hidden { display: none; }
+    footer {
+      max-width: 860px;
+      margin: 48px auto 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+    @media (max-width: 480px) {
+      .grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .card { padding: 14px; }
     }
   </style>
 </head>
@@ -85,58 +164,133 @@
   <header>
     <a href="/">← josho.pro</a>
     <h1>Games</h1>
-    <p class="subtitle">8 browser games. No ads, no tracking, no sign-ups.</p>
+    <p class="subtitle">9 free browser games. No download, no sign-up. Just play.</p>
   </header>
 
-  <div class="grid">
-    <a class="card" href="/word.html">
-      <div class="icon">🟩</div>
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="word">Word</button>
+    <button class="filter-btn" data-filter="puzzle">Puzzle</button>
+    <button class="filter-btn" data-filter="trivia">Trivia</button>
+    <button class="filter-btn" data-filter="memory">Memory</button>
+    <button class="filter-btn" data-filter="maths">Maths</button>
+  </div>
+
+  <div class="grid" id="games-grid">
+    <a class="card" href="/word.html" data-category="word">
+      <div class="card-top">
+        <span class="emoji">📝</span>
+        <span class="plays" data-game="word">— plays</span>
+      </div>
       <div class="game-title">Word Guess</div>
       <div class="game-desc">Guess the hidden 5-letter word in 6 attempts.</div>
       <span class="tag">word</span>
     </a>
-    <a class="card" href="/sudoku.html">
-      <div class="icon">🔢</div>
-      <div class="game-title">Sudoku</div>
-      <div class="game-desc">Classic 9×9 number puzzle. Three difficulty levels.</div>
-      <span class="tag">logic</span>
-    </a>
-    <a class="card" href="/2048.html">
-      <div class="icon">🎲</div>
-      <div class="game-title">2048</div>
-      <div class="game-desc">Slide tiles, merge numbers, reach 2048.</div>
-      <span class="tag">puzzle</span>
-    </a>
-    <a class="card" href="/trivia.html">
-      <div class="icon">❓</div>
-      <div class="game-title">Trivia</div>
-      <div class="game-desc">Test your knowledge across a range of categories.</div>
-      <span class="tag">quiz</span>
-    </a>
-    <a class="card" href="/memory.html">
-      <div class="icon">🃏</div>
-      <div class="game-title">Memory Match</div>
-      <div class="game-desc">Flip cards and find all the matching pairs.</div>
-      <span class="tag">memory</span>
-    </a>
-    <a class="card" href="/wordchain.html">
-      <div class="icon">🔗</div>
+    <a class="card" href="/wordchain.html" data-category="word">
+      <div class="card-top">
+        <span class="emoji">🔗</span>
+        <span class="plays" data-game="wordchain">— plays</span>
+      </div>
       <div class="game-title">Word Chain</div>
       <div class="game-desc">Chain words where each starts with the last letter.</div>
       <span class="tag">word</span>
     </a>
-    <a class="card" href="/math.html">
-      <div class="icon">➗</div>
-      <div class="game-title">Math Challenge</div>
-      <div class="game-desc">Speed arithmetic across operations and difficulties.</div>
-      <span class="tag">maths</span>
-    </a>
-    <a class="card" href="/crossword.html">
-      <div class="icon">📝</div>
-      <div class="game-title">Crossword</div>
-      <div class="game-desc">Fill the grid — across and down clues included.</div>
+    <a class="card" href="/wordscramble.html" data-category="word">
+      <div class="card-top">
+        <span class="emoji">🔀</span>
+        <span class="plays" data-game="wordscramble">— plays</span>
+      </div>
+      <div class="game-title">Word Scramble</div>
+      <div class="game-desc">Unscramble the letters to find the hidden word.</div>
       <span class="tag">word</span>
     </a>
+    <a class="card" href="/crossword.html" data-category="word puzzle">
+      <div class="card-top">
+        <span class="emoji">⬛</span>
+        <span class="plays" data-game="crossword">— plays</span>
+      </div>
+      <div class="game-title">Crossword</div>
+      <div class="game-desc">Fill in the crossword grid with the correct answers.</div>
+      <span class="tag">word</span>
+    </a>
+    <a class="card" href="/sudoku.html" data-category="puzzle">
+      <div class="card-top">
+        <span class="emoji">🔢</span>
+        <span class="plays" data-game="sudoku">— plays</span>
+      </div>
+      <div class="game-title">Sudoku</div>
+      <div class="game-desc">Fill the grid so every row, column and box has 1–9.</div>
+      <span class="tag">puzzle</span>
+    </a>
+    <a class="card" href="/2048.html" data-category="puzzle">
+      <div class="card-top">
+        <span class="emoji">🟨</span>
+        <span class="plays" data-game="2048">— plays</span>
+      </div>
+      <div class="game-title">2048</div>
+      <div class="game-desc">Slide tiles, merge numbers, reach 2048.</div>
+      <span class="tag">puzzle</span>
+    </a>
+    <a class="card" href="/trivia.html" data-category="trivia">
+      <div class="card-top">
+        <span class="emoji">🧠</span>
+        <span class="plays" data-game="trivia">— plays</span>
+      </div>
+      <div class="game-title">Trivia</div>
+      <div class="game-desc">Test your general knowledge across multiple categories.</div>
+      <span class="tag">trivia</span>
+    </a>
+    <a class="card" href="/memory.html" data-category="memory">
+      <div class="card-top">
+        <span class="emoji">🃏</span>
+        <span class="plays" data-game="memory">— plays</span>
+      </div>
+      <div class="game-title">Memory Match</div>
+      <div class="game-desc">Flip cards and find all the matching pairs.</div>
+      <span class="tag">memory</span>
+    </a>
+    <a class="card" href="/math.html" data-category="maths">
+      <div class="card-top">
+        <span class="emoji">➕</span>
+        <span class="plays" data-game="math">— plays</span>
+      </div>
+      <div class="game-title">Math Challenge</div>
+      <div class="game-desc">Race the clock solving arithmetic challenges.</div>
+      <span class="tag">maths</span>
+    </a>
   </div>
+
+  <footer>
+    <p>Built by <a href="/">Josh Osborne</a> · <a href="https://josho.pro">josho.pro</a></p>
+  </footer>
+
+  <script>
+    // Filter buttons
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const cards = document.querySelectorAll('.card');
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const filter = btn.dataset.filter;
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        cards.forEach(card => {
+          const cats = card.dataset.category || '';
+          card.classList.toggle('hidden', filter !== 'all' && !cats.includes(filter));
+        });
+      });
+    });
+
+    // Load play counts from API
+    fetch('/api/games-stats')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data) return;
+        data.forEach(({ game, plays }) => {
+          const el = document.querySelector(`[data-game="${game}"]`);
+          if (el) el.textContent = plays.toLocaleString() + ' plays';
+        });
+      })
+      .catch(() => {});
+  </script>
 </body>
 </html>
