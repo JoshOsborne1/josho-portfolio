@@ -1,7 +1,7 @@
-import type { Metadata } from 'next'
+"use client"
+
 import Link from 'next/link'
 
-export const metadata: Metadata = {
   title: 'Games | josho.pro',
   description: 'Free daily games — word, puzzle, logic and more',
 }
