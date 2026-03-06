@@ -110,6 +110,7 @@ body {
     width: 100%;
     overflow: visible;
     touch-action: none;
+    filter: drop-shadow(0 12px 24px rgba(0,0,0,0.4));
 }
 #target-group {
     transition: opacity 0.4s ease;
@@ -168,6 +169,33 @@ body {
 .result-display.near { color: var(--accent-slate); text-shadow: 0 0 15px rgba(100, 116, 139, 0.5); }
 .result-display.miss { color: var(--text-muted); }
 
+.psychic-actions {
+    display: none;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: -4px;
+}
+
+.btn-action {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--wire);
+    border-radius: 12px;
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.btn-action:active {
+    background: rgba(255,255,255,0.1);
+    transform: scale(0.96);
+}
+
 .btn-primary {
     background: linear-gradient(135deg, var(--accent-violet), #9333ea);
     border: none;
@@ -224,7 +252,7 @@ body {
     <div class="message-banner" id="message-banner"></div>
 
     <div class="dial-wrapper">
-        <svg id="dial" viewBox="0 0 400 240">
+        <svg id="dial" viewBox="0 0 400 220">
             <defs>
                <filter id="glow-violet" x="-50%" y="-50%" width="200%" height="200%">
                    <feGaussianBlur stdDeviation="4" result="blur" />
@@ -234,30 +262,39 @@ body {
                    <feGaussianBlur stdDeviation="2" result="blur" />
                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
                </filter>
+               <filter id="shadow">
+                   <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="black" flood-opacity="0.7"/>
+               </filter>
+               <radialGradient id="dial-bg" cx="50%" cy="100%" r="100%">
+                   <stop offset="0%" stop-color="#1e293b" />
+                   <stop offset="100%" stop-color="#09090b" />
+               </radialGradient>
             </defs>
             
-            <!-- Base track -->
-            <path d="M 40 200 A 160 160 0 0 1 360 200" fill="none" stroke="#1e293b" stroke-width="30" stroke-linecap="round"/>
+            <!-- Base track background fan -->
+            <path d="M 20 200 A 180 180 0 0 1 380 200 L 200 200 Z" fill="url(#dial-bg)" stroke="#1e293b" stroke-width="2"/>
+            <line x1="15" y1="200" x2="385" y2="200" stroke="#1e293b" stroke-width="4" stroke-linecap="round"/>
+
+            <!-- Procedurally generated tick marks -->
+            <g id="dial-ticks"></g>
             
             <!-- Target arcs -->
             <g id="target-group" fill="none" stroke-linecap="butt">
-                <path id="arc-near" stroke="var(--accent-slate)" stroke-width="30" />
-                <path id="arc-close" stroke="var(--accent-amber)" stroke-width="30" />
-                <path id="arc-bullseye" stroke="var(--accent-violet)" stroke-width="30" filter="url(#glow-violet)" />
+                <path id="arc-near" stroke="var(--accent-slate)" stroke-width="48" opacity="0.8" />
+                <path id="arc-close" stroke="var(--accent-amber)" stroke-width="48" opacity="0.9" />
+                <path id="arc-bullseye" stroke="var(--accent-violet)" stroke-width="48" filter="url(#glow-violet)" />
             </g>
-
-            <!-- Base markers / decorative ticks -->
-            <path d="M 200 25 L 200 35 M 40 200 L 50 200 M 360 200 L 350 200" stroke="rgba(255,255,255,0.2)" stroke-width="2" stroke-linecap="round"/>
 
             <!-- Needle -->
-            <g id="needle" transform="rotate(90, 200, 200)" style="transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);">
-                <line x1="200" y1="200" x2="35" y2="200" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
-                <circle cx="35" cy="200" r="4" fill="#ffffff" filter="url(#glow-white)"/>
+            <g id="needle" transform="rotate(90, 200, 200)" style="transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);" filter="url(#shadow)">
+                <path d="M 200 196 L 25 198 L 25 202 L 200 204 Z" fill="#f8fafc" />
+                <!-- Highlight line -->
+                <line x1="190" y1="200" x2="30" y2="200" stroke="#94a3b8" stroke-width="1" />
+                <!-- Center hub -->
+                <circle cx="200" cy="200" r="22" fill="#18181b" stroke="#3f3f46" stroke-width="4"/>
+                <circle cx="200" cy="200" r="12" fill="#09090b" />
+                <circle cx="200" cy="200" r="4" fill="var(--accent-violet)" filter="url(#glow-violet)"/>
             </g>
-
-            <!-- Center hub -->
-            <circle cx="200" cy="200" r="24" fill="var(--bg-dark)" stroke="#1e293b" stroke-width="4"/>
-            <circle cx="200" cy="200" r="6" fill="#334155" />
         </svg>
 
         <div class="word-pair">
@@ -270,6 +307,12 @@ body {
         <div class="result-display" id="result-display">
             <span id="result-text"></span>
         </div>
+
+        <div class="psychic-actions" id="psychic-actions">
+            <button class="btn-action" onclick="handleSkip()">SKIP PAIR</button>
+            <button class="btn-action" onclick="handleRerun()">RERUN DIAL</button>
+        </div>
+
         <button class="btn-primary" id="main-btn" onclick="handleMainAction()">REVEAL TARGET</button>
         <button class="btn-secondary" onclick="resetGame()">NEW GAME</button>
     </div>
@@ -277,6 +320,7 @@ body {
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script>
+// Base words + 50+ new pairs
 const WORD_PAIRS = [
     ["Bad Company","Good Company"],["Terrible Movie","Great Movie"],["Cold","Hot"],
     ["Ugly","Beautiful"],["Worst Day Ever","Best Day Ever"],["Boring Hobby","Exciting Hobby"],
@@ -289,7 +333,38 @@ const WORD_PAIRS = [
     ["Bad Influence","Role Model"],["Pointy Animal","Round Animal"],["Useless","Useful"],
     ["Quiet Place","Loud Place"],["Worst Chore","Most Satisfying Chore"],
     ["Worst Board Game","Addictive Board Game"],["Terrible Vacation Spot","Dream Vacation Destination"],
-    ["Terrible Roommate Habit","Ideal Roommate Quality"],["Terrible Wifi Network Name","Clever Wifi Network Name"]
+    ["Terrible Roommate Habit","Ideal Roommate Quality"],["Terrible Wifi Network Name","Clever Wifi Network Name"],
+    ["Guilty Pleasure", "Actually Good"], ["Totally Normal", "Deeply Weird"],
+    ["Cult Classic", "Mainstream Trash"], ["Harmless Prank", "Cruel Joke"],
+    ["Low Stakes", "High Stakes"], ["Good on a Resume", "Bad on a Resume"],
+    ["Useful in an Apocalypse", "Useless in an Apocalypse"], ["Overpriced", "Underpriced"],
+    ["Overrated", "Underrated"], ["Better Hot", "Better Cold"],
+    ["Worse Than It Looks", "Better Than It Looks"], ["Aesthetic", "Functional"],
+    ["Chaotic Evil", "Lawful Good"], ["Fad", "Classic"],
+    ["Red Flag", "Green Flag"], ["Trash", "Art"],
+    ["Lowbrow", "Highbrow"], ["Boring", "Thrilling"],
+    ["Forgettable", "Memorable"], ["Needs More Salt", "Perfectly Seasoned"],
+    ["Too Long", "Too Short"], ["Too Fast", "Too Slow"],
+    ["Too Loud", "Too Quiet"], ["Hard to Do", "Easy to Do"],
+    ["Hard to Say", "Easy to Say"], ["Hard to Find", "Easy to Find"],
+    ["Hard to Believe", "Easy to Believe"], ["Hard to Understand", "Easy to Understand"],
+    ["Hard to Accept", "Easy to Accept"], ["Hard to Forgive", "Easy to Forgive"],
+    ["Hard to Forget", "Easy to Forget"], ["Hard to Ignore", "Easy to Ignore"],
+    ["Hard to Avoid", "Easy to Avoid"], ["Hard to Resist", "Easy to Resist"],
+    ["Hard to Beat", "Easy to Beat"], ["Hard to Catch", "Easy to Catch"],
+    ["Hard to Keep", "Easy to Keep"], ["Hard to Lose", "Easy to Lose"],
+    ["Hard to Break", "Easy to Break"], ["Hard to Fix", "Easy to Fix"],
+    ["Hard to Make", "Easy to Make"], ["Hard to Build", "Easy to Build"],
+    ["Hard to Destroy", "Easy to Destroy"], ["Hard to Hide", "Easy to Hide"],
+    ["Hard to See", "Easy to See"], ["Hard to Hear", "Easy to Hear"],
+    ["Hard to Smell", "Easy to Smell"], ["Hard to Taste", "Easy to Taste"],
+    ["Hard to Touch", "Easy to Touch"], ["Hard to Feel", "Easy to Feel"],
+    ["Hard to Love", "Easy to Love"], ["Hard to Hate", "Easy to Hate"],
+    ["Hard to Like", "Easy to Like"], ["Hard to Dislike", "Easy to Dislike"],
+    ["Worst Investment", "Best Investment"], ["Mildly Annoying", "Extremely Annoying"],
+    ["Requires Luck", "Requires Skill"], ["Trashy", "Classy"],
+    ["Historically Inaccurate", "Historically Accurate"], ["Worse than expected", "Better than expected"],
+    ["Bad Advice", "Good Advice"], ["Useless Major", "Useful Major"]
 ];
 
 let state = {
@@ -306,12 +381,34 @@ const needle = document.getElementById('needle');
 let isDragging = false;
 
 window.onload = () => {
+    generateTicks();
     try {
         const saved = localStorage.getItem('wavelength_teams');
         if (saved) state.teams = JSON.parse(saved);
     } catch(e) {}
     initRound();
 };
+
+function generateTicks() {
+    const ticksG = document.getElementById('dial-ticks');
+    let ticksHtml = '';
+    // Wavelength uses 4.5 degree intervals (bullseye=4.5, close=13.5, near=22.5)
+    for(let i=0; i<=180; i+=4.5) {
+        let isMajor = (i % 22.5 === 0);
+        let r1 = 160;
+        let r2 = isMajor ? 172 : 165;
+        let stroke = isMajor ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.15)';
+        let sw = isMajor ? 2 : 1;
+        
+        let rad = (180 - i) * Math.PI / 180;
+        let x1 = 200 + r1 * Math.cos(rad);
+        let y1 = 200 - r1 * Math.sin(rad);
+        let x2 = 200 + r2 * Math.cos(rad);
+        let y2 = 200 - r2 * Math.sin(rad);
+        ticksHtml += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke}" stroke-width="${sw}" stroke-linecap="round"/>`;
+    }
+    ticksG.innerHTML = ticksHtml;
+}
 
 function resetGame() {
     state.teams[0].score = 0;
@@ -332,10 +429,33 @@ function editTeamName(index) {
 }
 
 function initRound() {
-    state.targetAngle = Math.random() * (155 - 25) + 25;
+    randomizeTarget();
+    randomizePair();
     state.needleAngle = 90;
+    renderTarget();
+    updateUI();
+}
+
+function randomizeTarget() {
+    state.targetAngle = Math.random() * (155 - 25) + 25;
+}
+
+function randomizePair() {
     const pairIndex = Math.floor(Math.random() * WORD_PAIRS.length);
     state.currentPair = WORD_PAIRS[pairIndex];
+}
+
+function handleSkip() {
+    if (state.phase !== 'PSYCHIC') return;
+    randomizePair();
+    randomizeTarget();
+    renderTarget();
+    updateUI();
+}
+
+function handleRerun() {
+    if (state.phase !== 'PSYCHIC') return;
+    randomizeTarget();
     renderTarget();
     updateUI();
 }
@@ -396,9 +516,10 @@ function describeArcStroke(cx, cy, r, startAngle, endAngle) {
 
 function renderTarget() {
     const t = state.targetAngle;
-    document.getElementById('arc-near').setAttribute('d', describeArcStroke(200, 200, 160, t - 22.5, t + 22.5));
-    document.getElementById('arc-close').setAttribute('d', describeArcStroke(200, 200, 160, t - 13.5, t + 13.5));
-    document.getElementById('arc-bullseye').setAttribute('d', describeArcStroke(200, 200, 160, t - 4.5, t + 4.5));
+    // Radius 130, stroke-width 48 leaves nice gap to ticks at 160
+    document.getElementById('arc-near').setAttribute('d', describeArcStroke(200, 200, 130, t - 22.5, t + 22.5));
+    document.getElementById('arc-close').setAttribute('d', describeArcStroke(200, 200, 130, t - 13.5, t + 13.5));
+    document.getElementById('arc-bullseye').setAttribute('d', describeArcStroke(200, 200, 130, t - 4.5, t + 4.5));
 }
 
 function updateUI() {
@@ -417,6 +538,7 @@ function updateUI() {
     const msg = document.getElementById('message-banner');
     const btn = document.getElementById('main-btn');
     const res = document.getElementById('result-display');
+    const psychicActions = document.getElementById('psychic-actions');
     const tName = state.teams[state.currentTeamIndex].name;
 
     needle.setAttribute('transform', `rotate(${state.needleAngle}, 200, 200)`);
@@ -424,6 +546,7 @@ function updateUI() {
     if (state.phase === 'START') {
         tg.style.opacity = '0';
         res.style.opacity = '0';
+        psychicActions.style.display = 'none';
         msg.innerHTML = `<span class="highlight">${tName} Psychic</span>: Take the device.`;
         btn.innerText = "TAP TO REVEAL TARGET";
         btn.className = "btn-primary";
@@ -431,12 +554,14 @@ function updateUI() {
     } else if (state.phase === 'PSYCHIC') {
         tg.style.opacity = '1';
         res.style.opacity = '0';
+        psychicActions.style.display = 'flex';
         msg.innerHTML = `Give your clue, then hide the target.`;
         btn.innerText = "HIDE FOR GUESSERS";
         btn.className = "btn-primary alt";
     } else if (state.phase === 'GUESS') {
         tg.style.opacity = '0';
         res.style.opacity = '0';
+        psychicActions.style.display = 'none';
         msg.innerHTML = `<span class="highlight">${tName} Team</span>: Discuss and drag the needle.`;
         btn.innerText = "LOCK IN GUESS";
         btn.className = "btn-primary";
@@ -444,6 +569,7 @@ function updateUI() {
     } else if (state.phase === 'REVEAL') {
         tg.style.opacity = '1';
         res.style.opacity = '1';
+        psychicActions.style.display = 'none';
         msg.innerHTML = `Target Revealed!`;
         btn.innerText = "NEXT ROUND";
         btn.className = "btn-primary";
