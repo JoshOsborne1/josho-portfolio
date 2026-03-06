@@ -2,7 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="manifest" href="/wave-manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Wavelength">
+    <meta name="theme-color" content="#7c3aed">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Wavelength</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;900&display=swap');
@@ -322,49 +327,15 @@ body {
 <script>
 // Base words + 50+ new pairs
 const WORD_PAIRS = [
-    ["Bad Company","Good Company"],["Terrible Movie","Great Movie"],["Cold","Hot"],
-    ["Ugly","Beautiful"],["Worst Day Ever","Best Day Ever"],["Boring Hobby","Exciting Hobby"],
-    ["Useless Superpower","Awesome Superpower"],["Lame Party Trick","Cool Party Trick"],
-    ["Terrible First Date Spot","Perfect First Date Spot"],["Worst Pizza Topping","Best Pizza Topping"],
-    ["Annoying Sound","Satisfying Sound"],["Uncomfortable Clothing","Comfy Clothing"],
-    ["Worst Smell","Best Smell"],["Terrible Gift","Thoughtful Gift"],["Forgettable Song","Catchy Song"],
-    ["Terrible Pickup Line","Smooth Pickup Line"],["Annoying Habit","Endearing Quirk"],
-    ["Feels Bad","Feels Good"],["Hard","Soft"],["Villain","Hero"],["Common","Rare"],
-    ["Bad Influence","Role Model"],["Pointy Animal","Round Animal"],["Useless","Useful"],
-    ["Quiet Place","Loud Place"],["Worst Chore","Most Satisfying Chore"],
-    ["Worst Board Game","Addictive Board Game"],["Terrible Vacation Spot","Dream Vacation Destination"],
-    ["Terrible Roommate Habit","Ideal Roommate Quality"],["Terrible Wifi Network Name","Clever Wifi Network Name"],
-    ["Guilty Pleasure", "Actually Good"], ["Totally Normal", "Deeply Weird"],
-    ["Cult Classic", "Mainstream Trash"], ["Harmless Prank", "Cruel Joke"],
-    ["Low Stakes", "High Stakes"], ["Good on a Resume", "Bad on a Resume"],
-    ["Useful in an Apocalypse", "Useless in an Apocalypse"], ["Overpriced", "Underpriced"],
-    ["Overrated", "Underrated"], ["Better Hot", "Better Cold"],
-    ["Worse Than It Looks", "Better Than It Looks"], ["Aesthetic", "Functional"],
-    ["Chaotic Evil", "Lawful Good"], ["Fad", "Classic"],
-    ["Red Flag", "Green Flag"], ["Trash", "Art"],
-    ["Lowbrow", "Highbrow"], ["Boring", "Thrilling"],
-    ["Forgettable", "Memorable"], ["Needs More Salt", "Perfectly Seasoned"],
-    ["Too Long", "Too Short"], ["Too Fast", "Too Slow"],
-    ["Too Loud", "Too Quiet"], ["Hard to Do", "Easy to Do"],
-    ["Hard to Say", "Easy to Say"], ["Hard to Find", "Easy to Find"],
-    ["Hard to Believe", "Easy to Believe"], ["Hard to Understand", "Easy to Understand"],
-    ["Hard to Accept", "Easy to Accept"], ["Hard to Forgive", "Easy to Forgive"],
-    ["Hard to Forget", "Easy to Forget"], ["Hard to Ignore", "Easy to Ignore"],
-    ["Hard to Avoid", "Easy to Avoid"], ["Hard to Resist", "Easy to Resist"],
-    ["Hard to Beat", "Easy to Beat"], ["Hard to Catch", "Easy to Catch"],
-    ["Hard to Keep", "Easy to Keep"], ["Hard to Lose", "Easy to Lose"],
-    ["Hard to Break", "Easy to Break"], ["Hard to Fix", "Easy to Fix"],
-    ["Hard to Make", "Easy to Make"], ["Hard to Build", "Easy to Build"],
-    ["Hard to Destroy", "Easy to Destroy"], ["Hard to Hide", "Easy to Hide"],
-    ["Hard to See", "Easy to See"], ["Hard to Hear", "Easy to Hear"],
-    ["Hard to Smell", "Easy to Smell"], ["Hard to Taste", "Easy to Taste"],
-    ["Hard to Touch", "Easy to Touch"], ["Hard to Feel", "Easy to Feel"],
-    ["Hard to Love", "Easy to Love"], ["Hard to Hate", "Easy to Hate"],
-    ["Hard to Like", "Easy to Like"], ["Hard to Dislike", "Easy to Dislike"],
-    ["Worst Investment", "Best Investment"], ["Mildly Annoying", "Extremely Annoying"],
-    ["Requires Luck", "Requires Skill"], ["Trashy", "Classy"],
-    ["Historically Inaccurate", "Historically Accurate"], ["Worse than expected", "Better than expected"],
-    ["Bad Advice", "Good Advice"], ["Useless Major", "Useful Major"]
+    ["Bad Company","Good Company"],["Terrible Movie","Great Movie"],["Cold","Hot"],["Ugly","Beautiful"],["Worst Day Ever","Best Day Ever"],["Boring Hobby","Exciting Hobby"],["Useless Superpower","Awesome Superpower"],["Lame Party Trick","Cool Party Trick"],["Terrible First Date Spot","Perfect First Date Spot"],["Worst Pizza Topping","Best Pizza Topping"],["Annoying Sound","Satisfying Sound"],["Uncomfortable Clothing","Comfy Clothing"],["Worst Smell","Best Smell"],["Terrible Gift","Thoughtful Gift"],["Forgettable Song","Catchy Song"],["Terrible Pickup Line","Smooth Pickup Line"],["Annoying Habit","Endearing Quirk"],["Feels Bad","Feels Good"],["Hard","Soft"],["Villain","Hero"],["Common","Rare"],["Bad Influence","Role Model"],["Pointy Animal","Round Animal"],["Useless","Useful"],["Quiet Place","Loud Place"],["Worst Chore","Most Satisfying Chore"],["Worst Board Game","Addictive Board Game"],["Terrible Vacation Spot","Dream Vacation Destination"],["Terrible Roommate Habit","Ideal Roommate Quality"],["Terrible Wifi Name","Clever Wifi Name"],["Guilty Pleasure","Proudly Good"],["Totally Normal","Deeply Weird"],["Overrated","Underrated"],["Better Hot","Better Cold"],["Worse Than It Looks","Better Than It Looks"],["Aesthetic","Functional"],["Fad","Classic"],["Red Flag","Green Flag"],["Trash","Art"],["Lowbrow","Highbrow"],["Bad Advice","Good Advice"],["Requires Luck","Requires Skill"],["Trashy","Classy"],["Worse Than Expected","Better Than Expected"],["Useless Degree","Useful Degree"],["Overpriced","Steal of a Deal"],["Mildly Annoying","Extremely Annoying"],["Looks Easy","Actually Hard"],["Sounds Boring","Actually Fun"],["Sounds Fun","Actually Boring"],["Hard to Explain","Easy to Explain"],["Hard to Forgive","Easy to Forgive"],["Hard to Forget","Easy to Forget"],["Hard to Resist","Easy to Resist"],["Easy to Fake","Hard to Fake"],["Worst Investment","Best Investment"],["Bad on a Resume","Good on a Resume"],["Useless in an Apocalypse","Essential in an Apocalypse"],["Too Much","Just Right"],["Cringe","Cool"],["Basic","Bold"],["Safe Choice","Risky Choice"],["Worst Thing to Say on a Date","Best Thing to Say on a Date"],["Terrible Boss Quality","Great Boss Quality"],["Worst Excuse","Most Believable Excuse"],["Terrible Life Advice","Actually Great Life Advice"],["Worst Way to Start a Conversation","Best Icebreaker"],["Terrible Superhero Name","Intimidating Villain Name"],["Worst Thing to Bring to a Picnic","Perfect Picnic Item"],["Terrible Karaoke Song","Crowd Pleaser Karaoke Song"],["Most Awkward Silence","Comfortable Silence"],["Worst Alarm Sound","Best Way to Wake Up"],["Terrible Motivational Poster","Actually Motivating"],["Worst Movie Sequel","Great Movie Sequel"],["Terrible Snack for a Movie","Perfect Movie Snack"],["Worst Password","Unguessable Password"],["Terrible Driving Habit","Ideal Driver Behaviour"],["Worst Thing to Dream About","Best Dream"],["Terrible Job Interview Answer","Perfect Job Interview Answer"],["Worst Couple Costume","Best Couple Costume"],["Terrible Pet Name","Great Pet Name"],["Worst Way to Break Up","Respectful Breakup"],["Terrible Baby Name","Timeless Baby Name"],["Worst Tattoo","Meaningful Tattoo"],["Terrible First Message on a Dating App","Perfect Opening Line"],["Worst Thing to Find in a Hotel Room","Perfect Hotel Room Perk"],["Terrible Road Trip Snack","Best Road Trip Snack"],["Worst Theme for a Party","Best Party Theme"],["Terrible Supervillain Weakness","Perfect Supervillain Weakness"],["Worst Text Response","Best Text Response"],["Terrible Dance Move","Iconic Dance Move"],["Worst Show to Binge Alone","Best Show to Binge Alone"],["Terrible Advice for New Parents","Actually Helpful Parenting Tip"],["Worst Holiday Tradition","Beloved Holiday Tradition"],["Terrible Way to Propose","Perfect Proposal"],["Worst Cooking Technique","Game Changing Cooking Tip"],["Terrible App Idea","App You Would Actually Use"],["Worst Thing to Google at Work","Most Productive Work Search"],["Terrible Username","Great Username"],["Worst Trend of the Last Decade","Trend Worth Keeping"],["Terrible Way to Handle a Disagreement","Healthy Way to Handle a Disagreement"],["Worst Font","Best Font"],["Terrible Playlist Name","Perfect Playlist Name"],["Worst Thing to Say to Your Boss","Best Thing to Say to Your Boss"],["Worst Sport to Watch","Most Exciting Sport to Watch"],["Terrible Loyalty Reward","Amazing Loyalty Reward"],["Worst Fashion Trend","Iconic Fashion Moment"],["Terrible Concert Behaviour","Great Concert Energy"],["Worst Thing to Overshare","Fine to Overshare"],["Terrible Opening Line for a Novel","Gripping Opening Line"],["Worst Reason to Call in Sick","Completely Valid Reason to Call in Sick"],["Terrible Side Hustle","Genius Side Hustle"],["Worst Thing to Put on a Wedding Cake","Perfect Wedding Cake Topper"],["Terrible Way to Network","Natural Way to Network"],["Worst Career Change","Bold Career Change"],["Terrible Icebreaker Game","Actually Fun Icebreaker"],["Worst Thing to Say at a Funeral","Comforting Thing to Say at a Funeral"],["Terrible Tour Guide","Captivating Tour Guide"],["Worst Bedtime Habit","Perfect Sleep Routine"],["Terrible Response to \"I Love You\"","Perfect Response to \"I Love You\""],["Worst Morning Routine","Ideal Morning Routine"],["Terrible Thing to Bring to a Job Interview","Perfect Thing to Bring to a Job Interview"],["Worst Gym Habit","Good Gym Etiquette"],["Terrible Conversation Starter at a Party","Perfect Party Icebreaker"],["Worst Way to End an Email","Great Email Sign Off"],["Worst Selfie Background","Perfect Selfie Background"],["Terrible Band Name","Iconic Band Name"],["Worst Social Media Bio","Compelling Social Media Bio"],["Terrible Hobby to Pick Up in a Breakup","Healthy Breakup Hobby"],["Worst Thing to Say After Winning","Gracious Winner Response"],["Worst Thing to Say After Losing","Gracious Loser Response"],["Terrible Halloween Costume","Iconic Halloween Costume"],["Worst Habit to Have on a Plane","Best Plane Passenger Behaviour"],["Terrible Dinner Party Topic","Great Dinner Party Conversation"],["Worst Advice to Give Someone Heartbroken","Best Advice for a Broken Heart"],["Terrible Dog Name","Perfect Dog Name"],["Worst Way to Ask for a Raise","Best Way to Ask for a Raise"],["Terrible Secret to Keep","Secret Worth Keeping"],["Worst Celebrity Cameo","Perfect Celebrity Cameo"],["Worst Tagline for a Product","Memorable Product Tagline"],["Terrible Thing to Put in a Time Capsule","Perfect Time Capsule Item"],["Worst Way to Make Friends","Natural Way to Make Friends"],["Terrible Bucket List Item","Ultimate Bucket List Item"],["Worst Compliment","Genuine Compliment"],
+    ["Worst Way to Wake Someone Up","Gentlest Way to Wake Someone Up"],
+    ["Terrible Thing to Confess on a First Date","Fine to Mention on a First Date"],
+    ["Worst Superpower Side Effect","Best Superpower Perk"],
+    ["Terrible Thing to Bring to a Potluck","Crowd Favourite Potluck Dish"],
+    ["Worst Reason to Ghost Someone","Valid Reason to Ghost Someone"],
+    ["Terrible Nickname","Perfect Nickname"],
+    ["Worst Way to Spend a Sunday","Ideal Sunday"],
+    ["Terrible Apology","Genuine Apology"]
 ];
 
 let state = {
@@ -621,6 +592,13 @@ window.addEventListener('mousemove', onMove, {passive: false});
 window.addEventListener('touchmove', onMove, {passive: false});
 window.addEventListener('mouseup', onUp);
 window.addEventListener('touchend', onUp);
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/wave-sw.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
