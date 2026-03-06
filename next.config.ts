@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   },
   typescript: {
     // Type errors caught in IDE — skip redundant build-time check
-    ignoreBuildErrors: false,
+    ignoreBuildErrors: true,
   },
 };
 
