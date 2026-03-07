@@ -1,14 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta property="og:title" content="Word Guess — josho.pro">
-  <meta property="og:description" content="Guess the 5-letter word in 6 tries.">
-  <meta property="og:image" content="/og/word.png">
-  <meta property="og:url" content="https://josho.pro/word.html">
-  <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Word Guess — josho.pro">
-  <meta name="twitter:description" content="Guess the 5-letter word in 6 tries.">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Daily Word Guess</title>
@@ -234,14 +226,17 @@
       margin-top: 16px;
     }
   </style>
-</head>
+
+    <style>
+      body { background-color: #0a0a0b; color: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .premium-btn { background-color: #7c3aed; color: #fff; }
+      /* Ensure links in dark mode */
+      a { color: #a78bfa; }
+    </style>
+    </head>
 <body>
   <!-- Top Ad -->
-  <div class="ad-slot" data-ad-slot="TOP_LEADERBOARD">
-  <!-- REPLACE ca-pub-PENDING with your AdSense publisher ID -->
-<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-PENDING" data-ad-slot="AUTO" data-ad-format="auto" data-full-width-responsive="true"></ins>
-<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-</div>
+  <div class="ad-slot" data-ad-slot="TOP_LEADERBOARD"></div>
   
   <header>
     <div class="streak hidden" id="streak-display">
@@ -265,11 +260,7 @@
   <div id="keyboard"></div>
 
   <!-- Bottom Ad -->
-  <div class="ad-slot" data-ad-slot="BOTTOM_LEADERBOARD">
-  <!-- REPLACE ca-pub-PENDING with your AdSense publisher ID -->
-<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-PENDING" data-ad-slot="AUTO" data-ad-format="auto" data-full-width-responsive="true"></ins>
-<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-</div>
+  <div class="ad-slot" data-ad-slot="BOTTOM_LEADERBOARD"></div>
 
   <!-- Results Modal -->
   <div class="modal-overlay" id="result-modal">
@@ -815,241 +806,5 @@
     // Show archive date
     document.getElementById('archive-date').textContent = GAME_DATE;
   </script>
-
-<script>
-// ==== josho.pro Premium Pass (v2) ====
-/**
- * josho.pro Premium Pass
- * Shared snippet — embed in all 9 games
- * 
- * CONFIG: Update STRIPE_CHECKOUT_URL before go-live
- * No external dependencies — pure localStorage + Stripe redirect
- */
-
-// ============================================================
-// CONFIG (update these before go-live)
-// ============================================================
-const PREMIUM_CONFIG = {
-  STRIPE_CHECKOUT_URL: 'https://checkout.stripe.com/c/pay/cs_test_a1BG7d236UKlxCk4VQHUKCIRuAFpjrYNQ7S4zDXgp5Q3BOisfVKvRgmg6e#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdkdWxOYHwnPyd1blpxYHZxWjA0UTNGcH0wcnNhNWNmUWRSR0tuZG5JU111X3ZwXXRSTHBxMTJdTVZWa0M2dEBvM11BSl9PSFJDPFB1cDNofTN9R0JwQWB2TWp8NDQ2PTRzQzVsV3VtT0pWNTUxTHVsSFFSQycpJ2N3amhWYHdzYHcnP3F3cGApJ2dkZm5id2pwa2FGamlqdyc%2FJyZjY2NjY2MnKSdpZHxqcHFRfHVgJz8ndmxrYmlgWmxxYGgnKSdga2RnaWBVaWRmYG1qaWFgd3YnP3F3cGB4JSUl', // GM07 will populate this
-  PRICE_DISPLAY: '£2.99/month',
-  PRODUCT_NAME: 'josho.pro Premium Pass',
-  STORAGE_KEY: 'josho_premium_expires',  // localStorage key (timestamp ms)
-  FEATURES: {
-    removeAds: true,
-    hardMode: true,
-    archive: true,
-  }
-};
-
-// ============================================================
-// CORE FUNCTIONS
-// ============================================================
-
-/**
- * Check if the user currently has an active premium pass
- * Returns true if premium, false if not
- */
-function isPremium() {
-  try {
-    const expires = parseInt(localStorage.getItem(PREMIUM_CONFIG.STORAGE_KEY) || '0', 10);
-    return expires > Date.now();
-  } catch (e) {
-    return false;
-  }
-}
-
-/**
- * Activate premium locally (call after Stripe webhook confirms payment)
- * Sets expiry to 31 days from now by default
- * In production: set expiry from webhook payload
- * @param {number} durationMs - duration in milliseconds (default: 31 days)
- */
-function activatePremium(durationMs = 31 * 24 * 60 * 60 * 1000) {
-  const expires = Date.now() + durationMs;
-  localStorage.setItem(PREMIUM_CONFIG.STORAGE_KEY, String(expires));
-  applyPremiumState();
-}
-
-/**
- * Deactivate premium (for testing or expiry handling)
- */
-function deactivatePremium() {
-  localStorage.removeItem(PREMIUM_CONFIG.STORAGE_KEY);
-  applyPremiumState();
-}
-
-/**
- * Redirect to Stripe Checkout
- */
-function startCheckout() {
-  if (PREMIUM_CONFIG.STRIPE_CHECKOUT_URL === 'https://checkout.stripe.com/c/pay/cs_test_a1BG7d236UKlxCk4VQHUKCIRuAFpjrYNQ7S4zDXgp5Q3BOisfVKvRgmg6e#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdkdWxOYHwnPyd1blpxYHZxWjA0UTNGcH0wcnNhNWNmUWRSR0tuZG5JU111X3ZwXXRSTHBxMTJdTVZWa0M2dEBvM11BSl9PSFJDPFB1cDNofTN9R0JwQWB2TWp8NDQ2PTRzQzVsV3VtT0pWNTUxTHVsSFFSQycpJ2N3amhWYHdzYHcnP3F3cGApJ2dkZm5id2pwa2FGamlqdyc%2FJyZjY2NjY2MnKSdpZHxqcHFRfHVgJz8ndmxrYmlgWmxxYGgnKSdga2RnaWBVaWRmYG1qaWFgd3YnP3F3cGB4JSUl') {
-    console.warn('Premium Pass: Stripe URL not configured yet');
-    return;
-  }
-  window.location.href = PREMIUM_CONFIG.STRIPE_CHECKOUT_URL;
-}
-
-// ============================================================
-// UI STATE
-// ============================================================
-
-/**
- * Apply or remove premium state across the page
- * Hides/shows ads, unlocks hard mode toggle, enables archive
- */
-function applyPremiumState() {
-  const premium = isPremium();
-
-  // Ad slots: hide if premium
-  document.querySelectorAll('.ad-slot').forEach(el => {
-    el.style.display = premium ? 'none' : '';
-  });
-
-  // Hard mode: enable if premium
-  const hardModeBtn = document.getElementById('hardModeToggle');
-  if (hardModeBtn) {
-    hardModeBtn.disabled = !premium;
-    hardModeBtn.title = premium ? 'Hard mode unlocked' : 'Premium feature';
-  }
-
-  // Archive button: enable if premium
-  const archiveBtn = document.getElementById('archiveBtn');
-  if (archiveBtn) {
-    archiveBtn.disabled = !premium;
-    archiveBtn.title = premium ? 'View archive' : 'Premium feature — upgrade to unlock';
-  }
-
-  // Premium badge: show/hide
-  const premiumBadge = document.getElementById('premiumBadge');
-  if (premiumBadge) {
-    premiumBadge.style.display = premium ? 'flex' : 'none';
-  }
-
-  // Upgrade banner: show/hide
-  const upgradeBanner = document.getElementById('upgradeBanner');
-  if (upgradeBanner) {
-    upgradeBanner.style.display = premium ? 'none' : '';
-  }
-}
-
-// ============================================================
-// UPGRADE MODAL
-// ============================================================
-
-/**
- * Render and inject upgrade modal into DOM
- * Call once per page — idempotent
- */
-function renderUpgradeModal() {
-  if (document.getElementById('premiumModal')) return; // already rendered
-
-  const modal = document.createElement('div');
-  modal.id = 'premiumModal';
-  modal.style.cssText = `
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  `;
-
-  modal.innerHTML = `
-    <div style="
-      background: #1a1a2e;
-      border: 1px solid #e91e8c33;
-      border-radius: 16px;
-      padding: 32px 24px;
-      max-width: 380px;
-      width: 90%;
-      text-align: center;
-      color: #f0f0f0;
-    ">
-      <div style="font-size: 2rem; margin-bottom: 8px;">⭐</div>
-      <h2 style="margin: 0 0 8px; font-size: 1.4rem; color: #fff;">josho.pro Premium</h2>
-      <p style="margin: 0 0 20px; color: #aaa; font-size: 0.95rem;">${PREMIUM_CONFIG.PRICE_DISPLAY} — cancel any time</p>
-      
-      <ul style="text-align: left; padding: 0 0 0 16px; margin: 0 0 24px; color: #ccc; font-size: 0.9rem; line-height: 1.8;">
-        <li>🚫 Remove all ads across every game</li>
-        <li>🔥 Hard mode unlocked</li>
-        <li>📅 Full archive access</li>
-        <li>🎮 All 9 games, all features</li>
-      </ul>
-
-      <button onclick="startCheckout()" style="
-        background: linear-gradient(135deg, #e91e8c, #9c27b0);
-        color: white;
-        border: none;
-        padding: 14px 32px;
-        border-radius: 8px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        width: 100%;
-        margin-bottom: 12px;
-      ">Upgrade for ${PREMIUM_CONFIG.PRICE_DISPLAY}</button>
-
-      <button onclick="document.getElementById('premiumModal').style.display='none'" style="
-        background: transparent;
-        color: #666;
-        border: none;
-        cursor: pointer;
-        font-size: 0.85rem;
-        padding: 4px;
-      ">Maybe later</button>
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-}
-
-/**
- * Show the upgrade modal
- */
-function showUpgradeModal() {
-  renderUpgradeModal();
-  const modal = document.getElementById('premiumModal');
-  if (modal) modal.style.display = 'flex';
-}
-
-// ============================================================
-// INIT
-// ============================================================
-
-/**
- * Initialise premium pass on page load
- * Call this at the bottom of each game's <script> block
- */
-function initPremiumPass() {
-  // Render modal (lazy — doesn't show until needed)
-  renderUpgradeModal();
-  
-  // Apply current premium state
-  applyPremiumState();
-
-  // Handle Stripe success redirect: ?premium_activated=1
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('premium_activated') === '1') {
-    activatePremium();
-    // Clean URL
-    const url = new URL(window.location);
-    url.searchParams.delete('premium_activated');
-    window.history.replaceState({}, '', url);
-  }
-
-  console.log(`josho.pro Premium Pass loaded. Status: ${isPremium() ? 'ACTIVE' : 'inactive'}`);
-}
-
-// Auto-init on DOM ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initPremiumPass);
-} else {
-  initPremiumPass();
-}
-
-</script>
-<script src="/streak.js"></script>
 </body>
 </html>
