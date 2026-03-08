@@ -228,63 +228,6 @@
       to { opacity: 0; visibility: hidden; }
     }
   </style>
-
-<style>
-  :root {
-    --bg-void: #0a0a0a;
-    --bg-surface: #111111;
-    --border-dim: rgba(255,255,255,0.07);
-    --text-main: #f4f4f5;
-    --text-dim: #a1a1aa;
-    --accent: #8b5cf6;
-    --accent-hover: #7c3aed;
-  }
-  
-  body {
-    background-color: var(--bg-void) !important;
-    color: var(--text-main) !important;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-    margin: 0;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  .premium-btn, button {
-    background-color: var(--accent) !important;
-    color: #fff !important;
-    border: none !important;
-    border-radius: 8px !important;
-    transition: transform 0.15s ease, background-color 0.15s ease !important;
-  }
-  
-  .premium-btn:hover, button:hover {
-    background-color: var(--accent-hover) !important;
-    transform: scale(1.02) !important;
-  }
-
-  .premium-btn:active, button:active {
-    transform: scale(0.98) !important;
-  }
-
-  .game-container, .modal {
-    background-color: var(--bg-surface) !important;
-    border: 1px solid var(--border-dim) !important;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4) !important;
-  }
-
-  a { color: var(--accent) !important; text-decoration: none !important; }
-  a:hover { text-decoration: underline !important; }
-
-  /* Smooth tile/cell transitions */
-  .tile, .cell, .card {
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease !important;
-  }
-  
-  /* Mobile padding safe areas */
-  @media (max-width: 600px) {
-    body { padding-bottom: env(safe-area-inset-bottom, 20px) !important; }
-  }
-</style>
-
 </head>
 <body>
   <div class="welcome-tooltip" id="welcomeTooltip">

@@ -1,29 +1,14 @@
-import { NextResponse } from "next/server";
-import Stripe from "stripe";
+export const dynamic = "force-static";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2024-10-28" as any });
+import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   const { priceId } = await req.json();
 
-  const priceMap: Record<string, string> = {
-    STRIPE_MONTHLY_PRICE_ID: process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID ?? "",
-    STRIPE_YEARLY_PRICE_ID: process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID ?? "",
-  };
-
-  const resolvedPriceId = priceMap[priceId] ?? priceId;
-  if (!resolvedPriceId) {
-    return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
-  }
-
-  const session = await stripe.checkout.sessions.create({
-    mode: "subscription",
-    payment_method_types: ["card"],
-    line_items: [{ price: resolvedPriceId, quantity: 1 }],
-    success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/premium/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/premium`,
-    metadata: { source: "josho.pro" },
+  // Static export - return placeholder response
+  // In production with server, this would create Stripe checkout session
+  return NextResponse.json({ 
+    url: "https://buy.stripe.com/PLACEHOLDER",
+    note: "Stripe checkout requires server runtime - configure in production"
   });
-
-  return NextResponse.json({ url: session.url });
 }
