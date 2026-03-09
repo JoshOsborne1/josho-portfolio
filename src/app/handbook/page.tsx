@@ -1284,7 +1284,53 @@ export default function HandbookBuilder() {
   }, [editedContent, triggerSave]);
 
   const handlePrint = () => window.print();
-  const HANDBOOK_VERSION = 'v3';
+  const HANDBOOK_VERSION = 'v4';
+  const [pdfLoading, setPdfLoading] = useState(false);
+
+  const handleExportPDF = async () => {
+    setPdfLoading(true);
+    try {
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf'),
+      ]);
+      const pages = document.querySelectorAll('.doc-page');
+      if (!pages.length) return;
+      const A4_W = 210;
+      const A4_H = 297;
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      for (let i = 0; i < pages.length; i++) {
+        const el = pages[i] as HTMLElement;
+        const canvas = await html2canvas(el, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          logging: false,
+        });
+        const imgData = canvas.toDataURL('image/jpeg', 0.92);
+        const canvasW = canvas.width;
+        const canvasH = canvas.height;
+        // Scale to fit A4 width, maintain aspect ratio
+        const ratio = A4_W / (canvasW / 2); // divide by scale
+        const imgH = (canvasH / 2) * ratio;
+        if (i > 0) pdf.addPage();
+        // If taller than A4, scale down further to fit height
+        if (imgH > A4_H) {
+          const hRatio = A4_H / imgH;
+          pdf.addImage(imgData, 'JPEG', 0, 0, A4_W * hRatio, A4_H);
+        } else {
+          pdf.addImage(imgData, 'JPEG', 0, 0, A4_W, imgH);
+        }
+      }
+      const fname = `${(settings.companyName || 'Guldmann-UK').replace(/\s+/g, '-')}-Employee-Handbook.pdf`;
+      pdf.save(fname);
+    } catch (err) {
+      console.error('PDF export failed', err);
+      alert('PDF export failed - try Print / PDF instead.');
+    } finally {
+      setPdfLoading(false);
+    }
+  };
 
 
   const filteredCategories = search.trim()
@@ -1487,9 +1533,14 @@ export default function HandbookBuilder() {
             <button type="button" onClick={handlePrint}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 text-[12px] font-medium text-gray-600 hover:bg-gray-50 transition-colors">
               <Printer className="w-3.5 h-3.5" />
-              Print / PDF
+              Print
             </button>
-
+            <button type="button" onClick={handleExportPDF} disabled={pdfLoading}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#F4B626] text-[12px] font-semibold text-black hover:bg-[#e0a820] transition-colors disabled:opacity-60">
+              <FileText className="w-3.5 h-3.5" />
+              {pdfLoading ? 'Generating...' : 'Download PDF'}
+            </button>
+            <div className="no-print ml-1 px-2 py-1 rounded font-mono text-[10px] font-bold text-gray-400 bg-gray-100 border border-gray-200 select-none" title="Deployed version">{HANDBOOK_VERSION}</div>
           </div>
         </div>
 
