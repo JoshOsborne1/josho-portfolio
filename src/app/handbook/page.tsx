@@ -1284,7 +1284,7 @@ export default function HandbookBuilder() {
   }, [editedContent, triggerSave]);
 
   const handlePrint = () => window.print();
-  const HANDBOOK_VERSION = 'v4';
+  const HANDBOOK_VERSION = 'v5';
   const [pdfLoading, setPdfLoading] = useState(false);
 
   const handleExportPDF = async () => {
@@ -1306,6 +1306,32 @@ export default function HandbookBuilder() {
           useCORS: true,
           backgroundColor: '#ffffff',
           logging: false,
+          onclone: (_doc: Document, clone: HTMLElement) => {
+            // html2canvas does not support oklch (Tailwind v4 default).
+            // Walk all elements and replace oklch computed colors with hex fallbacks.
+            const walk = (node: Element) => {
+              const s = (node as HTMLElement).style;
+              if (s) {
+                const props = ['color', 'backgroundColor', 'borderColor', 'borderTopColor', 'borderBottomColor', 'borderLeftColor', 'borderRightColor', 'fill', 'stroke'];
+                for (const prop of props) {
+                  const v = (s as Record<string, string>)[prop];
+                  if (v && v.includes('oklch')) {
+                    (s as Record<string, string>)[prop] = '#000000';
+                  }
+                }
+                // Also override via computed and inline a safe color
+                try {
+                  const cs = window.getComputedStyle(node);
+                  const bg = cs.backgroundColor;
+                  const col = cs.color;
+                  if (bg && bg.includes('oklch')) (node as HTMLElement).style.backgroundColor = '#ffffff';
+                  if (col && col.includes('oklch')) (node as HTMLElement).style.color = '#111111';
+                } catch {}
+              }
+              Array.from(node.children).forEach(walk);
+            };
+            walk(clone);
+          },
         });
         const imgData = canvas.toDataURL('image/jpeg', 0.92);
         const canvasW = canvas.width;
