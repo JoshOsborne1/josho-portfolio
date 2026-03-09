@@ -1284,7 +1284,7 @@ export default function HandbookBuilder() {
   }, [editedContent, triggerSave]);
 
   const handlePrint = () => window.print();
-  const HANDBOOK_VERSION = 'v9';
+  const HANDBOOK_VERSION = 'v10';
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfProgress, setPdfProgress] = useState(0);
 
