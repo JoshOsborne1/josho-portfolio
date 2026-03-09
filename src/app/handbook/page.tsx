@@ -1284,46 +1284,93 @@ export default function HandbookBuilder() {
   }, [editedContent, triggerSave]);
 
   const handlePrint = () => window.print();
-  const HANDBOOK_VERSION = 'v7';
+  const HANDBOOK_VERSION = 'v8';
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfProgress, setPdfProgress] = useState(0);
 
   const handleExportPDF = async () => {
     setPdfLoading(true);
-    setPdfProgress(0);
+    setPdfProgress(5);
     try {
-      const { toPng } = await import('html-to-image');
-      const { jsPDF } = await import('jspdf');
-      const pages = Array.from(document.querySelectorAll('.doc-page')) as HTMLElement[];
-      if (!pages.length) return;
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      const A4_W = 210;
-      const A4_H = 297;
-      for (let i = 0; i < pages.length; i++) {
-        setPdfProgress(Math.round(((i) / pages.length) * 90));
-        const el = pages[i];
-        const dataUrl = await toPng(el, {
-          pixelRatio: 2,
-          backgroundColor: '#ffffff',
-          cacheBust: true,
-        });
-        const imgW = el.offsetWidth;
-        const imgH = el.scrollHeight;
-        const mmH = (imgH / imgW) * A4_W;
-        if (i > 0) pdf.addPage();
-        if (mmH > A4_H) {
-          // Scale down to fit A4 height
-          const scale = A4_H / mmH;
-          pdf.addImage(dataUrl, 'PNG', 0, 0, A4_W * scale, A4_H);
-        } else {
-          pdf.addImage(dataUrl, 'PNG', 0, 0, A4_W, mmH);
-        }
+      // Collect all compiled CSS (Tailwind v4 injects into <style> tags)
+      const styleSheets = Array.from(document.styleSheets)
+        .map(sheet => {
+          try {
+            return Array.from(sheet.cssRules).map(r => r.cssText).join('\n');
+          } catch {
+            return sheet.href ? `@import url("${sheet.href}");` : '';
+          }
+        })
+        .join('\n');
+
+      // Collect external font links
+      const fontLinks = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+        .map(l => `<link rel="stylesheet" href="${(l as HTMLLinkElement).href}">`)
+        .join('\n');
+
+      // Get the print root element
+      const root = document.getElementById('handbook-print-root');
+      if (!root) throw new Error('Print root not found');
+
+      // Fix relative image paths to absolute
+      const contentHTML = root.outerHTML.replace(
+        /src="(?!https?:\/\/|data:)([^"]*)"/g,
+        (_, p) => `src="${window.location.origin}${p.startsWith('/') ? '' : '/'}${p}"`
+      );
+
+      setPdfProgress(20);
+
+      const fullHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+${fontLinks}
+<style>
+* { box-sizing: border-box; }
+body { background: white; margin: 0; padding: 0; }
+${styleSheets}
+@media print {
+  @page { size: A4 portrait; margin: 15mm; }
+  body { margin: 0; }
+  .no-print, .handbook-sidebar, .handbook-toolbar, button, nav { display: none !important; }
+  .doc-page { break-before: page; break-after: auto; break-inside: auto; }
+  .doc-page:first-child { break-before: auto; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+}
+</style>
+</head>
+<body>${contentHTML}</body>
+</html>`;
+
+      setPdfProgress(40);
+
+      const fname = `${(settings.companyName || 'Guldmann-UK').replace(/\s+/g, '-')}-Employee-Handbook`;
+
+      const response = await fetch('/api/generate-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ html: fullHTML, filename: fname }),
+      });
+
+      setPdfProgress(80);
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.details || err.error || `Server error ${response.status}`);
       }
+
       setPdfProgress(95);
-      const fname = `${(settings.companyName || 'Guldmann-UK').replace(/\s+/g, '-')}-Employee-Handbook.pdf`;
-      pdf.save(fname);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${fname}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
       setPdfProgress(100);
-      setTimeout(() => setPdfProgress(0), 1200);
+      setTimeout(() => setPdfProgress(0), 1500);
     } catch (err) {
       console.error('PDF export failed', err);
       alert('PDF export failed: ' + String(err));
