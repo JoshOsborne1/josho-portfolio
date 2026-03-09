@@ -1284,14 +1284,14 @@ export default function HandbookBuilder() {
   }, [editedContent, triggerSave]);
 
   const handlePrint = () => window.print();
-  const HANDBOOK_VERSION = 'v5';
+  const HANDBOOK_VERSION = 'v6';
   const [pdfLoading, setPdfLoading] = useState(false);
 
   const handleExportPDF = async () => {
     setPdfLoading(true);
     try {
-      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-        import('html2canvas'),
+      const [{ toJpeg }, { jsPDF }] = await Promise.all([
+        import('html-to-image'),
         import('jspdf'),
       ]);
       const pages = document.querySelectorAll('.doc-page');
@@ -1301,51 +1301,27 @@ export default function HandbookBuilder() {
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       for (let i = 0; i < pages.length; i++) {
         const el = pages[i] as HTMLElement;
-        const canvas = await html2canvas(el, {
-          scale: 2,
-          useCORS: true,
+        const dataUrl = await toJpeg(el, {
+          quality: 0.92,
+          pixelRatio: 2,
           backgroundColor: '#ffffff',
-          logging: false,
-          onclone: (_doc: Document, clone: HTMLElement) => {
-            // html2canvas does not support oklch (Tailwind v4 default).
-            // Walk all elements and replace oklch computed colors with hex fallbacks.
-            const walk = (node: Element) => {
-              const s = (node as HTMLElement).style;
-              if (s) {
-                const props = ['color', 'backgroundColor', 'borderColor', 'borderTopColor', 'borderBottomColor', 'borderLeftColor', 'borderRightColor', 'fill', 'stroke'];
-                for (const prop of props) {
-                  const v = (s as Record<string, string>)[prop];
-                  if (v && v.includes('oklch')) {
-                    (s as Record<string, string>)[prop] = '#000000';
-                  }
-                }
-                // Also override via computed and inline a safe color
-                try {
-                  const cs = window.getComputedStyle(node);
-                  const bg = cs.backgroundColor;
-                  const col = cs.color;
-                  if (bg && bg.includes('oklch')) (node as HTMLElement).style.backgroundColor = '#ffffff';
-                  if (col && col.includes('oklch')) (node as HTMLElement).style.color = '#111111';
-                } catch {}
-              }
-              Array.from(node.children).forEach(walk);
-            };
-            walk(clone);
-          },
+          skipFonts: false,
         });
-        const imgData = canvas.toDataURL('image/jpeg', 0.92);
-        const canvasW = canvas.width;
-        const canvasH = canvas.height;
-        // Scale to fit A4 width, maintain aspect ratio
-        const ratio = A4_W / (canvasW / 2); // divide by scale
-        const imgH = (canvasH / 2) * ratio;
+        // Get natural dimensions from the data URL via Image
+        const imgDims = await new Promise<{w: number, h: number}>(res => {
+          const img = new Image();
+          img.onload = () => res({ w: img.naturalWidth, h: img.naturalHeight });
+          img.src = dataUrl;
+        });
+        // Scale to A4 width, maintain aspect ratio; shrink if taller than A4
+        const ratio = A4_W / (imgDims.w / 2);
+        const imgHmm = (imgDims.h / 2) * ratio;
         if (i > 0) pdf.addPage();
-        // If taller than A4, scale down further to fit height
-        if (imgH > A4_H) {
-          const hRatio = A4_H / imgH;
-          pdf.addImage(imgData, 'JPEG', 0, 0, A4_W * hRatio, A4_H);
+        if (imgHmm > A4_H) {
+          const hRatio = A4_H / imgHmm;
+          pdf.addImage(dataUrl, 'JPEG', 0, 0, A4_W * hRatio, A4_H);
         } else {
-          pdf.addImage(imgData, 'JPEG', 0, 0, A4_W, imgH);
+          pdf.addImage(dataUrl, 'JPEG', 0, 0, A4_W, imgHmm);
         }
       }
       const fname = `${(settings.companyName || 'Guldmann-UK').replace(/\s+/g, '-')}-Employee-Handbook.pdf`;
@@ -1486,15 +1462,24 @@ export default function HandbookBuilder() {
           .handbook-print-root { display: block !important; }
 
           .doc-page {
-            width: 210mm !important;
-            min-height: 297mm !important;
+            width: 100% !important;
+            min-height: unset !important;
             margin: 0 !important;
             padding: 14mm 16mm 10mm 16mm !important;
             box-shadow: none !important;
             border-radius: 0 !important;
-            page-break-after: always !important;
-            break-after: page !important;
+            page-break-inside: auto !important;
+            break-inside: auto !important;
             overflow: visible !important;
+            display: block !important;
+          }
+          .doc-clause-card, .doc-clause-item {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          .doc-section-title, .doc-header {
+            page-break-after: avoid !important;
+            break-after: avoid !important;
           }
           .doc-cover {
             padding: 0 !important;
@@ -1507,7 +1492,8 @@ export default function HandbookBuilder() {
             break-after: auto !important;
           }
           .doc-page-break {
-            /* page-break handled by page-break-after on preceding .doc-page */
+            page-break-before: always !important;
+            break-before: page !important;
           }
           .doc-clause-item {
             page-break-inside: avoid !important;
