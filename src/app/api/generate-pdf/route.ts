@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
 
       browser = await puppeteer.launch({
         args: chromium.args,
-        defaultViewport: { width: 1240, height: 1754 },
+        defaultViewport: { width: 794, height: 1123 },
         executablePath: await chromium.executablePath(chromiumPack),
         headless: true,
         ignoreHTTPSErrors: true,
@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
       printBackground: true,
       preferCSSPageSize: false,
       margin: { top: '0', right: '0', bottom: '0', left: '0' },
+      scale: 1,
     });
 
     await browser.close();

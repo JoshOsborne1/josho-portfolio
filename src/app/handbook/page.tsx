@@ -1284,7 +1284,7 @@ export default function HandbookBuilder() {
   }, [editedContent, triggerSave]);
 
   const handlePrint = () => window.print();
-  const HANDBOOK_VERSION = 'v8';
+  const HANDBOOK_VERSION = 'v9';
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfProgress, setPdfProgress] = useState(0);
 
@@ -1327,7 +1327,7 @@ export default function HandbookBuilder() {
 ${fontLinks}
 <style>
 * { box-sizing: border-box; }
-body { background: white; margin: 0; padding: 0; }
+body { background: white; margin: 0; padding: 0; width: 794px; }
 ${styleSheets}
 @media print {
   @page { size: A4 portrait; margin: 15mm; }
