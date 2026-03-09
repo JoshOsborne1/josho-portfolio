@@ -1284,7 +1284,7 @@ export default function HandbookBuilder() {
   }, [editedContent, triggerSave]);
 
   const handlePrint = () => window.print();
-  const HANDBOOK_VERSION = 'v11';
+  const HANDBOOK_VERSION = 'v12';
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfProgress, setPdfProgress] = useState(0);
 
@@ -1329,6 +1329,9 @@ ${fontLinks}
 * { box-sizing: border-box; }
 body { background: white; margin: 0; padding: 0; width: 794px; }
 .no-print, .no-pdf { display: none !important; }
+/* Force each doc-page onto its own PDF page */
+.doc-page { break-before: page; break-after: auto; }
+.doc-page:first-of-type { break-before: auto; }
 ${styleSheets}
 @media print {
   @page { size: A4 portrait; margin: 15mm; }
