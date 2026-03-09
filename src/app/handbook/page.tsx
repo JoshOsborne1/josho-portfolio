@@ -1196,6 +1196,10 @@ export default function HandbookBuilder() {
     try { return JSON.parse(localStorage.getItem('handbook-edits') || '{}'); } catch { return {}; }
   });
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved' | 'error'>('saved');
+  // Undo/redo history - ring buffer of {edits, settings, selected} snapshots
+  const historyRef = useRef<Array<{edits: Record<string,string>, settings: typeof DEFAULT_SETTINGS, selected: string[]}>>([]);
+  const historyPosRef = useRef<number>(-1); // -1 = at latest state
+  const MAX_HISTORY = 100;
   const [lastSaved, setLastSaved] = useState<string | null>(null);
   const [, startTransition] = useTransition();
   const [showSettings, setShowSettings] = useState(false);
@@ -1215,6 +1219,19 @@ export default function HandbookBuilder() {
     });
   }, []);
 
+  // Push a snapshot to history before a change
+  const pushHistory = (e: Record<string,string>, s: typeof DEFAULT_SETTINGS, sel: string[]) => {
+    const snap = { edits: { ...e }, settings: { ...s }, selected: [...sel] };
+    // If we undid and now make a change, discard the redo branch
+    if (historyPosRef.current >= 0) {
+      historyRef.current = historyRef.current.slice(historyPosRef.current);
+      historyPosRef.current = -1;
+    }
+    historyRef.current = [snap, ...historyRef.current].slice(0, MAX_HISTORY);
+    // Persist history to localStorage for cross-session recovery
+    try { localStorage.setItem('handbook-history', JSON.stringify(historyRef.current.slice(0, 20))); } catch {}
+  };
+
   // Load from server on mount (overrides localStorage with authoritative copy)
   useEffect(() => {
     fetch('/api/handbook')
@@ -1229,6 +1246,9 @@ export default function HandbookBuilder() {
           localStorage.setItem('handbook-settings', JSON.stringify(data.settings));
         }
         if (data.savedAt) setLastSaved(data.savedAt);
+        if (Array.isArray(data.history) && data.history.length) {
+          historyRef.current = data.history;
+        }
         setSaveStatus('saved');
       })
       .catch(() => setSaveStatus('saved')); // fall through to localStorage silently
@@ -1284,8 +1304,47 @@ export default function HandbookBuilder() {
   }, [editedContent, triggerSave]);
 
   const handlePrint = () => window.print();
-  const HANDBOOK_VERSION = 'v14';
+  const HANDBOOK_VERSION = 'v15';
   const [pdfLoading, setPdfLoading] = useState(false);
+
+  // Ctrl+Z undo / Ctrl+Y redo / Ctrl+Shift+Z redo
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      // Allow default undo inside text inputs/contenteditable
+      if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT' || target.isContentEditable) return;
+      if (e.ctrlKey && !e.shiftKey && e.key === 'z') {
+        e.preventDefault();
+        const history = historyRef.current;
+        if (!history.length) return;
+        const nextPos = historyPosRef.current < 0
+          ? 0
+          : Math.min(historyPosRef.current + 1, history.length - 1);
+        const snap = history[nextPos];
+        if (!snap) return;
+        historyPosRef.current = nextPos;
+        setEdits(snap.edits);
+        setSettings(snap.settings);
+        setSelected(snap.selected);
+        setSaveStatus('unsaved');
+      }
+      if (e.ctrlKey && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) {
+        e.preventDefault();
+        if (historyPosRef.current <= 0) return;
+        historyPosRef.current -= 1;
+        const snap = historyPosRef.current < 0
+          ? historyRef.current[0]
+          : historyRef.current[historyPosRef.current];
+        if (!snap) return;
+        setEdits(snap.edits);
+        setSettings(snap.settings);
+        setSelected(snap.selected);
+        setSaveStatus('unsaved');
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
   const [pdfProgress, setPdfProgress] = useState(0);
 
   const handleExportPDF = async () => {
