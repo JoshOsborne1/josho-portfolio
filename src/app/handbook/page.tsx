@@ -1284,51 +1284,49 @@ export default function HandbookBuilder() {
   }, [editedContent, triggerSave]);
 
   const handlePrint = () => window.print();
-  const HANDBOOK_VERSION = 'v6';
+  const HANDBOOK_VERSION = 'v7';
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfProgress, setPdfProgress] = useState(0);
 
   const handleExportPDF = async () => {
     setPdfLoading(true);
+    setPdfProgress(0);
     try {
-      const [{ toJpeg }, { jsPDF }] = await Promise.all([
-        import('html-to-image'),
-        import('jspdf'),
-      ]);
-      const pages = document.querySelectorAll('.doc-page');
+      const { toPng } = await import('html-to-image');
+      const { jsPDF } = await import('jspdf');
+      const pages = Array.from(document.querySelectorAll('.doc-page')) as HTMLElement[];
       if (!pages.length) return;
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       const A4_W = 210;
       const A4_H = 297;
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       for (let i = 0; i < pages.length; i++) {
-        const el = pages[i] as HTMLElement;
-        const dataUrl = await toJpeg(el, {
-          quality: 0.92,
+        setPdfProgress(Math.round(((i) / pages.length) * 90));
+        const el = pages[i];
+        const dataUrl = await toPng(el, {
           pixelRatio: 2,
           backgroundColor: '#ffffff',
-          skipFonts: false,
+          cacheBust: true,
         });
-        // Get natural dimensions from the data URL via Image
-        const imgDims = await new Promise<{w: number, h: number}>(res => {
-          const img = new Image();
-          img.onload = () => res({ w: img.naturalWidth, h: img.naturalHeight });
-          img.src = dataUrl;
-        });
-        // Scale to A4 width, maintain aspect ratio; shrink if taller than A4
-        const ratio = A4_W / (imgDims.w / 2);
-        const imgHmm = (imgDims.h / 2) * ratio;
+        const imgW = el.offsetWidth;
+        const imgH = el.scrollHeight;
+        const mmH = (imgH / imgW) * A4_W;
         if (i > 0) pdf.addPage();
-        if (imgHmm > A4_H) {
-          const hRatio = A4_H / imgHmm;
-          pdf.addImage(dataUrl, 'JPEG', 0, 0, A4_W * hRatio, A4_H);
+        if (mmH > A4_H) {
+          // Scale down to fit A4 height
+          const scale = A4_H / mmH;
+          pdf.addImage(dataUrl, 'PNG', 0, 0, A4_W * scale, A4_H);
         } else {
-          pdf.addImage(dataUrl, 'JPEG', 0, 0, A4_W, imgHmm);
+          pdf.addImage(dataUrl, 'PNG', 0, 0, A4_W, mmH);
         }
       }
+      setPdfProgress(95);
       const fname = `${(settings.companyName || 'Guldmann-UK').replace(/\s+/g, '-')}-Employee-Handbook.pdf`;
       pdf.save(fname);
+      setPdfProgress(100);
+      setTimeout(() => setPdfProgress(0), 1200);
     } catch (err) {
       console.error('PDF export failed', err);
-      alert('PDF export failed - try Print / PDF instead.');
+      alert('PDF export failed: ' + String(err));
     } finally {
       setPdfLoading(false);
     }
@@ -1548,9 +1546,17 @@ export default function HandbookBuilder() {
               Print
             </button>
             <button type="button" onClick={handleExportPDF} disabled={pdfLoading}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#F4B626] text-[12px] font-semibold text-black hover:bg-[#e0a820] transition-colors disabled:opacity-60">
-              <FileText className="w-3.5 h-3.5" />
-              {pdfLoading ? 'Generating...' : 'Download PDF'}
+              className="relative overflow-hidden flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#F4B626] text-[12px] font-semibold text-black hover:bg-[#e0a820] transition-colors disabled:opacity-80 min-w-[130px]">
+              {pdfLoading && (
+                <span
+                  className="absolute left-0 top-0 bottom-0 bg-black/15 transition-all duration-300"
+                  style={{ width: `${pdfProgress}%` }}
+                />
+              )}
+              <span className="relative flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5" />
+                {pdfLoading ? `${pdfProgress}%` : 'Download PDF'}
+              </span>
             </button>
             <div className="no-print ml-1 px-2 py-1 rounded font-mono text-[10px] font-bold text-gray-400 bg-gray-100 border border-gray-200 select-none" title="Deployed version">{HANDBOOK_VERSION}</div>
           </div>
