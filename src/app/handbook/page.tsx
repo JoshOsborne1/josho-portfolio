@@ -1284,7 +1284,7 @@ export default function HandbookBuilder() {
   }, [editedContent, triggerSave]);
 
   const handlePrint = () => window.print();
-  const HANDBOOK_VERSION = 'v13';
+  const HANDBOOK_VERSION = 'v14';
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfProgress, setPdfProgress] = useState(0);
 
@@ -1388,13 +1388,15 @@ ${styleSheets}
         /* ── SCREEN: fixed A4 pages ── */
         .doc-page {
           width: 794px;
+          height: 1123px;
           min-height: 1123px;
+          max-height: 1123px;
           margin: 24px auto;
           box-shadow: 0 4px 24px rgba(0,0,0,0.10);
           border-radius: 2px;
           display: flex;
           flex-direction: column;
-          overflow: visible;
+          overflow: hidden;
           padding: 36px 42px 28px 42px;
           position: relative;
           box-sizing: border-box;
@@ -1421,7 +1423,8 @@ ${styleSheets}
           grid-template-columns: 1fr 1fr;
           gap: 0;
           align-content: start;
-          overflow: visible;
+          overflow: hidden;
+          min-height: 0;
         }
         .doc-clause-wide {
           grid-column: 1 / -1;
@@ -1504,27 +1507,28 @@ ${styleSheets}
           /* doc-page: preserve screen layout exactly, only strip chrome */
           .doc-page {
             width: 794px !important;
+            height: 1123px !important;
             min-height: 1123px !important;
+            max-height: 1123px !important;
             margin: 0 !important;
             padding: 36px 42px 28px 42px !important;
             box-shadow: none !important;
             border-radius: 0 !important;
             display: flex !important;
             flex-direction: column !important;
-            overflow: visible !important;
+            overflow: hidden !important;
             position: relative !important;
             box-sizing: border-box !important;
-            /* Each section on its own page - break-before not break-after (avoids blank pages) */
             break-before: page !important;
             break-after: auto !important;
-            break-inside: auto !important;
+            break-inside: avoid !important;
           }
-          /* First page: no forced break before it */
           .doc-page:first-child { break-before: auto !important; }
 
           /* Preserve grid layout on clause mosaic */
           .doc-clause-grid, .doc-clause-mosaic {
-            overflow: visible !important;
+            overflow: hidden !important;
+            min-height: 0 !important;
           }
 
           /* Avoid breaking inside small units */
