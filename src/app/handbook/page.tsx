@@ -1285,6 +1285,7 @@ export default function HandbookBuilder() {
   }, [editedContent, triggerSave]);
 
   const handlePrint = () => window.print();
+  const HANDBOOK_VERSION = 'v2';
 
   const handleExportWord = async () => {
     setExporting(true);
@@ -1376,14 +1377,34 @@ export default function HandbookBuilder() {
         .doc-header { flex-shrink: 0; }
         .doc-footer { flex-shrink: 0; }
         .doc-section-title { flex-shrink: 0; }
-        /* 2-column clause grid */
-        .doc-clause-grid {
+        /* 2-column clause mosaic */
+        .doc-clause-grid,
+        .doc-clause-mosaic {
           flex: 1;
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 0;
           align-content: start;
           overflow: visible;
+        }
+        .doc-clause-wide {
+          grid-column: 1 / -1;
+        }
+        .doc-clause-label {
+          font-size: 8px;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.15em;
+          color: #F4B626;
+          margin-bottom: 4px;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+        .doc-clause-body {
+          font-size: 11px;
+          color: #444;
+          line-height: 1.55;
         }
         .doc-clause-card {
           padding: 12px 14px;
@@ -1446,15 +1467,14 @@ export default function HandbookBuilder() {
 
           .doc-page {
             width: 210mm !important;
-            height: 297mm !important;
-            min-height: unset !important;
+            min-height: 297mm !important;
             margin: 0 !important;
             padding: 14mm 16mm 10mm 16mm !important;
             box-shadow: none !important;
             border-radius: 0 !important;
             page-break-after: always !important;
             break-after: page !important;
-            overflow: hidden !important;
+            overflow: visible !important;
           }
           .doc-cover {
             padding: 0 !important;
@@ -1474,8 +1494,9 @@ export default function HandbookBuilder() {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
           }
-          .doc-clause-grid {
-            overflow: hidden !important;
+          .doc-clause-grid,
+          .doc-clause-mosaic {
+            overflow: visible !important;
           }
         }
         }
