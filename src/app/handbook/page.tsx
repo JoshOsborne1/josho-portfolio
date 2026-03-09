@@ -1284,7 +1284,7 @@ export default function HandbookBuilder() {
   }, [editedContent, triggerSave]);
 
   const handlePrint = () => window.print();
-  const HANDBOOK_VERSION = 'v12';
+  const HANDBOOK_VERSION = 'v13';
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfProgress, setPdfProgress] = useState(0);
 
@@ -1329,18 +1329,9 @@ ${fontLinks}
 * { box-sizing: border-box; }
 body { background: white; margin: 0; padding: 0; width: 794px; }
 .no-print, .no-pdf { display: none !important; }
-/* Force each doc-page onto its own PDF page */
-.doc-page { break-before: page; break-after: auto; }
-.doc-page:first-of-type { break-before: auto; }
+/* Page breaks handled by @media print rules in the document CSS */
 ${styleSheets}
-@media print {
-  @page { size: A4 portrait; margin: 15mm; }
-  body { margin: 0; }
-  .no-print, .handbook-sidebar, .handbook-toolbar, button, nav { display: none !important; }
-  .doc-page { break-before: page; break-after: auto; break-inside: auto; }
-  .doc-page:first-child { break-before: auto; }
-  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-}
+/* Print CSS is in the JSX inline <style> block - no override needed here */
 </style>
 </head>
 <body>${contentHTML}</body>
@@ -1496,62 +1487,52 @@ ${styleSheets}
         }
 
         @media print {
-          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
           @page { size: A4 portrait; margin: 0; }
 
-          .no-print { display: none !important; }
-          .handbook-sidebar { display: none !important; }
-          .handbook-topbar { display: none !important; }
+          /* Hide UI chrome */
+          .no-print, .handbook-sidebar, .handbook-topbar { display: none !important; }
+          button { display: none !important; }
 
-          body, html { overflow: visible !important; height: auto !important; margin: 0 !important; }
-          .handbook-shell { height: auto !important; overflow: visible !important; display: block !important; }
-          .handbook-body { height: auto !important; overflow: visible !important; display: block !important; }
-          .handbook-preview { overflow: visible !important; height: auto !important; background: white !important; padding: 0 !important; margin: 0 !important; }
+          /* Unbox the shell wrappers so content flows naturally */
+          body, html { overflow: visible !important; height: auto !important; margin: 0 !important; background: white !important; }
+          .handbook-shell, .handbook-body, .handbook-preview, .handbook-print-root {
+            height: auto !important; overflow: visible !important; display: block !important;
+            background: transparent !important; padding: 0 !important; margin: 0 !important;
+          }
 
-          .handbook-print-root { display: block !important; }
-
+          /* doc-page: preserve screen layout exactly, only strip chrome */
           .doc-page {
-            width: 100% !important;
-            min-height: unset !important;
+            width: 794px !important;
+            min-height: 1123px !important;
             margin: 0 !important;
-            padding: 14mm 16mm 10mm 16mm !important;
+            padding: 36px 42px 28px 42px !important;
             box-shadow: none !important;
             border-radius: 0 !important;
-            page-break-inside: auto !important;
-            break-inside: auto !important;
+            display: flex !important;
+            flex-direction: column !important;
             overflow: visible !important;
-            display: block !important;
-          }
-          .doc-clause-card, .doc-clause-item {
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
-          }
-          .doc-section-title, .doc-header {
-            page-break-after: avoid !important;
-            break-after: avoid !important;
-          }
-          .doc-cover {
-            padding: 0 !important;
-          }
-          .doc-cover-body {
-            padding: 10mm 14mm !important;
-          }
-          .doc-page:last-child {
-            page-break-after: auto !important;
-            break-after: auto !important;
-          }
-          .doc-page-break {
-            page-break-before: always !important;
+            position: relative !important;
+            box-sizing: border-box !important;
+            /* Each section on its own page - break-before not break-after (avoids blank pages) */
             break-before: page !important;
+            break-after: auto !important;
+            break-inside: auto !important;
           }
-          .doc-clause-item {
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
-          }
-          .doc-clause-grid,
-          .doc-clause-mosaic {
+          /* First page: no forced break before it */
+          .doc-page:first-child { break-before: auto !important; }
+
+          /* Preserve grid layout on clause mosaic */
+          .doc-clause-grid, .doc-clause-mosaic {
             overflow: visible !important;
           }
+
+          /* Avoid breaking inside small units */
+          .doc-clause-card { break-inside: avoid !important; }
+          .doc-section-title, .doc-header { break-after: avoid !important; }
+
+          /* Cover page: preserve zero padding (has its own internal layout) */
+          .doc-cover { padding: 0 !important; }
         }
         }
       `}</style>

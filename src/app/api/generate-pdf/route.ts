@@ -47,7 +47,6 @@ export async function POST(request: NextRequest) {
     await page.setContent(html, { waitUntil: 'networkidle0', timeout: 30000 });
     await new Promise(r => setTimeout(r, 500));
 
-    await page.emulateMediaType('screen');
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
