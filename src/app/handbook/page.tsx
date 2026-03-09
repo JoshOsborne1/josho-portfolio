@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect, useTransition } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, ChevronDown, Download, FileText, Pencil, Printer, Search, Settings, X } from 'lucide-react';
+import { Check, ChevronDown, FileText, Pencil, Printer, Search, Settings, X } from 'lucide-react';
 import Image from 'next/image';
 
 // ---------------------------------------------------------------------------
@@ -1200,7 +1200,6 @@ export default function HandbookBuilder() {
   const [, startTransition] = useTransition();
   const [showSettings, setShowSettings] = useState(false);
   const [search, setSearch] = useState('');
-  const [exporting, setExporting] = useState(false);
 
   const toggleClause = useCallback((id: string) => {
     if (REQUIRED_IDS.has(id)) return;
@@ -1285,59 +1284,8 @@ export default function HandbookBuilder() {
   }, [editedContent, triggerSave]);
 
   const handlePrint = () => window.print();
-  const HANDBOOK_VERSION = 'v2';
+  const HANDBOOK_VERSION = 'v3';
 
-  const handleExportWord = async () => {
-    setExporting(true);
-    try {
-      const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, BorderStyle } = await import('docx');
-      const selectedCats = CATEGORIES
-        .map(cat => ({ ...cat, clauses: cat.clauses.filter(cl => selected.has(cl.id)) }))
-        .filter(cat => cat.clauses.length > 0);
-
-      const children: InstanceType<typeof Paragraph>[] = [
-        new Paragraph({ text: settings.companyName || 'Guldmann UK', heading: HeadingLevel.TITLE, alignment: AlignmentType.CENTER }),
-        new Paragraph({ text: 'Employee Handbook', heading: HeadingLevel.HEADING_1, alignment: AlignmentType.CENTER }),
-        new Paragraph({ text: `Version 1.0 - ${settings.versionDate || '2026'}`, alignment: AlignmentType.CENTER, spacing: { after: 400 } }),
-      ];
-
-      for (const cat of selectedCats) {
-        children.push(new Paragraph({
-          text: cat.title, heading: HeadingLevel.HEADING_1,
-          spacing: { before: 480, after: 200 },
-          border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: 'F4B626', space: 4 } }
-        }));
-        for (const clause of cat.clauses) {
-          const raw = editedContent[clause.id] ?? clause.content;
-          const content = applySettings(raw, settings);
-          children.push(new Paragraph({ text: clause.title, heading: HeadingLevel.HEADING_2, spacing: { before: 280, after: 120 } }));
-          for (const line of content.split('\n')) {
-            if (!line.trim()) continue;
-            if (line.startsWith('## ')) {
-              children.push(new Paragraph({ text: line.slice(3), heading: HeadingLevel.HEADING_3, spacing: { before: 200, after: 100 } }));
-            } else if (line.startsWith('- ')) {
-              children.push(new Paragraph({ bullet: { level: 0 }, children: [new TextRun({ text: line.slice(2).replace(/\*\*(.*?)\*\*/g, '$1') })], spacing: { after: 60 } }));
-            } else {
-              const parts = line.split(/\*\*(.*?)\*\*/g);
-              children.push(new Paragraph({ children: parts.map((part, i) => new TextRun({ text: part, bold: i % 2 === 1 })), spacing: { after: 100 } }));
-            }
-          }
-        }
-      }
-
-      const doc = new Document({ sections: [{ children }] });
-      const base64 = await Packer.toBase64String(doc);
-      const a = document.createElement('a');
-      a.href = `data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,${base64}`;
-      a.download = `${(settings.companyName || 'Guldmann-UK').replace(/\s+/g, '-')}-Employee-Handbook-${settings.versionDate || '2026'}.docx`;
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    } catch (err) {
-      console.error('Export failed', err);
-      alert('Export failed - please try again.');
-    } finally {
-      setExporting(false);
-    }
-  };
 
   const filteredCategories = search.trim()
     ? CATEGORIES.map(cat => ({ ...cat, clauses: cat.clauses.filter(cl =>
@@ -1487,8 +1435,7 @@ export default function HandbookBuilder() {
             break-after: auto !important;
           }
           .doc-page-break {
-            page-break-before: always !important;
-            break-before: page !important;
+            /* page-break handled by page-break-after on preceding .doc-page */
           }
           .doc-clause-item {
             page-break-inside: avoid !important;
@@ -1542,11 +1489,7 @@ export default function HandbookBuilder() {
               <Printer className="w-3.5 h-3.5" />
               Print / PDF
             </button>
-            <button type="button" onClick={handleExportWord} disabled={exporting}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#F4B626] text-[12px] font-semibold text-black hover:bg-[#e0a820] transition-colors disabled:opacity-60">
-              <Download className="w-3.5 h-3.5" />
-              {exporting ? 'Exporting...' : 'Export Word'}
-            </button>
+
           </div>
         </div>
 
