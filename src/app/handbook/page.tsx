@@ -1048,7 +1048,7 @@ function DocumentPreview({ selected, settings, editedContent, onEdit }: {
   return (
     <div id="handbook-print-root" className="handbook-print-root">
       {/* Edit hint - screen only */}
-      <div className="no-print mx-auto mt-5 mb-0 max-w-[794px] flex items-center gap-2 text-[11px] text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
+      <div className="no-print no-pdf mx-auto mt-5 mb-0 max-w-[794px] flex items-center gap-2 text-[11px] text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
         <Pencil className="w-3 h-3 shrink-0" />
         Click any clause to edit in place. Changes carry through to Word and PDF export.
       </div>
@@ -1284,7 +1284,7 @@ export default function HandbookBuilder() {
   }, [editedContent, triggerSave]);
 
   const handlePrint = () => window.print();
-  const HANDBOOK_VERSION = 'v10';
+  const HANDBOOK_VERSION = 'v11';
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfProgress, setPdfProgress] = useState(0);
 
@@ -1328,6 +1328,7 @@ ${fontLinks}
 <style>
 * { box-sizing: border-box; }
 body { background: white; margin: 0; padding: 0; width: 794px; }
+.no-print, .no-pdf { display: none !important; }
 ${styleSheets}
 @media print {
   @page { size: A4 portrait; margin: 15mm; }
