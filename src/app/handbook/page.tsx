@@ -1352,20 +1352,19 @@ export default function HandbookBuilder() {
         .doc-page {
           width: 794px;
           min-height: 1123px;
-          height: 1123px;
           margin: 24px auto;
           box-shadow: 0 4px 24px rgba(0,0,0,0.10);
           border-radius: 2px;
           display: flex;
           flex-direction: column;
-          overflow: hidden;
+          overflow: visible;
           padding: 36px 42px 28px 42px;
           position: relative;
           box-sizing: border-box;
         }
         .doc-cover {
           padding: 0;
-          overflow: hidden;
+          overflow: visible;
         }
         .doc-cover-topbar {
           width: 100%;
@@ -1384,7 +1383,7 @@ export default function HandbookBuilder() {
           grid-template-columns: 1fr 1fr;
           gap: 0;
           align-content: start;
-          overflow: hidden;
+          overflow: visible;
         }
         .doc-clause-card {
           padding: 12px 14px;
