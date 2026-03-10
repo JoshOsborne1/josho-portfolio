@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, Search, ChevronLeft, Check, Loader2, Scan, BookOpen, Clock, FileText, Zap, GraduationCap, Lightbulb, MessageSquare, ChevronDown, QrCode, Plus, Minus } from 'lucide-react';
 
@@ -712,9 +713,8 @@ export default function GuldmannForm() {
         
         {/* Compact Header Strip */}
         <header className="h-[72px] bg-[#111111] text-white px-4 md:px-6 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-5 bg-[#F4B626] rounded-full"></div>
-            <span className="text-sm md:text-base font-bold tracking-wider uppercase">Guldmann</span>
+          <div className="flex items-center">
+            <Image src="/guldmann-logo-black.png" alt="Guldmann" width={160} height={27} className="object-contain invert" unoptimized />
           </div>
           
           <div className="hidden md:flex items-center gap-3">

@@ -1,0 +1,17 @@
+{
+  "name": "Wavelength",
+  "short_name": "Wavelength",
+  "description": "The spectrum guessing party game",
+  "start_url": "/wave",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#7c3aed",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='32' fill='%237c3aed'/><path d='M20 140 A76 76 0 0 1 172 140' fill='none' stroke='white' stroke-width='12' stroke-linecap='round'/><circle cx='96' cy='140' r='10' fill='white'/></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}

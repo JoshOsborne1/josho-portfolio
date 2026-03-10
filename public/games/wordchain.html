@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Word Chain — josho.pro/games</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#0a0a0a; --s1:#111115; --border:rgba(255,255,255,0.07); --text:#f2f2f5; --dim:rgba(255,255,255,0.38); --accent:#8b5cf6; --green:#4ade80; --f:'Inter',-apple-system,sans-serif; }
+  *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+  html { background:var(--bg); color:var(--text); font-family:var(--f); }
+  body { min-height:100vh; padding:0 20px; }
+  a.back { position:fixed; top:16px; left:16px; font-size:10px; color:var(--dim); text-decoration:none; font-weight:700; letter-spacing:0.08em; }
+  #app { max-width:520px; margin:0 auto; }
+  header { padding:20px 0 16px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; }
+  .hdr-title { font-size:11px; font-weight:800; letter-spacing:0.14em; text-transform:uppercase; color:var(--dim); }
+  .hdr-title b { color:var(--text); }
+  .badge { padding:4px 10px; border-radius:6px; background:rgba(139,92,246,0.12); border:1px solid rgba(139,92,246,0.15); font-size:10px; font-weight:700; color:#c4b5fd; }
+  .chain-display { margin:24px 0; padding:16px; border-radius:10px; background:var(--s1); border:1px solid var(--border); }
+  .current-word { font-size:20px; font-weight:900; color:var(--accent); margin-bottom:8px; letter-spacing:-0.02em; }
+  .chain-text { font-size:11px; color:var(--dim); line-height:1.6; }
+  .input-area { display:flex; gap:8px; margin:16px 0; }
+  #input { flex:1; padding:12px 14px; border-radius:8px; background:var(--s1); border:1px solid var(--border); color:var(--text); font-size:13px; font-family:var(--f); font-weight:600; }
+  #input:focus { outline:none; border-color:var(--accent); }
+  .submit-btn { padding:12px 20px; border-radius:8px; background:var(--accent); border:none; color:#fff; font-size:12px; font-weight:700; cursor:pointer; }
+  .stats { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:20px 0; }
+  .stat { background:var(--s1); border:1px solid var(--border); border-radius:8px; padding:12px; text-align:center; }
+  .stat-val { font-size:20px; font-weight:900; color:var(--green); }
+  .stat-lbl { font-size:9px; color:var(--dim); text-transform:uppercase; letter-spacing:0.1em; margin-top:4px; }
+  .btn { padding:12px; border-radius:8px; border:1px solid var(--border); background:var(--s1); color:var(--text); font-size:12px; font-weight:700; cursor:pointer; }
+  #result { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); align-items:center; justify-content:center; z-index:200; backdrop-filter:blur(10px); }
+  #result.show { display:flex; }
+  .result-card { background:var(--s1); border:1px solid var(--border); border-radius:16px; padding:32px 24px; max-width:340px; width:calc(100%-40px); text-align:center; }
+  .result-score { font-size:32px; font-weight:900; color:var(--green); }
+  .btn-close { width:100%; padding:12px; background:transparent; border:1px solid var(--border); color:var(--text); font-size:12px; font-weight:700; border-radius:8px; cursor:pointer; margin-top:16px; }
+</style>
+</head>
+<body>
+<a class="back" href="/games/">Back</a>
+<div id="app">
+  <header>
+    <div class="hdr-title">josho.pro / <b>Chain</b></div>
+    <div class="badge" id="timeBadge">0:00</div>
+  </header>
+  <div class="chain-display">
+    <div class="current-word" id="currentWord">INTERNET</div>
+    <div class="chain-text">Last letter: <b id="needsLetter">T</b> - find a word starting with it!</div>
+  </div>
+  <div class="input-area">
+    <input type="text" id="input" placeholder="Your word..." autocomplete="off">
+    <button class="submit-btn" onclick="submit()">Add</button>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-val" id="score">1</div><div class="stat-lbl">Chain</div></div>
+    <div class="stat"><div class="stat-val" id="streak">0</div><div class="stat-lbl">Best</div></div>
+  </div>
+  <button class="btn" style="width:100%; margin-top:16px;" onclick="location.href='/games/'">Done</button>
+</div>
+<div id="result">
+  <div class="result-card">
+    <div style="font-size:20px; font-weight:900; margin-bottom:12px;">Chain Complete</div>
+    <div class="result-score" id="resultScore">8 words</div>
+    <button class="btn-close" onclick="location.href='/games/'">Done</button>
+  </div>
+</div>
+<script>
+const WORDS = new Set(["ABOUT","ABUSE","ACTOR","ACUTE","ADMIT","ADOPT","ADULT","AFTER","AGAIN","AGENT","AGREE","AHEAD","ALARM","ALBUM","ALERT","ALIKE","ALIVE","ALLEY","ALLOW","ALONE","ALONG","ALTER","ANGEL","ANGER","ANGLE","ANGRY","ANNOY","APART","APPLY","ARENA","ARGUE","ARISE","ARMOR","AROMA","ARROW","AUDIO","AUDIT","AVOID","AWFUL","BACON","BADGE","BADLY","BAKER","BAKED","BANGS","BANKS","BELLE","BENCH","BINGE","BLACK","BLAND","BLANK","BLAST","BLEED","BLEND","BLISS","BLOOM","BLOWN","BOARD","BOOST","BOOTH","BOXER","BRAIN","BRAVE","BREAK","BRIDE","BRIEF","BRINE","BRISK","BROAD","BROKE","BRUSH","BUDGE","BUNCH","BURST","BUYER","CABLE","CACHE","CANDY","CARGO","CARRY","CAUSE","CHAIN","CHAIR","CHAMP","CHAOS","CHARM","CHASE","CHEAP","CHEAT","CHECK","CHEEK","CHESS","CHEST","CHILD","CHIME","CHIMP","CHOKE","CHOSE","CHURN","CIVIC","CLAIM","CLAMP","CLANK","CLASH","CLASP","CLEAN","CLEAR","CLIMB","CLING","CLOSE","CLOUD","CLUNK","COACH","COAST","COMET","COMIC","CORAL","COUNT","COVER","CRAFT","CRANE","CRAVE","CRAWL","CRAZY","CREAK","CREEK","CREEP","CRIMP","CROSS","CROWD","CROWN","CRUMB","CRUST","CURLY","CURVE","CYCLE","DAILY","DANCE","DAZED","DEALT","DECAY","DECOY","DELAY","DEPOT","DEPTH","DERBY","DIGIT","DISCO","DIZZY","DODGE","DONOR","DOUBT","DOUGH","DOZEN","DRAMA","DRAWN","DREAM","DRESS","DRIED","DRINK","DRIVE","DRONE","DROVE","DRUNK","DRYER","DUMMY","DUSTY","DYING","EAGER","EARLY","EARTH","EIGHT","EMOJI","EMPTY","ENEMY","ENJOY","ENTER","EQUAL","ERROR","ESSAY","EXACT","EVENT","EVERY","EXIST","FABLE","FAINT","FAIRY","FAITH","FANCY","FATAL","FAULT","FEAST","FIELD","FIFTH","FIFTY","FIGHT","FLAIR","FLAME","FLANK","FLARE","FLESH","FLOCK","FLOOD","FLOSS","FLUID","FOCUS","FOGGY","FORCE","FORGE","FORTE","FOUND","FRAUD","FREAK","FRESH","FRONT","FROZE","FRUIT","FULLY","FUNNY","FUZZY","GENRE","GHOST","GIANT","GIVEN","GLARE","GLASS","GLAZE","GLIDE","GLOBE","GLOSS","GLOVE","GONNA","GOOFY","GRACE","GRADE","GRASP","GRASS","GRAVE","GREAT","GREET","GRIEF","GRUFF","GUARD","GUEST","GUSTO","HABIT","HAPPY","HARSH","HEART","HEAVY","HEDGE","HEIST","HELLO","HIPPO","HOARD","HONEY","HONOR","HOTEL","HOUND","HOUSE","HOVER","HUMAN","HUMID","HUMOR","HURRY","HYPER","IDIOM","IMPLY","INDEX","INDIE","INPUT","IRONY","ISSUE","IVORY","JEWEL","JOKER","JUMBO","JUMPY","JUICY","LABEL","LANCE","LARGE","LATER","LAUGH","LAYER","LEARN","LEAVE","LEGAL","LEMON","LEVEL","LIGHT","LIMIT","LINEN","LINER","LIVER","LOCAL","LODGE","LOGIC","LOOSE","LOVER","LUCKY","LUMPY","LUNCH","LYRIC","MACRO","MAKER","MANOR","MAPLE","MARCH","MARSH","MATCH","MAYOR","MEDIA","MERCY","MESSY","METAL","MIGHT","MIMIC","MIRTH","MISER","MIXED","MODEL","MONEY","MONTH","MORAL","MOTIF","MOUND","MOUNT","MOURN","MOVER","MOVIE","MUDDY","MUSHY","MUSKY","MUSTY","NAIVE","NASTY","NAVAL","NEEDY","NEVER","NEXUS","NIGHT","NINJA","NOBLE","NOISY","NORTH","NOTCH","NOVEL","NUDGE","OFFER","OFTEN","ORDER","OUTER","PACED","PANEL","PANIC","PAUSE","PEACE","PEACH","PEARL","PEDAL","PEPPY","PERKY","PETTY","PIANO","PIECE","PILOT","PINCH","PIXIE","PLACE","PLAIN","PLANE","PLANT","PLATE","PLAZA","PLEAD","PLEAT","PLUCK","PLUME","PLUMP","POINT","POKER","POLAR","POTTY","POWER","PRANK","PRESS","PRICE","PRIDE","PRIME","PRINT","PRIOR","PRIZE","PROBE","PROOF","PROSE","PROUD","PROVE","PROWL","PULSE","PUNCH","PUPIL","PURSE","PUSHY","QUEEN","QUERY","QUEUE","QUICK","QUIET","QUOTA","QUOTE","RABID","RADIO","RALLY","RAMEN","RANCH","RAPID","RAVEN","REACH","REALM","REBEL","RECAP","REFER","REIGN","RELAX","RELAY","REPAY","RIDER","RIDGE","RIFLE","RIGHT","RIGOR","RISEN","RIVET","ROCKY","ROUGH","ROUND","ROWDY","ROYAL","RUGBY","RULER","RUMOR","RUSTY","SADLY","SAINT","SALAD","SAUNA","SAVOR","SCENE","SCORE","SCOUT","SHAKE","SHAME","SHAPE","SHELF","SHELL","SHIFT","SHINE","SHIRT","SHOCK","SHORE","SHORT","SHOUT","SIGHT","SILLY","SINCE","SIXTH","SIXTY","SKILL","SKULL","SLASH","SLATE","SLEEP","SLEEK","SLICE","SLIDE","SLIME","SLOPE","SLOTH","SLUMP","SMALL","SMART","SMELL","SMILE","SMOKE","SNEAK","SNIFF","SOLAR","SOLVE","SORRY","SOUTH","SPACE","SPARE","SPARK","SPEAK","SPEAR","SPEED","SPEND","SPICE","SPIKE","SPILL","SPINE","SPITE","SPLIT","SPOKE","SPOOL","SPOON","SPORT","SPRAY","SQUAD","STAIN","STAKE","STALE","STAND","STARE","START","STATE","STEEP","STEER","STERN","STICK","STILL","STING","STOCK","STOMP","STONE","STOOL","STOUT","STORM","STORY","STRAW","STRIP","STUCK","STUDY","STUMP","STUNT","STYLE","SUGAR","SUNNY","SUPER","SURGE","SUSHI","SWEAR","SWEAT","SWEEP","SWEET","SWORD","TABOO","TAUNT","THORN","THREE","TIGER","TIGHT","TIMER","TIRED","TITLE","TODAY","TORCH","TOTAL","TOUCH","TOUGH","TOWEL","TOWER","TRACK","TRADE","TRAIN","TRAIT","TRASH","TREAT","TREND","TRIAL","TRICK","TROLL","TRUNK","TRUST","TRUTH","TWIST","UNDER","UNTIL","USUAL","UTTER","VAGUE","VALUE","VERSE","VIDEO","VIGOR","VIVID","VOCAB","VODKA","VOICE","VOTER","WACKY","WALTZ","WATCH","WATER","WEARY","WEDGE","WEIRD","WHILE","WITCH","WOMAN","WORLD","WORRY","WORSE","WORST","WORTH","WOUND","WRONG","WROTE","YOUNG","YOUTH","ZEBRA"]);
+
+let chain, score, best, startTime, timerIntvl;
+
+function init() {
+  chain = ["INTERNET"];
+  score = 1;
+  best = parseInt(localStorage.getItem('josho-chain-best') || '0');
+  startTime = Date.now();
+  startTimer();
+  updateDisplay();
+  document.getElementById('input').focus();
+  document.getElementById('input').onkeydown = e => e.key === 'Enter' && submit();
+}
+
+function updateDisplay() {
+  const last = chain[chain.length-1];
+  document.getElementById('currentWord').textContent = last;
+  document.getElementById('needsLetter').textContent = last[last.length-1];
+  document.getElementById('score').textContent = score;
+  document.getElementById('streak').textContent = best;
+}
+
+function submit() {
+  const inp = document.getElementById('input');
+  const word = inp.value.toUpperCase().trim();
+  inp.value = '';
+
+  if (!word || word.length < 3) return;
+  if (!WORDS.has(word)) { alert('Not in word list'); return; }
+
+  const last = chain[chain.length-1];
+  if (word[0] !== last[last.length-1]) { alert('Must start with ' + last[last.length-1]); return; }
+  if (chain.includes(word)) { alert('Already used'); return; }
+
+  chain.push(word);
+  score++;
+  if (score > best) { best = score; localStorage.setItem('josho-chain-best', best); }
+  updateDisplay();
+}
+
+function startTimer() {
+  timerIntvl = setInterval(() => {
+    const s = Math.floor((Date.now() - startTime) / 1000);
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    document.getElementById('timeBadge').textContent = m + ':' + (sec < 10 ? '0' : '') + sec;
+  }, 1000);
+}
+
+init();
+</script>
+</body>
+</html>

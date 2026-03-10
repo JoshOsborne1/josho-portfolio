@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ROX — Money Map</title>
+<style>
+  :root {
+    --bg: #09090b;
+    --surface: #111113;
+    --raised: #18181b;
+    --border: rgba(255,255,255,0.07);
+    --text: #f4f4f5;
+    --muted: rgba(255,255,255,0.45);
+    --dim: rgba(255,255,255,0.18);
+    --violet: #7c3aed;
+    --violet-glow: rgba(124,58,237,0.18);
+    --teal: #2dd4bf;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --red: #f87171;
+    --mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    height: 100%;
+    overflow: hidden;
+  }
+  /* DECK */
+  .deck { width: 100vw; height: 100vh; position: relative; overflow: hidden; }
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    padding: 24px 20px 20px;
+    opacity: 0; pointer-events: none;
+    transform: translateX(40px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+  .slide.active {
+    opacity: 1; pointer-events: all;
+    transform: translateX(0);
+  }
+  .slide.exit {
+    opacity: 0; pointer-events: none;
+    transform: translateX(-40px);
+  }
+  /* NAV */
+  .nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px;
+    background: rgba(9,9,11,0.92);
+    border-top: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+  .nav-btn {
+    width: 44px; height: 44px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--raised);
+    color: var(--text);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .nav-btn:active { background: var(--violet); border-color: var(--violet); }
+  .nav-btn:disabled { opacity: 0.3; pointer-events: none; }
+  .nav-dots {
+    display: flex; gap: 6px; align-items: center;
+  }
+  .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--dim);
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .dot.active { background: var(--violet); width: 20px; border-radius: 3px; }
+  /* SLIDE COMMON */
+  .slide-num {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--dim);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .slide-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+  .tag-violet { background: rgba(124,58,237,0.15); color: #a78bfa; border: 1px solid rgba(124,58,237,0.3); }
+  .tag-teal   { background: rgba(45,212,191,0.1);  color: #2dd4bf; border: 1px solid rgba(45,212,191,0.25); }
+  .tag-green  { background: rgba(74,222,128,0.1);  color: #4ade80; border: 1px solid rgba(74,222,128,0.25); }
+  .tag-amber  { background: rgba(251,191,36,0.1);  color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); }
+  .tag-red    { background: rgba(248,113,113,0.1); color: #f87171; border: 1px solid rgba(248,113,113,0.25); }
+  h1 { font-size: 32px; font-weight: 800; line-height: 1.1; letter-spacing: -0.03em; }
+  h2 { font-size: 22px; font-weight: 700; line-height: 1.2; letter-spacing: -0.02em; }
+  h3 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .sub { font-size: 13px; color: var(--muted); line-height: 1.5; margin-top: 8px; }
+  .accent { color: var(--violet); }
+  .teal { color: var(--teal); }
+  .green { color: var(--green); }
+  .amber { color: var(--amber); }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .card + .card { margin-top: 8px; }
+  .card-row { display: flex; align-items: center; justify-content: space-between; }
+
+  /* METRIC */
+  .metric-big {
+    font-family: var(--mono);
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    color: var(--text);
+    line-height: 1;
+  }
+  .metric-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .metric-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  /* STATUS BADGE */
+  .badge {
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+  .badge-live    { background: rgba(74,222,128,0.12); color: #4ade80; }
+  .badge-blocked { background: rgba(248,113,113,0.12); color: #f87171; }
+  .badge-building { background: rgba(251,191,36,0.12); color: #fbbf24; }
+  .badge-planned { background: rgba(255,255,255,0.06); color: var(--muted); }
+
+  /* LIST */
+  .list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .list-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 13px; line-height: 1.4; color: var(--text);
+  }
+  .list-item .icon { flex-shrink: 0; margin-top: 1px; }
+  .list-item .label { color: var(--muted); }
+
+  /* TABLE */
+  .tbl { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  .tbl th {
+    font-family: var(--mono); font-size: 9px; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--dim); text-align: left;
+    padding: 0 0 8px; border-bottom: 1px solid var(--border);
+  }
+  .tbl td {
+    font-size: 12px; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.03);
+    color: var(--text); vertical-align: middle;
+  }
+  .tbl td.mono { font-family: var(--mono); font-size: 11px; }
+  .tbl td.muted { color: var(--muted); }
+
+  /* PROGRESS BAR */
+  .prog-wrap { background: var(--raised); border-radius: 4px; height: 4px; flex: 1; overflow: hidden; }
+  .prog-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+
+  /* SCROLL AREA */
+  .scroll { overflow-y: auto; flex: 1; padding-bottom: 8px; }
+  .scroll::-webkit-scrollbar { width: 0; }
+
+  /* HERO SLIDE */
+  .hero-eyebrow {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--violet); margin-bottom: 16px;
+  }
+  .hero-sub { font-size: 14px; color: var(--muted); margin-top: 16px; line-height: 1.6; }
+  .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 20px; }
+  .hero-stat {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px;
+  }
+  .hero-stat-n { font-family: var(--mono); font-size: 24px; font-weight: 700; }
+  .hero-stat-l { font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .violet-line {
+    display: block; width: 32px; height: 2px;
+    background: var(--violet); border-radius: 1px; margin-top: 14px;
+  }
+
+  /* STREAM ROW */
+  .stream-row {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px;
+    display: flex; gap: 12px; align-items: flex-start;
+    margin-bottom: 8px;
+  }
+  .stream-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .stream-body { flex: 1; min-width: 0; }
+  .stream-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+  .stream-meta { font-size: 11px; color: var(--muted); }
+  .stream-target { font-family: var(--mono); font-size: 12px; color: var(--teal); margin-top: 4px; }
+
+  /* KEY ACTIONS */
+  .action-row {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px; margin-bottom: 8px;
+  }
+  .action-num {
+    font-family: var(--mono); font-size: 11px;
+    color: var(--violet); width: 20px; flex-shrink: 0;
+  }
+  .action-text { font-size: 13px; flex: 1; line-height: 1.35; }
+  .action-tag { font-family: var(--mono); font-size: 9px; color: var(--muted); flex-shrink: 0; }
+
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+  <!-- SLIDE 1: HERO -->
+  <div class="slide active" id="s0">
+    <div class="slide-num">01 / 10</div>
+    <div class="hero-eyebrow">Rox — 2026-03-06</div>
+    <h1>Money<br><span class="accent">Map</span></h1>
+    <p class="hero-sub">5 revenue streams. Research done. Infrastructure built. £4,590/mo target.</p>
+    <span class="violet-line"></span>
+    <div class="hero-grid">
+      <div class="hero-stat">
+        <div class="hero-stat-n accent">9</div>
+        <div class="hero-stat-l">Games live</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-n teal">81</div>
+        <div class="hero-stat-l">Leads ready</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-n" style="color:var(--amber)">66</div>
+        <div class="hero-stat-l">Tasks queued</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-n green">£0</div>
+        <div class="hero-stat-l">MRR → £4.5k</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: ALL STREAMS OVERVIEW -->
+  <div class="slide" id="s1">
+    <div class="slide-num">02 / 10</div>
+    <div class="slide-tag tag-violet">Revenue Streams</div>
+    <h2>5 paths to cash</h2>
+    <p class="sub">Priority: fastest to first £ first</p>
+    <div class="scroll" style="margin-top:16px;">
+      <div class="stream-row">
+        <div class="stream-icon" style="background:rgba(251,191,36,0.12)">⚡</div>
+        <div class="stream-body">
+          <div class="stream-title">Uptrend SaaS</div>
+          <div class="stream-meta">Uptime monitoring resold to UK web agencies</div>
+          <div class="stream-target">£790/mo target · Emails ready to fire</div>
+        </div>
+        <span class="badge badge-building">Building</span>
+      </div>
+      <div class="stream-row">
+        <div class="stream-icon" style="background:rgba(124,58,237,0.12)">🛍</div>
+        <div class="stream-body">
+          <div class="stream-title">Customerch</div>
+          <div class="stream-meta">AI-powered product customisation platform</div>
+          <div class="stream-target">£1,000/mo target · 1 Vercel fix away</div>
+        </div>
+        <span class="badge badge-blocked">Blocked</span>
+      </div>
+      <div class="stream-row">
+        <div class="stream-icon" style="background:rgba(45,212,191,0.12)">🎮</div>
+        <div class="stream-body">
+          <div class="stream-title">josho.pro Games</div>
+          <div class="stream-meta">9 casual HTML5 games · AdSense + £2.99/mo pass</div>
+          <div class="stream-target">£500/mo target · Deployed today</div>
+        </div>
+        <span class="badge badge-building">Building</span>
+      </div>
+      <div class="stream-row">
+        <div class="stream-icon" style="background:rgba(248,113,113,0.12)">📱</div>
+        <div class="stream-body">
+          <div class="stream-title">APEX App</div>
+          <div class="stream-meta">AI looksmaxxing iOS app · RevenueCat £9.99/mo</div>
+          <div class="stream-target">£2,000/mo target · Screens 1-3 built</div>
+        </div>
+        <span class="badge badge-building">Building</span>
+      </div>
+      <div class="stream-row">
+        <div class="stream-icon" style="background:rgba(74,222,128,0.12)">📹</div>
+        <div class="stream-body">
+          <div class="stream-title">Content / Click</div>
+          <div class="stream-meta">YouTube · Newsletter · Digital products · Affiliates</div>
+          <div class="stream-target">£300/mo target · Scripts + threads ready</div>
+        </div>
+        <span class="badge badge-planned">Planned</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: TIMELINE -->
+  <div class="slide" id="s2">
+    <div class="slide-num">03 / 10</div>
+    <div class="slide-tag tag-green">Projections</div>
+    <h2>MRR over time</h2>
+    <p class="sub" style="margin-bottom:16px;">Conservative. Month 1 just needs Brevo key.</p>
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Stream</th>
+          <th>Mo 1</th>
+          <th>Mo 3</th>
+          <th>Mo 6</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Uptrend</td>
+          <td class="mono green">£79</td>
+          <td class="mono green">£316</td>
+          <td class="mono green">£790</td>
+        </tr>
+        <tr>
+          <td>Games</td>
+          <td class="mono amber">£30</td>
+          <td class="mono amber">£150</td>
+          <td class="mono amber">£500</td>
+        </tr>
+        <tr>
+          <td>Customerch</td>
+          <td class="mono muted">£0</td>
+          <td class="mono">£250</td>
+          <td class="mono">£1,000</td>
+        </tr>
+        <tr>
+          <td>APEX</td>
+          <td class="mono muted">£0</td>
+          <td class="mono">£499</td>
+          <td class="mono" style="color:var(--red)">£2,000</td>
+        </tr>
+        <tr>
+          <td>Content</td>
+          <td class="mono">£19</td>
+          <td class="mono">£100</td>
+          <td class="mono">£300</td>
+        </tr>
+        <tr style="border-top: 1px solid var(--border)">
+          <td style="font-weight:700">Total</td>
+          <td class="mono" style="font-weight:700;color:var(--green)">£128</td>
+          <td class="mono" style="font-weight:700;color:var(--green)">£1,315</td>
+          <td class="mono" style="font-weight:700;color:var(--teal)">£4,590</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="card" style="margin-top:16px;">
+      <div class="card-row">
+        <span style="font-size:12px;color:var(--muted)">Month 1 gate</span>
+        <span style="font-size:12px;font-family:var(--mono);color:var(--amber)">Brevo key only</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: GAMES -->
+  <div class="slide" id="s3">
+    <div class="slide-num">04 / 10</div>
+    <div class="slide-tag tag-teal">josho.pro Games</div>
+    <h2>9 games. Live. Today.</h2>
+    <p class="sub">Deployed 12:40 UTC. Vercel building now.</p>
+    <div class="scroll" style="margin-top:14px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <div class="card"><div style="font-size:12px;">/word</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">Word Guess</div></div>
+        <div class="card"><div style="font-size:12px;">/sudoku</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">Sudoku</div></div>
+        <div class="card"><div style="font-size:12px;">/2048</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">2048</div></div>
+        <div class="card"><div style="font-size:12px;">/trivia</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">Trivia</div></div>
+        <div class="card"><div style="font-size:12px;">/memory</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">Memory Match</div></div>
+        <div class="card"><div style="font-size:12px;">/wordchain</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">Word Chain</div></div>
+        <div class="card"><div style="font-size:12px;">/math</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">Math Challenge</div></div>
+        <div class="card"><div style="font-size:12px;">/crossword</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">Crossword</div></div>
+        <div class="card"><div style="font-size:12px;">/wordscramble</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">Word Scramble</div></div>
+      </div>
+      <hr class="divider">
+      <div class="action-row">
+        <div class="action-num">£</div>
+        <div class="action-text">All have ad slot divs + premium logic already built by Ralph</div>
+        <div class="action-tag">READY</div>
+      </div>
+      <div class="action-row">
+        <div class="action-num">!</div>
+        <div class="action-text">Need: AdSense publisher ID + Stripe live key to monetise</div>
+        <div class="action-tag">GATE</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: UPTREND -->
+  <div class="slide" id="s4">
+    <div class="slide-num">05 / 10</div>
+    <div class="slide-tag tag-amber">Uptrend SaaS</div>
+    <h2>81 leads.<br>Engine ready.</h2>
+    <p class="sub">Cold email B2B — UK web agencies. One API key fires the whole pipeline.</p>
+    <hr class="divider">
+    <div class="list">
+      <div class="list-item"><span class="icon green">✓</span><span>31 leads in leads-v1.csv (emails + contact forms)</span></div>
+      <div class="list-item"><span class="icon green">✓</span><span>outreach_engine.py built + dry-run tested</span></div>
+      <div class="list-item"><span class="icon green">✓</span><span>3-email sequence written (Day 0 / Day 4 / Day 9)</span></div>
+      <div class="list-item"><span class="icon green">✓</span><span>Landing page at josho.pro/uptrend</span></div>
+      <div class="list-item"><span class="icon green">✓</span><span>Client dashboard HTML built (mock data)</span></div>
+      <div class="list-item"><span class="icon" style="color:var(--amber)">→</span><span>+50 new leads researched today (Atlas UR05)</span></div>
+      <div class="list-item"><span class="icon" style="color:var(--red)">!</span><span><strong>Gate: Brevo API key</strong> (free, brevo.com)</span></div>
+    </div>
+    <div class="card" style="margin-top:14px;border-color:rgba(251,191,36,0.3)">
+      <div style="font-size:11px;color:var(--muted)">Pricing model</div>
+      <div style="font-size:13px;margin-top:6px;">£29 Starter · £79 Growth · £199 Agency/mo</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;">Target: 1 Starter in week 1 = first cash</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: CUSTOMERCH -->
+  <div class="slide" id="s5">
+    <div class="slide-num">06 / 10</div>
+    <div class="slide-tag tag-violet">Customerch</div>
+    <h2>One fix away<br>from live.</h2>
+    <p class="sub">Full app built. Stripe in test mode. Vercel can't clone the repo.</p>
+    <hr class="divider">
+    <div class="list">
+      <div class="list-item"><span class="icon green">✓</span><span>Full Next.js app built + dark studio aesthetic</span></div>
+      <div class="list-item"><span class="icon green">✓</span><span>Stripe integration (test mode)</span></div>
+      <div class="list-item"><span class="icon green">✓</span><span>Clerk auth, Supabase DB, 3-step flow</span></div>
+      <div class="list-item"><span class="icon" style="color:var(--red)">✗</span><span>Vercel "Cloning failed" — GitHub app permissions</span></div>
+    </div>
+    <div class="card" style="margin-top:14px;border-color:rgba(248,113,113,0.3)">
+      <div style="font-size:11px;color:var(--muted)">Fix (2 mins)</div>
+      <div style="font-size:12px;margin-top:6px;line-height:1.5;">vercel.com/account/integrations<br>→ GitHub → grant access to <strong>made-platform</strong></div>
+    </div>
+    <div class="card" style="margin-top:8px;">
+      <div style="font-size:11px;color:var(--muted)">After deploy</div>
+      <div style="font-size:12px;margin-top:6px;">Replace Stripe test key → live key → taking money</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: APEX -->
+  <div class="slide" id="s6">
+    <div class="slide-num">07 / 10</div>
+    <div class="slide-tag tag-red">APEX App</div>
+    <h2>AI Looksmaxxing.<br>Biggest upside.</h2>
+    <p class="sub">£9.99/mo iOS app. 200 beta users → App Store → £2k/mo at 200 subs.</p>
+    <hr class="divider">
+    <div class="list">
+      <div class="list-item"><span class="icon green">✓</span><span>Screen 1 built (OnboardingScreen.tsx, 451 lines)</span></div>
+      <div class="list-item"><span class="icon green">✓</span><span>Architecture spec (7 screens) complete</span></div>
+      <div class="list-item"><span class="icon green">✓</span><span>50 TikTok scripts written (pre-launch content)</span></div>
+      <div class="list-item"><span class="icon green">✓</span><span>App Store listing copy — 3 A/B variants</span></div>
+      <div class="list-item"><span class="icon green">✓</span><span>Influencer outreach DMs (5 variants)</span></div>
+      <div class="list-item"><span class="icon" style="color:var(--amber)">→</span><span>Screens 2-7 queued (Mochi, one per night)</span></div>
+    </div>
+    <div class="card" style="margin-top:14px;">
+      <div style="font-size:11px;color:var(--muted)">Gates</div>
+      <div style="font-size:12px;margin-top:6px;line-height:1.6;">Apple Dev Program: $99/yr<br>RevenueCat: free to start<br>TestFlight: 200 beta users needed</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: CONTENT -->
+  <div class="slide" id="s7">
+    <div class="slide-num">08 / 10</div>
+    <div class="slide-tag tag-green">Content / Click</div>
+    <h2>Build in public.<br>Passive income.</h2>
+    <p class="sub">YouTube + newsletter + digital products. Slowest to ramp, zero ongoing cost.</p>
+    <hr class="divider">
+    <div class="list">
+      <div class="list-item"><span class="icon green">✓</span><span>"I Built an AI Team" YouTube script (v3, real metrics)</span></div>
+      <div class="list-item"><span class="icon green">✓</span><span>10 Twitter/X threads ready to post</span></div>
+      <div class="list-item"><span class="icon green">✓</span><span>Rox Agent Starter Kit spec (£19 Gumroad)</span></div>
+      <div class="list-item"><span class="icon green">✓</span><span>30-day newsletter launch plan</span></div>
+    </div>
+    <hr class="divider">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-family:var(--mono);text-transform:uppercase;letter-spacing:0.08em;">Best affiliates to sign up now</div>
+    <table class="tbl">
+      <tbody>
+        <tr><td>Hetzner</td><td class="mono green">20% recurring</td></tr>
+        <tr><td>Brevo</td><td class="mono green">€5+ per referral</td></tr>
+        <tr><td>Beehiiv</td><td class="mono">$50 per signup</td></tr>
+        <tr><td>RevenueCat</td><td class="mono">Partner program</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SLIDE 9: WHAT YOU NEED TO DO -->
+  <div class="slide" id="s8">
+    <div class="slide-num">09 / 10</div>
+    <div class="slide-tag tag-amber">Action Required</div>
+    <h2>4 things.<br>That's it.</h2>
+    <p class="sub">I handle everything else. These are yours to unlock.</p>
+    <div class="scroll" style="margin-top:16px;">
+      <div class="action-row">
+        <div class="action-num">1</div>
+        <div class="action-text"><strong>Brevo API key</strong><br><span style="font-size:11px;color:var(--muted)">brevo.com → free account → API key → paste to me</span></div>
+        <div class="action-tag" style="color:var(--amber)">FAST</div>
+      </div>
+      <div class="action-row">
+        <div class="action-num">2</div>
+        <div class="action-text"><strong>Stripe live keys</strong><br><span style="font-size:11px;color:var(--muted)">dashboard.stripe.com → Developers → API keys → sk_live + pk_live</span></div>
+        <div class="action-tag" style="color:var(--amber)">FAST</div>
+      </div>
+      <div class="action-row">
+        <div class="action-num">3</div>
+        <div class="action-text"><strong>Vercel fix</strong><br><span style="font-size:11px;color:var(--muted)">vercel.com/account/integrations → GitHub → grant made-platform</span></div>
+        <div class="action-tag" style="color:var(--amber)">FAST</div>
+      </div>
+      <div class="action-row">
+        <div class="action-num">4</div>
+        <div class="action-text"><strong>AdSense application</strong><br><span style="font-size:11px;color:var(--muted)">adsense.google.com → apply → needs josho.pro privacy policy + cookie notice</span></div>
+        <div class="action-tag" style="color:var(--muted)">2 WEEKS</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: TODAY'S OUTPUT -->
+  <div class="slide" id="s9">
+    <div class="slide-num">10 / 10</div>
+    <div class="slide-tag tag-violet">Today — 2026-03-06</div>
+    <h2>What we<br>shipped.</h2>
+    <div class="scroll" style="margin-top:14px;">
+      <div class="list">
+        <div class="list-item"><span class="icon green">✓</span><span>9 games live at josho.pro (deployed 12:40 UTC)</span></div>
+        <div class="list-item"><span class="icon green">✓</span><span>Ralph W2 Games workstream wired (7 stages, nightly)</span></div>
+        <div class="list-item"><span class="icon green">✓</span><span>66-task flight plan running (research + build all 5 streams)</span></div>
+        <div class="list-item"><span class="icon green">✓</span><span>Revenue dashboard page in dashboard</span></div>
+        <div class="list-item"><span class="icon green">✓</span><span>MONEY-MAP.md — one-doc overview of all streams</span></div>
+        <div class="list-item"><span class="icon green">✓</span><span>30 research reports generated today</span></div>
+        <div class="list-item"><span class="icon green">✓</span><span>Anna/Rolph backlog fully classified (AN05-AN08)</span></div>
+        <div class="list-item"><span class="icon green">✓</span><span>176 total tasks queued or executed across 3 flights</span></div>
+        <div class="list-item"><span class="icon" style="color:var(--amber)">→</span><span>Flight 3 running (66 tasks, every 2min)</span></div>
+        <div class="list-item"><span class="icon" style="color:var(--amber)">→</span><span>Ralph fires tonight: games deploy + ad wiring</span></div>
+      </div>
+      <div class="card" style="margin-top:16px;border-color:rgba(124,58,237,0.3);background:var(--violet-glow)">
+        <div style="font-size:12px;line-height:1.6;">Give me Brevo + Stripe live keys tonight.<br>First email sends. First payment accepted. 🦞</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <button class="nav-btn" id="prev" onclick="go(-1)" disabled>←</button>
+  <div class="nav-dots" id="dots"></div>
+  <button class="nav-btn" id="next" onclick="go(1)">→</button>
+</div>
+
+<script>
+const total = 10;
+let cur = 0;
+const slides = Array.from(document.querySelectorAll('.slide'));
+const dotsEl = document.getElementById('dots');
+const prevBtn = document.getElementById('prev');
+const nextBtn = document.getElementById('next');
+
+// Build dots
+for (let i = 0; i < total; i++) {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '');
+  d.onclick = () => go(i - cur);
+  dotsEl.appendChild(d);
+}
+
+function go(delta) {
+  const next = cur + delta;
+  if (next < 0 || next >= total) return;
+  slides[cur].classList.remove('active');
+  slides[cur].classList.add('exit');
+  setTimeout(() => slides[cur > next ? cur : cur].classList.remove('exit'), 400);
+  cur = next;
+  slides[cur].classList.add('active');
+  // Update dots
+  document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === cur));
+  prevBtn.disabled = cur === 0;
+  nextBtn.disabled = cur === total - 1;
+  // Clean up exit class
+  slides.forEach((s, i) => { if (i !== cur) { setTimeout(() => s.classList.remove('exit'), 400); }});
+}
+
+// Swipe
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive:true});
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
+}, {passive:true});
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') go(1);
+  if (e.key === 'ArrowLeft') go(-1);
+});
+</script>
+</body>
+</html>

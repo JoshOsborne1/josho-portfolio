@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+    <link rel="manifest" href="/wave-manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Wavelength">
+    <meta name="theme-color" content="#7c3aed">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Wavelength</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;900&display=swap');
+
+:root {
+    --bg-dark: #09090b;
+    --bg-panel: #18181b;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent-violet: #7c3aed;
+    --accent-amber: #f59e0b;
+    --accent-slate: #64748b;
+    --wire: rgba(255, 255, 255, 0.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+    background-color: var(--bg-dark);
+    background-image: radial-gradient(circle at top, rgba(124, 58, 237, 0.15) 0%, var(--bg-dark) 80%);
+    color: var(--text-main);
+    font-family: 'Outfit', system-ui, sans-serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.app-container {
+    max-width: 500px;
+    margin: 0 auto;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 20px;
+    position: relative;
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-panel);
+    border: 1px solid var(--wire);
+    border-radius: 20px;
+    padding: 8px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.team {
+    flex: 1;
+    text-align: center;
+    padding: 12px 8px;
+    border-radius: 14px;
+    transition: all 0.3s;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+.team.active {
+    background: rgba(124, 58, 237, 0.1);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    box-shadow: inset 0 0 20px rgba(124, 58, 237, 0.05);
+}
+.team-name {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+.team.active .team-name { color: var(--accent-violet); }
+.team-score {
+    font-size: 2rem;
+    font-weight: 900;
+    line-height: 1;
+}
+.divider { width: 1px; height: 40px; background: var(--wire); margin: 0 8px; }
+
+/* Message Banner */
+.message-banner {
+    text-align: center;
+    margin-top: 32px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    min-height: 48px;
+    line-height: 1.4;
+}
+.message-banner .highlight { color: var(--text-main); font-weight: 700; }
+
+/* Dial */
+.dial-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    margin: 20px 0;
+}
+#dial {
+    width: 100%;
+    overflow: visible;
+    touch-action: none;
+    filter: drop-shadow(0 12px 24px rgba(0,0,0,0.4));
+}
+#target-group {
+    transition: opacity 0.4s ease;
+}
+
+/* Words */
+.word-pair {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+    padding: 0;
+    gap: 12px;
+}
+.word {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    background: var(--bg-panel);
+    border: 1px solid var(--wire);
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    flex: 1;
+    text-align: center;
+    line-height: 1.2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Bottom Actions */
+.bottom-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: auto;
+    padding-bottom: 12px;
+}
+.result-display {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 900;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0;
+}
+.result-display.bullseye { color: var(--accent-violet); text-shadow: 0 0 15px rgba(124, 58, 237, 0.5); }
+.result-display.close { color: var(--accent-amber); text-shadow: 0 0 15px rgba(245, 158, 11, 0.5); }
+.result-display.near { color: var(--accent-slate); text-shadow: 0 0 15px rgba(100, 116, 139, 0.5); }
+.result-display.miss { color: var(--text-muted); }
+
+.psychic-actions {
+    display: none;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: -4px;
+}
+
+.btn-action {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--wire);
+    border-radius: 12px;
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.btn-action:active {
+    background: rgba(255,255,255,0.1);
+    transform: scale(0.96);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent-violet), #9333ea);
+    border: none;
+    border-radius: 16px;
+    color: white;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.25);
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: pointer;
+    letter-spacing: 0.05em;
+}
+.btn-primary:active {
+    transform: scale(0.96);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
+}
+.btn-primary.alt {
+    background: var(--bg-panel);
+    border: 1px solid var(--wire);
+    box-shadow: none;
+    color: var(--text-main);
+}
+.btn-secondary {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    padding: 12px;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="header">
+        <div class="team" id="team-0" onclick="editTeamName(0)">
+            <div class="team-name" id="tname-0">TEAM 1</div>
+            <div class="team-score" id="tscore-0">0</div>
+        </div>
+        <div class="divider"></div>
+        <div class="team" id="team-1" onclick="editTeamName(1)">
+            <div class="team-name" id="tname-1">TEAM 2</div>
+            <div class="team-score" id="tscore-1">0</div>
+        </div>
+    </div>
+
+    <div class="message-banner" id="message-banner"></div>
+
+    <div class="dial-wrapper">
+        <svg id="dial" viewBox="0 0 400 220">
+            <defs>
+               <filter id="glow-violet" x="-50%" y="-50%" width="200%" height="200%">
+                   <feGaussianBlur stdDeviation="4" result="blur" />
+                   <feComposite in="SourceGraphic" in2="blur" operator="over" />
+               </filter>
+               <filter id="glow-white" x="-50%" y="-50%" width="200%" height="200%">
+                   <feGaussianBlur stdDeviation="2" result="blur" />
+                   <feComposite in="SourceGraphic" in2="blur" operator="over" />
+               </filter>
+               <filter id="shadow">
+                   <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="black" flood-opacity="0.7"/>
+               </filter>
+               <radialGradient id="dial-bg" cx="50%" cy="100%" r="100%">
+                   <stop offset="0%" stop-color="#1e293b" />
+                   <stop offset="100%" stop-color="#09090b" />
+               </radialGradient>
+            </defs>
+            
+            <!-- Base track background fan -->
+            <path d="M 20 200 A 180 180 0 0 1 380 200 L 200 200 Z" fill="url(#dial-bg)" stroke="#1e293b" stroke-width="2"/>
+            <line x1="15" y1="200" x2="385" y2="200" stroke="#1e293b" stroke-width="4" stroke-linecap="round"/>
+
+            <!-- Procedurally generated tick marks -->
+            <g id="dial-ticks"></g>
+            
+            <!-- Target arcs -->
+            <g id="target-group" fill="none" stroke-linecap="butt">
+                <path id="arc-near" stroke="var(--accent-slate)" stroke-width="48" opacity="0.8" />
+                <path id="arc-close" stroke="var(--accent-amber)" stroke-width="48" opacity="0.9" />
+                <path id="arc-bullseye" stroke="var(--accent-violet)" stroke-width="48" filter="url(#glow-violet)" />
+            </g>
+
+            <!-- Needle -->
+            <g id="needle" transform="rotate(90, 200, 200)" style="transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);" filter="url(#shadow)">
+                <path d="M 200 196 L 25 198 L 25 202 L 200 204 Z" fill="#f8fafc" />
+                <!-- Highlight line -->
+                <line x1="190" y1="200" x2="30" y2="200" stroke="#94a3b8" stroke-width="1" />
+                <!-- Center hub -->
+                <circle cx="200" cy="200" r="22" fill="#18181b" stroke="#3f3f46" stroke-width="4"/>
+                <circle cx="200" cy="200" r="12" fill="#09090b" />
+                <circle cx="200" cy="200" r="4" fill="var(--accent-violet)" filter="url(#glow-violet)"/>
+            </g>
+        </svg>
+
+        <div class="word-pair">
+            <div class="word left" id="word-left"></div>
+            <div class="word right" id="word-right"></div>
+        </div>
+    </div>
+
+    <div class="bottom-actions">
+        <div class="result-display" id="result-display">
+            <span id="result-text"></span>
+        </div>
+
+        <div class="psychic-actions" id="psychic-actions">
+            <button class="btn-action" onclick="handleSkip()">SKIP PAIR</button>
+            <button class="btn-action" onclick="handleRerun()">RERUN DIAL</button>
+        </div>
+
+        <button class="btn-primary" id="main-btn" onclick="handleMainAction()">REVEAL TARGET</button>
+        <button class="btn-secondary" onclick="resetGame()">NEW GAME</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+// Base words + 50+ new pairs
+const WORD_PAIRS = [
+    ["Bad Company","Good Company"],["Terrible Movie","Great Movie"],["Cold","Hot"],["Ugly","Beautiful"],["Worst Day Ever","Best Day Ever"],["Boring Hobby","Exciting Hobby"],["Useless Superpower","Awesome Superpower"],["Lame Party Trick","Cool Party Trick"],["Terrible First Date Spot","Perfect First Date Spot"],["Worst Pizza Topping","Best Pizza Topping"],["Annoying Sound","Satisfying Sound"],["Uncomfortable Clothing","Comfy Clothing"],["Worst Smell","Best Smell"],["Terrible Gift","Thoughtful Gift"],["Forgettable Song","Catchy Song"],["Terrible Pickup Line","Smooth Pickup Line"],["Annoying Habit","Endearing Quirk"],["Feels Bad","Feels Good"],["Hard","Soft"],["Villain","Hero"],["Common","Rare"],["Bad Influence","Role Model"],["Pointy Animal","Round Animal"],["Useless","Useful"],["Quiet Place","Loud Place"],["Worst Chore","Most Satisfying Chore"],["Worst Board Game","Addictive Board Game"],["Terrible Vacation Spot","Dream Vacation Destination"],["Terrible Roommate Habit","Ideal Roommate Quality"],["Terrible Wifi Name","Clever Wifi Name"],["Guilty Pleasure","Proudly Good"],["Totally Normal","Deeply Weird"],["Overrated","Underrated"],["Better Hot","Better Cold"],["Worse Than It Looks","Better Than It Looks"],["Aesthetic","Functional"],["Fad","Classic"],["Red Flag","Green Flag"],["Trash","Art"],["Lowbrow","Highbrow"],["Bad Advice","Good Advice"],["Requires Luck","Requires Skill"],["Trashy","Classy"],["Worse Than Expected","Better Than Expected"],["Useless Degree","Useful Degree"],["Overpriced","Steal of a Deal"],["Mildly Annoying","Extremely Annoying"],["Looks Easy","Actually Hard"],["Sounds Boring","Actually Fun"],["Sounds Fun","Actually Boring"],["Hard to Explain","Easy to Explain"],["Hard to Forgive","Easy to Forgive"],["Hard to Forget","Easy to Forget"],["Hard to Resist","Easy to Resist"],["Easy to Fake","Hard to Fake"],["Worst Investment","Best Investment"],["Bad on a Resume","Good on a Resume"],["Useless in an Apocalypse","Essential in an Apocalypse"],["Too Much","Just Right"],["Cringe","Cool"],["Basic","Bold"],["Safe Choice","Risky Choice"],["Worst Thing to Say on a Date","Best Thing to Say on a Date"],["Terrible Boss Quality","Great Boss Quality"],["Worst Excuse","Most Believable Excuse"],["Terrible Life Advice","Actually Great Life Advice"],["Worst Way to Start a Conversation","Best Icebreaker"],["Terrible Superhero Name","Intimidating Villain Name"],["Worst Thing to Bring to a Picnic","Perfect Picnic Item"],["Terrible Karaoke Song","Crowd Pleaser Karaoke Song"],["Most Awkward Silence","Comfortable Silence"],["Worst Alarm Sound","Best Way to Wake Up"],["Terrible Motivational Poster","Actually Motivating"],["Worst Movie Sequel","Great Movie Sequel"],["Terrible Snack for a Movie","Perfect Movie Snack"],["Worst Password","Unguessable Password"],["Terrible Driving Habit","Ideal Driver Behaviour"],["Worst Thing to Dream About","Best Dream"],["Terrible Job Interview Answer","Perfect Job Interview Answer"],["Worst Couple Costume","Best Couple Costume"],["Terrible Pet Name","Great Pet Name"],["Worst Way to Break Up","Respectful Breakup"],["Terrible Baby Name","Timeless Baby Name"],["Worst Tattoo","Meaningful Tattoo"],["Terrible First Message on a Dating App","Perfect Opening Line"],["Worst Thing to Find in a Hotel Room","Perfect Hotel Room Perk"],["Terrible Road Trip Snack","Best Road Trip Snack"],["Worst Theme for a Party","Best Party Theme"],["Terrible Supervillain Weakness","Perfect Supervillain Weakness"],["Worst Text Response","Best Text Response"],["Terrible Dance Move","Iconic Dance Move"],["Worst Show to Binge Alone","Best Show to Binge Alone"],["Terrible Advice for New Parents","Actually Helpful Parenting Tip"],["Worst Holiday Tradition","Beloved Holiday Tradition"],["Terrible Way to Propose","Perfect Proposal"],["Worst Cooking Technique","Game Changing Cooking Tip"],["Terrible App Idea","App You Would Actually Use"],["Worst Thing to Google at Work","Most Productive Work Search"],["Terrible Username","Great Username"],["Worst Trend of the Last Decade","Trend Worth Keeping"],["Terrible Way to Handle a Disagreement","Healthy Way to Handle a Disagreement"],["Worst Font","Best Font"],["Terrible Playlist Name","Perfect Playlist Name"],["Worst Thing to Say to Your Boss","Best Thing to Say to Your Boss"],["Worst Sport to Watch","Most Exciting Sport to Watch"],["Terrible Loyalty Reward","Amazing Loyalty Reward"],["Worst Fashion Trend","Iconic Fashion Moment"],["Terrible Concert Behaviour","Great Concert Energy"],["Worst Thing to Overshare","Fine to Overshare"],["Terrible Opening Line for a Novel","Gripping Opening Line"],["Worst Reason to Call in Sick","Completely Valid Reason to Call in Sick"],["Terrible Side Hustle","Genius Side Hustle"],["Worst Thing to Put on a Wedding Cake","Perfect Wedding Cake Topper"],["Terrible Way to Network","Natural Way to Network"],["Worst Career Change","Bold Career Change"],["Terrible Icebreaker Game","Actually Fun Icebreaker"],["Worst Thing to Say at a Funeral","Comforting Thing to Say at a Funeral"],["Terrible Tour Guide","Captivating Tour Guide"],["Worst Bedtime Habit","Perfect Sleep Routine"],["Terrible Response to \"I Love You\"","Perfect Response to \"I Love You\""],["Worst Morning Routine","Ideal Morning Routine"],["Terrible Thing to Bring to a Job Interview","Perfect Thing to Bring to a Job Interview"],["Worst Gym Habit","Good Gym Etiquette"],["Terrible Conversation Starter at a Party","Perfect Party Icebreaker"],["Worst Way to End an Email","Great Email Sign Off"],["Worst Selfie Background","Perfect Selfie Background"],["Terrible Band Name","Iconic Band Name"],["Worst Social Media Bio","Compelling Social Media Bio"],["Terrible Hobby to Pick Up in a Breakup","Healthy Breakup Hobby"],["Worst Thing to Say After Winning","Gracious Winner Response"],["Worst Thing to Say After Losing","Gracious Loser Response"],["Terrible Halloween Costume","Iconic Halloween Costume"],["Worst Habit to Have on a Plane","Best Plane Passenger Behaviour"],["Terrible Dinner Party Topic","Great Dinner Party Conversation"],["Worst Advice to Give Someone Heartbroken","Best Advice for a Broken Heart"],["Terrible Dog Name","Perfect Dog Name"],["Worst Way to Ask for a Raise","Best Way to Ask for a Raise"],["Terrible Secret to Keep","Secret Worth Keeping"],["Worst Celebrity Cameo","Perfect Celebrity Cameo"],["Worst Tagline for a Product","Memorable Product Tagline"],["Terrible Thing to Put in a Time Capsule","Perfect Time Capsule Item"],["Worst Way to Make Friends","Natural Way to Make Friends"],["Terrible Bucket List Item","Ultimate Bucket List Item"],["Worst Compliment","Genuine Compliment"],
+    ["Worst Way to Wake Someone Up","Gentlest Way to Wake Someone Up"],
+    ["Terrible Thing to Confess on a First Date","Fine to Mention on a First Date"],
+    ["Worst Superpower Side Effect","Best Superpower Perk"],
+    ["Terrible Thing to Bring to a Potluck","Crowd Favourite Potluck Dish"],
+    ["Worst Reason to Ghost Someone","Valid Reason to Ghost Someone"],
+    ["Terrible Nickname","Perfect Nickname"],
+    ["Worst Way to Spend a Sunday","Ideal Sunday"],
+    ["Terrible Apology","Genuine Apology"]
+];
+
+let state = {
+    teams: [{name: "TEAM 1", score: 0}, {name: "TEAM 2", score: 0}],
+    currentTeamIndex: 0,
+    phase: 'START',
+    targetAngle: 90,
+    needleAngle: 90,
+    currentPair: ["", ""]
+};
+
+const dial = document.getElementById('dial');
+const needle = document.getElementById('needle');
+let isDragging = false;
+
+window.onload = () => {
+    generateTicks();
+    try {
+        const saved = localStorage.getItem('wavelength_teams');
+        if (saved) state.teams = JSON.parse(saved);
+    } catch(e) {}
+    initRound();
+};
+
+function generateTicks() {
+    const ticksG = document.getElementById('dial-ticks');
+    let ticksHtml = '';
+    // Wavelength uses 4.5 degree intervals (bullseye=4.5, close=13.5, near=22.5)
+    for(let i=0; i<=180; i+=4.5) {
+        let isMajor = (i % 22.5 === 0);
+        let r1 = 160;
+        let r2 = isMajor ? 172 : 165;
+        let stroke = isMajor ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.15)';
+        let sw = isMajor ? 2 : 1;
+        
+        let rad = (180 - i) * Math.PI / 180;
+        let x1 = 200 + r1 * Math.cos(rad);
+        let y1 = 200 - r1 * Math.sin(rad);
+        let x2 = 200 + r2 * Math.cos(rad);
+        let y2 = 200 - r2 * Math.sin(rad);
+        ticksHtml += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke}" stroke-width="${sw}" stroke-linecap="round"/>`;
+    }
+    ticksG.innerHTML = ticksHtml;
+}
+
+function resetGame() {
+    state.teams[0].score = 0;
+    state.teams[1].score = 0;
+    state.currentTeamIndex = 0;
+    state.phase = 'START';
+    localStorage.setItem('wavelength_teams', JSON.stringify(state.teams));
+    initRound();
+}
+
+function editTeamName(index) {
+    const newName = prompt("Enter team name (max 15 chars):", state.teams[index].name);
+    if (newName && newName.trim().length > 0) {
+        state.teams[index].name = newName.trim().substring(0, 15).toUpperCase();
+        localStorage.setItem('wavelength_teams', JSON.stringify(state.teams));
+        updateUI();
+    }
+}
+
+function initRound() {
+    randomizeTarget();
+    randomizePair();
+    state.needleAngle = 90;
+    renderTarget();
+    updateUI();
+}
+
+function randomizeTarget() {
+    state.targetAngle = Math.random() * (155 - 25) + 25;
+}
+
+function randomizePair() {
+    const pairIndex = Math.floor(Math.random() * WORD_PAIRS.length);
+    state.currentPair = WORD_PAIRS[pairIndex];
+}
+
+function handleSkip() {
+    if (state.phase !== 'PSYCHIC') return;
+    randomizePair();
+    randomizeTarget();
+    renderTarget();
+    updateUI();
+}
+
+function handleRerun() {
+    if (state.phase !== 'PSYCHIC') return;
+    randomizeTarget();
+    renderTarget();
+    updateUI();
+}
+
+function handleMainAction() {
+    if (state.phase === 'START') {
+        state.phase = 'PSYCHIC';
+    } else if (state.phase === 'PSYCHIC') {
+        state.phase = 'GUESS';
+    } else if (state.phase === 'GUESS') {
+        state.phase = 'REVEAL';
+        scoreRound();
+    } else if (state.phase === 'REVEAL') {
+        state.currentTeamIndex = (state.currentTeamIndex + 1) % 2;
+        state.phase = 'START';
+        initRound();
+    }
+    updateUI();
+}
+
+function scoreRound() {
+    const diff = Math.abs(state.targetAngle - state.needleAngle);
+    let pts = 0;
+    if (diff <= 4.5) pts = 5;
+    else if (diff <= 13.5) pts = 3;
+    else if (diff <= 22.5) pts = 1;
+    
+    state.teams[state.currentTeamIndex].score += pts;
+    localStorage.setItem('wavelength_teams', JSON.stringify(state.teams));
+    
+    if (pts === 5) {
+        confetti({ particleCount: 150, spread: 80, origin: { y: 0.7 }, colors: ['#7c3aed', '#f59e0b', '#ffffff'] });
+    } else if (pts === 3) {
+        confetti({ particleCount: 50, spread: 50, origin: { y: 0.7 }, colors: ['#f59e0b', '#ffffff'] });
+    }
+    
+    const rd = document.getElementById('result-display');
+    rd.className = 'result-display'; 
+    let displayStr = "";
+    
+    if (pts === 5) { displayStr = "BULLSEYE! +5"; rd.classList.add('bullseye'); }
+    else if (pts === 3) { displayStr = "CLOSE! +3"; rd.classList.add('close'); }
+    else if (pts === 1) { displayStr = "NEAR! +1"; rd.classList.add('near'); }
+    else { displayStr = "MISS! +0"; rd.classList.add('miss'); }
+    
+    document.getElementById('result-text').innerText = displayStr;
+}
+
+function describeArcStroke(cx, cy, r, startAngle, endAngle) {
+    function getPt(angle) {
+        let rad = (180 - angle) * Math.PI / 180;
+        return { x: cx + r * Math.cos(rad), y: cy - r * Math.sin(rad) };
+    }
+    const start = getPt(startAngle);
+    const end = getPt(endAngle);
+    return ["M", start.x, start.y, "A", r, r, 0, 0, 1, end.x, end.y].join(" ");
+}
+
+function renderTarget() {
+    const t = state.targetAngle;
+    // Radius 130, stroke-width 48 leaves nice gap to ticks at 160
+    document.getElementById('arc-near').setAttribute('d', describeArcStroke(200, 200, 130, t - 22.5, t + 22.5));
+    document.getElementById('arc-close').setAttribute('d', describeArcStroke(200, 200, 130, t - 13.5, t + 13.5));
+    document.getElementById('arc-bullseye').setAttribute('d', describeArcStroke(200, 200, 130, t - 4.5, t + 4.5));
+}
+
+function updateUI() {
+    document.getElementById('tname-0').innerText = state.teams[0].name;
+    document.getElementById('tscore-0').innerText = state.teams[0].score;
+    document.getElementById('tname-1').innerText = state.teams[1].name;
+    document.getElementById('tscore-1').innerText = state.teams[1].score;
+    
+    document.getElementById('team-0').className = `team ${state.currentTeamIndex === 0 ? 'active' : ''}`;
+    document.getElementById('team-1').className = `team ${state.currentTeamIndex === 1 ? 'active' : ''}`;
+
+    document.getElementById('word-left').innerText = state.currentPair[0];
+    document.getElementById('word-right').innerText = state.currentPair[1];
+
+    const tg = document.getElementById('target-group');
+    const msg = document.getElementById('message-banner');
+    const btn = document.getElementById('main-btn');
+    const res = document.getElementById('result-display');
+    const psychicActions = document.getElementById('psychic-actions');
+    const tName = state.teams[state.currentTeamIndex].name;
+
+    needle.setAttribute('transform', `rotate(${state.needleAngle}, 200, 200)`);
+
+    if (state.phase === 'START') {
+        tg.style.opacity = '0';
+        res.style.opacity = '0';
+        psychicActions.style.display = 'none';
+        msg.innerHTML = `<span class="highlight">${tName} Psychic</span>: Take the device.`;
+        btn.innerText = "TAP TO REVEAL TARGET";
+        btn.className = "btn-primary";
+        needle.style.transition = "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)";
+    } else if (state.phase === 'PSYCHIC') {
+        tg.style.opacity = '1';
+        res.style.opacity = '0';
+        psychicActions.style.display = 'flex';
+        msg.innerHTML = `Give your clue, then hide the target.`;
+        btn.innerText = "HIDE FOR GUESSERS";
+        btn.className = "btn-primary alt";
+    } else if (state.phase === 'GUESS') {
+        tg.style.opacity = '0';
+        res.style.opacity = '0';
+        psychicActions.style.display = 'none';
+        msg.innerHTML = `<span class="highlight">${tName} Team</span>: Discuss and drag the needle.`;
+        btn.innerText = "LOCK IN GUESS";
+        btn.className = "btn-primary";
+        needle.style.transition = "none";
+    } else if (state.phase === 'REVEAL') {
+        tg.style.opacity = '1';
+        res.style.opacity = '1';
+        psychicActions.style.display = 'none';
+        msg.innerHTML = `Target Revealed!`;
+        btn.innerText = "NEXT ROUND";
+        btn.className = "btn-primary";
+        needle.style.transition = "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)";
+    }
+}
+
+function updateNeedleAngle(e) {
+    const pt = dial.createSVGPoint();
+    pt.x = e.touches ? e.touches[0].clientX : e.clientX;
+    pt.y = e.touches ? e.touches[0].clientY : e.clientY;
+    const svgP = pt.matrixTransform(dial.getScreenCTM().inverse());
+    
+    const dx = svgP.x - 200;
+    const dy = svgP.y - 200;
+    
+    if (dy > 0) {
+        state.needleAngle = dx > 0 ? 180 : 0;
+    } else {
+        let angle = Math.atan2(dy, dx) * 180 / Math.PI; 
+        state.needleAngle = angle + 180;
+    }
+    needle.setAttribute('transform', `rotate(${state.needleAngle}, 200, 200)`);
+}
+
+function onDown(e) {
+    if (state.phase !== 'GUESS') return;
+    isDragging = true;
+    needle.style.transition = "none";
+    updateNeedleAngle(e);
+}
+
+function onMove(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+    updateNeedleAngle(e);
+}
+
+function onUp(e) {
+    if (isDragging) {
+        isDragging = false;
+        needle.style.transition = "transform 0.2s ease-out";
+    }
+}
+
+dial.addEventListener('mousedown', onDown);
+dial.addEventListener('touchstart', onDown, {passive: false});
+window.addEventListener('mousemove', onMove, {passive: false});
+window.addEventListener('touchmove', onMove, {passive: false});
+window.addEventListener('mouseup', onUp);
+window.addEventListener('touchend', onUp);
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/wave-sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>

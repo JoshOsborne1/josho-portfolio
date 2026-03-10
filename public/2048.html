@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta property="og:title" content="2048 — josho.pro">
+  <meta property="og:description" content="Slide and merge tiles to reach 2048.">
+  <meta property="og:image" content="/og/2048.png">
+  <meta property="og:url" content="https://josho.pro/2048.html">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="2048 — josho.pro">
+  <meta name="twitter:description" content="Slide and merge tiles to reach 2048.">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2048 - Daily Puzzle</title>
+<style>
+:root {
+  --bg: #faf8ef;
+  --grid-bg: #bbada0;
+  --cell-empty: #cdc1b4;
+  --cell-2: #eee4da;
+  --cell-4: #ede0c8;
+  --cell-8: #f2b179;
+  --cell-16: #f59563;
+  --cell-32: #f67c5f;
+  --cell-64: #f65e3b;
+  --cell-128: #edcf72;
+  --cell-256: #edcc61;
+  --cell-512: #edc850;
+  --cell-1024: #edc53f;
+  --cell-2048: #edc22e;
+  --text-dark: #776e65;
+  --text-light: #f9f6f2;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text-dark);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.hidden { display: none !important; }
+
+/* Header */
+header {
+  width: 100%;
+  max-width: 500px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.logo { font-size: 48px; font-weight: 700; color: var(--text-dark); }
+.header-stats { display: flex; gap: 10px; }
+.stat-box {
+  background: var(--grid-bg);
+  padding: 5px 15px;
+  border-radius: 3px;
+  text-align: center;
+  color: var(--text-light);
+}
+.stat-label { font-size: 11px; text-transform: uppercase; }
+.stat-value { font-size: 20px; font-weight: 700; }
+.streak-badge {
+  background: linear-gradient(135deg, #ff6b35, #f7931e);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Ad placeholders */
+.ad-banner {
+  width: 100%;
+  max-width: 728px;
+  height: 90px;
+  background: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px auto;
+  border-radius: 4px;
+  color: #999;
+  font-size: 14px;
+}
+.ad-banner.mobile { max-width: 320px; height: 50px; }
+@media (max-width: 768px) {
+  .ad-banner.desktop { display: none; }
+  .ad-banner.mobile { display: flex; }
+}
+@media (min-width: 769px) {
+  .ad-banner.mobile { display: none; }
+}
+
+/* Premium CTA */
+.premium-cta {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+.premium-cta:hover { opacity: 0.9; }
+
+/* Game container */
+.game-container {
+  background: var(--grid-bg);
+  padding: 15px;
+  border-radius: 6px;
+  margin: 20px;
+  position: relative;
+}
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+.new-game-btn {
+  background: #8f7a66;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 3px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.new-game-btn:hover { background: #7f6a56; }
+
+.game-over-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(238, 228, 218, 0.73);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+.game-over-text { font-size: 60px; font-weight: 700; color: var(--text-dark); }
+.play-again-btn {
+  background: #8f7a66;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  font-size: 18px;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+/* Grid */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  width: 400px;
+  height: 400px;
+}
+@media (max-width: 450px) {
+  .grid-container { width: 300px; height: 300px; gap: 10px; }
+}
+.cell {
+  background: var(--cell-empty);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--text-dark);
+  transition: all 0.15s ease;
+}
+@media (max-width: 450px) { .cell { font-size: 32px; } }
+.tile-2 { background: var(--cell-2); }
+.tile-4 { background: var(--cell-4); }
+.tile-8 { background: var(--cell-8); color: var(--text-light); }
+.tile-16 { background: var(--cell-16); color: var(--text-light); }
+.tile-32 { background: var(--cell-32); color: var(--text-light); }
+.tile-64 { background: var(--cell-64); color: var(--text-light); }
+.tile-128 { background: var(--cell-128); color: var(--text-light); font-size: 36px; }
+.tile-256 { background: var(--cell-256); color: var(--text-light); font-size: 36px; }
+.tile-512 { background: var(--cell-512); color: var(--text-light); font-size: 36px; }
+.tile-1024 { background: var(--cell-1024); color: var(--text-light); font-size: 28px; }
+.tile-2048 { background: var(--cell-2048); color: var(--text-light); font-size: 28px; }
+.tile-super { background: #3c3a32; color: var(--text-light); font-size: 24px; }
+
+.tile-new {
+  animation: appear 0.2s ease;
+}
+.tile-merged {
+  animation: pop 0.2s ease;
+}
+@keyframes appear {
+  0% { opacity: 0; transform: scale(0.5); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+.control-btn {
+  background: var(--grid-bg);
+  color: var(--text-light);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* Hard mode indicator */
+.hard-mode-indicator {
+  background: #e74c3c;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Share button */
+.share-section { margin: 20px; }
+.share-btn {
+  background: #4a90d9;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Email modal */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 400px;
+  text-align: center;
+}
+.modal h3 { margin-bottom: 15px; }
+.modal p { margin-bottom: 20px; color: #666; }
+.modal input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+.modal button {
+  background: #4a90d9;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 25px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.modal-close {
+  background: #999;
+  margin-left: 10px;
+}
+
+/* Interstitial ad */
+.interstitial-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+.interstitial-content {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  text-align: center;
+}
+.interstitial-countdown { font-size: 48px; font-weight: 700; color: #333; }
+.interstitial-skip {
+  margin-top: 20px;
+  background: #999;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Welcome tooltip */
+.welcome-tooltip {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 15px 25px;
+  border-radius: 10px;
+  z-index: 500;
+  animation: fadeInOut 5s forwards;
+}
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+  10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Footer */
+footer {
+  margin-top: 30px;
+  font-size: 14px;
+  color: #999;
+}
+footer a { color: #666; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">2048</div>
+  <div class="header-stats">
+    <div class="streak-badge">
+      <span id="streak-emoji">🔥</span>
+      <span id="streak-count">0</span>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Score</div>
+      <div class="stat-value" id="score">0</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Best</div>
+      <div class="stat-value" id="best-score">0</div>
+    </div>
+    <button class="premium-cta" id="premium-btn" onclick="showPremiumModal()">Go Premium</button>
+  </div>
+</header>
+
+<div class="ad-banner desktop" data-ad-slot="GAME-2048-TOP">
+  <!-- REPLACE ca-pub-PENDING with your AdSense publisher ID -->
+<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-PENDING" data-ad-slot="AUTO" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+<div class="ad-banner mobile" data-ad-slot="GAME-2048-MOBILE">
+  <!-- REPLACE ca-pub-PENDING with your AdSense publisher ID -->
+<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-PENDING" data-ad-slot="AUTO" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<div class="game-container">
+  <div class="game-header">
+    <button class="new-game-btn" onclick="initGame()">New Game</button>
+    <div id="hard-mode-badge" class="hard-mode-indicator hidden">HARD MODE</div>
+  </div>
+  
+  <div class="grid-container" id="grid"></div>
+  
+  <div class="game-over-overlay hidden" id="game-over">
+    <div class="game-over-text">Game Over!</div>
+    <button class="play-again-btn" onclick="initGame()">Try Again</button>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="control-btn" onclick="toggleHardMode()">Hard Mode</button>
+  <button class="control-btn" onclick="showStatsModal()">Stats</button>
+  <button class="control-btn" onclick="showArchiveModal()">Archive</button>
+</div>
+
+<div class="share-section">
+  <button class="share-btn" onclick="shareResult()">Share Result</button>
+</div>
+
+<div class="ad-banner desktop" data-ad-slot="GAME-2048-BOTTOM">
+  <!-- REPLACE ca-pub-PENDING with your AdSense publisher ID -->
+<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-PENDING" data-ad-slot="AUTO" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<footer>
+  More daily games at <a href="#">DailyPuzzle.io</a>
+</footer>
+
+<!-- Premium Modal -->
+<div class="modal-overlay hidden" id="premium-modal">
+  <div class="modal">
+    <h3>Go Premium</h3>
+    <p>Unlock all premium features for $3.99/month or $29.99/year</p>
+    <ul style="text-align:left; margin-bottom:20px;">
+      <li>Remove all ads</li>
+      <li>Play Archive (last 30 days)</li>
+      <li>Hard Mode</li>
+      <li>Stats Dashboard</li>
+      <li>Unlimited Hints</li>
+    </ul>
+    <button onclick="upgradePremium()">Subscribe Now</button>
+    <button class="modal-close modal-close" onclick="closeModal('premium-modal')">Not Now</button>
+  </div>
+</div>
+
+<!-- Stats Modal -->
+<div class="modal-overlay hidden" id="stats-modal">
+  <div class="modal">
+    <h3>Your Stats</h3>
+    <div style="text-align:left; margin: 20px 0;">
+      <p><strong>Current Streak:</strong> <span id="stat-streak">0</span></p>
+      <p><strong>Longest Streak:</strong> <span id="stat-longest">0</span></p>
+      <p><strong>Games Played:</strong> <span id="stat-played">0</span></p>
+      <p><strong>Win Rate:</strong> <span id="stat-winrate">0</span>%</p>
+      <p><strong>Best Score:</strong> <span id="stat-best">0</span></p>
+    </div>
+    <button onclick="closeModal('stats-modal')">Close</button>
+  </div>
+</div>
+
+<!-- Archive Modal -->
+<div class="modal-overlay hidden" id="archive-modal">
+  <div class="modal">
+    <h3>Play Archive</h3>
+    <p>Select a date to play that day's puzzle</p>
+    <div style="margin: 20px 0;">
+      <button class="control-btn" onclick="changeArchiveDate(-1)">← Previous</button>
+      <span id="archive-date">Today</span>
+      <button class="control-btn" onclick="changeArchiveDate(1)">Next →</button>
+    </div>
+    <p id="archive-status"></p>
+    <button onclick="closeModal('archive-modal')">Close</button>
+  </div>
+</div>
+
+<!-- Email Modal -->
+<div class="modal-overlay hidden" id="email-modal">
+  <div class="modal">
+    <h3>Get Tomorrow's Puzzle</h3>
+    <p>Never miss a day - get the daily 2048 delivered to your inbox</p>
+    <input type="email" id="email-input" placeholder="your@email.com">
+    <button onclick="subscribeEmail()">Subscribe Free</button>
+    <button class="modal-close" onclick="dismissEmailModal()">No Thanks</button>
+  </div>
+</div>
+
+<!-- Interstitial Ad -->
+<div class="interstitial-overlay hidden" id="interstitial">
+  <div class="interstitial-content">
+    <div class="interstitial-countdown" id="interstitial-count">5</div>
+    <p>Ad plays in</p>
+    <button class="interstitial-skip" onclick="skipInterstitial()">Skip Ad</button>
+  </div>
+</div>
+
+<!-- Welcome Tooltip -->
+<div class="welcome-tooltip hidden" id="welcome-tooltip">
+  Use arrow keys or swipe to move tiles. Reach 2048 to win!
+</div>
+
+<script>
+// Game State
+let grid = [];
+let score = 0;
+let bestScore = 0;
+let gameOver = false;
+let hardMode = false;
+let archiveDate = 0;
+
+// localStorage keys
+const STORAGE_KEYS = {
+  isPremium: '2048_isPremium',
+  bestScore: '2048_bestScore',
+  streak: '2048_streak',
+  streakDate: '2048_streakDate',
+  gamesPlayed: '2048_gamesPlayed',
+  gamesWon: '2048_gamesWon',
+  currentStreak: '2048_currentStreak',
+  longestStreak: '2048_longestStreak',
+  lastPlayed: '2048_lastPlayed',
+  emailDismissed: '2048_emailDismissed',
+  playsThisSession: '2048_playsThisSession',
+  hintUsedDate: '2048_hintUsedDate'
+};
+
+// Initialize
+function init() {
+  // Check premium
+  if (localStorage.getItem(STORAGE_KEYS.isPremium) === 'true') {
+    document.getElementById('premium-btn').textContent = 'Premium';
+    document.querySelectorAll('.ad-banner').forEach(el => el.classList.add('hidden'));
+  }
+  
+  // Load stats
+  bestScore = parseInt(localStorage.getItem(STORAGE_KEYS.bestScore)) || 0;
+  document.getElementById('best-score').textContent = bestScore;
+  
+  // Update streak
+  updateStreak();
+  
+  // Show welcome if first play
+  if (!localStorage.getItem(STORAGE_KEYS.lastPlayed)) {
+    showWelcomeTooltip();
+  }
+  
+  // Reset session plays
+  localStorage.setItem(STORAGE_KEYS.playsThisSession, '0');
+  
+  // Show email modal if appropriate
+  checkEmailModal();
+  
+  initGame();
+}
+
+function initGame() {
+  grid = Array(4).fill(null).map(() => Array(4).fill(0));
+  score = 0;
+  gameOver = false;
+  document.getElementById('score').textContent = '0';
+  document.getElementById('game-over').classList.add('hidden');
+  
+  // Hard mode check
+  const isPremium = localStorage.getItem(STORAGE_KEYS.isPremium) === 'true';
+  if (hardMode && isPremium) {
+    document.getElementById('hard-mode-badge').classList.remove('hidden');
+  } else {
+    hardMode = false;
+    document.getElementById('hard-mode-badge').classList.add('hidden');
+  }
+  
+  // Add two starting tiles
+  addRandomTile();
+  addRandomTile();
+  
+  renderGrid();
+  
+  // Increment plays this session
+  let plays = parseInt(localStorage.getItem(STORAGE_KEYS.playsThisSession)) || 0;
+  localStorage.setItem(STORAGE_KEYS.playsThisSession, (plays + 1).toString());
+  
+  // Show interstitial after 3 plays
+  if (plays >= 2 && !isPremium) {
+    showInterstitial();
+  }
+}
+
+function showWelcomeTooltip() {
+  const tooltip = document.getElementById('welcome-tooltip');
+  tooltip.classList.remove('hidden');
+  setTimeout(() => tooltip.classList.add('hidden'), 5000);
+}
+
+function updateStreak() {
+  const today = new Date().toDateString();
+  const lastPlayed = localStorage.getItem(STORAGE_KEYS.streakDate);
+  let streak = parseInt(localStorage.getItem(STORAGE_KEYS.currentStreak)) || 0;
+  
+  if (lastPlayed !== today) {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    if (lastPlayed !== yesterday.toDateString()) {
+      streak = 0;
+    }
+  }
+  
+  document.getElementById('streak-count').textContent = streak;
+}
+
+function addRandomTile() {
+  const emptyCells = [];
+  for (let r = 0; r < 4; r++) {
+    for (let c = 0; c < 4; c++) {
+      if (grid[r][c] === 0) emptyCells.push({r, c});
+    }
+  }
+  if (emptyCells.length === 0) return;
+  
+  const {r, c} = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+  grid[r][c] = Math.random() < 0.9 ? 2 : 4;
+}
+
+function renderGrid() {
+  const container = document.getElementById('grid');
+  container.innerHTML = '';
+  
+  for (let r = 0; r < 4; r++) {
+    for (let c = 0; c < 4; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      const value = grid[r][c];
+      if (value > 0) {
+        cell.classList.add(`tile-${value > 2048 ? 'super' : value}`);
+        cell.textContent = value;
+      }
+      container.appendChild(cell);
+    }
+  }
+}
+
+function move(direction) {
+  if (gameOver) return;
+  
+  let moved = false;
+  const oldGrid = JSON.stringify(grid);
+  
+  if (direction === 'left' || direction === 'right') {
+    for (let r = 0; r < 4; r++) {
+      let row = grid[r].filter(v => v !== 0);
+      if (direction === 'right') row.reverse();
+      
+      for (let i = 0; i < row.length - 1; i++) {
+        if (row[i] === row[i + 1]) {
+          row[i] *= 2;
+          score += row[i];
+          row.splice(i + 1, 1);
+          if (hardMode) { /* no special handling in hard mode for 2048 */ }
+        }
+      }
+      
+      while (row.length < 4) row.push(0);
+      if (direction === 'right') row.reverse();
+      
+      grid[r] = row;
+    }
+  } else {
+    for (let c = 0; c < 4; c++) {
+      let col = [];
+      for (let r = 0; r < 4; r++) col.push(grid[r][c]);
+      col = col.filter(v => v !== 0);
+      
+      if (direction === 'down') col.reverse();
+      
+      for (let i = 0; i < col.length - 1; i++) {
+        if (col[i] === col[i + 1]) {
+          col[i] *= 2;
+          score += col[i];
+          col.splice(i + 1, 1);
+        }
+      }
+      
+      while (col.length < 4) col.push(0);
+      if (direction === 'down') col.reverse();
+      
+      for (let r = 0; r < 4; r++) grid[r][c] = col[r];
+    }
+  }
+  
+  if (JSON.stringify(grid) !== oldGrid) {
+    addRandomTile();
+    document.getElementById('score').textContent = score;
+    
+    if (score > bestScore) {
+      bestScore = score;
+      localStorage.setItem(STORAGE_KEYS.bestScore, bestScore.toString());
+      document.getElementById('best-score').textContent = bestScore;
+    }
+    
+    renderGrid();
+    checkGameOver();
+  }
+}
+
+function checkGameOver() {
+  // Check for empty cells
+  for (let r = 0; r < 4; r++) {
+    for (let c = 0; c < 4; c++) {
+      if (grid[r][c] === 0) return;
+    }
+  }
+  
+  // Check for possible merges
+  for (let r = 0; r < 4; r++) {
+    for (let c = 0; c < 4; c++) {
+      if (c < 3 && grid[r][c] === grid[r][c + 1]) return;
+      if (r < 3 && grid[r][c] === grid[r + 1][c]) return;
+    }
+  }
+  
+  // Game over
+  gameOver = true;
+  document.getElementById('game-over').classList.remove('hidden');
+  
+  // Update stats
+  const today = new Date().toDateString();
+  let gamesPlayed = parseInt(localStorage.getItem(STORAGE_KEYS.gamesPlayed)) || 0;
+  let gamesWon = parseInt(localStorage.getItem(STORAGE_KEYS.gamesWon)) || 0;
+  gamesPlayed++;
+  localStorage.setItem(STORAGE_KEYS.gamesPlayed, gamesPlayed.toString());
+  
+  // Check if won (reached 2048)
+  let won = false;
+  for (let r = 0; r < 4; r++) {
+    for (let c = 0; c < 4; c++) {
+      if (grid[r][c] >= 2048) won = true;
+    }
+  }
+  if (won) {
+    gamesWon++;
+    localStorage.setItem(STORAGE_KEYS.gamesWon, gamesWon.toString());
+    
+    // Update streak
+    let currentStreak = parseInt(localStorage.getItem(STORAGE_KEYS.currentStreak)) || 0;
+    let longestStreak = parseInt(localStorage.getItem(STORAGE_KEYS.longestStreak)) || 0;
+    const lastPlayed = localStorage.getItem(STORAGE_KEYS.streakDate);
+    
+    if (lastPlayed !== today) {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      if (lastPlayed === yesterday.toDateString()) {
+        currentStreak++;
+      } else {
+        currentStreak = 1;
+      }
+    }
+    
+    if (currentStreak > longestStreak) longestStreak = currentStreak;
+    localStorage.setItem(STORAGE_KEYS.currentStreak, currentStreak.toString());
+    localStorage.setItem(STORAGE_KEYS.longestStreak, longestStreak.toString());
+    localStorage.setItem(STORAGE_KEYS.streakDate, today);
+    document.getElementById('streak-count').textContent = currentStreak;
+  }
+  
+  localStorage.setItem(STORAGE_KEYS.lastPlayed, today);
+}
+
+// Keyboard controls
+document.addEventListener('keydown', (e) => {
+  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+    e.preventDefault();
+    const dir = e.key.replace('Arrow', '').toLowerCase();
+    move(dir);
+  }
+});
+
+// Touch controls
+let touchStartX, touchStartY;
+document.addEventListener('touchstart', (e) => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+});
+document.addEventListener('touchend', (e) => {
+  if (!touchStartX || !touchStartY) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  const absDx = Math.abs(dx);
+  const absDy = Math.abs(dy);
+  
+  if (Math.max(absDx, absDy) > 30) {
+    if (absDx > absDy) {
+      move(dx > 0 ? 'right' : 'left');
+    } else {
+      move(dy > 0 ? 'down' : 'up');
+    }
+  }
+  touchStartX = null;
+  touchStartY = null;
+});
+
+// Premium functions
+function showPremiumModal() {
+  document.getElementById('premium-modal').classList.remove('hidden');
+}
+
+function upgradePremium() {
+  localStorage.setItem(STORAGE_KEYS.isPremium, 'true');
+  document.getElementById('premium-btn').textContent = 'Premium';
+  document.querySelectorAll('.ad-banner').forEach(el => el.classList.add('hidden'));
+  closeModal('premium-modal');
+  initGame();
+}
+
+function toggleHardMode() {
+  const isPremium = localStorage.getItem(STORAGE_KEYS.isPremium) === 'true';
+  if (!isPremium) {
+    showPremiumModal();
+    return;
+  }
+  hardMode = !hardMode;
+  initGame();
+}
+
+// Stats
+function showStatsModal() {
+  const gamesPlayed = parseInt(localStorage.getItem(STORAGE_KEYS.gamesPlayed)) || 0;
+  const gamesWon = parseInt(localStorage.getItem(STORAGE_KEYS.gamesWon)) || 0;
+  const currentStreak = parseInt(localStorage.getItem(STORAGE_KEYS.currentStreak)) || 0;
+  const longestStreak = parseInt(localStorage.getItem(STORAGE_KEYS.longestStreak)) || 0;
+  const best = parseInt(localStorage.getItem(STORAGE_KEYS.bestScore)) || 0;
+  
+  document.getElementById('stat-streak').textContent = currentStreak;
+  document.getElementById('stat-longest').textContent = longestStreak;
+  document.getElementById('stat-played').textContent = gamesPlayed;
+  document.getElementById('stat-winrate').textContent = gamesPlayed > 0 ? Math.round((gamesWon / gamesPlayed) * 100) : 0;
+  document.getElementById('stat-best').textContent = best;
+  
+  document.getElementById('stats-modal').classList.remove('hidden');
+}
+
+// Archive
+let archiveOffset = 0;
+function showArchiveModal() {
+  const isPremium = localStorage.getItem(STORAGE_KEYS.isPremium) === 'true';
+  if (!isPremium) {
+    showPremiumModal();
+    return;
+  }
+  archiveOffset = 0;
+  updateArchiveDisplay();
+  document.getElementById('archive-modal').classList.remove('hidden');
+}
+
+function changeArchiveDate(delta) {
+  archiveOffset += delta;
+  if (archiveOffset > 0) archiveOffset = 0;
+  if (archiveOffset < -29) archiveOffset = -29;
+  updateArchiveDisplay();
+}
+
+function updateArchiveDisplay() {
+  const date = new Date();
+  date.setDate(date.getDate() + archiveOffset);
+  document.getElementById('archive-date').textContent = archiveOffset === 0 ? 'Today' : date.toLocaleDateString();
+  document.getElementById('archive-status').textContent = archiveOffset <= 0 ? 'Ready to play' : 'Historical puzzle';
+}
+
+// Share
+function shareResult() {
+  const emoji = '🟥🟧🟨⬛⬛';
+  const text = `2048 Score: ${score}\n${emoji}\nPlay at: https://dailypuzzle.io`;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('Copied to clipboard!');
+  });
+}
+
+// Email
+function checkEmailModal() {
+  const dismissed = localStorage.getItem(STORAGE_KEYS.emailDismissed);
+  const today = new Date().toDateString();
+  if (dismissed === today) return;
+  if (localStorage.getItem(STORAGE_KEYS.lastPlayed)) return;
+  
+  setTimeout(() => {
+    document.getElementById('email-modal').classList.remove('hidden');
+  }, 3000);
+}
+
+function subscribeEmail() {
+  const email = document.getElementById('email-input').value;
+  if (email) {
+    let list = JSON.parse(localStorage.getItem('2048_emailList') || '[]');
+    list.push(email);
+    localStorage.setItem('2048_emailList', JSON.stringify(list));
+    // Would POST to /api/subscribe here
+    console.log('Subscribed:', email);
+    dismissEmailModal();
+  }
+}
+
+function dismissEmailModal() {
+  localStorage.setItem(STORAGE_KEYS.emailDismissed, new Date().toDateString());
+  closeModal('email-modal');
+}
+
+// Interstitial
+function showInterstitial() {
+  const overlay = document.getElementById('interstitial');
+  overlay.classList.remove('hidden');
+  let count = 5;
+  document.getElementById('interstitial-count').textContent = count;
+  
+  const interval = setInterval(() => {
+    count--;
+    document.getElementById('interstitial-count').textContent = count;
+    if (count <= 0) clearInterval(interval);
+  }, 1000);
+  
+  setTimeout(() => {
+    skipInterstitial();
+  }, 6000);
+}
+
+function skipInterstitial() {
+  document.getElementById('interstitial').classList.add('hidden');
+}
+
+// Modal helpers
+function closeModal(id) {
+  document.getElementById(id).classList.add('hidden');
+}
+
+// Initialize on load
+init();
+</script>
+
+<script>
+// ==== josho.pro Premium Pass (v2) ====
+/**
+ * josho.pro Premium Pass
+ * Shared snippet — embed in all 9 games
+ * 
+ * CONFIG: Update STRIPE_CHECKOUT_URL before go-live
+ * No external dependencies — pure localStorage + Stripe redirect
+ */
+
+// ============================================================
+// CONFIG (update these before go-live)
+// ============================================================
+const PREMIUM_CONFIG = {
+  STRIPE_CHECKOUT_URL: 'https://checkout.stripe.com/c/pay/cs_test_a1BG7d236UKlxCk4VQHUKCIRuAFpjrYNQ7S4zDXgp5Q3BOisfVKvRgmg6e#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdkdWxOYHwnPyd1blpxYHZxWjA0UTNGcH0wcnNhNWNmUWRSR0tuZG5JU111X3ZwXXRSTHBxMTJdTVZWa0M2dEBvM11BSl9PSFJDPFB1cDNofTN9R0JwQWB2TWp8NDQ2PTRzQzVsV3VtT0pWNTUxTHVsSFFSQycpJ2N3amhWYHdzYHcnP3F3cGApJ2dkZm5id2pwa2FGamlqdyc%2FJyZjY2NjY2MnKSdpZHxqcHFRfHVgJz8ndmxrYmlgWmxxYGgnKSdga2RnaWBVaWRmYG1qaWFgd3YnP3F3cGB4JSUl', // GM07 will populate this
+  PRICE_DISPLAY: '£2.99/month',
+  PRODUCT_NAME: 'josho.pro Premium Pass',
+  STORAGE_KEY: 'josho_premium_expires',  // localStorage key (timestamp ms)
+  FEATURES: {
+    removeAds: true,
+    hardMode: true,
+    archive: true,
+  }
+};
+
+// ============================================================
+// CORE FUNCTIONS
+// ============================================================
+
+/**
+ * Check if the user currently has an active premium pass
+ * Returns true if premium, false if not
+ */
+function isPremium() {
+  try {
+    const expires = parseInt(localStorage.getItem(PREMIUM_CONFIG.STORAGE_KEY) || '0', 10);
+    return expires > Date.now();
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
+ * Activate premium locally (call after Stripe webhook confirms payment)
+ * Sets expiry to 31 days from now by default
+ * In production: set expiry from webhook payload
+ * @param {number} durationMs - duration in milliseconds (default: 31 days)
+ */
+function activatePremium(durationMs = 31 * 24 * 60 * 60 * 1000) {
+  const expires = Date.now() + durationMs;
+  localStorage.setItem(PREMIUM_CONFIG.STORAGE_KEY, String(expires));
+  applyPremiumState();
+}
+
+/**
+ * Deactivate premium (for testing or expiry handling)
+ */
+function deactivatePremium() {
+  localStorage.removeItem(PREMIUM_CONFIG.STORAGE_KEY);
+  applyPremiumState();
+}
+
+/**
+ * Redirect to Stripe Checkout
+ */
+function startCheckout() {
+  if (PREMIUM_CONFIG.STRIPE_CHECKOUT_URL === 'https://checkout.stripe.com/c/pay/cs_test_a1BG7d236UKlxCk4VQHUKCIRuAFpjrYNQ7S4zDXgp5Q3BOisfVKvRgmg6e#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdkdWxOYHwnPyd1blpxYHZxWjA0UTNGcH0wcnNhNWNmUWRSR0tuZG5JU111X3ZwXXRSTHBxMTJdTVZWa0M2dEBvM11BSl9PSFJDPFB1cDNofTN9R0JwQWB2TWp8NDQ2PTRzQzVsV3VtT0pWNTUxTHVsSFFSQycpJ2N3amhWYHdzYHcnP3F3cGApJ2dkZm5id2pwa2FGamlqdyc%2FJyZjY2NjY2MnKSdpZHxqcHFRfHVgJz8ndmxrYmlgWmxxYGgnKSdga2RnaWBVaWRmYG1qaWFgd3YnP3F3cGB4JSUl') {
+    console.warn('Premium Pass: Stripe URL not configured yet');
+    return;
+  }
+  window.location.href = PREMIUM_CONFIG.STRIPE_CHECKOUT_URL;
+}
+
+// ============================================================
+// UI STATE
+// ============================================================
+
+/**
+ * Apply or remove premium state across the page
+ * Hides/shows ads, unlocks hard mode toggle, enables archive
+ */
+function applyPremiumState() {
+  const premium = isPremium();
+
+  // Ad slots: hide if premium
+  document.querySelectorAll('.ad-slot').forEach(el => {
+    el.style.display = premium ? 'none' : '';
+  });
+
+  // Hard mode: enable if premium
+  const hardModeBtn = document.getElementById('hardModeToggle');
+  if (hardModeBtn) {
+    hardModeBtn.disabled = !premium;
+    hardModeBtn.title = premium ? 'Hard mode unlocked' : 'Premium feature';
+  }
+
+  // Archive button: enable if premium
+  const archiveBtn = document.getElementById('archiveBtn');
+  if (archiveBtn) {
+    archiveBtn.disabled = !premium;
+    archiveBtn.title = premium ? 'View archive' : 'Premium feature — upgrade to unlock';
+  }
+
+  // Premium badge: show/hide
+  const premiumBadge = document.getElementById('premiumBadge');
+  if (premiumBadge) {
+    premiumBadge.style.display = premium ? 'flex' : 'none';
+  }
+
+  // Upgrade banner: show/hide
+  const upgradeBanner = document.getElementById('upgradeBanner');
+  if (upgradeBanner) {
+    upgradeBanner.style.display = premium ? 'none' : '';
+  }
+}
+
+// ============================================================
+// UPGRADE MODAL
+// ============================================================
+
+/**
+ * Render and inject upgrade modal into DOM
+ * Call once per page — idempotent
+ */
+function renderUpgradeModal() {
+  if (document.getElementById('premiumModal')) return; // already rendered
+
+  const modal = document.createElement('div');
+  modal.id = 'premiumModal';
+  modal.style.cssText = `
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  `;
+
+  modal.innerHTML = `
+    <div style="
+      background: #1a1a2e;
+      border: 1px solid #e91e8c33;
+      border-radius: 16px;
+      padding: 32px 24px;
+      max-width: 380px;
+      width: 90%;
+      text-align: center;
+      color: #f0f0f0;
+    ">
+      <div style="font-size: 2rem; margin-bottom: 8px;">⭐</div>
+      <h2 style="margin: 0 0 8px; font-size: 1.4rem; color: #fff;">josho.pro Premium</h2>
+      <p style="margin: 0 0 20px; color: #aaa; font-size: 0.95rem;">${PREMIUM_CONFIG.PRICE_DISPLAY} — cancel any time</p>
+      
+      <ul style="text-align: left; padding: 0 0 0 16px; margin: 0 0 24px; color: #ccc; font-size: 0.9rem; line-height: 1.8;">
+        <li>🚫 Remove all ads across every game</li>
+        <li>🔥 Hard mode unlocked</li>
+        <li>📅 Full archive access</li>
+        <li>🎮 All 9 games, all features</li>
+      </ul>
+
+      <button onclick="startCheckout()" style="
+        background: linear-gradient(135deg, #e91e8c, #9c27b0);
+        color: white;
+        border: none;
+        padding: 14px 32px;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        width: 100%;
+        margin-bottom: 12px;
+      ">Upgrade for ${PREMIUM_CONFIG.PRICE_DISPLAY}</button>
+
+      <button onclick="document.getElementById('premiumModal').style.display='none'" style="
+        background: transparent;
+        color: #666;
+        border: none;
+        cursor: pointer;
+        font-size: 0.85rem;
+        padding: 4px;
+      ">Maybe later</button>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+}
+
+/**
+ * Show the upgrade modal
+ */
+function showUpgradeModal() {
+  renderUpgradeModal();
+  const modal = document.getElementById('premiumModal');
+  if (modal) modal.style.display = 'flex';
+}
+
+// ============================================================
+// INIT
+// ============================================================
+
+/**
+ * Initialise premium pass on page load
+ * Call this at the bottom of each game's <script> block
+ */
+function initPremiumPass() {
+  // Render modal (lazy — doesn't show until needed)
+  renderUpgradeModal();
+  
+  // Apply current premium state
+  applyPremiumState();
+
+  // Handle Stripe success redirect: ?premium_activated=1
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('premium_activated') === '1') {
+    activatePremium();
+    // Clean URL
+    const url = new URL(window.location);
+    url.searchParams.delete('premium_activated');
+    window.history.replaceState({}, '', url);
+  }
+
+  console.log(`josho.pro Premium Pass loaded. Status: ${isPremium() ? 'ACTIVE' : 'inactive'}`);
+}
+
+// Auto-init on DOM ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initPremiumPass);
+} else {
+  initPremiumPass();
+}
+
+</script>
+<script src="/streak.js"></script>
+</body>
+</html>
