@@ -1,4 +1,6 @@
-import { NextResponse } from 'next/server';
+export const dynamic = "force-dynamic";
+
+import { NextResponse } from "next/server";
 
 const REPO = 'JoshOsborne1/josho-portfolio';
 const FILE = 'handbook-data.json';
@@ -28,7 +30,6 @@ async function ghRequest(method: string, path: string, body?: object) {
 
 export async function GET() {
   try {
-    // Use raw URL for fast reads (no auth needed for public repo)
     const res = await fetch(`${RAW_URL}?_=${Date.now()}`, { cache: 'no-store' });
     if (!res.ok) throw new Error(`raw fetch ${res.status}`);
     const data = await res.json();
@@ -47,7 +48,6 @@ export async function POST(req: Request) {
     const meta = await ghRequest('GET', `contents/${FILE}`);
     const sha: string = meta.sha;
 
-    // Enforce history limit (keep last 100 snapshots)
     const incoming = body as { settings: object; edits: object; selected: string[]; history?: object[] };
     const history: object[] = Array.isArray(incoming.history) ? incoming.history.slice(0, 100) : [];
 

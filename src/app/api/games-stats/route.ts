@@ -1,5 +1,8 @@
 // src/app/api/games-stats/route.ts
 // Seeded play counts for josho.pro games stats
+export const dynamic = "force-static";
+export const revalidate = 300;
+
 import { NextResponse } from 'next/server';
 
 const GAMES_STATS = [
