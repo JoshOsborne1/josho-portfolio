@@ -1,604 +1,830 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-    <link rel="manifest" href="/wave-manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Wavelength">
-    <meta name="theme-color" content="#7c3aed">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Wavelength</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;900&display=swap');
+    <title>Wavelength</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0a0b10;
+            --bg-gradient: radial-gradient(circle at 50% -20%, #1a1c29 0%, #0a0b10 80%);
+            --text-primary: #e0e2eb;
+            --text-secondary: #8c92a6;
+            --accent-blue: #00e5ff;
+            --accent-blue-glow: rgba(0, 229, 255, 0.4);
+            --accent-gold: #ffb300;
+            --accent-gold-glow: rgba(255, 179, 0, 0.4);
+            --target-4: #00e5ff;
+            --target-3: #0099cc;
+            --target-2: #005580;
+            --panel-bg: rgba(20, 22, 32, 0.7);
+            --panel-border: rgba(255, 255, 255, 0.05);
+            --font-main: 'Space Grotesk', sans-serif;
+            --transition-smooth: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
-:root {
-    --bg-dark: #09090b;
-    --bg-panel: #18181b;
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --accent-violet: #7c3aed;
-    --accent-amber: #f59e0b;
-    --accent-slate: #64748b;
-    --wire: rgba(255, 255, 255, 0.08);
-}
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
 
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: var(--font-main);
+            background: var(--bg-color);
+            background-image: var(--bg-gradient);
+            color: var(--text-primary);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-body {
-    background-color: var(--bg-dark);
-    background-image: radial-gradient(circle at top, rgba(124, 58, 237, 0.15) 0%, var(--bg-dark) 80%);
-    color: var(--text-main);
-    font-family: 'Outfit', system-ui, sans-serif;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    user-select: none;
-    -webkit-user-select: none;
-}
+        /* Particles / Texture Background */
+        .ambient-texture {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
 
-.app-container {
-    max-width: 500px;
-    margin: 0 auto;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: 24px 20px;
-    position: relative;
-}
+        /* Header / Scoreboard */
+        header {
+            width: 100%;
+            max-width: 1200px;
+            padding: 2rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
 
-/* Header */
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--bg-panel);
-    border: 1px solid var(--wire);
-    border-radius: 20px;
-    padding: 8px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-}
-.team {
-    flex: 1;
-    text-align: center;
-    padding: 12px 8px;
-    border-radius: 14px;
-    transition: all 0.3s;
-    cursor: pointer;
-    border: 1px solid transparent;
-}
-.team.active {
-    background: rgba(124, 58, 237, 0.1);
-    border: 1px solid rgba(124, 58, 237, 0.3);
-    box-shadow: inset 0 0 20px rgba(124, 58, 237, 0.05);
-}
-.team-name {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-}
-.team.active .team-name { color: var(--accent-violet); }
-.team-score {
-    font-size: 2rem;
-    font-weight: 900;
-    line-height: 1;
-}
-.divider { width: 1px; height: 40px; background: var(--wire); margin: 0 8px; }
+        .team-score {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            padding: 1.5rem 2.5rem;
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: var(--transition-smooth);
+        }
 
-/* Message Banner */
-.message-banner {
-    text-align: center;
-    margin-top: 32px;
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: var(--text-muted);
-    min-height: 48px;
-    line-height: 1.4;
-}
-.message-banner .highlight { color: var(--text-main); font-weight: 700; }
+        .team-score.active-team {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 30px var(--accent-gold-glow);
+            transform: translateY(-5px);
+        }
 
-/* Dial */
-.dial-wrapper {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    position: relative;
-    margin: 20px 0;
-}
-#dial {
-    width: 100%;
-    overflow: visible;
-    touch-action: none;
-    filter: drop-shadow(0 12px 24px rgba(0,0,0,0.4));
-}
-#target-group {
-    transition: opacity 0.4s ease;
-}
+        .team-score.active-team.team-two {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 30px var(--accent-blue-glow);
+        }
 
-/* Words */
-.word-pair {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 24px;
-    padding: 0;
-    gap: 12px;
-}
-.word {
-    font-size: 0.85rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
-    background: var(--bg-panel);
-    border: 1px solid var(--wire);
-    padding: 12px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    flex: 1;
-    text-align: center;
-    line-height: 1.2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+        .team-name {
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
 
-/* Bottom Actions */
-.bottom-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    margin-top: auto;
-    padding-bottom: 12px;
-}
-.result-display {
-    text-align: center;
-    font-size: 1.5rem;
-    font-weight: 900;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: opacity 0.3s;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    opacity: 0;
-}
-.result-display.bullseye { color: var(--accent-violet); text-shadow: 0 0 15px rgba(124, 58, 237, 0.5); }
-.result-display.close { color: var(--accent-amber); text-shadow: 0 0 15px rgba(245, 158, 11, 0.5); }
-.result-display.near { color: var(--accent-slate); text-shadow: 0 0 15px rgba(100, 116, 139, 0.5); }
-.result-display.miss { color: var(--text-muted); }
+        .score-value {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1;
+            text-shadow: 0 0 20px rgba(255,255,255,0.2);
+        }
 
-.psychic-actions {
-    display: none;
-    gap: 12px;
-    justify-content: center;
-    margin-bottom: -4px;
-}
+        /* Main Game Area */
+        main {
+            flex: 1;
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 10;
+            padding: 2rem;
+        }
 
-.btn-action {
-    flex: 1;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--wire);
-    border-radius: 12px;
-    color: var(--text-main);
-    font-family: inherit;
-    font-size: 0.8rem;
-    font-weight: 700;
-    padding: 12px 16px;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-.btn-action:active {
-    background: rgba(255,255,255,0.1);
-    transform: scale(0.96);
-}
+        /* Word Pairs */
+        .concept-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-150px);
+            padding: 0 2rem;
+            pointer-events: none;
+        }
 
-.btn-primary {
-    background: linear-gradient(135deg, var(--accent-violet), #9333ea);
-    border: none;
-    border-radius: 16px;
-    color: white;
-    font-family: inherit;
-    font-weight: 700;
-    font-size: 1.1rem;
-    padding: 20px;
-    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.25);
-    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-    cursor: pointer;
-    letter-spacing: 0.05em;
-}
-.btn-primary:active {
-    transform: scale(0.96);
-    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
-}
-.btn-primary.alt {
-    background: var(--bg-panel);
-    border: 1px solid var(--wire);
-    box-shadow: none;
-    color: var(--text-main);
-}
-.btn-secondary {
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    font-family: inherit;
-    font-size: 0.85rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    padding: 12px;
-    cursor: pointer;
-    text-transform: uppercase;
-}
-</style>
+        .concept-label {
+            font-size: 2rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--text-primary);
+            text-shadow: 0 0 20px rgba(255,255,255,0.1);
+            background: var(--panel-bg);
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            border: 1px solid var(--panel-border);
+            backdrop-filter: blur(5px);
+            transition: opacity 0.4s ease;
+        }
+
+        .concept-left { transform: rotate(-5deg); }
+        .concept-right { transform: rotate(5deg); }
+
+        /* Dial Area */
+        .dial-container {
+            position: relative;
+            width: 600px;
+            height: 300px;
+            margin-top: 4rem;
+        }
+
+        .dial-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--panel-bg);
+            border-top-left-radius: 300px;
+            border-top-right-radius: 300px;
+            border: 2px solid var(--panel-border);
+            border-bottom: none;
+            overflow: hidden;
+            box-shadow: 0 -20px 50px rgba(0,0,0,0.5), inset 0 0 50px rgba(0,0,0,0.8);
+        }
+
+        /* SVG Target Zone */
+        .target-zone-svg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            transform-origin: 50% 100%;
+            transition: opacity 0.3s ease, filter 0.5s ease;
+            opacity: 0;
+        }
+
+        .reveal-mode .target-zone-svg {
+            opacity: 1;
+            filter: drop-shadow(0 0 20px var(--target-4));
+        }
+
+        .psychic-sees-mode .target-zone-svg {
+            opacity: 1;
+        }
+
+        /* Needle */
+        .needle-container {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 4px;
+            height: 280px;
+            transform-origin: bottom center;
+            transform: translateX(-50%) rotate(0deg);
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        .needle {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, transparent 10%, var(--accent-gold) 40%, #fff 100%);
+            border-radius: 4px;
+            box-shadow: 0 0 15px var(--accent-gold);
+            position: relative;
+        }
+
+        .needle::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -6px;
+            width: 16px;
+            height: 16px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 20px #fff;
+        }
+
+        .dial-hub {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            background: #2a2d3e;
+            border-radius: 50%;
+            border: 4px solid #1a1c29;
+            z-index: 30;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        /* Interaction Layer */
+        .interaction-layer {
+            position: absolute;
+            top: -100px; left: -100px; right: -100px; bottom: 0;
+            z-index: 40;
+            cursor: grab;
+            touch-action: none;
+        }
+        
+        .interaction-layer:active {
+            cursor: grabbing;
+        }
+
+        /* State UI & Controls */
+        .controls-container {
+            margin-top: 4rem;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 50;
+            width: 100%;
+        }
+
+        .state-message {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            letter-spacing: 1px;
+            height: 30px;
+        }
+
+        .btn {
+            background: transparent;
+            color: var(--text-primary);
+            font-family: var(--font-main);
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 1rem 3rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            backdrop-filter: blur(5px);
+        }
+
+        .btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: var(--accent-gold);
+            color: #000;
+            border: none;
+            box-shadow: 0 0 20px var(--accent-gold-glow);
+        }
+
+        .btn-primary:hover {
+            background: #ffc133;
+            box-shadow: 0 0 30px var(--accent-gold-glow);
+        }
+
+        .btn-blue {
+            background: var(--accent-blue);
+            color: #000;
+            border: none;
+            box-shadow: 0 0 20px var(--accent-blue-glow);
+        }
+
+        .btn-blue:hover {
+            background: #33eaff;
+            box-shadow: 0 0 30px var(--accent-blue-glow);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Score Reveal Animation */
+        .score-reveal {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.5);
+            font-size: 8rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 50px var(--accent-gold);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 100;
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .score-reveal.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        /* Utility classes */
+        .hidden { display: none !important; }
+        
+        /* Media Queries */
+        @media (max-width: 768px) {
+            header { padding: 1rem; }
+            .team-score { padding: 1rem 1.5rem; }
+            .score-value { font-size: 2.5rem; }
+            .dial-container { width: 340px; height: 170px; }
+            .needle-container { height: 150px; }
+            .concept-label { font-size: 1.2rem; padding: 0.5rem 1rem; }
+            .concept-container { transform: translateY(-100px); padding: 0 1rem; }
+        }
+
+    </style>
 </head>
 <body>
+    <div class="ambient-texture"></div>
 
-<div class="app-container">
-    <div class="header">
-        <div class="team" id="team-0" onclick="editTeamName(0)">
-            <div class="team-name" id="tname-0">TEAM 1</div>
-            <div class="team-score" id="tscore-0">0</div>
+    <header>
+        <div class="team-score active-team team-one" id="team1-board">
+            <div class="team-name">Team Brain</div>
+            <div class="score-value" id="score1">0</div>
         </div>
-        <div class="divider"></div>
-        <div class="team" id="team-1" onclick="editTeamName(1)">
-            <div class="team-name" id="tname-1">TEAM 2</div>
-            <div class="team-score" id="tscore-1">0</div>
+        <div class="team-score team-two" id="team2-board">
+            <div class="team-name">Team Wave</div>
+            <div class="score-value" id="score2">0</div>
         </div>
-    </div>
+    </header>
 
-    <div class="message-banner" id="message-banner"></div>
+    <main>
+        <div class="concept-container">
+            <div class="concept-label concept-left" id="concept-left">HOT</div>
+            <div class="concept-label concept-right" id="concept-right">COLD</div>
+        </div>
 
-    <div class="dial-wrapper">
-        <svg id="dial" viewBox="0 0 400 220">
-            <defs>
-               <filter id="glow-violet" x="-50%" y="-50%" width="200%" height="200%">
-                   <feGaussianBlur stdDeviation="4" result="blur" />
-                   <feComposite in="SourceGraphic" in2="blur" operator="over" />
-               </filter>
-               <filter id="glow-white" x="-50%" y="-50%" width="200%" height="200%">
-                   <feGaussianBlur stdDeviation="2" result="blur" />
-                   <feComposite in="SourceGraphic" in2="blur" operator="over" />
-               </filter>
-               <filter id="shadow">
-                   <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="black" flood-opacity="0.7"/>
-               </filter>
-               <radialGradient id="dial-bg" cx="50%" cy="100%" r="100%">
-                   <stop offset="0%" stop-color="#1e293b" />
-                   <stop offset="100%" stop-color="#09090b" />
-               </radialGradient>
-            </defs>
+        <div class="dial-container" id="dial-wrapper">
+            <div class="dial-bg"></div>
             
-            <!-- Base track background fan -->
-            <path d="M 20 200 A 180 180 0 0 1 380 200 L 200 200 Z" fill="url(#dial-bg)" stroke="#1e293b" stroke-width="2"/>
-            <line x1="15" y1="200" x2="385" y2="200" stroke="#1e293b" stroke-width="4" stroke-linecap="round"/>
+            <svg class="target-zone-svg" id="target-svg" viewBox="0 0 600 300" preserveAspectRatio="xMidYMax meet">
+                <defs>
+                    <clipPath id="dial-clip">
+                        <path d="M 0 300 A 300 300 0 0 1 600 300 L 0 300 Z" />
+                    </clipPath>
+                </defs>
+                <g clip-path="url(#dial-clip)" id="target-bands">
+                    <!-- Target bands drawn dynamically by JS -->
+                </g>
+            </svg>
 
-            <!-- Procedurally generated tick marks -->
-            <g id="dial-ticks"></g>
+            <div class="needle-container" id="needle">
+                <div class="needle"></div>
+            </div>
             
-            <!-- Target arcs -->
-            <g id="target-group" fill="none" stroke-linecap="butt">
-                <path id="arc-near" stroke="var(--accent-slate)" stroke-width="48" opacity="0.8" />
-                <path id="arc-close" stroke="var(--accent-amber)" stroke-width="48" opacity="0.9" />
-                <path id="arc-bullseye" stroke="var(--accent-violet)" stroke-width="48" filter="url(#glow-violet)" />
-            </g>
-
-            <!-- Needle -->
-            <g id="needle" transform="rotate(90, 200, 200)" style="transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);" filter="url(#shadow)">
-                <path d="M 200 196 L 25 198 L 25 202 L 200 204 Z" fill="#f8fafc" />
-                <!-- Highlight line -->
-                <line x1="190" y1="200" x2="30" y2="200" stroke="#94a3b8" stroke-width="1" />
-                <!-- Center hub -->
-                <circle cx="200" cy="200" r="22" fill="#18181b" stroke="#3f3f46" stroke-width="4"/>
-                <circle cx="200" cy="200" r="12" fill="#09090b" />
-                <circle cx="200" cy="200" r="4" fill="var(--accent-violet)" filter="url(#glow-violet)"/>
-            </g>
-        </svg>
-
-        <div class="word-pair">
-            <div class="word left" id="word-left"></div>
-            <div class="word right" id="word-right"></div>
-        </div>
-    </div>
-
-    <div class="bottom-actions">
-        <div class="result-display" id="result-display">
-            <span id="result-text"></span>
+            <div class="dial-hub"></div>
+            
+            <div class="interaction-layer" id="interaction-layer"></div>
         </div>
 
-        <div class="psychic-actions" id="psychic-actions">
-            <button class="btn-action" onclick="handleSkip()">SKIP PAIR</button>
-            <button class="btn-action" onclick="handleRerun()">RERUN DIAL</button>
+        <div class="score-reveal" id="score-reveal">+4</div>
+
+        <div class="controls-container">
+            <div class="state-message" id="state-message">Psychic: Review the word pair.</div>
+            
+            <!-- Dynamic Buttons -->
+            <button class="btn btn-primary" id="btn-ready">I'm Ready (Show Target)</button>
+            <button class="btn hidden" id="btn-clue-given">Clue Given</button>
+            <button class="btn btn-primary hidden" id="btn-reveal">Reveal Target</button>
+            
+            <div class="btn-group hidden" id="btn-group-opponent">
+                <button class="btn" id="btn-guess-left">Target is Left</button>
+                <button class="btn" id="btn-guess-right">Target is Right</button>
+            </div>
+            
+            <button class="btn hidden" id="btn-next">Next Round</button>
         </div>
+    </main>
 
-        <button class="btn-primary" id="main-btn" onclick="handleMainAction()">REVEAL TARGET</button>
-        <button class="btn-secondary" onclick="resetGame()">NEW GAME</button>
-    </div>
-</div>
+    <script>
+        /**
+         * Wavelength Game Logic
+         * State Machine, Physics Engine, and Rendering
+         */
 
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-<script>
-// Base words + 50+ new pairs
-const WORD_PAIRS = [
-    ["Bad Company","Good Company"],["Terrible Movie","Great Movie"],["Cold","Hot"],["Ugly","Beautiful"],["Worst Day Ever","Best Day Ever"],["Boring Hobby","Exciting Hobby"],["Useless Superpower","Awesome Superpower"],["Lame Party Trick","Cool Party Trick"],["Terrible First Date Spot","Perfect First Date Spot"],["Worst Pizza Topping","Best Pizza Topping"],["Annoying Sound","Satisfying Sound"],["Uncomfortable Clothing","Comfy Clothing"],["Worst Smell","Best Smell"],["Terrible Gift","Thoughtful Gift"],["Forgettable Song","Catchy Song"],["Terrible Pickup Line","Smooth Pickup Line"],["Annoying Habit","Endearing Quirk"],["Feels Bad","Feels Good"],["Hard","Soft"],["Villain","Hero"],["Common","Rare"],["Bad Influence","Role Model"],["Pointy Animal","Round Animal"],["Useless","Useful"],["Quiet Place","Loud Place"],["Worst Chore","Most Satisfying Chore"],["Worst Board Game","Addictive Board Game"],["Terrible Vacation Spot","Dream Vacation Destination"],["Terrible Roommate Habit","Ideal Roommate Quality"],["Terrible Wifi Name","Clever Wifi Name"],["Guilty Pleasure","Proudly Good"],["Totally Normal","Deeply Weird"],["Overrated","Underrated"],["Better Hot","Better Cold"],["Worse Than It Looks","Better Than It Looks"],["Aesthetic","Functional"],["Fad","Classic"],["Red Flag","Green Flag"],["Trash","Art"],["Lowbrow","Highbrow"],["Bad Advice","Good Advice"],["Requires Luck","Requires Skill"],["Trashy","Classy"],["Worse Than Expected","Better Than Expected"],["Useless Degree","Useful Degree"],["Overpriced","Steal of a Deal"],["Mildly Annoying","Extremely Annoying"],["Looks Easy","Actually Hard"],["Sounds Boring","Actually Fun"],["Sounds Fun","Actually Boring"],["Hard to Explain","Easy to Explain"],["Hard to Forgive","Easy to Forgive"],["Hard to Forget","Easy to Forget"],["Hard to Resist","Easy to Resist"],["Easy to Fake","Hard to Fake"],["Worst Investment","Best Investment"],["Bad on a Resume","Good on a Resume"],["Useless in an Apocalypse","Essential in an Apocalypse"],["Too Much","Just Right"],["Cringe","Cool"],["Basic","Bold"],["Safe Choice","Risky Choice"],["Worst Thing to Say on a Date","Best Thing to Say on a Date"],["Terrible Boss Quality","Great Boss Quality"],["Worst Excuse","Most Believable Excuse"],["Terrible Life Advice","Actually Great Life Advice"],["Worst Way to Start a Conversation","Best Icebreaker"],["Terrible Superhero Name","Intimidating Villain Name"],["Worst Thing to Bring to a Picnic","Perfect Picnic Item"],["Terrible Karaoke Song","Crowd Pleaser Karaoke Song"],["Most Awkward Silence","Comfortable Silence"],["Worst Alarm Sound","Best Way to Wake Up"],["Terrible Motivational Poster","Actually Motivating"],["Worst Movie Sequel","Great Movie Sequel"],["Terrible Snack for a Movie","Perfect Movie Snack"],["Worst Password","Unguessable Password"],["Terrible Driving Habit","Ideal Driver Behaviour"],["Worst Thing to Dream About","Best Dream"],["Terrible Job Interview Answer","Perfect Job Interview Answer"],["Worst Couple Costume","Best Couple Costume"],["Terrible Pet Name","Great Pet Name"],["Worst Way to Break Up","Respectful Breakup"],["Terrible Baby Name","Timeless Baby Name"],["Worst Tattoo","Meaningful Tattoo"],["Terrible First Message on a Dating App","Perfect Opening Line"],["Worst Thing to Find in a Hotel Room","Perfect Hotel Room Perk"],["Terrible Road Trip Snack","Best Road Trip Snack"],["Worst Theme for a Party","Best Party Theme"],["Terrible Supervillain Weakness","Perfect Supervillain Weakness"],["Worst Text Response","Best Text Response"],["Terrible Dance Move","Iconic Dance Move"],["Worst Show to Binge Alone","Best Show to Binge Alone"],["Terrible Advice for New Parents","Actually Helpful Parenting Tip"],["Worst Holiday Tradition","Beloved Holiday Tradition"],["Terrible Way to Propose","Perfect Proposal"],["Worst Cooking Technique","Game Changing Cooking Tip"],["Terrible App Idea","App You Would Actually Use"],["Worst Thing to Google at Work","Most Productive Work Search"],["Terrible Username","Great Username"],["Worst Trend of the Last Decade","Trend Worth Keeping"],["Terrible Way to Handle a Disagreement","Healthy Way to Handle a Disagreement"],["Worst Font","Best Font"],["Terrible Playlist Name","Perfect Playlist Name"],["Worst Thing to Say to Your Boss","Best Thing to Say to Your Boss"],["Worst Sport to Watch","Most Exciting Sport to Watch"],["Terrible Loyalty Reward","Amazing Loyalty Reward"],["Worst Fashion Trend","Iconic Fashion Moment"],["Terrible Concert Behaviour","Great Concert Energy"],["Worst Thing to Overshare","Fine to Overshare"],["Terrible Opening Line for a Novel","Gripping Opening Line"],["Worst Reason to Call in Sick","Completely Valid Reason to Call in Sick"],["Terrible Side Hustle","Genius Side Hustle"],["Worst Thing to Put on a Wedding Cake","Perfect Wedding Cake Topper"],["Terrible Way to Network","Natural Way to Network"],["Worst Career Change","Bold Career Change"],["Terrible Icebreaker Game","Actually Fun Icebreaker"],["Worst Thing to Say at a Funeral","Comforting Thing to Say at a Funeral"],["Terrible Tour Guide","Captivating Tour Guide"],["Worst Bedtime Habit","Perfect Sleep Routine"],["Terrible Response to \"I Love You\"","Perfect Response to \"I Love You\""],["Worst Morning Routine","Ideal Morning Routine"],["Terrible Thing to Bring to a Job Interview","Perfect Thing to Bring to a Job Interview"],["Worst Gym Habit","Good Gym Etiquette"],["Terrible Conversation Starter at a Party","Perfect Party Icebreaker"],["Worst Way to End an Email","Great Email Sign Off"],["Worst Selfie Background","Perfect Selfie Background"],["Terrible Band Name","Iconic Band Name"],["Worst Social Media Bio","Compelling Social Media Bio"],["Terrible Hobby to Pick Up in a Breakup","Healthy Breakup Hobby"],["Worst Thing to Say After Winning","Gracious Winner Response"],["Worst Thing to Say After Losing","Gracious Loser Response"],["Terrible Halloween Costume","Iconic Halloween Costume"],["Worst Habit to Have on a Plane","Best Plane Passenger Behaviour"],["Terrible Dinner Party Topic","Great Dinner Party Conversation"],["Worst Advice to Give Someone Heartbroken","Best Advice for a Broken Heart"],["Terrible Dog Name","Perfect Dog Name"],["Worst Way to Ask for a Raise","Best Way to Ask for a Raise"],["Terrible Secret to Keep","Secret Worth Keeping"],["Worst Celebrity Cameo","Perfect Celebrity Cameo"],["Worst Tagline for a Product","Memorable Product Tagline"],["Terrible Thing to Put in a Time Capsule","Perfect Time Capsule Item"],["Worst Way to Make Friends","Natural Way to Make Friends"],["Terrible Bucket List Item","Ultimate Bucket List Item"],["Worst Compliment","Genuine Compliment"],
-    ["Worst Way to Wake Someone Up","Gentlest Way to Wake Someone Up"],
-    ["Terrible Thing to Confess on a First Date","Fine to Mention on a First Date"],
-    ["Worst Superpower Side Effect","Best Superpower Perk"],
-    ["Terrible Thing to Bring to a Potluck","Crowd Favourite Potluck Dish"],
-    ["Worst Reason to Ghost Someone","Valid Reason to Ghost Someone"],
-    ["Terrible Nickname","Perfect Nickname"],
-    ["Worst Way to Spend a Sunday","Ideal Sunday"],
-    ["Terrible Apology","Genuine Apology"]
-];
+        // --- Data ---
+        const WORD_PAIRS = [
+            ["Hot", "Cold"], ["Famous", "Unknown"], ["Fast", "Slow"], ["Big", "Small"], 
+            ["Old", "Young"], ["Loud", "Quiet"], ["Clean", "Dirty"], ["Smart", "Dumb"], 
+            ["Happy", "Sad"], ["Easy", "Hard"], ["Rare", "Common"], ["Beautiful", "Ugly"], 
+            ["Strong", "Weak"], ["Light", "Dark"], ["Cheap", "Expensive"], ["Safe", "Dangerous"], 
+            ["Funny", "Serious"], ["Natural", "Artificial"], ["Simple", "Complex"], 
+            ["Healthy", "Unhealthy"], ["Popular", "Obscure"], ["Modern", "Ancient"], 
+            ["Literal", "Metaphorical"], ["Physical", "Digital"], ["Public", "Private"], 
+            ["Violent", "Peaceful"], ["Creative", "Analytical"], ["Emotional", "Logical"], 
+            ["Urban", "Rural"], ["Formal", "Casual"], ["Good", "Evil"], ["Art", "Trash"]
+        ];
 
-let state = {
-    teams: [{name: "TEAM 1", score: 0}, {name: "TEAM 2", score: 0}],
-    currentTeamIndex: 0,
-    phase: 'START',
-    targetAngle: 90,
-    needleAngle: 90,
-    currentPair: ["", ""]
-};
+        // --- State ---
+        const STATES = {
+            SETUP: 'SETUP',
+            PSYCHIC_SEES: 'PSYCHIC_SEES',
+            PSYCHIC_CLUES: 'PSYCHIC_CLUES',
+            TEAM_GUESSES: 'TEAM_GUESSES',
+            REVEAL: 'REVEAL',
+            OPPONENT_LEFT_RIGHT: 'OPPONENT_LEFT_RIGHT',
+            NEXT_ROUND: 'NEXT_ROUND'
+        };
 
-const dial = document.getElementById('dial');
-const needle = document.getElementById('needle');
-let isDragging = false;
-
-window.onload = () => {
-    generateTicks();
-    try {
-        const saved = localStorage.getItem('wavelength_teams');
-        if (saved) state.teams = JSON.parse(saved);
-    } catch(e) {}
-    initRound();
-};
-
-function generateTicks() {
-    const ticksG = document.getElementById('dial-ticks');
-    let ticksHtml = '';
-    // Wavelength uses 4.5 degree intervals (bullseye=4.5, close=13.5, near=22.5)
-    for(let i=0; i<=180; i+=4.5) {
-        let isMajor = (i % 22.5 === 0);
-        let r1 = 160;
-        let r2 = isMajor ? 172 : 165;
-        let stroke = isMajor ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.15)';
-        let sw = isMajor ? 2 : 1;
+        let currentState = STATES.SETUP;
+        let currentTeam = 1; // 1 or 2
+        let scores = { 1: 0, 2: 0 };
         
-        let rad = (180 - i) * Math.PI / 180;
-        let x1 = 200 + r1 * Math.cos(rad);
-        let y1 = 200 - r1 * Math.sin(rad);
-        let x2 = 200 + r2 * Math.cos(rad);
-        let y2 = 200 - r2 * Math.sin(rad);
-        ticksHtml += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke}" stroke-width="${sw}" stroke-linecap="round"/>`;
-    }
-    ticksG.innerHTML = ticksHtml;
-}
+        // Target Logic (-90 to 90 degrees)
+        let targetAngle = 0; 
+        const TARGET_WIDTH = 40; // Total width in degrees
+        let roundScore = 0;
 
-function resetGame() {
-    state.teams[0].score = 0;
-    state.teams[1].score = 0;
-    state.currentTeamIndex = 0;
-    state.phase = 'START';
-    localStorage.setItem('wavelength_teams', JSON.stringify(state.teams));
-    initRound();
-}
+        // Physics State
+        let currentNeedleAngle = 0; // -90 to 90
+        let targetNeedleAngle = 0;
+        let velocity = 0;
+        let isDragging = false;
+        let lastTimestamp = 0;
 
-function editTeamName(index) {
-    const newName = prompt("Enter team name (max 15 chars):", state.teams[index].name);
-    if (newName && newName.trim().length > 0) {
-        state.teams[index].name = newName.trim().substring(0, 15).toUpperCase();
-        localStorage.setItem('wavelength_teams', JSON.stringify(state.teams));
-        updateUI();
-    }
-}
+        // --- DOM Elements ---
+        const elNeedle = document.getElementById('needle');
+        const elInteraction = document.getElementById('interaction-layer');
+        const elTargetSvg = document.getElementById('target-svg');
+        const elTargetBands = document.getElementById('target-bands');
+        const elDialWrapper = document.getElementById('dial-wrapper');
+        
+        const elConceptLeft = document.getElementById('concept-left');
+        const elConceptRight = document.getElementById('concept-right');
+        
+        const elStateMessage = document.getElementById('state-message');
+        const elBtnReady = document.getElementById('btn-ready');
+        const elBtnClueGiven = document.getElementById('btn-clue-given');
+        const elBtnReveal = document.getElementById('btn-reveal');
+        const elBtnGroupOpponent = document.getElementById('btn-group-opponent');
+        const elBtnGuessLeft = document.getElementById('btn-guess-left');
+        const elBtnGuessRight = document.getElementById('btn-guess-right');
+        const elBtnNext = document.getElementById('btn-next');
+        
+        const elScore1 = document.getElementById('score1');
+        const elScore2 = document.getElementById('score2');
+        const elTeam1Board = document.getElementById('team1-board');
+        const elTeam2Board = document.getElementById('team2-board');
+        const elScoreReveal = document.getElementById('score-reveal');
 
-function initRound() {
-    randomizeTarget();
-    randomizePair();
-    state.needleAngle = 90;
-    renderTarget();
-    updateUI();
-}
+        // --- Initialization ---
+        function init() {
+            setupEventListeners();
+            startNewRound();
+            requestAnimationFrame(physicsLoop);
+        }
 
-function randomizeTarget() {
-    state.targetAngle = Math.random() * (155 - 25) + 25;
-}
+        function startNewRound() {
+            // Pick random words
+            const pair = WORD_PAIRS[Math.floor(Math.random() * WORD_PAIRS.length)];
+            // 50% chance to swap left/right
+            if (Math.random() > 0.5) {
+                elConceptLeft.textContent = pair[1];
+                elConceptRight.textContent = pair[0];
+            } else {
+                elConceptLeft.textContent = pair[0];
+                elConceptRight.textContent = pair[1];
+            }
 
-function randomizePair() {
-    const pairIndex = Math.floor(Math.random() * WORD_PAIRS.length);
-    state.currentPair = WORD_PAIRS[pairIndex];
-}
+            // Generate target angle (-75 to 75 to keep it fully visible)
+            targetAngle = (Math.random() * 150) - 75;
+            drawTargetSVG();
 
-function handleSkip() {
-    if (state.phase !== 'PSYCHIC') return;
-    randomizePair();
-    randomizeTarget();
-    renderTarget();
-    updateUI();
-}
+            // Reset UI
+            elDialWrapper.className = 'dial-container';
+            elScoreReveal.className = 'score-reveal';
+            
+            // Randomize starting needle position
+            currentNeedleAngle = (Math.random() * 160) - 80;
+            targetNeedleAngle = currentNeedleAngle;
+            velocity = 0;
 
-function handleRerun() {
-    if (state.phase !== 'PSYCHIC') return;
-    randomizeTarget();
-    renderTarget();
-    updateUI();
-}
+            updateActiveTeamUI();
+            setState(STATES.SETUP);
+        }
 
-function handleMainAction() {
-    if (state.phase === 'START') {
-        state.phase = 'PSYCHIC';
-    } else if (state.phase === 'PSYCHIC') {
-        state.phase = 'GUESS';
-    } else if (state.phase === 'GUESS') {
-        state.phase = 'REVEAL';
-        scoreRound();
-    } else if (state.phase === 'REVEAL') {
-        state.currentTeamIndex = (state.currentTeamIndex + 1) % 2;
-        state.phase = 'START';
-        initRound();
-    }
-    updateUI();
-}
+        // --- SVG Drawing ---
+        function drawTargetSVG() {
+            // Convert angle (-90 to 90) to SVG coordinates (0 to 180 degrees, where 0 is left, 180 is right)
+            // But standard SVG arc drawing uses coordinates. It's easier to rotate a group.
+            
+            elTargetBands.innerHTML = '';
+            
+            // Draw bands: center (4), mid (3), outer (2)
+            const cx = 300, cy = 300, r = 300;
+            
+            // Base rotation: targetAngle is -90 (left) to 90 (right).
+            // We want to draw a wedge centered at top (0), then rotate the whole group.
+            const halfW = TARGET_WIDTH / 2;
+            
+            // 2 Points (Outer)
+            const p2Left = polarToCartesian(cx, cy, r, -halfW);
+            const p2Right = polarToCartesian(cx, cy, r, halfW);
+            const path2 = `<path d="M ${cx} ${cy} L ${p2Left.x} ${p2Left.y} A ${r} ${r} 0 0 1 ${p2Right.x} ${p2Right.y} Z" fill="var(--target-2)" />`;
+            
+            // 3 Points (Mid)
+            const w3 = TARGET_WIDTH * 0.6;
+            const halfW3 = w3 / 2;
+            const p3Left = polarToCartesian(cx, cy, r, -halfW3);
+            const p3Right = polarToCartesian(cx, cy, r, halfW3);
+            const path3 = `<path d="M ${cx} ${cy} L ${p3Left.x} ${p3Left.y} A ${r} ${r} 0 0 1 ${p3Right.x} ${p3Right.y} Z" fill="var(--target-3)" />`;
+            
+            // 4 Points (Center)
+            const w4 = TARGET_WIDTH * 0.2;
+            const halfW4 = w4 / 2;
+            const p4Left = polarToCartesian(cx, cy, r, -halfW4);
+            const p4Right = polarToCartesian(cx, cy, r, halfW4);
+            const path4 = `<path d="M ${cx} ${cy} L ${p4Left.x} ${p4Left.y} A ${r} ${r} 0 0 1 ${p4Right.x} ${p4Right.y} Z" fill="var(--target-4)" />`;
 
-function scoreRound() {
-    const diff = Math.abs(state.targetAngle - state.needleAngle);
-    let pts = 0;
-    if (diff <= 4.5) pts = 5;
-    else if (diff <= 13.5) pts = 3;
-    else if (diff <= 22.5) pts = 1;
-    
-    state.teams[state.currentTeamIndex].score += pts;
-    localStorage.setItem('wavelength_teams', JSON.stringify(state.teams));
-    
-    if (pts === 5) {
-        confetti({ particleCount: 150, spread: 80, origin: { y: 0.7 }, colors: ['#7c3aed', '#f59e0b', '#ffffff'] });
-    } else if (pts === 3) {
-        confetti({ particleCount: 50, spread: 50, origin: { y: 0.7 }, colors: ['#f59e0b', '#ffffff'] });
-    }
-    
-    const rd = document.getElementById('result-display');
-    rd.className = 'result-display'; 
-    let displayStr = "";
-    
-    if (pts === 5) { displayStr = "BULLSEYE! +5"; rd.classList.add('bullseye'); }
-    else if (pts === 3) { displayStr = "CLOSE! +3"; rd.classList.add('close'); }
-    else if (pts === 1) { displayStr = "NEAR! +1"; rd.classList.add('near'); }
-    else { displayStr = "MISS! +0"; rd.classList.add('miss'); }
-    
-    document.getElementById('result-text').innerText = displayStr;
-}
+            // SVG math: 0 degrees is standard right. We want 0 to be UP. 
+            // Our polarToCartesian function treats 0 as UP.
+            
+            elTargetBands.innerHTML = path2 + path3 + path4;
+            elTargetBands.setAttribute('transform', `rotate(${targetAngle} 300 300)`);
+        }
 
-function describeArcStroke(cx, cy, r, startAngle, endAngle) {
-    function getPt(angle) {
-        let rad = (180 - angle) * Math.PI / 180;
-        return { x: cx + r * Math.cos(rad), y: cy - r * Math.sin(rad) };
-    }
-    const start = getPt(startAngle);
-    const end = getPt(endAngle);
-    return ["M", start.x, start.y, "A", r, r, 0, 0, 1, end.x, end.y].join(" ");
-}
+        function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+            // Make 0 degrees point UP
+            const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+            return {
+                x: centerX + (radius * Math.cos(angleInRadians)),
+                y: centerY + (radius * Math.sin(angleInRadians))
+            };
+        }
 
-function renderTarget() {
-    const t = state.targetAngle;
-    // Radius 130, stroke-width 48 leaves nice gap to ticks at 160
-    document.getElementById('arc-near').setAttribute('d', describeArcStroke(200, 200, 130, t - 22.5, t + 22.5));
-    document.getElementById('arc-close').setAttribute('d', describeArcStroke(200, 200, 130, t - 13.5, t + 13.5));
-    document.getElementById('arc-bullseye').setAttribute('d', describeArcStroke(200, 200, 130, t - 4.5, t + 4.5));
-}
+        // --- Physics Engine ---
+        function updatePointer(e) {
+            if (!isDragging || currentState !== STATES.TEAM_GUESSES) return;
 
-function updateUI() {
-    document.getElementById('tname-0').innerText = state.teams[0].name;
-    document.getElementById('tscore-0').innerText = state.teams[0].score;
-    document.getElementById('tname-1').innerText = state.teams[1].name;
-    document.getElementById('tscore-1').innerText = state.teams[1].score;
-    
-    document.getElementById('team-0').className = `team ${state.currentTeamIndex === 0 ? 'active' : ''}`;
-    document.getElementById('team-1').className = `team ${state.currentTeamIndex === 1 ? 'active' : ''}`;
+            const rect = elDialWrapper.getBoundingClientRect();
+            // Origin is bottom center of the dial
+            const originX = rect.left + rect.width / 2;
+            const originY = rect.bottom;
 
-    document.getElementById('word-left').innerText = state.currentPair[0];
-    document.getElementById('word-right').innerText = state.currentPair[1];
+            let clientX, clientY;
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
 
-    const tg = document.getElementById('target-group');
-    const msg = document.getElementById('message-banner');
-    const btn = document.getElementById('main-btn');
-    const res = document.getElementById('result-display');
-    const psychicActions = document.getElementById('psychic-actions');
-    const tName = state.teams[state.currentTeamIndex].name;
+            const dx = clientX - originX;
+            const dy = clientY - originY;
+            
+            // Calculate angle: Math.atan2 gives angle from X axis. We want 0 at top.
+            let rad = Math.atan2(dy, dx);
+            let deg = rad * (180 / Math.PI);
+            
+            // Adjust so straight up is 0, right is positive, left is negative
+            deg = deg + 90;
+            
+            // Clamp between -90 and 90
+            if (deg < -90) deg = -90;
+            if (deg > 90) deg = 90;
 
-    needle.setAttribute('transform', `rotate(${state.needleAngle}, 200, 200)`);
+            targetNeedleAngle = deg;
+        }
 
-    if (state.phase === 'START') {
-        tg.style.opacity = '0';
-        res.style.opacity = '0';
-        psychicActions.style.display = 'none';
-        msg.innerHTML = `<span class="highlight">${tName} Psychic</span>: Take the device.`;
-        btn.innerText = "TAP TO REVEAL TARGET";
-        btn.className = "btn-primary";
-        needle.style.transition = "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)";
-    } else if (state.phase === 'PSYCHIC') {
-        tg.style.opacity = '1';
-        res.style.opacity = '0';
-        psychicActions.style.display = 'flex';
-        msg.innerHTML = `Give your clue, then hide the target.`;
-        btn.innerText = "HIDE FOR GUESSERS";
-        btn.className = "btn-primary alt";
-    } else if (state.phase === 'GUESS') {
-        tg.style.opacity = '0';
-        res.style.opacity = '0';
-        psychicActions.style.display = 'none';
-        msg.innerHTML = `<span class="highlight">${tName} Team</span>: Discuss and drag the needle.`;
-        btn.innerText = "LOCK IN GUESS";
-        btn.className = "btn-primary";
-        needle.style.transition = "none";
-    } else if (state.phase === 'REVEAL') {
-        tg.style.opacity = '1';
-        res.style.opacity = '1';
-        psychicActions.style.display = 'none';
-        msg.innerHTML = `Target Revealed!`;
-        btn.innerText = "NEXT ROUND";
-        btn.className = "btn-primary";
-        needle.style.transition = "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)";
-    }
-}
+        function physicsLoop(timestamp) {
+            if (!lastTimestamp) lastTimestamp = timestamp;
+            const dt = timestamp - lastTimestamp;
+            lastTimestamp = timestamp;
 
-function updateNeedleAngle(e) {
-    const pt = dial.createSVGPoint();
-    pt.x = e.touches ? e.touches[0].clientX : e.clientX;
-    pt.y = e.touches ? e.touches[0].clientY : e.clientY;
-    const svgP = pt.matrixTransform(dial.getScreenCTM().inverse());
-    
-    const dx = svgP.x - 200;
-    const dy = svgP.y - 200;
-    
-    if (dy > 0) {
-        state.needleAngle = dx > 0 ? 180 : 0;
-    } else {
-        let angle = Math.atan2(dy, dx) * 180 / Math.PI; 
-        state.needleAngle = angle + 180;
-    }
-    needle.setAttribute('transform', `rotate(${state.needleAngle}, 200, 200)`);
-}
+            if (isDragging && currentState === STATES.TEAM_GUESSES) {
+                // Instantly follow pointer when dragging, but record velocity
+                const oldAngle = currentNeedleAngle;
+                // Add some interpolation for smoothness even when dragging
+                currentNeedleAngle += (targetNeedleAngle - currentNeedleAngle) * 0.4;
+                velocity = (currentNeedleAngle - oldAngle) / Math.max(dt, 1);
+            } else {
+                // Apply inertia and friction
+                currentNeedleAngle += velocity * dt;
+                velocity *= 0.92; // Friction
 
-function onDown(e) {
-    if (state.phase !== 'GUESS') return;
-    isDragging = true;
-    needle.style.transition = "none";
-    updateNeedleAngle(e);
-}
+                // Bounce off edges
+                if (currentNeedleAngle < -90) {
+                    currentNeedleAngle = -90;
+                    velocity *= -0.5;
+                }
+                if (currentNeedleAngle > 90) {
+                    currentNeedleAngle = 90;
+                    velocity *= -0.5;
+                }
+                
+                targetNeedleAngle = currentNeedleAngle;
+            }
 
-function onMove(e) {
-    if (!isDragging) return;
-    e.preventDefault();
-    updateNeedleAngle(e);
-}
+            // Render needle
+            elNeedle.style.transform = `translateX(-50%) rotate(${currentNeedleAngle}deg)`;
 
-function onUp(e) {
-    if (isDragging) {
-        isDragging = false;
-        needle.style.transition = "transform 0.2s ease-out";
-    }
-}
+            requestAnimationFrame(physicsLoop);
+        }
 
-dial.addEventListener('mousedown', onDown);
-dial.addEventListener('touchstart', onDown, {passive: false});
-window.addEventListener('mousemove', onMove, {passive: false});
-window.addEventListener('touchmove', onMove, {passive: false});
-window.addEventListener('mouseup', onUp);
-window.addEventListener('touchend', onUp);
-</script>
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/wave-sw.js').catch(() => {});
-  });
-}
-</script>
+        // --- Event Listeners ---
+        function setupEventListeners() {
+            // Dial Interaction
+            const startDrag = (e) => {
+                if (currentState !== STATES.TEAM_GUESSES) return;
+                isDragging = true;
+                updatePointer(e);
+            };
+            const stopDrag = () => { isDragging = false; };
+
+            elInteraction.addEventListener('mousedown', startDrag);
+            window.addEventListener('mousemove', updatePointer);
+            window.addEventListener('mouseup', stopDrag);
+
+            elInteraction.addEventListener('touchstart', startDrag, {passive: true});
+            window.addEventListener('touchmove', updatePointer, {passive: false});
+            window.addEventListener('touchend', stopDrag);
+
+            // Button actions
+            elBtnReady.addEventListener('click', () => setState(STATES.PSYCHIC_SEES));
+            elBtnClueGiven.addEventListener('click', () => setState(STATES.TEAM_GUESSES));
+            elBtnReveal.addEventListener('click', () => setState(STATES.REVEAL));
+            
+            elBtnGuessLeft.addEventListener('click', () => handleOpponentGuess('LEFT'));
+            elBtnGuessRight.addEventListener('click', () => handleOpponentGuess('RIGHT'));
+            
+            elBtnNext.addEventListener('click', () => {
+                currentTeam = currentTeam === 1 ? 2 : 1;
+                startNewRound();
+            });
+        }
+
+        // --- State Machine ---
+        function setState(newState) {
+            currentState = newState;
+            
+            // Hide all controls first
+            elBtnReady.classList.add('hidden');
+            elBtnClueGiven.classList.add('hidden');
+            elBtnReveal.classList.add('hidden');
+            elBtnGroupOpponent.classList.add('hidden');
+            elBtnNext.classList.add('hidden');
+
+            switch (newState) {
+                case STATES.SETUP:
+                    elStateMessage.textContent = `Psychic for Team ${currentTeam}: Review the concepts.`;
+                    elBtnReady.classList.remove('hidden');
+                    break;
+                
+                case STATES.PSYCHIC_SEES:
+                    elDialWrapper.classList.add('psychic-sees-mode');
+                    elStateMessage.textContent = "Memorize the target zone. Hiding in 3...";
+                    
+                    let count = 3;
+                    const interval = setInterval(() => {
+                        count--;
+                        if (count > 0) {
+                            elStateMessage.textContent = `Memorize the target zone. Hiding in ${count}...`;
+                        } else {
+                            clearInterval(interval);
+                            elDialWrapper.classList.remove('psychic-sees-mode');
+                            setState(STATES.PSYCHIC_CLUES);
+                        }
+                    }, 1000);
+                    break;
+                
+                case STATES.PSYCHIC_CLUES:
+                    elStateMessage.textContent = "Give ONE word clue to your team.";
+                    elBtnClueGiven.classList.remove('hidden');
+                    break;
+                
+                case STATES.TEAM_GUESSES:
+                    elStateMessage.textContent = "Team discusses and turns the dial to guess.";
+                    elBtnReveal.classList.remove('hidden');
+                    // Add subtle pulse to needle to indicate interactivity
+                    elNeedle.querySelector('.needle').style.boxShadow = `0 0 30px var(--accent-gold)`;
+                    break;
+                
+                case STATES.REVEAL:
+                    elNeedle.querySelector('.needle').style.boxShadow = `0 0 15px var(--accent-gold)`;
+                    elDialWrapper.classList.add('reveal-mode');
+                    calculateScore();
+                    
+                    if (roundScore === 4) {
+                        elStateMessage.textContent = "BULLSEYE! Perfect score.";
+                        showScoreAnim(`+4`);
+                        // Skip opponent guess on bullseye
+                        setTimeout(() => setState(STATES.NEXT_ROUND), 3000);
+                    } else {
+                        showScoreAnim(`+${roundScore}`);
+                        if (roundScore > 0) {
+                            elStateMessage.textContent = `Good job! Scored ${roundScore} points.`;
+                        } else {
+                            elStateMessage.textContent = "Missed the zone completely.";
+                        }
+                        // Move to opponent left/right guess
+                        setTimeout(() => setState(STATES.OPPONENT_LEFT_RIGHT), 2500);
+                    }
+                    break;
+                
+                case STATES.OPPONENT_LEFT_RIGHT:
+                    const oppTeam = currentTeam === 1 ? 2 : 1;
+                    elStateMessage.textContent = `Team ${oppTeam}: Is the true center LEFT or RIGHT of the needle?`;
+                    elBtnGroupOpponent.classList.remove('hidden');
+                    break;
+                
+                case STATES.NEXT_ROUND:
+                    elStateMessage.textContent = "Round complete.";
+                    elBtnNext.classList.remove('hidden');
+                    break;
+            }
+        }
+
+        // --- Game Logic ---
+        function calculateScore() {
+            const diff = Math.abs(currentNeedleAngle - targetAngle);
+            const halfW = TARGET_WIDTH / 2;
+            
+            if (diff <= halfW * 0.2) roundScore = 4;
+            else if (diff <= halfW * 0.6) roundScore = 3;
+            else if (diff <= halfW) roundScore = 2;
+            else roundScore = 0;
+
+            scores[currentTeam] += roundScore;
+            updateScoreUI();
+        }
+
+        function handleOpponentGuess(guess) {
+            const oppTeam = currentTeam === 1 ? 2 : 1;
+            const targetIsRight = targetAngle > currentNeedleAngle;
+            
+            let correct = false;
+            if (guess === 'RIGHT' && targetIsRight) correct = true;
+            if (guess === 'LEFT' && !targetIsRight) correct = true;
+            
+            if (correct) {
+                scores[oppTeam] += 1;
+                elStateMessage.textContent = `Correct! Team ${oppTeam} steals 1 point.`;
+                showScoreAnim('+1');
+            } else {
+                elStateMessage.textContent = `Incorrect! No steal.`;
+            }
+            
+            updateScoreUI();
+            
+            // Small delay before allowing next round
+            elBtnGroupOpponent.classList.add('hidden');
+            setTimeout(() => setState(STATES.NEXT_ROUND), 2000);
+        }
+
+        function updateScoreUI() {
+            elScore1.textContent = scores[1];
+            elScore2.textContent = scores[2];
+        }
+
+        function updateActiveTeamUI() {
+            if (currentTeam === 1) {
+                elTeam1Board.classList.add('active-team');
+                elTeam2Board.classList.remove('active-team');
+                elBtnReady.className = 'btn btn-primary';
+                elBtnReveal.className = 'btn btn-primary';
+            } else {
+                elTeam2Board.classList.add('active-team');
+                elTeam1Board.classList.remove('active-team');
+                elBtnReady.className = 'btn btn-blue';
+                elBtnReveal.className = 'btn btn-blue';
+            }
+        }
+
+        function showScoreAnim(text) {
+            elScoreReveal.textContent = text;
+            elScoreReveal.classList.add('show');
+            setTimeout(() => {
+                elScoreReveal.classList.remove('show');
+            }, 2000);
+        }
+
+        // Start everything
+        init();
+
+    </script>
 </body>
 </html>
