@@ -4,26 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Wavelength</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0a0b10;
-            --bg-gradient: radial-gradient(circle at 50% -20%, #1a1c29 0%, #0a0b10 80%);
-            --text-primary: #e0e2eb;
-            --text-secondary: #8c92a6;
-            --accent-blue: #00e5ff;
-            --accent-blue-glow: rgba(0, 229, 255, 0.4);
-            --accent-gold: #ffb300;
-            --accent-gold-glow: rgba(255, 179, 0, 0.4);
-            --target-4: #00e5ff;
-            --target-3: #0099cc;
-            --target-2: #005580;
-            --panel-bg: rgba(20, 22, 32, 0.7);
-            --panel-border: rgba(255, 255, 255, 0.05);
-            --font-main: 'Space Grotesk', sans-serif;
-            --transition-smooth: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            --color-left: #00e5ff;
+            --color-right: #ffb300;
+            --bg-base: #0a0a0f;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-dim: rgba(255, 255, 255, 0.6);
+            --target-width: 14%;
         }
 
         * {
@@ -32,13 +23,14 @@
             padding: 0;
             user-select: none;
             -webkit-user-select: none;
+            font-family: 'Space Grotesk', sans-serif;
         }
 
         body {
-            font-family: var(--font-main);
-            background: var(--bg-color);
-            background-image: var(--bg-gradient);
-            color: var(--text-primary);
+            background-color: var(--bg-base);
+            background-image: radial-gradient(circle at 50% 0%, rgba(0, 229, 255, 0.05) 0%, transparent 50%),
+                              radial-gradient(circle at 50% 100%, rgba(255, 179, 0, 0.05) 0%, transparent 50%);
+            color: var(--text-main);
             height: 100vh;
             width: 100vw;
             overflow: hidden;
@@ -47,385 +39,431 @@
             align-items: center;
         }
 
-        /* Particles / Texture Background */
-        .ambient-texture {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* Header / Scoreboard */
-        header {
+        /* SCOREBOARD */
+        .scoreboard {
             width: 100%;
-            max-width: 1200px;
-            padding: 2rem 3rem;
+            max-width: 800px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            padding: 24px;
             z-index: 10;
+            margin-top: 20px;
         }
 
         .team-score {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 16px 32px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: var(--panel-bg);
-            border: 1px solid var(--panel-border);
-            padding: 1.5rem 2.5rem;
-            border-radius: 16px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transition: var(--transition-smooth);
+            min-width: 140px;
+            transition: all 0.3s ease;
         }
 
-        .team-score.active-team {
-            border-color: var(--accent-gold);
-            box-shadow: 0 0 30px var(--accent-gold-glow);
-            transform: translateY(-5px);
+        .team-score.active {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
         }
 
-        .team-score.active-team.team-two {
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 30px var(--accent-blue-glow);
-        }
+        .team-score.team-1.active { border-color: var(--color-left); box-shadow: 0 0 20px rgba(0, 229, 255, 0.2); }
+        .team-score.team-2.active { border-color: var(--color-right); box-shadow: 0 0 20px rgba(255, 179, 0, 0.2); }
 
-        .team-name {
-            font-size: 0.9rem;
+        .team-label {
+            font-size: 14px;
+            font-weight: 600;
             letter-spacing: 2px;
             text-transform: uppercase;
-            color: var(--text-secondary);
-            margin-bottom: 0.5rem;
+            color: var(--text-dim);
+            margin-bottom: 8px;
         }
 
         .score-value {
-            font-size: 3.5rem;
+            font-size: 48px;
             font-weight: 700;
             line-height: 1;
-            text-shadow: 0 0 20px rgba(255,255,255,0.2);
         }
 
-        /* Main Game Area */
-        main {
-            flex: 1;
+        /* MAIN GAME AREA */
+        .game-area {
+            flex-grow: 1;
             width: 100%;
-            max-width: 1000px;
+            max-width: 1200px;
             display: flex;
             flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             position: relative;
-            z-index: 10;
-            padding: 2rem;
+            padding: 0 24px;
         }
 
-        /* Word Pairs */
-        .concept-container {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
+        /* UI OVERLAYS (States) */
+        .state-container {
             position: absolute;
-            top: 50%;
-            transform: translateY(-150px);
-            padding: 0 2rem;
-            pointer-events: none;
-        }
-
-        .concept-label {
-            font-size: 2rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            color: var(--text-primary);
-            text-shadow: 0 0 20px rgba(255,255,255,0.1);
-            background: var(--panel-bg);
-            padding: 1rem 2rem;
-            border-radius: 8px;
-            border: 1px solid var(--panel-border);
-            backdrop-filter: blur(5px);
-            transition: opacity 0.4s ease;
-        }
-
-        .concept-left { transform: rotate(-5deg); }
-        .concept-right { transform: rotate(5deg); }
-
-        /* Dial Area */
-        .dial-container {
-            position: relative;
-            width: 600px;
-            height: 300px;
-            margin-top: 4rem;
-        }
-
-        .dial-bg {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--panel-bg);
-            border-top-left-radius: 300px;
-            border-top-right-radius: 300px;
-            border: 2px solid var(--panel-border);
-            border-bottom: none;
-            overflow: hidden;
-            box-shadow: 0 -20px 50px rgba(0,0,0,0.5), inset 0 0 50px rgba(0,0,0,0.8);
-        }
-
-        /* SVG Target Zone */
-        .target-zone-svg {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            transform-origin: 50% 100%;
-            transition: opacity 0.3s ease, filter 0.5s ease;
-            opacity: 0;
-        }
-
-        .reveal-mode .target-zone-svg {
-            opacity: 1;
-            filter: drop-shadow(0 0 20px var(--target-4));
-        }
-
-        .psychic-sees-mode .target-zone-svg {
-            opacity: 1;
-        }
-
-        /* Needle */
-        .needle-container {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 4px;
-            height: 280px;
-            transform-origin: bottom center;
-            transform: translateX(-50%) rotate(0deg);
-            z-index: 20;
-            pointer-events: none;
-        }
-
-        .needle {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to top, transparent 10%, var(--accent-gold) 40%, #fff 100%);
-            border-radius: 4px;
-            box-shadow: 0 0 15px var(--accent-gold);
-            position: relative;
-        }
-
-        .needle::after {
-            content: '';
-            position: absolute;
-            top: -10px;
-            left: -6px;
-            width: 16px;
-            height: 16px;
-            background: #fff;
-            border-radius: 50%;
-            box-shadow: 0 0 20px #fff;
-        }
-
-        .dial-hub {
-            position: absolute;
-            bottom: -30px;
+            top: 10%;
             left: 50%;
             transform: translateX(-50%);
-            width: 60px;
-            height: 60px;
-            background: #2a2d3e;
-            border-radius: 50%;
-            border: 4px solid #1a1c29;
-            z-index: 30;
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
-        }
-
-        /* Interaction Layer */
-        .interaction-layer {
-            position: absolute;
-            top: -100px; left: -100px; right: -100px; bottom: 0;
-            z-index: 40;
-            cursor: grab;
-            touch-action: none;
-        }
-        
-        .interaction-layer:active {
-            cursor: grabbing;
-        }
-
-        /* State UI & Controls */
-        .controls-container {
-            margin-top: 4rem;
-            min-height: 120px;
+            width: 100%;
+            text-align: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
-            z-index: 50;
-            width: 100%;
         }
 
-        .state-message {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-            margin-bottom: 1.5rem;
-            text-align: center;
-            letter-spacing: 1px;
-            height: 30px;
+        .state-container.active {
+            opacity: 1;
+            pointer-events: auto;
+            z-index: 20;
         }
 
-        .btn {
-            background: transparent;
-            color: var(--text-primary);
-            font-family: var(--font-main);
-            font-size: 1.2rem;
+        h1 {
+            font-size: 32px;
+            font-weight: 300;
+            letter-spacing: 4px;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+        }
+
+        .clue-display {
+            font-size: 56px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .subtext {
+            font-size: 18px;
+            color: var(--text-dim);
+            font-weight: 300;
+        }
+
+        /* INPUTS & BUTTONS */
+        input[type="text"] {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 32px;
             font-weight: 600;
-            padding: 1rem 3rem;
-            border: 1px solid rgba(255,255,255,0.2);
+            padding: 16px 24px;
+            border-radius: 12px;
+            text-align: center;
+            width: 80%;
+            max-width: 400px;
+            margin-bottom: 24px;
+            outline: none;
+            transition: border-color 0.3s;
+            font-family: 'Space Grotesk', sans-serif;
+            text-transform: uppercase;
+        }
+
+        input[type="text"]:focus {
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        button {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 16px 48px;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
             border-radius: 30px;
             cursor: pointer;
             transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            backdrop-filter: blur(5px);
+            font-family: 'Space Grotesk', sans-serif;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
         }
 
-        .btn:hover {
-            background: rgba(255,255,255,0.1);
-            border-color: rgba(255,255,255,0.5);
+        button:hover {
             transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
         }
 
-        .btn-primary {
-            background: var(--accent-gold);
-            color: #000;
-            border: none;
-            box-shadow: 0 0 20px var(--accent-gold-glow);
-        }
-
-        .btn-primary:hover {
-            background: #ffc133;
-            box-shadow: 0 0 30px var(--accent-gold-glow);
-        }
-
-        .btn-blue {
-            background: var(--accent-blue);
-            color: #000;
-            border: none;
-            box-shadow: 0 0 20px var(--accent-blue-glow);
-        }
-
-        .btn-blue:hover {
-            background: #33eaff;
-            box-shadow: 0 0 30px var(--accent-blue-glow);
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 1rem;
-        }
-
-        /* Score Reveal Animation */
-        .score-reveal {
-            position: absolute;
-            top: 30%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.5);
-            font-size: 8rem;
-            font-weight: 700;
+        button.hollow {
+            background: transparent;
             color: #fff;
-            text-shadow: 0 0 50px var(--accent-gold);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        button.hollow:hover {
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        /* THE HERO: SPECTRUM BAR */
+        .spectrum-container {
+            width: 100%;
+            position: relative;
+            margin-top: 120px;
+            height: 160px;
+            display: flex;
+            align-items: center;
+        }
+
+        .word-left, .word-right {
+            position: absolute;
+            top: -60px;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        .word-left {
+            left: 0;
+            color: var(--color-left);
+            text-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+        }
+
+        .word-right {
+            right: 0;
+            color: var(--color-right);
+            text-shadow: 0 0 20px rgba(255, 179, 0, 0.4);
+        }
+
+        .bar-track {
+            width: 100%;
+            height: 24px;
+            border-radius: 12px;
+            background: linear-gradient(to right, var(--color-left), var(--color-right));
+            position: relative;
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.1), inset 0 0 10px rgba(0, 0, 0, 0.5);
+            transition: filter 0.3s ease;
+            filter: grayscale(0.8) brightness(0.4); /* Dimmed until active */
+        }
+
+        .bar-track.active {
+            filter: grayscale(0) brightness(1);
+        }
+
+        /* TARGET ZONE (Hidden by default) */
+        .target-band {
+            position: absolute;
+            height: 100%;
+            width: var(--target-width);
+            top: 0;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.8), inset 0 0 10px rgba(255, 255, 255, 1);
             opacity: 0;
             pointer-events: none;
-            z-index: 100;
-            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: scaleY(1.5);
+            transition: opacity 0.4s ease;
         }
 
-        .score-reveal.show {
+        .target-band.visible {
             opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
+            animation: pulse-target 2s infinite alternate;
         }
 
-        /* Utility classes */
-        .hidden { display: none !important; }
-        
-        /* Media Queries */
+        .target-center {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 20%;
+            height: 100%;
+            background: #fff;
+            border-radius: 4px;
+            box-shadow: 0 0 20px #fff;
+        }
+
+        /* THE PUCK */
+        .puck {
+            position: absolute;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #fff;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            left: 50%;
+            cursor: grab;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.6), inset 0 0 15px rgba(0, 0, 0, 0.2);
+            z-index: 30;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            touch-action: none;
+        }
+
+        .puck::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 16px;
+            background: var(--bg-base);
+            border-radius: 50%;
+        }
+
+        .puck.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .puck:active {
+            cursor: grabbing;
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.8), inset 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ANIMATIONS */
+        @keyframes pulse-target {
+            0% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+            100% { box-shadow: 0 0 50px rgba(255, 255, 255, 0.9); }
+        }
+
+        @keyframes countdown-pulse {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+
+        .countdown-number {
+            font-size: 120px;
+            font-weight: 700;
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            text-shadow: 0 0 40px rgba(255, 255, 255, 0.5);
+            pointer-events: none;
+        }
+
+        .countdown-number.animating {
+            animation: countdown-pulse 1s ease-out;
+        }
+
+        /* SCORE POPUP */
+        .score-popup {
+            position: absolute;
+            top: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 48px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }
+
+        .score-popup.visible {
+            opacity: 1;
+            transform: translate(-50%, -20px);
+        }
+
+        /* RESPONSIVE */
         @media (max-width: 768px) {
-            header { padding: 1rem; }
-            .team-score { padding: 1rem 1.5rem; }
-            .score-value { font-size: 2.5rem; }
-            .dial-container { width: 340px; height: 170px; }
-            .needle-container { height: 150px; }
-            .concept-label { font-size: 1.2rem; padding: 0.5rem 1rem; }
-            .concept-container { transform: translateY(-100px); padding: 0 1rem; }
+            .word-left, .word-right { font-size: 18px; top: -40px; }
+            .clue-display { font-size: 36px; }
+            h1 { font-size: 24px; }
+            .scoreboard { padding: 12px; }
+            .team-score { min-width: 100px; padding: 12px 16px; }
+            .score-value { font-size: 32px; }
+            .puck { width: 40px; height: 40px; }
+            input[type="text"] { font-size: 24px; width: 90%; }
         }
-
     </style>
 </head>
 <body>
-    <div class="ambient-texture"></div>
 
-    <header>
-        <div class="team-score active-team team-one" id="team1-board">
-            <div class="team-name">Team Brain</div>
-            <div class="score-value" id="score1">0</div>
+    <div class="scoreboard">
+        <div class="team-score team-1 active" id="score-t1">
+            <div class="team-label">Team 1</div>
+            <div class="score-value" id="val-t1">0</div>
         </div>
-        <div class="team-score team-two" id="team2-board">
-            <div class="team-name">Team Wave</div>
-            <div class="score-value" id="score2">0</div>
+        <div class="team-score team-2" id="score-t2">
+            <div class="team-label">Team 2</div>
+            <div class="score-value" id="val-t2">0</div>
         </div>
-    </header>
+    </div>
 
-    <main>
-        <div class="concept-container">
-            <div class="concept-label concept-left" id="concept-left">HOT</div>
-            <div class="concept-label concept-right" id="concept-right">COLD</div>
-        </div>
+    <!-- UI STATES -->
+    <div class="state-container active" id="state-setup">
+        <h1>Wavelength</h1>
+        <p class="subtext" style="margin-bottom: 40px;">Two teams. One psychic. Infinite spectrum.</p>
+        <button onclick="startGame()">Start Game</button>
+    </div>
 
-        <div class="dial-container" id="dial-wrapper">
-            <div class="dial-bg"></div>
+    <div class="state-container" id="state-psychic-sees">
+        <h1>Psychic Phase</h1>
+        <p class="subtext">Memorise the target position.</p>
+    </div>
+
+    <div class="countdown-number" id="countdown">3</div>
+
+    <div class="state-container" id="state-psychic-clues">
+        <h1>Enter your clue</h1>
+        <p class="subtext" id="clue-subtext">Guide your team to the target.</p>
+        <input type="text" id="clue-input" placeholder="Type clue here..." autocomplete="off">
+        <button onclick="submitClue()">Submit Clue</button>
+    </div>
+
+    <div class="state-container" id="state-team-guesses">
+        <h1 style="font-size: 18px; color: var(--text-dim); margin-bottom: 8px;">The Clue:</h1>
+        <div class="clue-display" id="display-clue">CLUE HERE</div>
+        <p class="subtext" style="margin-bottom: 40px;">Drag the puck to guess the position.</p>
+        <button onclick="lockGuess()">Lock Guess</button>
+    </div>
+
+    <div class="state-container" id="state-opponent">
+        <h1>Opponent's Turn</h1>
+        <div class="clue-display" id="opp-clue" style="font-size: 32px;">CLUE</div>
+        <p class="subtext">Is the real target to the LEFT or RIGHT of the guess?</p>
+        <div class="button-group">
+            <button class="hollow" onclick="opponentGuess('left')">Left</button>
+            <button class="hollow" onclick="opponentGuess('right')">Right</button>
+        </div>
+    </div>
+
+    <div class="state-container" id="state-reveal">
+        <h1 id="reveal-title">Reveal</h1>
+        <div class="clue-display" id="reveal-clue" style="font-size: 24px;">CLUE</div>
+        <p class="subtext" id="reveal-subtext">Scoring...</p>
+        <button onclick="nextRound()" style="margin-top: 40px;">Next Round</button>
+    </div>
+
+    <div class="game-area">
+        <div class="spectrum-container">
+            <div class="word-left" id="word-left">HOT</div>
+            <div class="word-right" id="word-right">COLD</div>
             
-            <svg class="target-zone-svg" id="target-svg" viewBox="0 0 600 300" preserveAspectRatio="xMidYMax meet">
-                <defs>
-                    <clipPath id="dial-clip">
-                        <path d="M 0 300 A 300 300 0 0 1 600 300 L 0 300 Z" />
-                    </clipPath>
-                </defs>
-                <g clip-path="url(#dial-clip)" id="target-bands">
-                    <!-- Target bands drawn dynamically by JS -->
-                </g>
-            </svg>
-
-            <div class="needle-container" id="needle">
-                <div class="needle"></div>
+            <div class="bar-track" id="bar-track">
+                <div class="target-band" id="target-band">
+                    <div class="target-center"></div>
+                </div>
             </div>
-            
-            <div class="dial-hub"></div>
-            
-            <div class="interaction-layer" id="interaction-layer"></div>
-        </div>
 
-        <div class="score-reveal" id="score-reveal">+4</div>
-
-        <div class="controls-container">
-            <div class="state-message" id="state-message">Psychic: Review the word pair.</div>
-            
-            <!-- Dynamic Buttons -->
-            <button class="btn btn-primary" id="btn-ready">I'm Ready (Show Target)</button>
-            <button class="btn hidden" id="btn-clue-given">Clue Given</button>
-            <button class="btn btn-primary hidden" id="btn-reveal">Reveal Target</button>
-            
-            <div class="btn-group hidden" id="btn-group-opponent">
-                <button class="btn" id="btn-guess-left">Target is Left</button>
-                <button class="btn" id="btn-guess-right">Target is Right</button>
-            </div>
-            
-            <button class="btn hidden" id="btn-next">Next Round</button>
+            <div class="puck" id="puck"></div>
+            <div class="score-popup" id="score-popup">+4 PTS</div>
         </div>
-    </main>
+    </div>
 
     <script>
-        /**
-         * Wavelength Game Logic
-         * State Machine, Physics Engine, and Rendering
-         */
-
-        // --- Data ---
+        // --- GAME DATA ---
         const WORD_PAIRS = [
             ["Hot", "Cold"], ["Famous", "Unknown"], ["Fast", "Slow"], ["Big", "Small"], 
             ["Old", "Young"], ["Loud", "Quiet"], ["Clean", "Dirty"], ["Smart", "Dumb"], 
@@ -438,392 +476,288 @@
             ["Urban", "Rural"], ["Formal", "Casual"], ["Good", "Evil"], ["Art", "Trash"]
         ];
 
-        // --- State ---
-        const STATES = {
-            SETUP: 'SETUP',
-            PSYCHIC_SEES: 'PSYCHIC_SEES',
-            PSYCHIC_CLUES: 'PSYCHIC_CLUES',
-            TEAM_GUESSES: 'TEAM_GUESSES',
-            REVEAL: 'REVEAL',
-            OPPONENT_LEFT_RIGHT: 'OPPONENT_LEFT_RIGHT',
-            NEXT_ROUND: 'NEXT_ROUND'
+        // --- GAME STATE ---
+        let state = {
+            scores: [0, 0], // Team 1, Team 2
+            currentTeam: 0, // 0 = Team 1, 1 = Team 2
+            targetPos: 50,  // 0 to 100
+            guessPos: 50,
+            currentWords: ["", ""],
+            currentClue: "",
+            phase: 'SETUP'
         };
 
-        let currentState = STATES.SETUP;
-        let currentTeam = 1; // 1 or 2
-        let scores = { 1: 0, 2: 0 };
-        
-        // Target Logic (-90 to 90 degrees)
-        let targetAngle = 0; 
-        const TARGET_WIDTH = 40; // Total width in degrees
-        let roundScore = 0;
-
-        // Physics State
-        let currentNeedleAngle = 0; // -90 to 90
-        let targetNeedleAngle = 0;
-        let velocity = 0;
+        // --- PHYSICS & DRAG STATE ---
+        const puck = document.getElementById('puck');
+        const track = document.getElementById('bar-track');
         let isDragging = false;
-        let lastTimestamp = 0;
+        let pPos = 50; // visual puck position (percentage)
+        let pVelocity = 0;
+        let lastMouseX = 0;
+        let lastTime = performance.now();
 
-        // --- DOM Elements ---
-        const elNeedle = document.getElementById('needle');
-        const elInteraction = document.getElementById('interaction-layer');
-        const elTargetSvg = document.getElementById('target-svg');
-        const elTargetBands = document.getElementById('target-bands');
-        const elDialWrapper = document.getElementById('dial-wrapper');
-        
-        const elConceptLeft = document.getElementById('concept-left');
-        const elConceptRight = document.getElementById('concept-right');
-        
-        const elStateMessage = document.getElementById('state-message');
-        const elBtnReady = document.getElementById('btn-ready');
-        const elBtnClueGiven = document.getElementById('btn-clue-given');
-        const elBtnReveal = document.getElementById('btn-reveal');
-        const elBtnGroupOpponent = document.getElementById('btn-group-opponent');
-        const elBtnGuessLeft = document.getElementById('btn-guess-left');
-        const elBtnGuessRight = document.getElementById('btn-guess-right');
-        const elBtnNext = document.getElementById('btn-next');
-        
-        const elScore1 = document.getElementById('score1');
-        const elScore2 = document.getElementById('score2');
-        const elTeam1Board = document.getElementById('team1-board');
-        const elTeam2Board = document.getElementById('team2-board');
-        const elScoreReveal = document.getElementById('score-reveal');
+        // --- DOM ELEMENTS ---
+        const els = {
+            t1Score: document.getElementById('val-t1'),
+            t2Score: document.getElementById('val-t2'),
+            t1Box: document.getElementById('score-t1'),
+            t2Box: document.getElementById('score-t2'),
+            wordL: document.getElementById('word-left'),
+            wordR: document.getElementById('word-right'),
+            targetBand: document.getElementById('target-band'),
+            clueInput: document.getElementById('clue-input'),
+            displayClue: document.getElementById('display-clue'),
+            oppClue: document.getElementById('opp-clue'),
+            revealClue: document.getElementById('reveal-clue'),
+            scorePopup: document.getElementById('score-popup'),
+            countdown: document.getElementById('countdown'),
+            revealTitle: document.getElementById('reveal-title'),
+            revealSubtext: document.getElementById('reveal-subtext')
+        };
 
-        // --- Initialization ---
-        function init() {
-            setupEventListeners();
-            startNewRound();
-            requestAnimationFrame(physicsLoop);
+        // --- UI MANAGEMENT ---
+        function setPhase(newPhase) {
+            state.phase = newPhase;
+            document.querySelectorAll('.state-container').forEach(el => el.classList.remove('active'));
+            
+            const stateMap = {
+                'SETUP': 'state-setup',
+                'PSYCHIC_SEES': 'state-psychic-sees',
+                'PSYCHIC_CLUES': 'state-psychic-clues',
+                'TEAM_GUESSES': 'state-team-guesses',
+                'OPPONENT_LEFT_RIGHT': 'state-opponent',
+                'REVEAL': 'state-reveal'
+            };
+
+            if(stateMap[newPhase]) {
+                document.getElementById(stateMap[newPhase]).classList.add('active');
+            }
+
+            // Phase specific visual toggles
+            if(newPhase === 'PSYCHIC_SEES') {
+                track.classList.add('active');
+                els.targetBand.classList.add('visible');
+                puck.classList.remove('active');
+            } else if (newPhase === 'PSYCHIC_CLUES') {
+                els.targetBand.classList.remove('visible');
+                track.classList.add('active');
+                els.clueInput.value = '';
+                setTimeout(() => els.clueInput.focus(), 100);
+            } else if (newPhase === 'TEAM_GUESSES') {
+                puck.classList.add('active');
+                pPos = 50; // reset puck to center
+                pVelocity = 0;
+            } else if (newPhase === 'REVEAL') {
+                puck.classList.remove('active');
+                els.targetBand.classList.add('visible');
+            } else if (newPhase === 'SETUP') {
+                track.classList.remove('active');
+                puck.classList.remove('active');
+                els.targetBand.classList.remove('visible');
+            }
         }
 
-        function startNewRound() {
+        function updateScores() {
+            els.t1Score.innerText = state.scores[0];
+            els.t2Score.innerText = state.scores[1];
+            
+            if(state.currentTeam === 0) {
+                els.t1Box.classList.add('active');
+                els.t2Box.classList.remove('active');
+            } else {
+                els.t2Box.classList.add('active');
+                els.t1Box.classList.remove('active');
+            }
+        }
+
+        // --- GAME FLOW ---
+        function startGame() {
+            state.scores = [0, 0];
+            state.currentTeam = 0;
+            updateScores();
+            startRound();
+        }
+
+        function startRound() {
             // Pick random words
             const pair = WORD_PAIRS[Math.floor(Math.random() * WORD_PAIRS.length)];
             // 50% chance to swap left/right
-            if (Math.random() > 0.5) {
-                elConceptLeft.textContent = pair[1];
-                elConceptRight.textContent = pair[0];
+            if(Math.random() > 0.5) {
+                state.currentWords = [pair[1], pair[0]];
             } else {
-                elConceptLeft.textContent = pair[0];
-                elConceptRight.textContent = pair[1];
+                state.currentWords = [pair[0], pair[1]];
             }
-
-            // Generate target angle (-75 to 75 to keep it fully visible)
-            targetAngle = (Math.random() * 150) - 75;
-            drawTargetSVG();
-
-            // Reset UI
-            elDialWrapper.className = 'dial-container';
-            elScoreReveal.className = 'score-reveal';
             
-            // Randomize starting needle position
-            currentNeedleAngle = (Math.random() * 160) - 80;
-            targetNeedleAngle = currentNeedleAngle;
-            velocity = 0;
+            els.wordL.innerText = state.currentWords[0];
+            els.wordR.innerText = state.currentWords[1];
 
-            updateActiveTeamUI();
-            setState(STATES.SETUP);
-        }
+            // Pick random target (10% to 90% to keep it on the bar nicely)
+            state.targetPos = 10 + Math.random() * 80;
+            els.targetBand.style.left = `calc(${state.targetPos}% - 7%)`; // 7% is half of 14% target width
 
-        // --- SVG Drawing ---
-        function drawTargetSVG() {
-            // Convert angle (-90 to 90) to SVG coordinates (0 to 180 degrees, where 0 is left, 180 is right)
-            // But standard SVG arc drawing uses coordinates. It's easier to rotate a group.
+            setPhase('PSYCHIC_SEES');
             
-            elTargetBands.innerHTML = '';
+            // Countdown 3, 2, 1
+            let count = 3;
+            els.countdown.innerText = count;
             
-            // Draw bands: center (4), mid (3), outer (2)
-            const cx = 300, cy = 300, r = 300;
-            
-            // Base rotation: targetAngle is -90 (left) to 90 (right).
-            // We want to draw a wedge centered at top (0), then rotate the whole group.
-            const halfW = TARGET_WIDTH / 2;
-            
-            // 2 Points (Outer)
-            const p2Left = polarToCartesian(cx, cy, r, -halfW);
-            const p2Right = polarToCartesian(cx, cy, r, halfW);
-            const path2 = `<path d="M ${cx} ${cy} L ${p2Left.x} ${p2Left.y} A ${r} ${r} 0 0 1 ${p2Right.x} ${p2Right.y} Z" fill="var(--target-2)" />`;
-            
-            // 3 Points (Mid)
-            const w3 = TARGET_WIDTH * 0.6;
-            const halfW3 = w3 / 2;
-            const p3Left = polarToCartesian(cx, cy, r, -halfW3);
-            const p3Right = polarToCartesian(cx, cy, r, halfW3);
-            const path3 = `<path d="M ${cx} ${cy} L ${p3Left.x} ${p3Left.y} A ${r} ${r} 0 0 1 ${p3Right.x} ${p3Right.y} Z" fill="var(--target-3)" />`;
-            
-            // 4 Points (Center)
-            const w4 = TARGET_WIDTH * 0.2;
-            const halfW4 = w4 / 2;
-            const p4Left = polarToCartesian(cx, cy, r, -halfW4);
-            const p4Right = polarToCartesian(cx, cy, r, halfW4);
-            const path4 = `<path d="M ${cx} ${cy} L ${p4Left.x} ${p4Left.y} A ${r} ${r} 0 0 1 ${p4Right.x} ${p4Right.y} Z" fill="var(--target-4)" />`;
+            const countInterval = setInterval(() => {
+                els.countdown.classList.remove('animating');
+                void els.countdown.offsetWidth; // trigger reflow
+                els.countdown.classList.add('animating');
+                els.countdown.innerText = count;
 
-            // SVG math: 0 degrees is standard right. We want 0 to be UP. 
-            // Our polarToCartesian function treats 0 as UP.
-            
-            elTargetBands.innerHTML = path2 + path3 + path4;
-            elTargetBands.setAttribute('transform', `rotate(${targetAngle} 300 300)`);
-        }
-
-        function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
-            // Make 0 degrees point UP
-            const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
-            return {
-                x: centerX + (radius * Math.cos(angleInRadians)),
-                y: centerY + (radius * Math.sin(angleInRadians))
-            };
-        }
-
-        // --- Physics Engine ---
-        function updatePointer(e) {
-            if (!isDragging || currentState !== STATES.TEAM_GUESSES) return;
-
-            const rect = elDialWrapper.getBoundingClientRect();
-            // Origin is bottom center of the dial
-            const originX = rect.left + rect.width / 2;
-            const originY = rect.bottom;
-
-            let clientX, clientY;
-            if (e.touches && e.touches.length > 0) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            } else {
-                clientX = e.clientX;
-                clientY = e.clientY;
-            }
-
-            const dx = clientX - originX;
-            const dy = clientY - originY;
-            
-            // Calculate angle: Math.atan2 gives angle from X axis. We want 0 at top.
-            let rad = Math.atan2(dy, dx);
-            let deg = rad * (180 / Math.PI);
-            
-            // Adjust so straight up is 0, right is positive, left is negative
-            deg = deg + 90;
-            
-            // Clamp between -90 and 90
-            if (deg < -90) deg = -90;
-            if (deg > 90) deg = 90;
-
-            targetNeedleAngle = deg;
-        }
-
-        function physicsLoop(timestamp) {
-            if (!lastTimestamp) lastTimestamp = timestamp;
-            const dt = timestamp - lastTimestamp;
-            lastTimestamp = timestamp;
-
-            if (isDragging && currentState === STATES.TEAM_GUESSES) {
-                // Instantly follow pointer when dragging, but record velocity
-                const oldAngle = currentNeedleAngle;
-                // Add some interpolation for smoothness even when dragging
-                currentNeedleAngle += (targetNeedleAngle - currentNeedleAngle) * 0.4;
-                velocity = (currentNeedleAngle - oldAngle) / Math.max(dt, 1);
-            } else {
-                // Apply inertia and friction
-                currentNeedleAngle += velocity * dt;
-                velocity *= 0.92; // Friction
-
-                // Bounce off edges
-                if (currentNeedleAngle < -90) {
-                    currentNeedleAngle = -90;
-                    velocity *= -0.5;
+                count--;
+                if(count < 0) {
+                    clearInterval(countInterval);
+                    els.countdown.classList.remove('animating');
+                    setPhase('PSYCHIC_CLUES');
                 }
-                if (currentNeedleAngle > 90) {
-                    currentNeedleAngle = 90;
-                    velocity *= -0.5;
+            }, 1000);
+        }
+
+        function submitClue() {
+            const clue = els.clueInput.value.trim();
+            if(!clue) return;
+            state.currentClue = clue;
+            els.displayClue.innerText = clue;
+            setPhase('TEAM_GUESSES');
+        }
+
+        function lockGuess() {
+            state.guessPos = pPos;
+            els.oppClue.innerText = state.currentClue;
+            setPhase('OPPONENT_LEFT_RIGHT');
+        }
+
+        function opponentGuess(direction) {
+            const isTargetRight = state.targetPos > state.guessPos;
+            const oppCorrect = (direction === 'right' && isTargetRight) || (direction === 'left' && !isTargetRight);
+            
+            els.revealClue.innerText = state.currentClue;
+            setPhase('REVEAL');
+
+            // Calculate main team score
+            const diff = Math.abs(state.targetPos - state.guessPos);
+            let points = 0;
+            let feedback = "MISS";
+            
+            // Target width is 14%. 
+            // Bullseye (center 20% of target) -> diff < 1.4
+            // Close (inner 60%) -> diff < 4.2
+            // Near (full target) -> diff < 7.0
+            
+            if(diff <= 1.4) {
+                points = 4; feedback = "BULLSEYE!";
+            } else if(diff <= 4.2) {
+                points = 3; feedback = "CLOSE!";
+            } else if(diff <= 7.0) {
+                points = 2; feedback = "NEAR!";
+            }
+
+            // Apply points
+            state.scores[state.currentTeam] += points;
+            
+            let oppPoints = 0;
+            // Opponent gets 1 point if they guessed left/right correctly, UNLESS main team got a bullseye
+            if(oppCorrect && points < 4) {
+                oppPoints = 1;
+                state.scores[state.currentTeam === 0 ? 1 : 0] += oppPoints;
+            }
+
+            updateScores();
+
+            // Animate popup
+            els.revealTitle.innerText = feedback;
+            els.revealSubtext.innerText = `Team earned ${points} pts. Opponent earned ${oppPoints} pts.`;
+            
+            els.scorePopup.innerText = `+${points}`;
+            els.scorePopup.style.left = `${state.guessPos}%`;
+            els.scorePopup.classList.add('visible');
+        }
+
+        function nextRound() {
+            els.scorePopup.classList.remove('visible');
+            state.currentTeam = state.currentTeam === 0 ? 1 : 0;
+            updateScores();
+            startRound();
+        }
+
+        // --- INPUT & PHYSICS ---
+        function getClientX(e) {
+            return e.touches ? e.touches[0].clientX : e.clientX;
+        }
+
+        puck.addEventListener('pointerdown', (e) => {
+            if(state.phase !== 'TEAM_GUESSES') return;
+            isDragging = true;
+            lastMouseX = getClientX(e);
+            pVelocity = 0;
+            puck.style.transition = 'none';
+        });
+
+        window.addEventListener('pointermove', (e) => {
+            if(!isDragging) return;
+            const clientX = getClientX(e);
+            const rect = track.getBoundingClientRect();
+            
+            // Calculate delta in percentage
+            const deltaPx = clientX - lastMouseX;
+            const deltaPct = (deltaPx / rect.width) * 100;
+            
+            pVelocity = deltaPct; // track recent velocity
+            pPos += deltaPct;
+            
+            // Clamp
+            if(pPos < 0) pPos = 0;
+            if(pPos > 100) pPos = 100;
+            
+            lastMouseX = clientX;
+        });
+
+        window.addEventListener('pointerup', () => {
+            if(!isDragging) return;
+            isDragging = false;
+            // Throw velocity needs a multiplier based on time, but simple approach works for smooth UI
+            pVelocity = pVelocity * 1.5; 
+        });
+
+        // Physics Loop
+        function physics(time) {
+            const dt = (time - lastTime) / 16; // normalize to ~60fps
+            lastTime = time;
+
+            if(!isDragging && Math.abs(pVelocity) > 0.01) {
+                pPos += pVelocity * dt;
+                pVelocity *= 0.92; // friction
+
+                // Bounce off edges softly
+                if(pPos <= 0) {
+                    pPos = 0;
+                    pVelocity *= -0.4;
+                } else if(pPos >= 100) {
+                    pPos = 100;
+                    pVelocity *= -0.4;
                 }
-                
-                targetNeedleAngle = currentNeedleAngle;
             }
 
-            // Render needle
-            elNeedle.style.transform = `translateX(-50%) rotate(${currentNeedleAngle}deg)`;
-
-            requestAnimationFrame(physicsLoop);
+            puck.style.left = `${pPos}%`;
+            requestAnimationFrame(physics);
         }
+        
+        requestAnimationFrame(physics);
 
-        // --- Event Listeners ---
-        function setupEventListeners() {
-            // Dial Interaction
-            const startDrag = (e) => {
-                if (currentState !== STATES.TEAM_GUESSES) return;
-                isDragging = true;
-                updatePointer(e);
-            };
-            const stopDrag = () => { isDragging = false; };
-
-            elInteraction.addEventListener('mousedown', startDrag);
-            window.addEventListener('mousemove', updatePointer);
-            window.addEventListener('mouseup', stopDrag);
-
-            elInteraction.addEventListener('touchstart', startDrag, {passive: true});
-            window.addEventListener('touchmove', updatePointer, {passive: false});
-            window.addEventListener('touchend', stopDrag);
-
-            // Button actions
-            elBtnReady.addEventListener('click', () => setState(STATES.PSYCHIC_SEES));
-            elBtnClueGiven.addEventListener('click', () => setState(STATES.TEAM_GUESSES));
-            elBtnReveal.addEventListener('click', () => setState(STATES.REVEAL));
-            
-            elBtnGuessLeft.addEventListener('click', () => handleOpponentGuess('LEFT'));
-            elBtnGuessRight.addEventListener('click', () => handleOpponentGuess('RIGHT'));
-            
-            elBtnNext.addEventListener('click', () => {
-                currentTeam = currentTeam === 1 ? 2 : 1;
-                startNewRound();
-            });
-        }
-
-        // --- State Machine ---
-        function setState(newState) {
-            currentState = newState;
-            
-            // Hide all controls first
-            elBtnReady.classList.add('hidden');
-            elBtnClueGiven.classList.add('hidden');
-            elBtnReveal.classList.add('hidden');
-            elBtnGroupOpponent.classList.add('hidden');
-            elBtnNext.classList.add('hidden');
-
-            switch (newState) {
-                case STATES.SETUP:
-                    elStateMessage.textContent = `Psychic for Team ${currentTeam}: Review the concepts.`;
-                    elBtnReady.classList.remove('hidden');
-                    break;
-                
-                case STATES.PSYCHIC_SEES:
-                    elDialWrapper.classList.add('psychic-sees-mode');
-                    elStateMessage.textContent = "Memorize the target zone. Hiding in 3...";
-                    
-                    let count = 3;
-                    const interval = setInterval(() => {
-                        count--;
-                        if (count > 0) {
-                            elStateMessage.textContent = `Memorize the target zone. Hiding in ${count}...`;
-                        } else {
-                            clearInterval(interval);
-                            elDialWrapper.classList.remove('psychic-sees-mode');
-                            setState(STATES.PSYCHIC_CLUES);
-                        }
-                    }, 1000);
-                    break;
-                
-                case STATES.PSYCHIC_CLUES:
-                    elStateMessage.textContent = "Give ONE word clue to your team.";
-                    elBtnClueGiven.classList.remove('hidden');
-                    break;
-                
-                case STATES.TEAM_GUESSES:
-                    elStateMessage.textContent = "Team discusses and turns the dial to guess.";
-                    elBtnReveal.classList.remove('hidden');
-                    // Add subtle pulse to needle to indicate interactivity
-                    elNeedle.querySelector('.needle').style.boxShadow = `0 0 30px var(--accent-gold)`;
-                    break;
-                
-                case STATES.REVEAL:
-                    elNeedle.querySelector('.needle').style.boxShadow = `0 0 15px var(--accent-gold)`;
-                    elDialWrapper.classList.add('reveal-mode');
-                    calculateScore();
-                    
-                    if (roundScore === 4) {
-                        elStateMessage.textContent = "BULLSEYE! Perfect score.";
-                        showScoreAnim(`+4`);
-                        // Skip opponent guess on bullseye
-                        setTimeout(() => setState(STATES.NEXT_ROUND), 3000);
-                    } else {
-                        showScoreAnim(`+${roundScore}`);
-                        if (roundScore > 0) {
-                            elStateMessage.textContent = `Good job! Scored ${roundScore} points.`;
-                        } else {
-                            elStateMessage.textContent = "Missed the zone completely.";
-                        }
-                        // Move to opponent left/right guess
-                        setTimeout(() => setState(STATES.OPPONENT_LEFT_RIGHT), 2500);
-                    }
-                    break;
-                
-                case STATES.OPPONENT_LEFT_RIGHT:
-                    const oppTeam = currentTeam === 1 ? 2 : 1;
-                    elStateMessage.textContent = `Team ${oppTeam}: Is the true center LEFT or RIGHT of the needle?`;
-                    elBtnGroupOpponent.classList.remove('hidden');
-                    break;
-                
-                case STATES.NEXT_ROUND:
-                    elStateMessage.textContent = "Round complete.";
-                    elBtnNext.classList.remove('hidden');
-                    break;
+        // Enter key support for input
+        els.clueInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                submitClue();
             }
-        }
+        });
 
-        // --- Game Logic ---
-        function calculateScore() {
-            const diff = Math.abs(currentNeedleAngle - targetAngle);
-            const halfW = TARGET_WIDTH / 2;
-            
-            if (diff <= halfW * 0.2) roundScore = 4;
-            else if (diff <= halfW * 0.6) roundScore = 3;
-            else if (diff <= halfW) roundScore = 2;
-            else roundScore = 0;
-
-            scores[currentTeam] += roundScore;
-            updateScoreUI();
-        }
-
-        function handleOpponentGuess(guess) {
-            const oppTeam = currentTeam === 1 ? 2 : 1;
-            const targetIsRight = targetAngle > currentNeedleAngle;
-            
-            let correct = false;
-            if (guess === 'RIGHT' && targetIsRight) correct = true;
-            if (guess === 'LEFT' && !targetIsRight) correct = true;
-            
-            if (correct) {
-                scores[oppTeam] += 1;
-                elStateMessage.textContent = `Correct! Team ${oppTeam} steals 1 point.`;
-                showScoreAnim('+1');
-            } else {
-                elStateMessage.textContent = `Incorrect! No steal.`;
-            }
-            
-            updateScoreUI();
-            
-            // Small delay before allowing next round
-            elBtnGroupOpponent.classList.add('hidden');
-            setTimeout(() => setState(STATES.NEXT_ROUND), 2000);
-        }
-
-        function updateScoreUI() {
-            elScore1.textContent = scores[1];
-            elScore2.textContent = scores[2];
-        }
-
-        function updateActiveTeamUI() {
-            if (currentTeam === 1) {
-                elTeam1Board.classList.add('active-team');
-                elTeam2Board.classList.remove('active-team');
-                elBtnReady.className = 'btn btn-primary';
-                elBtnReveal.className = 'btn btn-primary';
-            } else {
-                elTeam2Board.classList.add('active-team');
-                elTeam1Board.classList.remove('active-team');
-                elBtnReady.className = 'btn btn-blue';
-                elBtnReveal.className = 'btn btn-blue';
-            }
-        }
-
-        function showScoreAnim(text) {
-            elScoreReveal.textContent = text;
-            elScoreReveal.classList.add('show');
-            setTimeout(() => {
-                elScoreReveal.classList.remove('show');
-            }, 2000);
-        }
-
-        // Start everything
-        init();
+        // Prevent default touch behaviors to make dragging smooth on mobile
+        document.addEventListener('touchmove', function(e) {
+            if(isDragging) e.preventDefault();
+        }, { passive: false });
 
     </script>
 </body>
