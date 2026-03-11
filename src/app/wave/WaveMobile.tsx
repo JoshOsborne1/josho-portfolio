@@ -4,243 +4,302 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GameState, Team, WordPair, WORD_PAIRS } from "./constants";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Full-width half-dial — canvas, pivot at bottom-centre
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Audio ─────────────────────────────────────────────────────────────────────
+let _ctx: AudioContext | null = null;
+const ac = () => {
+  if (!_ctx && typeof window !== "undefined")
+    _ctx = new ((window as any).AudioContext || (window as any).webkitAudioContext)();
+  if (_ctx?.state === "suspended") _ctx.resume();
+  return _ctx;
+};
+const tone = (f: number, dur: number, vol = 0.14, type: OscillatorType = "sine") => {
+  const c = ac(); if (!c) return;
+  const o = c.createOscillator(), g = c.createGain();
+  o.connect(g); g.connect(c.destination);
+  o.type = type; o.frequency.value = f;
+  g.gain.setValueAtTime(vol, c.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + dur);
+  o.start(); o.stop(c.currentTime + dur);
+};
+const SFX = {
+  tick:   ()  => tone(700, 0.025, 0.055),
+  lock:   ()  => { tone(300, 0.1, 0.16); setTimeout(() => tone(420, 0.18, 0.1), 70); },
+  score4: ()  => { tone(523,0.3,0.11); setTimeout(()=>tone(659,0.3,0.09),70); setTimeout(()=>tone(784,0.38,0.08),145); },
+  score3: ()  => { tone(440,0.3,0.11); setTimeout(()=>tone(554,0.3,0.09),80); },
+  score2: ()  => { tone(349,0.25,0.1); setTimeout(()=>tone(440,0.25,0.08),90); },
+  miss:   ()  => { tone(220,0.35,0.11); setTimeout(()=>tone(185,0.4,0.09),65); },
+  begin:  ()  => tone(500, 0.08, 0.09),
+};
+const vibe = (p: number | number[]) => {
+  try { navigator?.vibrate?.(p); } catch {}
+};
+
+// ── HalfDial ──────────────────────────────────────────────────────────────────
+// Key perf decision: during drag, draw() is called directly from pointermove —
+// zero React state updates until pointerup. This gives true 60fps canvas draw.
 interface DialProps {
-  guess: number;       // -80..80
-  target?: number;     // -80..80, omit to hide
+  value: number;       // -80..80, controlled from parent
+  target?: number;     // if defined, show scoring zones
   interactive: boolean;
   onChange?: (v: number) => void;
   leftWord?: string;
   rightWord?: string;
 }
 
-function HalfDial({ guess, target, interactive, onChange, leftWord, rightWord }: DialProps) {
-  const canvasRef  = useRef<HTMLCanvasElement>(null);
-  const displayRef = useRef(guess);    // smoothed needle position
-  const guessRef   = useRef(guess);
-  const rafRef     = useRef(0);
-  const targetRef  = useRef(target);
+function HalfDial({ value, target, interactive, onChange, leftWord, rightWord }: DialProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const dispRef   = useRef(value);   // what is currently rendered
+  const valRef    = useRef(value);   // desired value (may differ when lerping)
+  const targRef   = useRef(target);
+  const raf       = useRef(0);
+  const dragging  = useRef(false);
 
-  useEffect(() => { guessRef.current = guess; }, [guess]);
-  useEffect(() => { targetRef.current = target; }, [target]);
+  useEffect(() => { valRef.current  = value;  }, [value]);
+  useEffect(() => { targRef.current = target; draw(); }, [target]); // eslint-disable-line
 
-  // ── Draw everything to canvas ──────────────────────────────────────────────
+  // ── Pure imperative draw ───────────────────────────────────────────────────
   const draw = useCallback(() => {
-    const c = canvasRef.current;
-    if (!c) return;
-    const ctx = c.getContext("2d");
-    if (!ctx) return;
+    const c = canvasRef.current; if (!c) return;
+    const ctx = c.getContext("2d"); if (!ctx) return;
 
     const dpr = window.devicePixelRatio || 1;
-    const CW  = c.offsetWidth;
-    const CH  = c.offsetHeight;
-    if (!CW || !CH) return;
+    const W   = c.offsetWidth;
+    const H   = c.offsetHeight;
+    if (!W || !H) return;
 
-    const tw = Math.round(CW * dpr);
-    const th = Math.round(CH * dpr);
-    if (c.width !== tw || c.height !== th) { c.width = tw; c.height = th; }
+    // sync canvas buffer size to CSS size × DPR
+    const bw = Math.round(W * dpr), bh = Math.round(H * dpr);
+    if (c.width !== bw || c.height !== bh) { c.width = bw; c.height = bh; }
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, CW, CH);
+    ctx.clearRect(0, 0, W, H);
 
-    const cx = CW / 2;
-    const cy = CH;                  // pivot = bottom centre
-    const R  = CW / 2 - 14;        // arc fills near full width
+    const CX = W / 2;
+    const CY = H - 36;       // pivot 36px above canvas bottom (hub fits fully)
+    const R  = W / 2 - 30;   // 30px inset — glows won't clip on sides
 
-    // game-angle (−80..80) → canvas radians
-    // 0 = up (−π/2), positive = clockwise
-    const rad = (deg: number) => (deg - 90) * (Math.PI / 180);
+    const toRad = (deg: number) => (deg - 90) * (Math.PI / 180);
 
-    // ── 1. Subtle radial glow under arc ──────────────────────────────────────
-    const bg = ctx.createRadialGradient(cx, cy, R * 0.3, cx, cy, R * 1.1);
-    bg.addColorStop(0, "rgba(196,181,253,0.07)");
-    bg.addColorStop(1, "rgba(196,181,253,0)");
+    // ── 1. Ambient floor glow ────────────────────────────────────────────────
+    const amb = ctx.createRadialGradient(CX, CY, 0, CX, CY, R + 50);
+    amb.addColorStop(0,   "rgba(196,181,253,0.07)");
+    amb.addColorStop(0.6, "rgba(167,243,208,0.05)");
+    amb.addColorStop(1,   "rgba(0,0,0,0)");
     ctx.beginPath();
-    ctx.arc(cx, cy, R + 20, 0, Math.PI * 2);
-    ctx.fillStyle = bg;
-    ctx.fill();
+    ctx.arc(CX, CY, R + 50, Math.PI, 0);
+    ctx.fillStyle = amb; ctx.fill();
 
     // ── 2. Track ─────────────────────────────────────────────────────────────
+    // outer wide lighter ring
     ctx.beginPath();
-    ctx.arc(cx, cy, R, rad(-80), rad(80));
-    ctx.strokeStyle = "rgba(203,213,225,0.55)";
-    ctx.lineWidth   = 14;
-    ctx.lineCap     = "round";
-    ctx.stroke();
+    ctx.arc(CX, CY, R, toRad(-80), toRad(80));
+    ctx.strokeStyle = "rgba(226,232,240,0.95)";
+    ctx.lineWidth   = 22; ctx.lineCap = "round"; ctx.stroke();
 
-    // ── 3. Scoring zones ─────────────────────────────────────────────────────
-    const t = targetRef.current;
+    // inner thin dark groove (sunken depth)
+    ctx.beginPath();
+    ctx.arc(CX, CY, R, toRad(-80), toRad(80));
+    ctx.strokeStyle = "rgba(100,116,139,0.17)";
+    ctx.lineWidth   = 6; ctx.lineCap = "round"; ctx.stroke();
+
+    // ── 3. Tick marks ────────────────────────────────────────────────────────
+    for (let deg = -80; deg <= 80; deg += 8) {
+      const major = (deg % 40 === 0) || deg === 0;
+      const ir    = major ? R - 10 : R - 5;
+      const or    = major ? R + 5  : R + 2;
+      const ang   = toRad(deg);
+      const cos = Math.cos(ang), sin = Math.sin(ang);
+      ctx.beginPath();
+      ctx.moveTo(CX + ir * cos, CY + ir * sin);
+      ctx.lineTo(CX + or * cos, CY + or * sin);
+      ctx.strokeStyle = major ? "rgba(71,85,105,0.45)" : "rgba(148,163,184,0.3)";
+      ctx.lineWidth   = major ? 2.2 : 1.1;
+      ctx.lineCap     = "round"; ctx.stroke();
+    }
+
+    // ── 4. Scoring zones ─────────────────────────────────────────────────────
+    const t = targRef.current;
     if (t !== undefined) {
       const zones = [
-        { hw: 22, color: "#7DD3FC", lw: 28, blur: 8,  alpha: 0.7  },
-        { hw: 14, color: "#6EE7B7", lw: 28, blur: 12, alpha: 0.85 },
-        { hw:  6, color: "#C4B5FD", lw: 28, blur: 20, alpha: 1.0  },
-      ];
+        { hw: 22, stroke: "#93C5FD", glow: "#BFDBFE", lw: 26, blur: 8,  op: 0.7  },
+        { hw: 14, stroke: "#6EE7B7", glow: "#A7F3D0", lw: 26, blur: 14, op: 0.92 },
+        { hw:  6, stroke: "#C4B5FD", glow: "#DDD6FE", lw: 26, blur: 24, op: 1.0  },
+      ] as const;
+
       for (const z of zones) {
-        const a0 = Math.max(-80, t - z.hw);
-        const a1 = Math.min( 80, t + z.hw);
+        const lo = toRad(Math.max(-77, t - z.hw));
+        const hi = toRad(Math.min( 77, t + z.hw));
         ctx.beginPath();
-        ctx.arc(cx, cy, R, rad(a0), rad(a1));
-        ctx.strokeStyle  = z.color;
-        ctx.lineWidth    = z.lw;
-        ctx.lineCap      = "round";
-        ctx.globalAlpha  = z.alpha;
-        ctx.shadowColor  = z.color;
-        ctx.shadowBlur   = z.blur;
+        ctx.arc(CX, CY, R, lo, hi);
+        ctx.strokeStyle = z.stroke; ctx.lineWidth = z.lw; ctx.lineCap = "round";
+        ctx.globalAlpha = z.op; ctx.shadowColor = z.glow; ctx.shadowBlur = z.blur;
         ctx.stroke();
-        ctx.globalAlpha = 1;
-        ctx.shadowBlur  = 0;
+        ctx.globalAlpha = 1; ctx.shadowBlur = 0;
       }
 
       // target tick
-      const tr = rad(t);
+      const ta = toRad(t), cos = Math.cos(ta), sin = Math.sin(ta);
       ctx.beginPath();
-      ctx.moveTo(cx + Math.cos(tr) * (R - 22), cy + Math.sin(tr) * (R - 22));
-      ctx.lineTo(cx + Math.cos(tr) * (R + 10),  cy + Math.sin(tr) * (R + 10));
-      ctx.strokeStyle = "white";
-      ctx.lineWidth   = 3;
-      ctx.lineCap     = "round";
-      ctx.shadowColor = "rgba(255,255,255,0.9)";
-      ctx.shadowBlur  = 10;
-      ctx.stroke();
-      ctx.shadowBlur = 0;
+      ctx.moveTo(CX + (R-16)*cos, CY + (R-16)*sin);
+      ctx.lineTo(CX + (R+10)*cos, CY + (R+10)*sin);
+      ctx.strokeStyle = "rgba(255,255,255,0.95)"; ctx.lineWidth = 3.5;
+      ctx.shadowColor = "rgba(255,255,255,0.85)"; ctx.shadowBlur = 14;
+      ctx.stroke(); ctx.shadowBlur = 0;
     }
 
-    // ── 4. Needle ─────────────────────────────────────────────────────────────
-    const nr  = rad(displayRef.current);
-    const nx  = cx + Math.cos(nr) * (R - 20);
-    const ny  = cy + Math.sin(nr) * (R - 20);
+    // ── 5. Needle ─────────────────────────────────────────────────────────────
+    const na   = toRad(dispRef.current);
+    const tipR = R - 18;
+    const NX   = CX + tipR * Math.cos(na);
+    const NY   = CY + tipR * Math.sin(na);
 
-    // shaft
+    // shaft (gradient along length)
+    const sg = ctx.createLinearGradient(CX, CY, NX, NY);
+    sg.addColorStop(0, "rgba(167,139,250,0.1)");
+    sg.addColorStop(1, "#A78BFA");
     ctx.beginPath();
-    ctx.moveTo(cx, cy - 4);
-    ctx.lineTo(nx, ny);
-    ctx.strokeStyle = "#A78BFA";
-    ctx.lineWidth   = 4;
-    ctx.lineCap     = "round";
-    ctx.shadowColor = "#A78BFA";
-    ctx.shadowBlur  = 24;
-    ctx.stroke();
-    ctx.shadowBlur  = 0;
+    ctx.moveTo(CX, CY); ctx.lineTo(NX, NY);
+    ctx.strokeStyle = sg; ctx.lineWidth = 3.5; ctx.lineCap = "round";
+    ctx.shadowColor = "#A78BFA"; ctx.shadowBlur = 22;
+    ctx.stroke(); ctx.shadowBlur = 0;
 
-    // orb gradient
-    const og = ctx.createRadialGradient(nx - 4, ny - 4, 1, nx, ny, 16);
-    og.addColorStop(0, "#EDE9FE");
-    og.addColorStop(1, "#7C3AED");
-    ctx.beginPath();
-    ctx.arc(nx, ny, 16, 0, Math.PI * 2);
-    ctx.fillStyle   = og;
-    ctx.shadowColor = "#C4B5FD";
-    ctx.shadowBlur  = 28;
-    ctx.fill();
-    ctx.shadowBlur  = 0;
+    // orb body
+    const og = ctx.createRadialGradient(NX-5, NY-6, 1, NX, NY, 16);
+    og.addColorStop(0,   "#F5F3FF");
+    og.addColorStop(0.5, "#8B5CF6");
+    og.addColorStop(1,   "#3B0764");
+    ctx.beginPath(); ctx.arc(NX, NY, 16, 0, Math.PI * 2);
+    ctx.fillStyle = og; ctx.shadowColor = "#DDD6FE"; ctx.shadowBlur = 30;
+    ctx.fill(); ctx.shadowBlur = 0;
 
-    // specular highlight
-    ctx.beginPath();
-    ctx.arc(nx - 5, ny - 5, 5, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(255,255,255,0.55)";
-    ctx.fill();
+    // orb specular highlight
+    ctx.beginPath(); ctx.arc(NX-5, NY-6, 5.5, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,255,255,0.52)"; ctx.fill();
 
-    // ── 5. Hub ────────────────────────────────────────────────────────────────
-    const hg = ctx.createRadialGradient(cx - 7, cy - 7, 2, cx, cy, 28);
-    hg.addColorStop(0, "#ffffff");
-    hg.addColorStop(1, "#E2E8F0");
-    ctx.beginPath();
-    ctx.arc(cx, cy, 28, 0, Math.PI * 2);
-    ctx.fillStyle   = hg;
-    ctx.shadowColor = "rgba(0,0,0,0.14)";
-    ctx.shadowBlur  = 18;
-    ctx.fill();
-    ctx.shadowBlur  = 0;
+    // ── 6. Hub ────────────────────────────────────────────────────────────────
+    ctx.beginPath(); ctx.arc(CX, CY, 30, 0, Math.PI * 2);
+    const ho = ctx.createRadialGradient(CX-8, CY-8, 2, CX, CY, 30);
+    ho.addColorStop(0, "#FFFFFF"); ho.addColorStop(1, "#E2E8F0");
+    ctx.fillStyle = ho; ctx.shadowColor = "rgba(0,0,0,0.15)"; ctx.shadowBlur = 20;
+    ctx.fill(); ctx.shadowBlur = 0;
 
-    ctx.beginPath();
-    ctx.arc(cx, cy, 11, 0, Math.PI * 2);
-    ctx.fillStyle = "#C4B5FD";
-    ctx.fill();
+    // hub groove ring
+    ctx.beginPath(); ctx.arc(CX, CY, 21, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(148,163,184,0.28)"; ctx.lineWidth = 1.5; ctx.stroke();
+
+    // hub centre jewel
+    const cj = ctx.createRadialGradient(CX-2, CY-2, 1, CX, CY, 12);
+    cj.addColorStop(0, "#DDD6FE"); cj.addColorStop(1, "#6D28D9");
+    ctx.beginPath(); ctx.arc(CX, CY, 12, 0, Math.PI * 2);
+    ctx.fillStyle = cj; ctx.fill();
+
+    // jewel glint
+    ctx.beginPath(); ctx.arc(CX-3, CY-4, 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,255,255,0.45)"; ctx.fill();
+
   }, []);
 
-  // ── Animate needle → guessRef ──────────────────────────────────────────────
-  const animate = useCallback(() => {
-    cancelAnimationFrame(rafRef.current);
+  // ── Lerp animation (only when not dragging) ────────────────────────────────
+  const startLerp = useCallback(() => {
+    cancelAnimationFrame(raf.current);
     const tick = () => {
-      const d = guessRef.current - displayRef.current;
-      if (Math.abs(d) < 0.07) {
-        displayRef.current = guessRef.current;
-        draw();
-        return;
-      }
-      displayRef.current += d * 0.24;
+      if (dragging.current) return;
+      const delta = valRef.current - dispRef.current;
+      if (Math.abs(delta) < 0.07) { dispRef.current = valRef.current; draw(); return; }
+      dispRef.current += delta * 0.22;
       draw();
-      rafRef.current = requestAnimationFrame(tick);
+      raf.current = requestAnimationFrame(tick);
     };
-    rafRef.current = requestAnimationFrame(tick);
+    raf.current = requestAnimationFrame(tick);
   }, [draw]);
 
-  useEffect(() => { animate(); }, [guess, animate]);
-  useEffect(() => { draw();    }, [target, draw]);
+  useEffect(() => { if (!dragging.current) startLerp(); }, [value, startLerp]);
 
-  // ResizeObserver for canvas sizing
+  // ResizeObserver
   useEffect(() => {
-    const c = canvasRef.current;
-    if (!c) return;
+    const c = canvasRef.current; if (!c) return;
     const ro = new ResizeObserver(() => draw());
-    ro.observe(c);
-    draw();
-    return () => { ro.disconnect(); cancelAnimationFrame(rafRef.current); };
+    ro.observe(c); draw();
+    return () => { ro.disconnect(); cancelAnimationFrame(raf.current); };
   }, [draw]);
 
-  // ── Pointer → angle ────────────────────────────────────────────────────────
-  const getAngle = (clientX: number, clientY: number) => {
-    const c = canvasRef.current;
-    if (!c) return 0;
-    const r  = c.getBoundingClientRect();
-    const dx = clientX - (r.left + r.width / 2);
-    const dy = clientY - r.bottom;   // negative = above pivot
-    const a  = Math.atan2(dx, -dy) * (180 / Math.PI);
-    return Math.max(-80, Math.min(80, a));
+  // ── Pointer → angle (uses actual pivot coords, not rect.bottom) ───────────
+  const getAngle = (px: number, py: number): number => {
+    const c = canvasRef.current; if (!c) return 0;
+    const rect  = c.getBoundingClientRect();
+    const scaleY = rect.height / (c.offsetHeight || 1);
+    // pivot is at (cx, cy) in canvas CSS coords, cx = offsetWidth/2, cy = offsetHeight-36
+    const pivotX = rect.left + rect.width  / 2;
+    const pivotY = rect.top  + (c.offsetHeight - 36) * scaleY;
+    const dx = px - pivotX;
+    const dy = py - pivotY;
+    return Math.max(-80, Math.min(80, Math.atan2(dx, -dy) * (180 / Math.PI)));
   };
 
-  const onPointerDown = (e: React.PointerEvent) => {
+  const handlePointerDown = (e: React.PointerEvent) => {
     if (!interactive || !onChange) return;
     e.preventDefault();
-    onChange(getAngle(e.clientX, e.clientY));
-    const move = (ev: PointerEvent) => { ev.preventDefault(); onChange(getAngle(ev.clientX, ev.clientY)); };
-    const up   = () => { window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); };
-    window.addEventListener("pointermove", move, { passive: false });
-    window.addEventListener("pointerup",   up);
+    ac(); // init AudioContext on first gesture
+    dragging.current = true;
+    cancelAnimationFrame(raf.current);
+
+    const ang = getAngle(e.clientX, e.clientY);
+    dispRef.current = ang; valRef.current = ang;
+    draw(); vibe(12);
+
+    let lastTick = ang;
+
+    // NOTE: these handlers update canvas DIRECTLY — no React setState during drag.
+    // onChange is only called on pointerup to sync React state.
+    const onMove = (ev: PointerEvent) => {
+      ev.preventDefault();
+      const na = getAngle(ev.clientX, ev.clientY);
+      dispRef.current = na; valRef.current = na;
+      draw();
+      if (Math.abs(na - lastTick) >= 5) {
+        SFX.tick(); vibe(6);
+        lastTick = na;
+      }
+    };
+    const onUp = () => {
+      dragging.current = false;
+      onChange(dispRef.current); // sync to React state once on release
+      SFX.lock(); vibe([20, 10, 20]);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup",   onUp);
+    };
+    window.addEventListener("pointermove", onMove, { passive: false });
+    window.addEventListener("pointerup",   onUp);
   };
 
   return (
     <div style={{ position: "relative", width: "100%" }}>
-      {/* Word labels flanking the arc */}
       {leftWord && (
         <div style={{
-          position: "absolute", left: 6, bottom: 10, zIndex: 2,
+          position: "absolute", left: 8, bottom: 34, zIndex: 2,
           fontSize: 11, fontWeight: 900, color: "#F87171",
-          maxWidth: "22%", lineHeight: 1.2, wordBreak: "break-word",
-          textShadow: "0 1px 8px rgba(248,113,113,0.25)",
-        }}>
-          {leftWord}
-        </div>
+          maxWidth: "22%", lineHeight: 1.25, wordBreak: "break-word",
+          filter: "drop-shadow(0 1px 5px rgba(248,113,113,0.35))",
+        }}>{leftWord}</div>
       )}
       {rightWord && (
         <div style={{
-          position: "absolute", right: 6, bottom: 10, zIndex: 2, textAlign: "right",
+          position: "absolute", right: 8, bottom: 34, zIndex: 2, textAlign: "right",
           fontSize: 11, fontWeight: 900, color: "#2DD4BF",
-          maxWidth: "22%", lineHeight: 1.2, wordBreak: "break-word",
-          textShadow: "0 1px 8px rgba(45,212,191,0.25)",
-        }}>
-          {rightWord}
-        </div>
+          maxWidth: "22%", lineHeight: 1.25, wordBreak: "break-word",
+          filter: "drop-shadow(0 1px 5px rgba(45,212,191,0.35))",
+        }}>{rightWord}</div>
       )}
-
-      {/* Container enforces 2:1 ratio; canvas fills it */}
-      <div style={{ position: "relative", width: "100%", aspectRatio: "2 / 1" }}>
+      {/*
+        paddingBottom: 62% → container height = 62% of its width.
+        This gives: arc room at top (CY = H-36, so top of arc is ~30px below canvas top)
+        and hub room at bottom (hub r=30, CY = H-36, so hub bottom = H-6 < H).
+        No content clips.
+      */}
+      <div style={{ position: "relative", width: "100%", paddingBottom: "62%" }}>
         <canvas
           ref={canvasRef}
-          onPointerDown={onPointerDown}
+          onPointerDown={handlePointerDown}
           style={{
             position: "absolute", inset: 0,
             width: "100%", height: "100%",
@@ -254,14 +313,12 @@ function HalfDial({ guess, target, interactive, onChange, leftWord, rightWord }:
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Main Mobile Game
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Main Game ─────────────────────────────────────────────────────────────────
 export default function WaveMobile() {
-  const [gameState,     setGameState]     = useState<GameState>("SETUP");
-  const [teams,         setTeams]         = useState<Team[]>([
-    { id: "1", name: "Team One", score: 0 },
-    { id: "2", name: "Team Two", score: 0 },
+  const [gameState,      setGameState]      = useState<GameState>("SETUP");
+  const [teams,          setTeams]          = useState<Team[]>([
+    { id: "1", name: "Team One",  score: 0 },
+    { id: "2", name: "Team Two",  score: 0 },
   ]);
   const [currentTeamIdx, setCurrentTeamIdx] = useState(0);
   const [currentPair,    setCurrentPair]    = useState<WordPair>(WORD_PAIRS[0]);
@@ -269,20 +326,20 @@ export default function WaveMobile() {
   const [dialValue,      setDialValue]      = useState(0);
   const [roundScore,     setRoundScore]     = useState(0);
 
-  const currentTeam  = teams[currentTeamIdx];
-  const otherIdx     = (currentTeamIdx + 1) % teams.length;
+  const currentTeam = teams[currentTeamIdx];
+  const otherIdx    = (currentTeamIdx + 1) % teams.length;
 
-  const rand       = () => Math.random() * 160 - 80;
-  const getRandom  = (excl?: WordPair) => {
+  const rand      = () => Math.random() * 160 - 80;
+  const randPair  = (excl?: WordPair) => {
     const pool = WORD_PAIRS.filter(p => p !== excl);
     return pool[Math.floor(Math.random() * pool.length)];
   };
 
   const startRound = () => {
-    setCurrentPair(getRandom());
+    ac(); SFX.begin(); vibe(15);
+    setCurrentPair(randPair());
     setTargetAngle(rand());
-    setRoundScore(0);
-    setDialValue(0);
+    setRoundScore(0); setDialValue(0);
     setGameState("CLUE_GIVER");
   };
 
@@ -295,51 +352,50 @@ export default function WaveMobile() {
     const s = calcScore(dialValue, targetAngle);
     setRoundScore(s);
     setTeams(prev => prev.map((t, i) => i === currentTeamIdx ? { ...t, score: t.score + s } : t));
+    // play sound after brief state-commit delay
+    setTimeout(() => {
+      if (s === 4) { SFX.score4(); vibe([30, 20, 30, 20, 60]); }
+      else if (s === 3) { SFX.score3(); vibe([25, 15, 40]); }
+      else if (s === 2) { SFX.score2(); vibe([20, 15, 30]); }
+      else { SFX.miss(); vibe(40); }
+    }, 120);
     setGameState("REVEAL");
   };
 
   const updateName = (id: string, name: string) =>
     setTeams(t => t.map(x => x.id === id ? { ...x, name } : x));
 
-  // ── Shared style tokens ──
-  const PRIMARY   = "w-full py-4 rounded-2xl font-black text-white text-[17px] shadow-lg active:scale-95 transition-transform select-none";
-  const SECONDARY = "w-full py-4 rounded-2xl font-black text-[#0F766E] text-[17px] shadow-lg active:scale-95 transition-transform select-none";
-  const CLAY      = "flex-1 py-3 bg-white/80 backdrop-blur rounded-xl font-bold text-[#475569] text-sm shadow-sm active:scale-95 transition-transform select-none";
+  const PRIMARY   = { background: "linear-gradient(to bottom, #C4B5FD, #A78BFA)" };
+  const SECONDARY = { background: "linear-gradient(to bottom, #A7F3D0, #5EEAD4)" };
+  const PCLS = "w-full py-4 rounded-2xl font-black text-white text-[17px] shadow-lg active:scale-95 transition-transform select-none";
+  const SCLS = "w-full py-4 rounded-2xl font-black text-[#0F766E] text-[17px] shadow-lg active:scale-95 transition-transform select-none";
+  const CLAY = "flex-1 py-3 bg-white/80 backdrop-blur rounded-xl font-bold text-[#475569] text-sm shadow-sm active:scale-95 transition-transform select-none";
 
-  // ── Scoreboard strip ──
   const ScoreStrip = () => (
     <div className="flex gap-2">
       {teams.map((t, i) => (
-        <div
-          key={t.id}
-          className={`flex-1 flex items-center justify-between px-3 py-2 rounded-xl transition-all ${
-            i === currentTeamIdx ? "bg-white/85 shadow-sm" : "bg-white/35 opacity-55"
-          }`}
-        >
-          <div
-            className="font-bold text-[#64748B] text-xs outline-none truncate"
-            contentEditable
-            suppressContentEditableWarning
-            onBlur={e => updateName(t.id, e.currentTarget.textContent || t.name)}
-          >
+        <div key={t.id} className={`flex-1 flex items-center justify-between px-3 py-2 rounded-xl ${
+          i === currentTeamIdx ? "bg-white/85 shadow-sm" : "bg-white/30 opacity-55"
+        }`}>
+          <div className="font-bold text-[#64748B] text-xs outline-none truncate"
+            contentEditable suppressContentEditableWarning
+            onBlur={e => updateName(t.id, e.currentTarget.textContent || t.name)}>
             {t.name}
           </div>
-          <div className="text-xl font-black text-[#334155] ml-2">{t.score}</div>
+          <div className="text-xl font-black text-[#334155] ml-2 tabular-nums">{t.score}</div>
         </div>
       ))}
     </div>
   );
 
   return (
-    <div
-      className="fixed inset-0 flex flex-col"
+    <div className="fixed inset-0 flex flex-col"
       style={{
         background: "#FAFAFA",
         fontFamily: "'Nunito', system-ui, sans-serif",
-        paddingTop:    "max(env(safe-area-inset-top,    0px), 18px)",
-        paddingBottom: "max(env(safe-area-inset-bottom, 0px), 16px)",
-        paddingLeft:  12,
-        paddingRight: 12,
+        paddingTop:    "max(env(safe-area-inset-top,    0px), 16px)",
+        paddingBottom: "max(env(safe-area-inset-bottom, 0px), 14px)",
+        paddingLeft: 12, paddingRight: 12,
         overflow: "hidden",
       }}
     >
@@ -348,25 +404,24 @@ export default function WaveMobile() {
         html, body { background: #FAFAFA !important; overflow: hidden !important; }
       `}} />
 
-      {/* Ambient blobs */}
-      <div style={{ position:"absolute",top:-80,left:-80,width:"55vw",height:"55vw",borderRadius:"50%",background:"rgba(167,243,208,0.38)",filter:"blur(80px)",pointerEvents:"none" }} />
-      <div style={{ position:"absolute",bottom:-80,right:-80,width:"65vw",height:"65vw",borderRadius:"50%",background:"rgba(196,181,253,0.35)",filter:"blur(100px)",pointerEvents:"none" }} />
+      {/* Blobs */}
+      <div style={{ position:"absolute",top:-80,left:-80,width:"55vw",height:"55vw",borderRadius:"50%",background:"rgba(167,243,208,0.36)",filter:"blur(80px)",pointerEvents:"none" }} />
+      <div style={{ position:"absolute",bottom:-80,right:-80,width:"65vw",height:"65vw",borderRadius:"50%",background:"rgba(196,181,253,0.32)",filter:"blur(100px)",pointerEvents:"none" }} />
 
       <AnimatePresence mode="wait">
 
-        {/* ─── SETUP ─────────────────────────────────────────────────────── */}
+        {/* ── SETUP ── */}
         {gameState === "SETUP" && (
           <motion.div key="setup"
-            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}
+            initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }}
             transition={{ duration: 0.18 }}
-            style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 20, position: "relative", zIndex: 10 }}
+            className="flex-1 flex flex-col justify-between relative z-10 gap-5"
           >
             <div className="text-center pt-4">
               <div className="text-xs font-bold text-[#94A3B8] tracking-widest uppercase mb-1">Up Next</div>
               <div className="text-5xl font-black text-[#334155]">{currentTeam.name}</div>
-              <div className="text-7xl font-black text-[#C4B5FD] leading-none mt-1">{currentTeam.score}</div>
+              <div className="text-7xl font-black text-[#C4B5FD] leading-none mt-1 tabular-nums">{currentTeam.score}</div>
             </div>
-
             <div className="space-y-2">
               {teams.map((t, i) => (
                 <div key={t.id} className={`flex items-center justify-between px-4 py-3 rounded-2xl ${
@@ -376,158 +431,114 @@ export default function WaveMobile() {
                     onBlur={e => updateName(t.id, e.currentTarget.textContent || t.name)}>
                     {t.name}
                   </div>
-                  <div className="text-2xl font-black text-[#334155]">{t.score}</div>
+                  <div className="text-2xl font-black text-[#334155] tabular-nums">{t.score}</div>
                 </div>
               ))}
-              <button
-                onClick={() => setTeams([...teams, { id: Date.now().toString(), name: `Team ${teams.length + 1}`, score: 0 }])}
-                className="w-full py-2 bg-white/40 rounded-2xl font-bold text-[#A78BFA] text-sm active:scale-95 transition-transform"
-              >
+              <button onClick={() => setTeams([...teams, { id: Date.now().toString(), name: `Team ${teams.length + 1}`, score: 0 }])}
+                className="w-full py-2 bg-white/40 rounded-2xl font-bold text-[#A78BFA] text-sm active:scale-95 transition-transform">
                 + Add Team
               </button>
             </div>
-
-            <button onClick={startRound}
-              className={PRIMARY}
-              style={{ background: "linear-gradient(to bottom, #C4B5FD, #A78BFA)" }}
-            >
-              Begin Round
-            </button>
+            <button onClick={startRound} className={PCLS} style={PRIMARY}>Begin Round</button>
           </motion.div>
         )}
 
-        {/* ─── CLUE GIVER ────────────────────────────────────────────────── */}
+        {/* ── CLUE GIVER ── */}
         {gameState === "CLUE_GIVER" && (
           <motion.div key="clue"
-            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}
+            initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }}
             transition={{ duration: 0.18 }}
-            style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", position: "relative", zIndex: 10, gap: 12 }}
+            className="flex-1 flex flex-col justify-between relative z-10"
+            style={{ gap: 10 }}
           >
             <div>
               <ScoreStrip />
-              <div className="text-center mt-3">
+              <div className="text-center mt-2">
                 <span className="inline-block px-3 py-1 bg-[#C4B5FD]/20 text-[#7C3AED] rounded-full text-xs font-bold tracking-widest uppercase">
-                  Clue Giver - you see the target
+                  Clue giver — you see the target
                 </span>
               </div>
             </div>
-
-            {/* Big pair labels */}
-            <div className="text-center px-2">
-              <div className="text-4xl font-black text-[#F87171] leading-none">{currentPair.left}</div>
-              <div className="text-xs font-bold text-[#CBD5E1] uppercase tracking-widest my-2">vs</div>
-              <div className="text-4xl font-black text-[#2DD4BF] leading-none">{currentPair.right}</div>
+            <div className="text-center">
+              <div className="text-4xl font-black text-[#F87171] leading-tight">{currentPair.left}</div>
+              <div className="text-xs font-bold text-[#CBD5E1] uppercase tracking-widest my-1">vs</div>
+              <div className="text-4xl font-black text-[#2DD4BF] leading-tight">{currentPair.right}</div>
             </div>
-
-            {/* Full-width half-dial, target visible */}
-            <HalfDial
-              guess={targetAngle}
-              target={targetAngle}
-              interactive={false}
-              leftWord={currentPair.left}
-              rightWord={currentPair.right}
-            />
-
+            <HalfDial value={targetAngle} target={targetAngle} interactive={false}
+              leftWord={currentPair.left} rightWord={currentPair.right} />
             <div className="space-y-2">
               <div className="flex gap-2">
                 <button onClick={() => { setTargetAngle(rand()); setDialValue(0); }} className={CLAY}>Respin</button>
-                <button onClick={() => { setCurrentPair(getRandom(currentPair)); setTargetAngle(rand()); setDialValue(0); }} className={CLAY}>Skip</button>
+                <button onClick={() => { setCurrentPair(randPair(currentPair)); setTargetAngle(rand()); setDialValue(0); }} className={CLAY}>Skip</button>
               </div>
-              <button onClick={() => setGameState("TEAM_GUESSES")}
-                className={PRIMARY}
-                style={{ background: "linear-gradient(to bottom, #C4B5FD, #A78BFA)" }}
-              >
+              <button onClick={() => setGameState("TEAM_GUESSES")} className={PCLS} style={PRIMARY}>
                 Hide for Guessers
               </button>
             </div>
           </motion.div>
         )}
 
-        {/* ─── TEAM GUESSES ──────────────────────────────────────────────── */}
+        {/* ── TEAM GUESSES ── */}
         {gameState === "TEAM_GUESSES" && (
           <motion.div key="guess"
-            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}
+            initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }}
             transition={{ duration: 0.18 }}
-            style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", position: "relative", zIndex: 10, gap: 12 }}
+            className="flex-1 flex flex-col justify-between relative z-10"
+            style={{ gap: 10 }}
           >
             <div>
               <ScoreStrip />
-              <div className="text-center mt-3">
+              <div className="text-center mt-2">
                 <span className="inline-block px-3 py-1 bg-[#A78BFA]/15 text-[#7C3AED] rounded-full text-xs font-bold tracking-widest uppercase">
-                  Touch the dial to guess
+                  Touch and drag to guess
                 </span>
               </div>
             </div>
-
-            <div className="text-center px-2">
-              <div className="text-4xl font-black text-[#F87171] leading-none">{currentPair.left}</div>
-              <div className="text-xs font-bold text-[#CBD5E1] uppercase tracking-widest my-2">vs</div>
-              <div className="text-4xl font-black text-[#2DD4BF] leading-none">{currentPair.right}</div>
+            <div className="text-center">
+              <div className="text-4xl font-black text-[#F87171] leading-tight">{currentPair.left}</div>
+              <div className="text-xs font-bold text-[#CBD5E1] uppercase tracking-widest my-1">vs</div>
+              <div className="text-4xl font-black text-[#2DD4BF] leading-tight">{currentPair.right}</div>
             </div>
-
-            {/* Full-width half-dial, interactive, target hidden */}
-            <HalfDial
-              guess={dialValue}
-              interactive
-              onChange={setDialValue}
-              leftWord={currentPair.left}
-              rightWord={currentPair.right}
-            />
-
-            <button onClick={lockGuess}
-              className={SECONDARY}
-              style={{ background: "linear-gradient(to bottom, #A7F3D0, #5EEAD4)" }}
-            >
-              Reveal
-            </button>
+            <HalfDial value={dialValue} interactive onChange={setDialValue}
+              leftWord={currentPair.left} rightWord={currentPair.right} />
+            <button onClick={lockGuess} className={SCLS} style={SECONDARY}>Reveal</button>
           </motion.div>
         )}
 
-        {/* ─── REVEAL ────────────────────────────────────────────────────── */}
+        {/* ── REVEAL ── */}
         {gameState === "REVEAL" && (
           <motion.div key="reveal"
-            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}
+            initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }}
             transition={{ duration: 0.18 }}
-            style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", position: "relative", zIndex: 10, gap: 12 }}
+            className="flex-1 flex flex-col justify-between relative z-10"
+            style={{ gap: 10 }}
           >
             <div>
               <ScoreStrip />
-              <div className="text-center mt-2 px-2">
-                <div className="text-3xl font-black text-[#F87171] leading-none">{currentPair.left}</div>
+              <div className="text-center mt-1">
+                <div className="text-3xl font-black text-[#F87171] leading-tight">{currentPair.left}</div>
                 <div className="text-xs font-bold text-[#CBD5E1] uppercase tracking-widest my-1">vs</div>
-                <div className="text-3xl font-black text-[#2DD4BF] leading-none">{currentPair.right}</div>
+                <div className="text-3xl font-black text-[#2DD4BF] leading-tight">{currentPair.right}</div>
               </div>
             </div>
-
-            {/* Dial shows guess needle + scoring target */}
-            <HalfDial
-              guess={dialValue}
-              target={targetAngle}
-              interactive={false}
-              leftWord={currentPair.left}
-              rightWord={currentPair.right}
-            />
-
+            <HalfDial value={dialValue} target={targetAngle} interactive={false}
+              leftWord={currentPair.left} rightWord={currentPair.right} />
             <motion.div
               initial={{ scale: 0.5, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: "spring", bounce: 0.5, delay: 0.2 }}
+              transition={{ type: "spring", bounce: 0.5, delay: 0.15 }}
               className="text-center"
             >
               <div className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest">{currentTeam.name}</div>
-              <div className={`text-6xl font-black leading-none mt-1 ${
-                roundScore === 4 ? "text-[#C4B5FD]" : roundScore >= 2 ? "text-[#5EEAD4]" : "text-[#F87171]"
+              <div className={`text-6xl font-black leading-none mt-1 tabular-nums ${
+                roundScore === 4 ? "text-[#C4B5FD]" :
+                roundScore >= 2 ? "text-[#5EEAD4]" : "text-[#F87171]"
               }`}>
                 {roundScore > 0 ? `+${roundScore}` : "Miss"}
               </div>
             </motion.div>
-
             <button onClick={() => { setCurrentTeamIdx(otherIdx); setGameState("SETUP"); }}
-              className={PRIMARY}
-              style={{ background: "linear-gradient(to bottom, #C4B5FD, #A78BFA)" }}
-            >
-              Next Round
-            </button>
+              className={PCLS} style={PRIMARY}>Next Round</button>
           </motion.div>
         )}
 
