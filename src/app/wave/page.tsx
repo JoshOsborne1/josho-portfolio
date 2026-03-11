@@ -142,48 +142,63 @@ export default function WaveGame() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white font-mono overflow-hidden selection:bg-purple-500/30">
+    <div className="min-h-screen bg-[#F5F3ED] text-zinc-800 font-sans overflow-hidden selection:bg-rose-200">
       
-      {/* Background Ambience */}
-      <div className="absolute inset-0 z-0 opacity-20 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.3)_0%,transparent_100%)] pointer-events-none" />
+      {/* Soft background glow */}
+      <div className="absolute inset-0 z-0 opacity-40 bg-[radial-gradient(circle_at_center,rgba(255,255,255,1)_0%,transparent_100%)] pointer-events-none" />
 
       {/* Header / Scores */}
-      <header className="relative z-10 w-full p-6 flex justify-between items-center border-b border-white/10">
+      <header className="relative z-10 w-full p-6 flex justify-between items-center">
         <div className="flex flex-col items-center">
-          <span className="text-xs text-blue-400 tracking-widest uppercase mb-1">Team A</span>
-          <span className="text-4xl font-bold text-white">{scores.A}</span>
+          <span className="text-xs text-rose-500 font-bold tracking-widest uppercase mb-1 drop-shadow-[0_1px_2px_rgba(244,63,94,0.3)]">Team A</span>
+          <div className="w-16 h-16 flex items-center justify-center rounded-2xl bg-[#F5F3ED] shadow-[6px_6px_16px_#d1cfc7,-6px_-6px_16px_#ffffff] text-3xl font-black text-rose-500">
+            {scores.A}
+          </div>
         </div>
         
-        <div className="text-center">
-          <h1 className="text-xl font-bold tracking-[0.2em] uppercase text-white/50">Wavelength</h1>
+        <div className="text-center flex flex-col items-center">
+          <h1 className="text-2xl font-black tracking-[0.15em] uppercase text-zinc-400 drop-shadow-sm">Wavelength</h1>
           {gameState !== "SETUP" && (
-            <div className="mt-2 inline-block px-3 py-1 rounded-full border border-white/20 bg-white/5 text-xs text-white">
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="mt-3 px-4 py-1.5 rounded-full bg-[#F5F3ED] shadow-[inset_4px_4px_8px_#d1cfc7,inset_-4px_-4px_8px_#ffffff] text-xs font-bold text-zinc-500 tracking-wide"
+            >
               Round: Team {currentTeam}
-            </div>
+            </motion.div>
           )}
         </div>
 
         <div className="flex flex-col items-center">
-          <span className="text-xs text-orange-400 tracking-widest uppercase mb-1">Team B</span>
-          <span className="text-4xl font-bold text-white">{scores.B}</span>
+          <span className="text-xs text-sky-500 font-bold tracking-widest uppercase mb-1 drop-shadow-[0_1px_2px_rgba(14,165,233,0.3)]">Team B</span>
+          <div className="w-16 h-16 flex items-center justify-center rounded-2xl bg-[#F5F3ED] shadow-[6px_6px_16px_#d1cfc7,-6px_-6px_16px_#ffffff] text-3xl font-black text-sky-500">
+            {scores.B}
+          </div>
         </div>
       </header>
 
       {/* Main Content Area */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center p-8 h-[calc(100vh-100px)]">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center p-6 h-[calc(100vh-120px)] max-w-lg mx-auto w-full">
         
         {/* State: SETUP */}
         {gameState === "SETUP" && (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center gap-8 text-center max-w-lg"
+            className="flex flex-col items-center gap-10 text-center w-full"
           >
-            <h2 className="text-3xl font-bold text-white/90">Prepare for Transmission</h2>
-            <p className="text-white/60 text-sm">Team {currentTeam} psychic, step forward. Everyone else, look away.</p>
+            <div className="w-32 h-32 rounded-full bg-[#F5F3ED] shadow-[10px_10px_20px_#d1cfc7,-10px_-10px_20px_#ffffff] flex items-center justify-center mb-4">
+               <div className="w-16 h-16 rounded-full bg-rose-400 shadow-[inset_4px_4px_8px_rgba(0,0,0,0.2),inset_-4px_-4px_8px_rgba(255,255,255,0.4)]" />
+            </div>
+            
+            <div className="space-y-3">
+              <h2 className="text-3xl font-black text-zinc-700">Transmission Ready</h2>
+              <p className="text-zinc-500 text-sm font-medium px-8">Team {currentTeam} psychic, step forward. Everyone else, look away.</p>
+            </div>
+            
             <button 
               onClick={startRound}
-              className="px-8 py-4 bg-white text-black font-bold uppercase tracking-widest hover:bg-white/90 transition-colors"
+              className="w-full max-w-[240px] py-4 rounded-2xl bg-[#F5F3ED] shadow-[8px_8px_16px_#d1cfc7,-8px_-8px_16px_#ffffff] active:shadow-[inset_6px_6px_12px_#d1cfc7,inset_-6px_-6px_12px_#ffffff] text-zinc-600 font-black uppercase tracking-widest transition-all duration-200"
             >
               I am ready
             </button>
@@ -192,79 +207,91 @@ export default function WaveGame() {
 
         {/* The Spectrum Device (Visible in most states) */}
         {gameState !== "SETUP" && (
-          <div className="w-full max-w-3xl flex flex-col items-center gap-12 mt-12">
+          <div className="w-full flex flex-col items-center gap-8 mt-4">
             
-            {/* Word Pair */}
-            <div className="flex justify-between w-full text-sm font-bold tracking-widest uppercase text-white/50">
-              <span className="w-1/3 text-left">{currentPair.left}</span>
-              {clue && (
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="w-1/3 text-center text-xl text-white font-sans font-bold"
-                >
-                  "{clue}"
-                </motion.div>
-              )}
-              <span className="w-1/3 text-right">{currentPair.right}</span>
+            {/* Word Pair & Clue */}
+            <div className="w-full flex flex-col items-center gap-4 relative z-50">
+               <div className="flex justify-between w-full px-4 items-center">
+                <div className="px-4 py-2 rounded-xl bg-[#F5F3ED] shadow-[4px_4px_10px_#d1cfc7,-4px_-4px_10px_#ffffff] text-sm font-black tracking-widest uppercase text-zinc-500">
+                  {currentPair.left}
+                </div>
+                <div className="px-4 py-2 rounded-xl bg-[#F5F3ED] shadow-[4px_4px_10px_#d1cfc7,-4px_-4px_10px_#ffffff] text-sm font-black tracking-widest uppercase text-zinc-500">
+                  {currentPair.right}
+                </div>
+              </div>
+              
+              <div className="h-14 flex items-center justify-center">
+                {clue && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    className="px-8 py-3 rounded-2xl bg-[#F5F3ED] shadow-[inset_4px_4px_8px_#d1cfc7,inset_-4px_-4px_8px_#ffffff] text-xl text-zinc-700 font-black tracking-wide"
+                  >
+                    "{clue}"
+                  </motion.div>
+                )}
+              </div>
             </div>
 
             {/* The Dial Assembly */}
-            <div className="relative w-full aspect-[2/1] bg-white/5 rounded-t-full border border-white/10 overflow-hidden flex items-end justify-center pb-2">
+            <div className="relative w-full aspect-[2/1] mt-8 bg-[#F5F3ED] rounded-t-[200px] shadow-[12px_12px_24px_#d1cfc7,-12px_-12px_24px_#ffffff] overflow-hidden flex items-end justify-center pb-4 border-8 border-white/50">
               
               {/* The Target Zone (Hidden or Revealed) */}
               <motion.div 
-                className="absolute bottom-0 w-2 h-[90%] origin-bottom"
+                className="absolute bottom-4 w-4 h-[85%] origin-bottom"
                 initial={false}
                 animate={{ 
                   rotate: targetRotation,
                   opacity: (gameState === "PSYCHIC_SEES" || gameState === "REVEAL" || gameState === "ROUND_END" || gameState === "LEFT_RIGHT_STEAL") ? 1 : 0
                 }}
-                transition={{ type: "spring", stiffness: 50, damping: 20 }}
+                transition={{ type: "spring", stiffness: 60, damping: 15 }}
               >
                 {/* 4 points */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-[10%] bg-blue-500 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.8)] z-10" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[12%] bg-emerald-400 rounded-full shadow-[inset_2px_2px_4px_rgba(255,255,255,0.6),inset_-2px_-2px_4px_rgba(0,0,0,0.2),0_4px_10px_rgba(52,211,153,0.4)] z-10" />
                 {/* 3 points */}
-                <div className="absolute top-[10%] left-1/2 -translate-x-1/2 w-12 h-[10%] bg-cyan-400 opacity-60 rounded-t-full -translate-x-1/2 -z-10" />
-                <div className="absolute top-[10%] left-1/2 -translate-x-1/2 w-12 h-[10%] bg-cyan-400 opacity-60 rounded-t-full -translate-x-1/2 -z-10 -scale-x-100" />
-                {/* 2 points (approximate visual) */}
-                 <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-24 h-[10%] bg-white/20 rounded-t-full -translate-x-1/2 -z-20" />
+                <div className="absolute top-[6%] left-1/2 -translate-x-1/2 w-20 h-[15%] bg-amber-300 rounded-t-full -z-10 shadow-[inset_2px_2px_4px_rgba(255,255,255,0.6),inset_-2px_-2px_4px_rgba(0,0,0,0.2)]" />
+                {/* 2 points */}
+                 <div className="absolute top-[16%] left-1/2 -translate-x-1/2 w-32 h-[15%] bg-rose-300 rounded-t-full -z-20 shadow-[inset_2px_2px_4px_rgba(255,255,255,0.6),inset_-2px_-2px_4px_rgba(0,0,0,0.2)]" />
               </motion.div>
 
               {/* The Screen / Curtain */}
               {gameState === "GIVE_CLUE" || gameState === "TEAM_GUESSES" ? (
-                <div className="absolute inset-0 bg-black/80 backdrop-blur-md z-20 border-t border-white/10" />
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="absolute inset-0 z-20 rounded-t-[192px] shadow-[inset_10px_10px_20px_#d1cfc7,inset_-10px_-10px_20px_#ffffff] bg-[#F5F3ED]/95 backdrop-blur-sm"
+                />
               ) : null}
 
               {/* The Dial Indicator */}
               <motion.div 
-                className="absolute bottom-0 w-1 h-[85%] origin-bottom z-30 pointer-events-none"
+                className="absolute bottom-4 w-3 h-[85%] origin-bottom z-30 pointer-events-none"
                 style={{ rotate: dialRotation }}
               >
-                <div className="w-full h-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]" />
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-3 h-3 bg-white rounded-full shadow-lg" />
+                <div className="w-full h-full bg-rose-500 rounded-full shadow-[inset_2px_2px_4px_rgba(255,255,255,0.5),inset_-2px_-2px_4px_rgba(0,0,0,0.3),0_4px_8px_rgba(244,63,94,0.4)]" />
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 bg-white rounded-full shadow-[2px_4px_8px_rgba(0,0,0,0.15),inset_2px_2px_4px_rgba(255,255,255,0.8),inset_-2px_-2px_4px_rgba(0,0,0,0.1)] flex items-center justify-center">
+                  <div className="w-3 h-3 rounded-full bg-zinc-200 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]" />
+                </div>
               </motion.div>
 
-              {/* Invisible Drag Area overlaying the semicircle */}
+              {/* Invisible Drag Area */}
               {gameState === "TEAM_GUESSES" && (
                 <div 
                   className="absolute inset-0 z-40 rounded-t-full cursor-grab active:cursor-grabbing touch-none"
                   onPointerDown={(e) => {
                     const rect = e.currentTarget.getBoundingClientRect();
                     const centerX = rect.left + rect.width / 2;
-                    const centerY = rect.bottom;
+                    const centerY = rect.bottom - 16; // offset for the pb-4 padding
                     
                     const handleMove = (moveEvent: PointerEvent) => {
                       const dx = moveEvent.clientX - centerX;
                       const dy = moveEvent.clientY - centerY;
                       let angle = Math.atan2(dy, dx) * (180 / Math.PI);
                       
-                      // Convert from typical atan2 range to our -90 to 90 range
                       angle = angle + 90;
                       
-                      // Clamp
-                      if (angle < -90) angle = -90;
-                      if (angle > 90) angle = 90;
+                      if (angle < -85) angle = -85;
+                      if (angle > 85) angle = 85;
                       
                       dialRotation.set(angle);
                     };
@@ -277,57 +304,58 @@ export default function WaveGame() {
                     window.addEventListener('pointermove', handleMove);
                     window.addEventListener('pointerup', handleUp);
                     
-                    // Initial calculation on down
                     handleMove(e as unknown as PointerEvent);
                   }}
                 />
               )}
 
               {/* Base Pivot */}
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-6 bg-zinc-800 rounded-t-full border border-white/20 z-50" />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-12 bg-[#F5F3ED] rounded-t-full shadow-[inset_4px_4px_8px_#d1cfc7,inset_-4px_-4px_8px_#ffffff] z-50 flex items-end justify-center pb-2 border-t-4 border-white/60">
+                 <div className="w-6 h-6 rounded-full bg-zinc-300 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.8)]" />
+              </div>
             </div>
 
             {/* Context Actions */}
-            <div className="h-32 flex items-center justify-center w-full">
+            <div className="min-h-[140px] flex items-center justify-center w-full mt-4">
               
               {gameState === "PSYCHIC_SEES" && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center gap-4">
-                  <p className="text-white/60 text-sm uppercase tracking-widest">Memorize the target location</p>
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center gap-6 w-full">
+                  <p className="text-zinc-500 text-sm font-bold uppercase tracking-widest text-center px-4">Memorize the target</p>
                   <button 
                     onClick={() => setGameState("GIVE_CLUE")}
-                    className="px-6 py-2 border border-white/30 text-white hover:bg-white hover:text-black transition-colors"
+                    className="w-full max-w-[260px] py-4 rounded-2xl bg-zinc-800 text-white shadow-[6px_6px_12px_#d1cfc7,-6px_-6px_12px_#ffffff] active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.4)] font-black uppercase tracking-widest transition-all duration-200"
                   >
-                    Hide Screen & Give Clue
+                    Hide & Give Clue
                   </button>
                 </motion.div>
               )}
 
               {gameState === "GIVE_CLUE" && (
                 <motion.form 
-                  initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
                   onSubmit={handleClueSubmit}
-                  className="flex w-full max-w-md gap-2"
+                  className="flex flex-col w-full gap-5"
                 >
                   <input
                     type="text"
                     value={clue}
                     onChange={(e) => setClue(e.target.value)}
                     placeholder="Enter one clue..."
-                    className="flex-1 bg-white/5 border border-white/20 p-3 text-white focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/50"
+                    className="w-full rounded-2xl bg-[#F5F3ED] shadow-[inset_6px_6px_12px_#d1cfc7,inset_-6px_-6px_12px_#ffffff] p-5 text-center text-xl font-bold text-zinc-700 placeholder:text-zinc-400 focus:outline-none focus:ring-4 focus:ring-rose-200/50 transition-all"
                     autoFocus
                   />
-                  <button type="submit" className="px-6 bg-white text-black font-bold uppercase tracking-widest hover:bg-white/90">
-                    Send
+                  <button type="submit" className="w-full py-4 rounded-2xl bg-rose-500 text-white shadow-[6px_6px_12px_#d1cfc7,-6px_-6px_12px_#ffffff] active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.2)] font-black uppercase tracking-widest transition-all duration-200">
+                    Send Clue
                   </button>
                 </motion.form>
               )}
 
               {gameState === "TEAM_GUESSES" && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center gap-4">
-                  <p className="text-white/60 text-sm uppercase tracking-widest">Team {currentTeam}: Drag the dial</p>
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center gap-6 w-full">
+                  <p className="text-zinc-500 text-sm font-bold uppercase tracking-widest text-center px-4 animate-pulse">Drag the red needle</p>
                   <button 
                     onClick={reveal}
-                    className="px-8 py-3 bg-red-600 text-white font-bold uppercase tracking-widest hover:bg-red-500 transition-colors"
+                    className="w-full max-w-[260px] py-4 rounded-2xl bg-zinc-800 text-white shadow-[6px_6px_12px_#d1cfc7,-6px_-6px_12px_#ffffff] active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.4)] font-black uppercase tracking-widest transition-all duration-200"
                   >
                     Lock Guess
                   </button>
@@ -335,34 +363,40 @@ export default function WaveGame() {
               )}
 
               {gameState === "REVEAL" && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center gap-4 text-center">
-                  <div className="text-2xl font-bold text-white">
+                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center gap-5 w-full">
+                  <div className="px-6 py-3 rounded-2xl bg-[#F5F3ED] shadow-[inset_4px_4px_8px_#d1cfc7,inset_-4px_-4px_8px_#ffffff] text-2xl font-black text-emerald-500">
                     {roundScore > 0 ? `+${roundScore} Points!` : "Miss!"}
                   </div>
-                  <p className="text-white/60 text-sm uppercase tracking-widest">
-                    Team {currentTeam === "A" ? "B" : "A"}: Steal opportunity
+                  <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest text-center">
+                    Team {currentTeam === "A" ? "B" : "A"}: Steal Opportunity
                   </p>
-                  <div className="flex gap-4">
-                    <button onClick={() => handleStealGuess("LEFT")} className="px-6 py-2 border border-white/30 hover:bg-white/10 text-xs tracking-widest uppercase">Target is Left</button>
-                    <button onClick={() => handleStealGuess("RIGHT")} className="px-6 py-2 border border-white/30 hover:bg-white/10 text-xs tracking-widest uppercase">Target is Right</button>
+                  <div className="flex gap-4 w-full justify-center">
+                    <button onClick={() => handleStealGuess("LEFT")} className="flex-1 max-w-[140px] py-3 rounded-xl bg-[#F5F3ED] shadow-[4px_4px_10px_#d1cfc7,-4px_-4px_10px_#ffffff] active:shadow-[inset_4px_4px_8px_#d1cfc7,inset_-4px_-4px_8px_#ffffff] text-xs font-black tracking-widest uppercase text-zinc-600 transition-all">Target is Left</button>
+                    <button onClick={() => handleStealGuess("RIGHT")} className="flex-1 max-w-[140px] py-3 rounded-xl bg-[#F5F3ED] shadow-[4px_4px_10px_#d1cfc7,-4px_-4px_10px_#ffffff] active:shadow-[inset_4px_4px_8px_#d1cfc7,inset_-4px_-4px_8px_#ffffff] text-xs font-black tracking-widest uppercase text-zinc-600 transition-all">Target is Right</button>
                   </div>
                 </motion.div>
               )}
 
               {gameState === "ROUND_END" && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center gap-4">
-                  <div className="text-center">
-                    <p className="text-lg text-white">Round Complete</p>
-                    <p className="text-sm text-white/50 mt-1">
-                      Team {currentTeam}: +{roundScore}
-                      {stealDirection && ` | Team ${currentTeam === "A" ? "B" : "A"}: ${calculateScore(dialRotation.get(), targetRotation) === 4 ? 0 : 
-                        ((stealDirection === "RIGHT" && targetRotation > dialRotation.get()) || 
-                         (stealDirection === "LEFT" && targetRotation < dialRotation.get())) ? "+1" : "0"}`}
-                    </p>
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center gap-6 w-full">
+                  <div className="text-center w-full p-4 rounded-2xl bg-[#F5F3ED] shadow-[inset_6px_6px_12px_#d1cfc7,inset_-6px_-6px_12px_#ffffff]">
+                    <p className="text-xl font-black text-zinc-700">Round Complete</p>
+                    <div className="mt-3 flex flex-col gap-1">
+                      <p className="text-sm font-bold text-zinc-500">
+                        Team {currentTeam}: <span className="text-emerald-500">+{roundScore}</span>
+                      </p>
+                      {stealDirection && (
+                        <p className="text-sm font-bold text-zinc-500">
+                          Team {currentTeam === "A" ? "B" : "A"} (Steal): <span className="text-sky-500">{calculateScore(dialRotation.get(), targetRotation) === 4 ? 0 : 
+                          ((stealDirection === "RIGHT" && targetRotation > dialRotation.get()) || 
+                           (stealDirection === "LEFT" && targetRotation < dialRotation.get())) ? "+1" : "0"}</span>
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <button 
                     onClick={nextRound}
-                    className="px-6 py-2 bg-white text-black font-bold uppercase tracking-widest hover:bg-white/90"
+                    className="w-full max-w-[260px] py-4 rounded-2xl bg-zinc-800 text-white shadow-[6px_6px_12px_#d1cfc7,-6px_-6px_12px_#ffffff] active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.4)] font-black uppercase tracking-widest transition-all duration-200"
                   >
                     Next Round
                   </button>
