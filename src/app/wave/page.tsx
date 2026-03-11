@@ -17,36 +17,179 @@ interface WordPair {
 }
 
 const WORD_PAIRS: WordPair[] = [
+  // Sensory
   { left: "Hot", right: "Cold" },
-  { left: "Fast", right: "Slow" },
   { left: "Soft", right: "Hard" },
-  { left: "Light", right: "Heavy" },
-  { left: "Cheap", right: "Expensive" },
-  { left: "Ugly", right: "Beautiful" },
-  { left: "Weak", right: "Strong" },
   { left: "Quiet", right: "Loud" },
-  { left: "Boring", right: "Exciting" },
-  { left: "Dry", right: "Wet" },
-  { left: "Smells Bad", right: "Smells Good" },
-  { left: "Round", right: "Pointy" },
-  { left: "Sad", right: "Happy" },
-  { left: "Useless", right: "Useful" },
-  { left: "Normal", right: "Weird" },
-  { left: "Easy", right: "Hard" },
-  { left: "Clean", right: "Dirty" },
-  { left: "Bad Actor", right: "Good Actor" },
-  { left: "Needs Skill", right: "Needs Luck" },
-  { left: "Temporary", right: "Permanent" },
-  { left: "Dangerous", right: "Safe" },
-  { left: "Trash", right: "Treasure" },
-  { left: "Sci-Fi", right: "Fantasy" },
-  { left: "Under-rated", right: "Over-rated" },
-  { left: "Villain", right: "Hero" },
-  { left: "Snack", right: "Meal" },
-  { left: "Tastes Bad", right: "Tastes Good" },
-  { left: "Dystopia", right: "Utopia" },
   { left: "Rough", right: "Smooth" },
-  { left: "Guilty Pleasure", right: "High Art" }
+  { left: "Light", right: "Heavy" },
+  { left: "Dry", right: "Wet" },
+  { left: "Mild", right: "Spicy" },
+  { left: "Sweet", right: "Sour" },
+  { left: "Crunchy", right: "Mushy" },
+  { left: "Smells Bad", right: "Smells Good" },
+  { left: "Tastes Bad", right: "Tastes Good" },
+  { left: "Round", right: "Pointy" },
+  // Speed / Energy
+  { left: "Fast", right: "Slow" },
+  { left: "Relaxing", right: "Stressful" },
+  { left: "Rushed", right: "Slow Burn" },
+  { left: "Energising", right: "Draining" },
+  { left: "Lazy", right: "Ambitious" },
+  // Value
+  { left: "Cheap", right: "Expensive" },
+  { left: "Trash", right: "Treasure" },
+  { left: "Useless", right: "Useful" },
+  { left: "Underrated", right: "Overrated" },
+  { left: "Legendary", right: "Forgettable" },
+  { left: "Iconic", right: "Generic" },
+  { left: "Premium", right: "Bargain" },
+  { left: "Priceless", right: "Worthless" },
+  // Quality / Craft
+  { left: "Guilty Pleasure", right: "High Art" },
+  { left: "Raw", right: "Polished" },
+  { left: "Authentic", right: "Fake" },
+  { left: "Original", right: "Derivative" },
+  { left: "Artisan", right: "Mass-Produced" },
+  // Social / Status
+  { left: "Niche", right: "Mainstream" },
+  { left: "Famous", right: "Unknown" },
+  { left: "Cringe", right: "Cool" },
+  { left: "Classy", right: "Trashy" },
+  { left: "Basic", right: "Sophisticated" },
+  { left: "Try-Hard", right: "Effortless" },
+  { left: "Cult Classic", right: "Mainstream Hit" },
+  { left: "Underdog", right: "The Favourite" },
+  // Good / Bad vibes
+  { left: "Ugly", right: "Beautiful" },
+  { left: "Sad", right: "Happy" },
+  { left: "Boring", right: "Exciting" },
+  { left: "Disappointing", right: "Satisfying" },
+  { left: "Terrifying", right: "Adorable" },
+  { left: "Inspiring", right: "Depressing" },
+  { left: "Addictive", right: "One and Done" },
+  { left: "Blessed", right: "Cursed" },
+  // Risk / Reward
+  { left: "Dangerous", right: "Safe" },
+  { left: "Reckless", right: "Calculated" },
+  { left: "Coward", right: "Daredevil" },
+  { left: "Impulsive", right: "Deliberate" },
+  { left: "Needs Skill", right: "Needs Luck" },
+  { left: "Rule Breaker", right: "Rule Follower" },
+  { left: "Spender", right: "Saver" },
+  // Personality
+  { left: "Introvert", right: "Extrovert" },
+  { left: "Optimist", right: "Pessimist" },
+  { left: "Humble", right: "Arrogant" },
+  { left: "Stubborn", right: "Flexible" },
+  { left: "Selfish", right: "Selfless" },
+  { left: "Naive", right: "Cynical" },
+  { left: "Reliable", right: "Unreliable" },
+  { left: "Charming", right: "Awkward" },
+  { left: "Sensitive", right: "Thick Skinned" },
+  { left: "Serious", right: "Playful" },
+  { left: "Open Minded", right: "Closed Minded" },
+  { left: "Trustworthy", right: "Untrustworthy" },
+  { left: "Kind", right: "Cruel" },
+  { left: "Logical", right: "Emotional" },
+  { left: "Independent", right: "Clingy" },
+  { left: "High Maintenance", right: "Low Maintenance" },
+  { left: "Life of the Party", right: "Wallflower" },
+  // Lifestyle
+  { left: "Night Owl", right: "Early Bird" },
+  { left: "Homebody", right: "Adventurer" },
+  { left: "Minimalist", right: "Hoarder" },
+  { left: "Healthy", right: "Unhealthy" },
+  { left: "Planned", right: "Spontaneous" },
+  { left: "Night Out", right: "Night In" },
+  { left: "Dog Person", right: "Cat Person" },
+  // Effort / Work
+  { left: "Easy", right: "Hard" },
+  { left: "Simple", right: "Complex" },
+  { left: "Temporary", right: "Permanent" },
+  { left: "High Effort", right: "Low Effort" },
+  { left: "Rewarding", right: "Thankless" },
+  { left: "Overachiever", right: "Underachiever" },
+  { left: "Manual", right: "Automatic" },
+  // Place / Environment
+  { left: "Urban", right: "Rural" },
+  { left: "Ancient", right: "Futuristic" },
+  { left: "Indoor", right: "Outdoor" },
+  { left: "City Life", right: "Country Life" },
+  { left: "Overcrowded", right: "Deserted" },
+  { left: "Local", right: "Global" },
+  // Time / Era
+  { left: "Old School", right: "Cutting Edge" },
+  { left: "Nostalgic", right: "Forward-Thinking" },
+  { left: "Morning", right: "Night" },
+  { left: "Short", right: "Long" },
+  { left: "Timeless", right: "Trendy" },
+  // Ethics / Morality
+  { left: "Ethical", right: "Unethical" },
+  { left: "Honest", right: "Deceptive" },
+  { left: "Innocent", right: "Guilty" },
+  { left: "Sacred", right: "Profane" },
+  { left: "Empowering", right: "Demeaning" },
+  { left: "Progressive", right: "Traditional" },
+  { left: "Celebrated", right: "Cancelled" },
+  { left: "Respected", right: "Ridiculed" },
+  // Creative / Art
+  { left: "Art", right: "Science" },
+  { left: "Fiction", right: "Reality" },
+  { left: "Creative", right: "Analytical" },
+  { left: "Sci-Fi", right: "Fantasy" },
+  { left: "Dystopia", right: "Utopia" },
+  { left: "Villain", right: "Hero" },
+  { left: "Analog", right: "Digital" },
+  { left: "Colourful", right: "Monochrome" },
+  // Food context
+  { left: "Snack", right: "Meal" },
+  { left: "Comfort Food", right: "Fine Dining" },
+  { left: "Street Food", right: "Michelin Star" },
+  { left: "Fast Food", right: "Home Cooked" },
+  // Relationships / Social dynamics
+  { left: "Romantic", right: "Unromantic" },
+  { left: "Formal", right: "Casual" },
+  { left: "Leader", right: "Follower" },
+  { left: "Giver", right: "Taker" },
+  { left: "Public", right: "Private" },
+  { left: "Approachable", right: "Intimidating" },
+  // Physical / Natural
+  { left: "Fragile", right: "Durable" },
+  { left: "Wild", right: "Tame" },
+  { left: "Rare", right: "Common" },
+  { left: "Natural", right: "Artificial" },
+  { left: "Organic", right: "Synthetic" },
+  { left: "Comfortable", right: "Uncomfortable" },
+  // Abstract / Philosophical
+  { left: "Predictable", right: "Unpredictable" },
+  { left: "Chaotic", right: "Orderly" },
+  { left: "Freedom", right: "Control" },
+  { left: "Theory", right: "Practice" },
+  { left: "Wholesome", right: "Dark" },
+  { left: "Cozy", right: "Edgy" },
+  { left: "Deep", right: "Shallow" },
+  { left: "Normal", right: "Weird" },
+  { left: "Clean", right: "Dirty" },
+  { left: "Bold", right: "Subtle" },
+  { left: "Practical", right: "Idealistic" },
+  // Pop culture
+  { left: "Pop", right: "Rock" },
+  { left: "Mainstream", right: "Indie" },
+  { left: "Nerd", right: "Cool Kid" },
+  { left: "Bad Actor", right: "Good Actor" },
+  { left: "Summer Vibe", right: "Winter Vibe" },
+  { left: "Sci-Fi Fan", right: "Fantasy Fan" },
+  // Controversial / debate-worthy
+  { left: "Smart", right: "Clueless" },
+  { left: "Mature", right: "Childish" },
+  { left: "Work Hard", right: "Play Hard" },
+  { left: "Messy", right: "Neat" },
+  { left: "Grounded", right: "Unhinged" },
+  { left: "Physically Demanding", right: "Mentally Demanding" },
+  { left: "Lucky", right: "Unlucky" },
+  { left: "Genius", right: "Average" },
+  { left: "Uplifting", right: "Soul-Crushing" },
 ];
 
 export default function WaveGame() {
@@ -79,10 +222,14 @@ export default function WaveGame() {
     setTeams([...teams, { id: Date.now().toString(), name: `Team ${teams.length + 1}`, score: 0 }]);
   };
 
+  const getRandomPair = (excluding?: WordPair): WordPair => {
+    const available = WORD_PAIRS.filter(p => p !== excluding);
+    return available[Math.floor(Math.random() * available.length)];
+  };
+
   const startRound = () => {
-    const pair = WORD_PAIRS[Math.floor(Math.random() * WORD_PAIRS.length)];
-    const angle = (Math.random() * 160) - 80; 
-    
+    const pair = getRandomPair();
+    const angle = (Math.random() * 160) - 80;
     setCurrentPair(pair);
     setTargetRotation(angle);
     setRoundScore(0);
@@ -90,6 +237,28 @@ export default function WaveGame() {
     setInterceptDirection(null);
     dialRotation.set(0);
     setGameState("PSYCHIC_SEES");
+  };
+
+  const respin = () => {
+    // Same prompt, new target position
+    const angle = (Math.random() * 160) - 80;
+    setTargetRotation(angle);
+    setRoundScore(0);
+    setInterceptScore(0);
+    setInterceptDirection(null);
+    dialRotation.set(0);
+  };
+
+  const skip = () => {
+    // New prompt, new position
+    const pair = getRandomPair(currentPair);
+    const angle = (Math.random() * 160) - 80;
+    setCurrentPair(pair);
+    setTargetRotation(angle);
+    setRoundScore(0);
+    setInterceptScore(0);
+    setInterceptDirection(null);
+    dialRotation.set(0);
   };
 
   const calculateScore = (guess: number, target: number) => {
@@ -302,23 +471,7 @@ export default function WaveGame() {
                       <stop offset="100%" stopColor="#A7F3D0" />
                     </linearGradient>
                   </defs>
-                  {/* Subtle painted arc under the ticks */}
-                  <path d="M 10 100 A 90 90 0 0 1 190 100" fill="none" stroke="url(#arcGrad)" strokeWidth="4" opacity="0.3" strokeLinecap="round" />
-                  
-                  {Array.from({ length: 19 }).map((_, i) => {
-                    const angle = -90 + (i * 10);
-                    const isMajor = i % 3 === 0;
-                    return (
-                      <line
-                        key={i}
-                        x1="100" y1="100" x2="100" y2={isMajor ? "6" : "12"}
-                        transform={`rotate(${angle} 100 100)`}
-                        stroke={isMajor ? "rgba(148, 163, 184, 0.4)" : "rgba(148, 163, 184, 0.2)"}
-                        strokeWidth={isMajor ? "0.8" : "0.4"}
-                        strokeLinecap="round"
-                      />
-                    );
-                  })}
+                  <path d="M 10 100 A 90 90 0 0 1 190 100" fill="none" stroke="url(#arcGrad)" strokeWidth="3" opacity="0.25" strokeLinecap="round" />
                 </svg>
 
                 <motion.div 
@@ -396,6 +549,14 @@ export default function WaveGame() {
                       <motion.button whileTap={{ scale: 0.96 }} onClick={() => setGameState("TEAM_GUESSES")} className={primaryButtonClass + " w-full"}>
                         Hide for Guessers
                       </motion.button>
+                      <div className="flex gap-3 w-full">
+                        <motion.button whileTap={{ scale: 0.96 }} onClick={respin} className={clayButtonClass + " flex-1 text-sm"}>
+                          Respin
+                        </motion.button>
+                        <motion.button whileTap={{ scale: 0.96 }} onClick={skip} className={clayButtonClass + " flex-1 text-sm"}>
+                          Skip
+                        </motion.button>
+                      </div>
                     </motion.div>
                   )}
 
