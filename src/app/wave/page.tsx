@@ -1,18 +1,9 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { motion, useMotionValue, useTransform, useAnimation, PanInfo } from "framer-motion";
+import { useState } from "react";
+import { motion, useMotionValue } from "framer-motion";
 
-// --- Game Logic & Types ---
-type GameState = 
-  | "SETUP"
-  | "PSYCHIC_SEES"
-  | "GIVE_CLUE"
-  | "TEAM_GUESSES"
-  | "REVEAL"
-  | "LEFT_RIGHT_STEAL"
-  | "ROUND_END";
-
+type GameState = "SETUP" | "PSYCHIC_SEES" | "TEAM_GUESSES" | "REVEAL" | "ROUND_END";
 type Team = "A" | "B";
 
 interface WordPair {
@@ -59,36 +50,21 @@ export default function WaveGame() {
   const [scores, setScores] = useState({ A: 0, B: 0 });
   const [targetRotation, setTargetRotation] = useState(0); // -90 to +90
   const [currentPair, setCurrentPair] = useState<WordPair>(WORD_PAIRS[0]);
-  const [clue, setClue] = useState("");
   const [roundScore, setRoundScore] = useState(0);
   const [stealDirection, setStealDirection] = useState<"LEFT" | "RIGHT" | null>(null);
 
-  // Motion values for the puck
   const dialRotation = useMotionValue(0);
-  const dialControls = useAnimation();
-  
-  // Ref for the spectrum container to calculate drag
-  const spectrumRef = useRef<HTMLDivElement>(null);
 
   const startRound = () => {
     const pair = WORD_PAIRS[Math.floor(Math.random() * WORD_PAIRS.length)];
-    // Random angle between -80 and +80 to keep it in the visible semicircle
     const angle = (Math.random() * 160) - 80;
     
     setCurrentPair(pair);
     setTargetRotation(angle);
-    setClue("");
     setRoundScore(0);
     setStealDirection(null);
     dialRotation.set(0);
     setGameState("PSYCHIC_SEES");
-  };
-
-  const handleClueSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (clue.trim()) {
-      setGameState("TEAM_GUESSES");
-    }
   };
 
   const calculateScore = (guess: number, target: number) => {
@@ -141,147 +117,153 @@ export default function WaveGame() {
     setGameState("SETUP");
   };
 
+  const amberBtnClass = "px-8 py-4 rounded-full bg-gradient-to-b from-[#d97706] to-[#92400e] border border-[#f59e0b]/50 text-[#fef3c7] font-bold tracking-widest uppercase text-sm shadow-[0_5px_20px_rgba(217,119,6,0.4)] hover:shadow-[0_5px_25px_rgba(245,158,11,0.6)] transition-all active:scale-95";
+  const indigoBtnClass = "px-8 py-4 rounded-full bg-gradient-to-b from-[#2d1b69] to-[#1a0a2e] border border-[#a78bfa]/30 text-[#fef3c7] font-bold tracking-widest uppercase text-sm shadow-[0_5px_20px_rgba(45,27,105,0.6)] hover:shadow-[0_5px_25px_rgba(167,139,250,0.4)] transition-all active:scale-95";
+
   return (
-    <div className="min-h-screen bg-[#F5F3ED] text-zinc-800 font-sans overflow-hidden selection:bg-rose-200">
-      
-      {/* Soft background glow */}
-      <div className="absolute inset-0 z-0 opacity-40 bg-[radial-gradient(circle_at_center,rgba(255,255,255,1)_0%,transparent_100%)] pointer-events-none" />
+    <div className="min-h-screen bg-[#08030f] text-[#fef3c7] font-sans overflow-hidden flex flex-col selection:bg-[#f59e0b]/30 relative">
+      {/* Ambient background glow */}
+      <div className="absolute inset-0 z-0 opacity-40 bg-[radial-gradient(circle_at_center,rgba(45,27,105,0.4)_0%,transparent_100%)] pointer-events-none" />
 
       {/* Header / Scores */}
-      <header className="relative z-10 w-full p-6 flex justify-between items-center">
+      <header className="relative z-10 w-full p-8 flex justify-between items-center max-w-5xl mx-auto">
         <div className="flex flex-col items-center">
-          <span className="text-xs text-rose-500 font-bold tracking-widest uppercase mb-1 drop-shadow-[0_1px_2px_rgba(244,63,94,0.3)]">Team A</span>
-          <div className="w-16 h-16 flex items-center justify-center rounded-2xl bg-[#F5F3ED] shadow-[6px_6px_16px_#d1cfc7,-6px_-6px_16px_#ffffff] text-3xl font-black text-rose-500">
+          <span className="text-xs text-[#f59e0b] font-bold tracking-widest uppercase mb-2">Team A</span>
+          <div className="text-4xl font-serif font-black text-[#fef3c7] drop-shadow-[0_0_15px_rgba(245,158,11,0.6)]">
             {scores.A}
           </div>
         </div>
         
         <div className="text-center flex flex-col items-center">
-          <h1 className="text-2xl font-black tracking-[0.15em] uppercase text-zinc-400 drop-shadow-sm">Wavelength</h1>
+          <h1 className="text-sm font-black tracking-[0.3em] uppercase text-[#fef3c7]/30">Wavelength</h1>
           {gameState !== "SETUP" && (
             <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="mt-3 px-4 py-1.5 rounded-full bg-[#F5F3ED] shadow-[inset_4px_4px_8px_#d1cfc7,inset_-4px_-4px_8px_#ffffff] text-xs font-bold text-zinc-500 tracking-wide"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="mt-2 px-4 py-1 rounded-full border border-[#fef3c7]/10 bg-[#1a0a2e]/50 backdrop-blur-md text-xs font-bold text-[#fef3c7]/70 tracking-widest uppercase"
             >
-              Round: Team {currentTeam}
+              Team {currentTeam}
             </motion.div>
           )}
         </div>
 
         <div className="flex flex-col items-center">
-          <span className="text-xs text-sky-500 font-bold tracking-widest uppercase mb-1 drop-shadow-[0_1px_2px_rgba(14,165,233,0.3)]">Team B</span>
-          <div className="w-16 h-16 flex items-center justify-center rounded-2xl bg-[#F5F3ED] shadow-[6px_6px_16px_#d1cfc7,-6px_-6px_16px_#ffffff] text-3xl font-black text-sky-500">
+          <span className="text-xs text-[#a78bfa] font-bold tracking-widest uppercase mb-2">Team B</span>
+          <div className="text-4xl font-serif font-black text-[#fef3c7] drop-shadow-[0_0_15px_rgba(167,139,250,0.6)]">
             {scores.B}
           </div>
         </div>
       </header>
 
       {/* Main Content Area */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center p-6 h-[calc(100vh-120px)] max-w-lg mx-auto w-full">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center pb-12 w-full max-w-5xl mx-auto px-4">
         
-        {/* State: SETUP */}
+        {/* SETUP STATE */}
         {gameState === "SETUP" && (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center gap-10 text-center w-full"
+            className="flex flex-col items-center gap-12 text-center"
           >
-            <div className="w-32 h-32 rounded-full bg-[#F5F3ED] shadow-[10px_10px_20px_#d1cfc7,-10px_-10px_20px_#ffffff] flex items-center justify-center mb-4">
-               <div className="w-16 h-16 rounded-full bg-rose-400 shadow-[inset_4px_4px_8px_rgba(0,0,0,0.2),inset_-4px_-4px_8px_rgba(255,255,255,0.4)]" />
-            </div>
-            
-            <div className="space-y-3">
-              <h2 className="text-3xl font-black text-zinc-700">Transmission Ready</h2>
-              <p className="text-zinc-500 text-sm font-medium px-8">Team {currentTeam} psychic, step forward. Everyone else, look away.</p>
+            <div className="space-y-4">
+              <h2 className="text-4xl sm:text-5xl font-serif text-[#fef3c7] tracking-wide drop-shadow-md">Establish Connection</h2>
+              <p className="text-[#fef3c7]/60 text-sm tracking-widest uppercase max-w-md mx-auto">
+                Team {currentTeam} psychic, prepare your mind. All others, avert your eyes.
+              </p>
             </div>
             
             <button 
               onClick={startRound}
-              className="w-full max-w-[240px] py-4 rounded-2xl bg-[#F5F3ED] shadow-[8px_8px_16px_#d1cfc7,-8px_-8px_16px_#ffffff] active:shadow-[inset_6px_6px_12px_#d1cfc7,inset_-6px_-6px_12px_#ffffff] text-zinc-600 font-black uppercase tracking-widest transition-all duration-200"
+              className={amberBtnClass}
             >
-              I am ready
+              Commence Synchronization
             </button>
           </motion.div>
         )}
 
-        {/* The Spectrum Device (Visible in most states) */}
+        {/* ACTIVE GAME STATES */}
         {gameState !== "SETUP" && (
-          <div className="w-full flex flex-col items-center gap-8 mt-4">
+          <div className="w-full flex flex-col items-center">
             
-            {/* Word Pair & Clue */}
-            <div className="w-full flex flex-col items-center gap-4 relative z-50">
-               <div className="flex justify-between w-full px-4 items-center">
-                <div className="px-4 py-2 rounded-xl bg-[#F5F3ED] shadow-[4px_4px_10px_#d1cfc7,-4px_-4px_10px_#ffffff] text-sm font-black tracking-widest uppercase text-zinc-500">
-                  {currentPair.left}
-                </div>
-                <div className="px-4 py-2 rounded-xl bg-[#F5F3ED] shadow-[4px_4px_10px_#d1cfc7,-4px_-4px_10px_#ffffff] text-sm font-black tracking-widest uppercase text-zinc-500">
-                  {currentPair.right}
-                </div>
-              </div>
-              
-              <div className="h-14 flex items-center justify-center">
-                {clue && (
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.8, y: 10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    className="px-8 py-3 rounded-2xl bg-[#F5F3ED] shadow-[inset_4px_4px_8px_#d1cfc7,inset_-4px_-4px_8px_#ffffff] text-xl text-zinc-700 font-black tracking-wide"
-                  >
-                    "{clue}"
-                  </motion.div>
-                )}
-              </div>
+            {/* Word Pairs */}
+            <div className="flex justify-between items-end w-full px-4 sm:px-8 mb-8 sm:mb-12 relative z-10">
+              <motion.h2 layoutId="leftWord" className="text-2xl sm:text-4xl font-serif text-[#fef3c7] tracking-wider drop-shadow-lg text-left w-1/2 leading-tight">
+                {currentPair.left}
+              </motion.h2>
+              <motion.h2 layoutId="rightWord" className="text-2xl sm:text-4xl font-serif text-[#fef3c7] tracking-wider drop-shadow-lg text-right w-1/2 leading-tight">
+                {currentPair.right}
+              </motion.h2>
             </div>
 
-            {/* The Dial Assembly */}
-            <div className="relative w-full aspect-[2/1] mt-8 bg-[#F5F3ED] rounded-t-[200px] shadow-[12px_12px_24px_#d1cfc7,-12px_-12px_24px_#ffffff] overflow-hidden flex items-end justify-center pb-4 border-8 border-white/50">
+            {/* Dial Assembly */}
+            <div className="relative w-full max-w-3xl aspect-[2/1] bg-gradient-to-t from-[#160b24] to-[#201138] rounded-t-[1000px] shadow-[0_-15px_60px_rgba(26,10,46,0.8),inset_0_5px_20px_rgba(254,243,199,0.05)] overflow-hidden border-t border-x border-[#fef3c7]/10 flex items-end justify-center">
               
-              {/* The Target Zone (Hidden or Revealed) */}
+              {/* Tick Marks SVG */}
+              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 200 100" preserveAspectRatio="none">
+                {Array.from({ length: 37 }).map((_, i) => {
+                  const angle = -90 + (i * 5);
+                  const isMajor = i % 9 === 0;
+                  return (
+                    <line
+                      key={i}
+                      x1="100" y1="100" x2="100" y2={isMajor ? "5" : "15"}
+                      transform={`rotate(${angle} 100 100)`}
+                      stroke={isMajor ? "rgba(254, 243, 199, 0.3)" : "rgba(254, 243, 199, 0.1)"}
+                      strokeWidth={isMajor ? "1" : "0.3"}
+                    />
+                  );
+                })}
+              </svg>
+
+              {/* Target Zone */}
               <motion.div 
-                className="absolute bottom-4 w-4 h-[85%] origin-bottom"
+                className="absolute inset-0 origin-bottom pointer-events-none"
                 initial={false}
-                animate={{ 
-                  rotate: targetRotation,
-                  opacity: (gameState === "PSYCHIC_SEES" || gameState === "REVEAL" || gameState === "ROUND_END" || gameState === "LEFT_RIGHT_STEAL") ? 1 : 0
-                }}
-                transition={{ type: "spring", stiffness: 60, damping: 15 }}
+                animate={{ rotate: targetRotation }}
+                transition={{ type: "spring", stiffness: 45, damping: 14 }}
               >
-                {/* 4 points */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[12%] bg-emerald-400 rounded-full shadow-[inset_2px_2px_4px_rgba(255,255,255,0.6),inset_-2px_-2px_4px_rgba(0,0,0,0.2),0_4px_10px_rgba(52,211,153,0.4)] z-10" />
-                {/* 3 points */}
-                <div className="absolute top-[6%] left-1/2 -translate-x-1/2 w-20 h-[15%] bg-amber-300 rounded-t-full -z-10 shadow-[inset_2px_2px_4px_rgba(255,255,255,0.6),inset_-2px_-2px_4px_rgba(0,0,0,0.2)]" />
-                {/* 2 points */}
-                 <div className="absolute top-[16%] left-1/2 -translate-x-1/2 w-32 h-[15%] bg-rose-300 rounded-t-full -z-20 shadow-[inset_2px_2px_4px_rgba(255,255,255,0.6),inset_-2px_-2px_4px_rgba(0,0,0,0.2)]" />
+                {/* The Psychic's Secret Line */}
+                <motion.div 
+                  className="absolute top-0 left-1/2 -translate-x-1/2 w-[2px] h-full bg-[#fef3c7] shadow-[0_0_15px_#fef3c7,0_0_30px_#fef3c7]"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: gameState === "PSYCHIC_SEES" ? 1 : 0 }}
+                />
+
+                {/* The Full Revealed Scoring Wedge */}
+                <motion.div
+                  className="absolute inset-0"
+                  style={{
+                    background: `conic-gradient(from 335deg at 50% 100%, transparent 0deg, rgba(146,64,14,0.6) 0deg 10deg, rgba(217,119,6,0.8) 10deg 20deg, rgba(245,158,11,1) 20deg 30deg, rgba(217,119,6,0.8) 30deg 40deg, rgba(146,64,14,0.6) 40deg 50deg, transparent 50deg)`
+                  }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: gameState === "ROUND_END" ? 1 : 0 }}
+                  transition={{ duration: 0.6 }}
+                />
               </motion.div>
 
-              {/* The Screen / Curtain */}
-              {gameState === "GIVE_CLUE" || gameState === "TEAM_GUESSES" ? (
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="absolute inset-0 z-20 rounded-t-[192px] shadow-[inset_10px_10px_20px_#d1cfc7,inset_-10px_-10px_20px_#ffffff] bg-[#F5F3ED]/95 backdrop-blur-sm"
-                />
-              ) : null}
-
-              {/* The Dial Indicator */}
+              {/* Fog of War / Curtain during TEAM_GUESSES and REVEAL (steal phase) */}
               <motion.div 
-                className="absolute bottom-4 w-3 h-[85%] origin-bottom z-30 pointer-events-none"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: (gameState === "TEAM_GUESSES" || gameState === "REVEAL") ? 1 : 0 }}
+                className="absolute inset-0 z-20 rounded-t-[1000px] bg-gradient-to-t from-[#08030f]/90 to-[#1a0a2e]/60 backdrop-blur-[3px] pointer-events-none"
+              />
+
+              {/* Physical Needle/Puck */}
+              <motion.div 
+                className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1.5 sm:w-2 h-[92%] origin-bottom z-30 pointer-events-none"
                 style={{ rotate: dialRotation }}
               >
-                <div className="w-full h-full bg-rose-500 rounded-full shadow-[inset_2px_2px_4px_rgba(255,255,255,0.5),inset_-2px_-2px_4px_rgba(0,0,0,0.3),0_4px_8px_rgba(244,63,94,0.4)]" />
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 bg-white rounded-full shadow-[2px_4px_8px_rgba(0,0,0,0.15),inset_2px_2px_4px_rgba(255,255,255,0.8),inset_-2px_-2px_4px_rgba(0,0,0,0.1)] flex items-center justify-center">
-                  <div className="w-3 h-3 rounded-full bg-zinc-200 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]" />
-                </div>
+                <div className="w-full h-full bg-gradient-to-t from-[#d97706] to-[#fef3c7] rounded-t-full shadow-[0_0_20px_rgba(245,158,11,1)]" />
               </motion.div>
 
               {/* Invisible Drag Area */}
               {gameState === "TEAM_GUESSES" && (
                 <div 
-                  className="absolute inset-0 z-40 rounded-t-full cursor-grab active:cursor-grabbing touch-none"
+                  className="absolute inset-0 z-40 rounded-t-[1000px] cursor-grab active:cursor-grabbing touch-none"
                   onPointerDown={(e) => {
                     const rect = e.currentTarget.getBoundingClientRect();
                     const centerX = rect.left + rect.width / 2;
-                    const centerY = rect.bottom - 16; // offset for the pb-4 padding
+                    const centerY = rect.bottom;
                     
                     const handleMove = (moveEvent: PointerEvent) => {
                       const dx = moveEvent.clientX - centerX;
@@ -310,95 +292,77 @@ export default function WaveGame() {
               )}
 
               {/* Base Pivot */}
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-12 bg-[#F5F3ED] rounded-t-full shadow-[inset_4px_4px_8px_#d1cfc7,inset_-4px_-4px_8px_#ffffff] z-50 flex items-end justify-center pb-2 border-t-4 border-white/60">
-                 <div className="w-6 h-6 rounded-full bg-zinc-300 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.8)]" />
+              <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-20 h-20 bg-[#08030f] rounded-full border-4 border-[#2d1b69] z-50 flex items-center justify-center shadow-[0_-5px_25px_rgba(0,0,0,0.8)]">
+                 <div className="w-6 h-6 rounded-full bg-[#f59e0b] shadow-[0_0_15px_rgba(245,158,11,0.8)]" />
               </div>
             </div>
 
-            {/* Context Actions */}
-            <div className="min-h-[140px] flex items-center justify-center w-full mt-4">
+            {/* Contextual Actions Panel */}
+            <div className="h-32 mt-16 flex items-center justify-center w-full relative z-50">
               
               {gameState === "PSYCHIC_SEES" && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center gap-6 w-full">
-                  <p className="text-zinc-500 text-sm font-bold uppercase tracking-widest text-center px-4">Memorize the target</p>
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center gap-5 w-full">
+                  <p className="text-[#fef3c7]/50 text-xs tracking-widest uppercase">Internalize the frequency</p>
                   <button 
-                    onClick={() => setGameState("GIVE_CLUE")}
-                    className="w-full max-w-[260px] py-4 rounded-2xl bg-zinc-800 text-white shadow-[6px_6px_12px_#d1cfc7,-6px_-6px_12px_#ffffff] active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.4)] font-black uppercase tracking-widest transition-all duration-200"
+                    onClick={() => setGameState("TEAM_GUESSES")}
+                    className={indigoBtnClass}
                   >
-                    Hide & Give Clue
+                    Hide & Speak Clue
                   </button>
                 </motion.div>
               )}
 
-              {gameState === "GIVE_CLUE" && (
-                <motion.form 
-                  initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-                  onSubmit={handleClueSubmit}
-                  className="flex flex-col w-full gap-5"
-                >
-                  <input
-                    type="text"
-                    value={clue}
-                    onChange={(e) => setClue(e.target.value)}
-                    placeholder="Enter one clue..."
-                    className="w-full rounded-2xl bg-[#F5F3ED] shadow-[inset_6px_6px_12px_#d1cfc7,inset_-6px_-6px_12px_#ffffff] p-5 text-center text-xl font-bold text-zinc-700 placeholder:text-zinc-400 focus:outline-none focus:ring-4 focus:ring-rose-200/50 transition-all"
-                    autoFocus
-                  />
-                  <button type="submit" className="w-full py-4 rounded-2xl bg-rose-500 text-white shadow-[6px_6px_12px_#d1cfc7,-6px_-6px_12px_#ffffff] active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.2)] font-black uppercase tracking-widest transition-all duration-200">
-                    Send Clue
-                  </button>
-                </motion.form>
-              )}
-
               {gameState === "TEAM_GUESSES" && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center gap-6 w-full">
-                  <p className="text-zinc-500 text-sm font-bold uppercase tracking-widest text-center px-4 animate-pulse">Drag the red needle</p>
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center gap-5 w-full">
+                  <p className="text-[#f59e0b] text-xs tracking-widest uppercase animate-pulse">Drag needle to tune frequency</p>
                   <button 
                     onClick={reveal}
-                    className="w-full max-w-[260px] py-4 rounded-2xl bg-zinc-800 text-white shadow-[6px_6px_12px_#d1cfc7,-6px_-6px_12px_#ffffff] active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.4)] font-black uppercase tracking-widest transition-all duration-200"
+                    className={amberBtnClass}
                   >
-                    Lock Guess
+                    Lock Frequency
                   </button>
                 </motion.div>
               )}
 
               {gameState === "REVEAL" && (
-                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center gap-5 w-full">
-                  <div className="px-6 py-3 rounded-2xl bg-[#F5F3ED] shadow-[inset_4px_4px_8px_#d1cfc7,inset_-4px_-4px_8px_#ffffff] text-2xl font-black text-emerald-500">
-                    {roundScore > 0 ? `+${roundScore} Points!` : "Miss!"}
-                  </div>
-                  <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest text-center">
-                    Team {currentTeam === "A" ? "B" : "A"}: Steal Opportunity
+                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center gap-6 w-full">
+                  <p className="text-[#a78bfa] text-xs tracking-widest uppercase text-center">
+                    Team {currentTeam === "A" ? "B" : "A"} Intercept: Where is the target?
                   </p>
                   <div className="flex gap-4 w-full justify-center">
-                    <button onClick={() => handleStealGuess("LEFT")} className="flex-1 max-w-[140px] py-3 rounded-xl bg-[#F5F3ED] shadow-[4px_4px_10px_#d1cfc7,-4px_-4px_10px_#ffffff] active:shadow-[inset_4px_4px_8px_#d1cfc7,inset_-4px_-4px_8px_#ffffff] text-xs font-black tracking-widest uppercase text-zinc-600 transition-all">Target is Left</button>
-                    <button onClick={() => handleStealGuess("RIGHT")} className="flex-1 max-w-[140px] py-3 rounded-xl bg-[#F5F3ED] shadow-[4px_4px_10px_#d1cfc7,-4px_-4px_10px_#ffffff] active:shadow-[inset_4px_4px_8px_#d1cfc7,inset_-4px_-4px_8px_#ffffff] text-xs font-black tracking-widest uppercase text-zinc-600 transition-all">Target is Right</button>
+                    <button onClick={() => handleStealGuess("LEFT")} className={indigoBtnClass}>Target is Left</button>
+                    <button onClick={() => handleStealGuess("RIGHT")} className={indigoBtnClass}>Target is Right</button>
                   </div>
                 </motion.div>
               )}
 
               {gameState === "ROUND_END" && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center gap-6 w-full">
-                  <div className="text-center w-full p-4 rounded-2xl bg-[#F5F3ED] shadow-[inset_6px_6px_12px_#d1cfc7,inset_-6px_-6px_12px_#ffffff]">
-                    <p className="text-xl font-black text-zinc-700">Round Complete</p>
-                    <div className="mt-3 flex flex-col gap-1">
-                      <p className="text-sm font-bold text-zinc-500">
-                        Team {currentTeam}: <span className="text-emerald-500">+{roundScore}</span>
-                      </p>
-                      {stealDirection && (
-                        <p className="text-sm font-bold text-zinc-500">
-                          Team {currentTeam === "A" ? "B" : "A"} (Steal): <span className="text-sky-500">{calculateScore(dialRotation.get(), targetRotation) === 4 ? 0 : 
-                          ((stealDirection === "RIGHT" && targetRotation > dialRotation.get()) || 
-                           (stealDirection === "LEFT" && targetRotation < dialRotation.get())) ? "+1" : "0"}</span>
-                        </p>
-                      )}
+                  <div className="flex gap-12 items-center bg-[#1a0a2e]/50 px-10 py-5 rounded-3xl border border-[#fef3c7]/10 backdrop-blur-md shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+                    <div className="flex flex-col items-center">
+                      <span className="text-[10px] text-[#fef3c7]/50 uppercase tracking-widest mb-1">Team {currentTeam}</span>
+                      <span className="text-3xl font-serif text-[#f59e0b]">{roundScore > 0 ? `+${roundScore}` : "Miss"}</span>
                     </div>
+                    
+                    {stealDirection && (
+                      <>
+                        <div className="w-px h-12 bg-[#fef3c7]/10" />
+                        <div className="flex flex-col items-center">
+                          <span className="text-[10px] text-[#fef3c7]/50 uppercase tracking-widest mb-1">Intercept</span>
+                          <span className="text-3xl font-serif text-[#a78bfa]">
+                            +{((stealDirection === "RIGHT" && targetRotation > dialRotation.get()) || 
+                               (stealDirection === "LEFT" && targetRotation < dialRotation.get())) ? 1 : 0}
+                          </span>
+                        </div>
+                      </>
+                    )}
                   </div>
+                  
                   <button 
                     onClick={nextRound}
-                    className="w-full max-w-[260px] py-4 rounded-2xl bg-zinc-800 text-white shadow-[6px_6px_12px_#d1cfc7,-6px_-6px_12px_#ffffff] active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.4)] font-black uppercase tracking-widest transition-all duration-200"
+                    className={amberBtnClass}
                   >
-                    Next Round
+                    Next Transmission
                   </button>
                 </motion.div>
               )}
