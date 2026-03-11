@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion";
 
-type GameState = "SETUP" | "PSYCHIC_SEES" | "TEAM_GUESSES" | "INTERCEPT" | "REVEAL";
+type GameState = "SETUP" | "CLUE_GIVER" | "TEAM_GUESSES" | "REVEAL";
 
 interface Team {
   id: string;
@@ -204,8 +204,6 @@ export default function WaveGame() {
   const [targetRotation, setTargetRotation] = useState(0); // -80 to +80
   
   const [roundScore, setRoundScore] = useState(0);
-  const [interceptScore, setInterceptScore] = useState(0);
-  const [interceptDirection, setInterceptDirection] = useState<"LEFT" | "RIGHT" | null>(null);
 
   const dialRotation = useMotionValue(0);
   const dialRef = useRef<HTMLDivElement>(null);
@@ -233,31 +231,23 @@ export default function WaveGame() {
     setCurrentPair(pair);
     setTargetRotation(angle);
     setRoundScore(0);
-    setInterceptScore(0);
-    setInterceptDirection(null);
     dialRotation.set(0);
-    setGameState("PSYCHIC_SEES");
+    setGameState("CLUE_GIVER");
   };
 
   const respin = () => {
-    // Same prompt, new target position
     const angle = (Math.random() * 160) - 80;
     setTargetRotation(angle);
     setRoundScore(0);
-    setInterceptScore(0);
-    setInterceptDirection(null);
     dialRotation.set(0);
   };
 
   const skip = () => {
-    // New prompt, new position
     const pair = getRandomPair(currentPair);
     const angle = (Math.random() * 160) - 80;
     setCurrentPair(pair);
     setTargetRotation(angle);
     setRoundScore(0);
-    setInterceptScore(0);
-    setInterceptDirection(null);
     dialRotation.set(0);
   };
 
@@ -273,40 +263,12 @@ export default function WaveGame() {
     const guess = dialRotation.get();
     const score = calculateScore(guess, targetRotation);
     setRoundScore(score);
-    
-    if (score === 4) {
-      commitScores(score, 0);
-      setGameState("REVEAL");
-    } else {
-      setGameState("INTERCEPT");
-    }
-  };
-
-  const handleIntercept = (dir: "LEFT" | "RIGHT") => {
-    const guess = dialRotation.get();
-    const targetIsRight = targetRotation > guess;
-    const targetIsLeft = targetRotation < guess;
-    
-    let stealPoints = 0;
-    if ((dir === "RIGHT" && targetIsRight) || (dir === "LEFT" && targetIsLeft)) {
-      stealPoints = 1;
-    }
-    
-    setInterceptDirection(dir);
-    setInterceptScore(stealPoints);
-    commitScores(roundScore, stealPoints);
-    setGameState("REVEAL");
-  };
-
-  const commitScores = (mainScore: number, stealScore: number) => {
     setTeams(prev => {
       const newTeams = [...prev];
-      newTeams[currentTeamIdx].score += mainScore;
-      if (stealScore > 0) {
-        newTeams[otherTeamIdx].score += stealScore;
-      }
+      newTeams[currentTeamIdx].score += score;
       return newTeams;
     });
+    setGameState("REVEAL");
   };
 
   const nextRound = () => {
@@ -379,13 +341,14 @@ export default function WaveGame() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] overflow-hidden flex flex-col text-[#334155] selection:bg-[#C4B5FD]/30 relative pb-safe" style={{ fontFamily: "'Nunito', system-ui, sans-serif" }}>
+    <div className="min-h-screen overflow-hidden flex flex-col text-[#334155] selection:bg-[#C4B5FD]/30 relative pb-safe" style={{ fontFamily: "'Nunito', system-ui, sans-serif", background: '#FAFAFA' }}>
       <style dangerouslySetInnerHTML={{__html: `
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+        html, body { background: #FAFAFA !important; }
       `}} />
-      <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-[#A7F3D0]/40 blur-[80px] pointer-events-none mix-blend-multiply" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-[#C4B5FD]/30 blur-[100px] pointer-events-none mix-blend-multiply" />
-      <div className="absolute top-[20%] right-[10%] w-[40vw] h-[40vw] rounded-full bg-[#FED7AA]/30 blur-[70px] pointer-events-none mix-blend-multiply" />
+      <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-[#A7F3D0]/50 blur-[80px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-[#C4B5FD]/40 blur-[100px] pointer-events-none" />
+      <div className="absolute top-[20%] right-[10%] w-[40vw] h-[40vw] rounded-full bg-[#FED7AA]/40 blur-[70px] pointer-events-none" />
 
       <header className="relative z-10 w-full p-4 sm:p-8 flex flex-wrap justify-center sm:justify-between items-center max-w-5xl mx-auto gap-4">
         <div className="flex gap-4 sm:gap-8 order-2 sm:order-1 flex-1 justify-center sm:justify-start">
@@ -430,7 +393,7 @@ export default function WaveGame() {
                 </span>
                 <h2 className="text-3xl sm:text-4xl font-black text-[#334155]">{currentTeam.name}</h2>
                 <p className="text-[#64748B] font-medium text-sm sm:text-base px-4">
-                  Elect a psychic. They will view the target and give a single verbal clue.
+                  One player sees the target and gives a single verbal clue. The rest guess.
                 </p>
               </div>
               
@@ -481,7 +444,7 @@ export default function WaveGame() {
                   transition={{ type: "spring", stiffness: 50, damping: 15 }}
                 >
                   <AnimatePresence>
-                    {(gameState === "PSYCHIC_SEES" || gameState === "REVEAL") && (
+                    {(gameState === "CLUE_GIVER" || gameState === "REVEAL") && (
                       <motion.svg 
                         className="absolute inset-0 w-full h-full" 
                         viewBox="0 0 200 100" 
@@ -512,7 +475,7 @@ export default function WaveGame() {
                 </motion.div>
 
                 <AnimatePresence>
-                  {(gameState === "TEAM_GUESSES" || gameState === "INTERCEPT") && (
+                  {(gameState === "TEAM_GUESSES") && (
                     <motion.div 
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -543,9 +506,9 @@ export default function WaveGame() {
               <div className="h-40 sm:h-48 mt-8 flex flex-col items-center justify-start w-full relative z-50 px-4">
                 <AnimatePresence mode="wait">
                   
-                  {gameState === "PSYCHIC_SEES" && (
-                    <motion.div key="psychic" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="flex flex-col items-center gap-4 w-full max-w-sm">
-                      <p className="text-[#64748B] font-bold text-sm">Psychic: Think of a clue.</p>
+                  {gameState === "CLUE_GIVER" && (
+                    <motion.div key="clue-giver" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="flex flex-col items-center gap-4 w-full max-w-sm">
+                      <p className="text-[#64748B] font-bold text-sm">Give your team one verbal clue.</p>
                       <motion.button whileTap={{ scale: 0.96 }} onClick={() => setGameState("TEAM_GUESSES")} className={primaryButtonClass + " w-full"}>
                         Hide for Guessers
                       </motion.button>
@@ -569,47 +532,19 @@ export default function WaveGame() {
                     </motion.div>
                   )}
 
-                  {gameState === "INTERCEPT" && (
-                    <motion.div key="intercept" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="flex flex-col items-center gap-4 w-full max-w-md">
-                      <p className="text-[#F87171] font-bold text-sm text-center">
-                        {otherTeam.name}: Intercept! Is the true target left or right?
-                      </p>
-                      <div className="flex gap-4 w-full justify-center">
-                        <motion.button whileTap={{ scale: 0.96 }} onClick={() => handleIntercept("LEFT")} className={clayButtonClass + " flex-1"}>Left</motion.button>
-                        <motion.button whileTap={{ scale: 0.96 }} onClick={() => handleIntercept("RIGHT")} className={clayButtonClass + " flex-1"}>Right</motion.button>
-                      </div>
-                    </motion.div>
-                  )}
-
                   {gameState === "REVEAL" && (
                     <motion.div key="reveal" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="flex flex-col items-center gap-4 w-full max-w-md">
                       <div className="flex gap-3 sm:gap-6 items-center justify-center w-full bg-white/60 backdrop-blur-xl px-4 py-3 sm:py-4 rounded-2xl shadow-sm border border-white">
                         <div className="flex flex-col items-center text-center">
                           <span className="text-[10px] sm:text-xs text-[#94A3B8] uppercase font-bold tracking-widest">{currentTeam.name}</span>
-                          <motion.span 
+                          <motion.span
                             initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", bounce: 0.5 }}
                             className="text-2xl sm:text-3xl font-black text-[#C4B5FD]"
                           >
                             {roundScore > 0 ? `+${roundScore}` : "Miss"}
                           </motion.span>
                         </div>
-                        
-                        {interceptDirection && (
-                          <>
-                            <div className="w-px h-10 bg-[#CBD5E1]" />
-                            <div className="flex flex-col items-center text-center">
-                              <span className="text-[10px] sm:text-xs text-[#94A3B8] uppercase font-bold tracking-widest">{otherTeam.name}</span>
-                              <motion.span 
-                                initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", bounce: 0.5, delay: 0.2 }}
-                                className="text-2xl sm:text-3xl font-black text-[#F87171]"
-                              >
-                                +{interceptScore}
-                              </motion.span>
-                            </div>
-                          </>
-                        )}
                       </div>
-                      
                       <motion.button whileTap={{ scale: 0.96 }} onClick={nextRound} className={primaryButtonClass + " w-full max-w-sm"}>
                         Next Round
                       </motion.button>
