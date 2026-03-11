@@ -204,7 +204,7 @@ Guldmann will nominate a Modern Slavery Lead at senior management level responsi
 function renderAnswer(text: string) {
   return text.split('\n\n').map((para, i) => {
     if (para.startsWith('**') && para.endsWith('**')) {
-      return <h3 key={i} style={{ fontSize: 14, fontWeight: 700, color: '#1B2B4B', margin: '20px 0 8px' }}>{para.replace(/\*\*/g, '')}</h3>
+      return <h3 key={i} style={{ fontSize: 18, fontWeight: 700, color: '#F0F0F0', margin: '20px 0 8px', letterSpacing: '-0.02em' }}>{para.replace(/\*\*/g, '')}</h3>
     }
     const lines = para.split('\n')
     const isList = lines.some(l => l.startsWith('- '))
@@ -212,7 +212,7 @@ function renderAnswer(text: string) {
       return (
         <ul key={i} style={{ margin: '8px 0 14px 20px' }}>
           {lines.filter(l => l.startsWith('- ')).map((l, j) => (
-            <li key={j} style={{ fontSize: 14, color: '#374151', lineHeight: 1.7, marginBottom: 4 }}>
+            <li key={j} style={{ fontSize: 16, color: '#888888', lineHeight: 1.7, marginBottom: 4 }}>
               {l.replace(/^- /, '').replace(/\*\*(.*?)\*\*/g, '$1')}
             </li>
           ))}
@@ -222,8 +222,8 @@ function renderAnswer(text: string) {
     // Bold inline
     const parts = para.split(/\*\*(.*?)\*\*/g)
     return (
-      <p key={i} style={{ fontSize: 14, color: '#374151', lineHeight: 1.7, marginBottom: 10 }}>
-        {parts.map((p, j) => j % 2 === 1 ? <strong key={j} style={{ color: '#1B2B4B' }}>{p}</strong> : p)}
+      <p key={i} style={{ fontSize: 16, color: '#888888', lineHeight: 1.7, marginBottom: 10 }}>
+        {parts.map((p, j) => j % 2 === 1 ? <strong key={j} style={{ color: '#F0F0F0' }}>{p}</strong> : p)}
       </p>
     )
   })
@@ -233,62 +233,57 @@ export default function GuldmannTender() {
   const [open, setOpen] = useState<string | null>(null)
 
   return (
-    <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif', background: '#F0F2F5', minHeight: '100vh' }}>
-      {/* Header */}
-      <header style={{ background: '#1B2B4B', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px', position: 'sticky', top: 0, zIndex: 100 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{ width: 36, height: 36, background: '#C8102E', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <span style={{ color: 'white', fontWeight: 900, fontSize: 18 }}>G</span>
-          </div>
-          <span style={{ color: 'white', fontSize: 16, fontWeight: 700 }}>Guldmann <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: 13, fontWeight: 400, marginLeft: 8 }}>Internal Portal</span></span>
-        </div>
-        <div style={{ display: 'flex', gap: 24 }}>
-          <Link href="/guldmann" style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, textDecoration: 'none' }}>Home</Link>
-          <Link href="/guldmann/tender" style={{ color: 'white', fontSize: 13, textDecoration: 'none', fontWeight: 600 }}>Tender</Link>
-        </div>
-      </header>
-
+    <div style={{ paddingTop: '60px' }}>
       <div style={{ maxWidth: 860, margin: '0 auto', padding: '48px 24px 80px' }}>
-        {/* Breadcrumb */}
-        <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 32 }}>
-          <Link href="/guldmann" style={{ color: '#1B2B4B', textDecoration: 'none' }}>Home</Link> &rsaquo; Tender Materials
-        </div>
-
-        <span style={{ display: 'inline-block', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 4, background: '#EEF2FF', color: '#4338CA', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 12 }}>NHS SBS Framework</span>
-        <h1 style={{ fontSize: 26, fontWeight: 700, color: '#1B2B4B', marginBottom: 6 }}>NHS SBS Tender - MOS/JOSH Responses</h1>
-        <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 40 }}>Prepared 11 March 2026 &middot; {questions.length} questions &middot; All criteria verified</div>
+        <span style={{ display: 'inline-block', padding: '0.375rem 1rem', borderRadius: 20, border: '1px solid rgba(244,182,38,0.35)', background: 'rgba(244,182,38,0.1)', color: '#F4B626', fontSize: '0.875rem', fontWeight: 600, marginBottom: '1.5rem', opacity: 1, transform: 'none' }}>NHS SBS Framework</span>
+        <h1 style={{ fontSize: 'clamp(2.5rem, 4vw, 3.5rem)', fontWeight: 700, marginBottom: '1rem', color: '#F0F0F0', lineHeight: 1.1, letterSpacing: '-0.02em' }}>NHS SBS Tender - MOS/JOSH Responses</h1>
+        <div style={{ width: 48, height: 3, borderRadius: 2, background: '#F4B626', marginBottom: '1.5rem' }}></div>
+        <div style={{ fontSize: '1.2rem', color: '#888888', marginBottom: '3rem' }}>Prepared 11 March 2026 &middot; {questions.length} questions &middot; All criteria verified</div>
 
         {/* Notice */}
-        <div style={{ background: '#FFFBEB', border: '1.5px solid #FDE68A', borderRadius: 10, padding: '16px 20px', marginBottom: 32, fontSize: 13, color: '#92400E' }}>
-          <strong style={{ color: '#78350F' }}>Before submitting:</strong> Confirm ISO 13485 certificate number/expiry with your quality team. Replace generic job titles in Q4.1.3 with the real Framework Manager and Account Manager names.
+        <div style={{ background: '#1E1E1E', border: '1px solid rgba(244,182,38,0.35)', borderRadius: 12, padding: '16px 20px', marginBottom: 32, fontSize: 15, color: '#F0F0F0' }}>
+          <strong style={{ color: '#F4B626' }}>Before submitting:</strong> Confirm ISO 13485 certificate number/expiry with your quality team. Replace generic job titles in Q4.1.3 with the real Framework Manager and Account Manager names.
         </div>
 
         {/* Question cards */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {questions.map(q => (
-            <div key={q.id} style={{ background: 'white', border: `1.5px solid ${open === q.id ? '#1B2B4B' : '#E5E7EB'}`, borderRadius: 12, overflow: 'hidden', transition: 'border-color 0.15s' }}>
+            <div key={q.id} style={{ background: '#1E1E1E', border: `1px solid ${open === q.id ? 'rgba(244,182,38,0.5)' : 'rgba(255,255,255,0.07)'}`, borderRadius: 12, overflow: 'hidden', transition: 'border-color 250ms ease, transform 250ms ease, box-shadow 250ms ease', boxShadow: open === q.id ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 16px 40px rgba(0,0,0,0.6)' : 'inset 0 1px 0 rgba(255,255,255,0.08), 0 8px 32px rgba(0,0,0,0.5)', willChange: 'transform' }}
+                 onMouseEnter={(e) => {
+                    if (open !== q.id) {
+                      e.currentTarget.style.transform = 'translateY(-2px)'
+                      e.currentTarget.style.borderColor = 'rgba(244,182,38,0.35)'
+                    }
+                 }}
+                 onMouseLeave={(e) => {
+                    if (open !== q.id) {
+                      e.currentTarget.style.transform = 'none'
+                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'
+                    }
+                 }}
+            >
               {/* Header row */}
               <button
                 onClick={() => setOpen(open === q.id ? null : q.id)}
-                style={{ width: '100%', padding: '20px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+                style={{ width: '100%', padding: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#4338CA', background: '#EEF2FF', padding: '3px 8px', borderRadius: 4, fontFamily: 'monospace', flexShrink: 0 }}>{q.ref}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#F4B626', background: 'rgba(244,182,38,0.1)', border: '1px solid rgba(244,182,38,0.35)', padding: '0.375rem 1rem', borderRadius: 20, fontFamily: 'monospace', flexShrink: 0 }}>{q.ref}</span>
                   <div>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: '#1B2B4B' }}>{q.title}</div>
-                    <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 2 }}>{q.limit}</div>
+                    <div style={{ fontSize: '1.375rem', fontWeight: 700, color: '#F0F0F0', letterSpacing: '-0.02em', lineHeight: 1.1 }}>{q.title}</div>
+                    <div style={{ fontSize: '0.8rem', color: '#888888', marginTop: '0.5rem', fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase' }}>{q.limit}</div>
                   </div>
                 </div>
-                <div style={{ width: 28, height: 28, borderRadius: '50%', background: open === q.id ? '#1B2B4B' : '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'background 0.15s' }}>
-                  <span style={{ color: open === q.id ? 'white' : '#6B7280', fontSize: 16, lineHeight: 1 }}>{open === q.id ? '−' : '+'}</span>
+                <div style={{ width: 32, height: 32, borderRadius: '50%', background: open === q.id ? 'rgba(244,182,38,0.2)' : 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'background 250ms', border: open === q.id ? '1px solid rgba(244,182,38,0.5)' : '1px solid rgba(255,255,255,0.1)' }}>
+                  <span style={{ color: open === q.id ? '#F4B626' : '#888888', fontSize: 18, lineHeight: 1 }}>{open === q.id ? '-' : '+'}</span>
                 </div>
               </button>
 
               {/* Answer */}
               {open === q.id && (
-                <div style={{ padding: '0 24px 28px', borderTop: '1px solid #E5E7EB' }}>
+                <div style={{ padding: '0 1.5rem 2rem', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
                   {q.action && (
-                    <div style={{ background: '#FEF9C3', border: '1px solid #FDE68A', borderRadius: 6, padding: '8px 12px', margin: '16px 0 4px', fontSize: 12, color: '#92400E' }}>
+                    <div style={{ background: 'rgba(244,182,38,0.1)', border: '1px solid rgba(244,182,38,0.35)', borderRadius: 8, padding: '12px 16px', margin: '16px 0 8px', fontSize: 14, color: '#F4B626' }}>
                       <strong>Action needed:</strong> {q.action}
                     </div>
                   )}
@@ -302,7 +297,7 @@ export default function GuldmannTender() {
         </div>
 
         {/* Expand all hint */}
-        <div style={{ textAlign: 'center', marginTop: 32, fontSize: 13, color: '#9CA3AF' }}>
+        <div style={{ textAlign: 'center', marginTop: 32, fontSize: 14, color: '#888888' }}>
           Click any question to expand the full response. All answers are ready for copy-paste into the tender portal.
         </div>
       </div>
