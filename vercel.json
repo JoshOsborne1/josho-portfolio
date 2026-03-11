@@ -4,5 +4,11 @@
       "maxDuration": 60,
       "memory": 1024
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/guldmann/:path*",
+      "destination": "https://guldmann.roxai.click/:path*"
+    }
+  ]
 }
