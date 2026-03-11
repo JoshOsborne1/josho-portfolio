@@ -30,7 +30,59 @@ const SFX = {
   miss:   ()  => { tone(220,0.35,0.11); setTimeout(()=>tone(185,0.4,0.09),65); },
   begin:  ()  => tone(500, 0.08, 0.09),
 };
+// ── Haptics ─────────────────────────────────────────────────────────────────
+// Android: navigator.vibrate (durations in ms)
+// iOS 18+: <input type="checkbox" switch> hack — programmatic label.click()
+//   triggers the OS haptic engine for a single tap feel.
+//   We chain multiple clicks with delays to simulate patterns.
+// Older iOS / desktop: silent no-op.
+
+let _iosHapticEl: HTMLInputElement | null = null;
+let _iosHapticLabel: HTMLLabelElement | null = null;
+
+const ensureIOSHaptic = () => {
+  if (_iosHapticEl) return;
+  if (typeof document === "undefined") return;
+  const input = document.createElement("input");
+  input.type = "checkbox";
+  input.setAttribute("switch", "");
+  input.id = "__haptic_switch__";
+  input.style.cssText = "position:fixed;opacity:0;pointer-events:none;width:1px;height:1px;top:-9999px;left:-9999px;";
+  const label = document.createElement("label");
+  label.htmlFor = "__haptic_switch__";
+  label.style.cssText = "position:fixed;opacity:0;pointer-events:none;width:1px;height:1px;top:-9999px;left:-9999px;";
+  document.body.appendChild(input);
+  document.body.appendChild(label);
+  _iosHapticEl = input;
+  _iosHapticLabel = label;
+};
+
+// Detect iOS — navigator.vibrate is absent on iOS regardless of version
+const isIOS = () => typeof navigator !== "undefined" && /iP(hone|ad|od)/.test(navigator.userAgent);
+
+// Fire n iOS haptic taps, spaced `gapMs` apart
+const iosTap = (count = 1, gapMs = 60) => {
+  if (!_iosHapticLabel) return;
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => { _iosHapticLabel!.click(); }, i * gapMs);
+  }
+};
+
 const vibe = (p: number | number[]) => {
+  if (isIOS()) {
+    ensureIOSHaptic();
+    // Map pattern to tap count: single number = 1 tap; array = one tap per "on" slot
+    if (Array.isArray(p)) {
+      // odd indices are pauses, even are vibrations
+      const onSlots = p.filter((_, i) => i % 2 === 0).length;
+      iosTap(onSlots, 80);
+    } else {
+      // scale duration to tap count: short = 1, long = 2, very long = 3
+      const taps = p < 40 ? 1 : p < 70 ? 2 : 3;
+      iosTap(taps, 70);
+    }
+    return;
+  }
   try { navigator?.vibrate?.(p); } catch {}
 };
 
