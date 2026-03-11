@@ -245,7 +245,7 @@ function HalfDial({ value, target, interactive, onChange, leftWord, rightWord }:
 
     const ang = getAngle(e.clientX, e.clientY);
     dispRef.current = ang; valRef.current = ang;
-    draw(); vibe(12);
+    draw(); vibe(35);
 
     let lastTick = ang;
 
@@ -257,14 +257,14 @@ function HalfDial({ value, target, interactive, onChange, leftWord, rightWord }:
       dispRef.current = na; valRef.current = na;
       draw();
       if (Math.abs(na - lastTick) >= 5) {
-        SFX.tick(); vibe(6);
+        SFX.tick(); vibe(25);
         lastTick = na;
       }
     };
     const onUp = () => {
       dragging.current = false;
       onChange(dispRef.current); // sync to React state once on release
-      SFX.lock(); vibe([20, 10, 20]);
+      SFX.lock(); vibe([40, 20, 40]);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup",   onUp);
     };
@@ -336,7 +336,7 @@ export default function WaveMobile() {
   };
 
   const startRound = () => {
-    ac(); SFX.begin(); vibe(15);
+    ac(); SFX.begin(); vibe(50);
     setCurrentPair(randPair());
     setTargetAngle(rand());
     setRoundScore(0); setDialValue(0);
@@ -354,10 +354,10 @@ export default function WaveMobile() {
     setTeams(prev => prev.map((t, i) => i === currentTeamIdx ? { ...t, score: t.score + s } : t));
     // play sound after brief state-commit delay
     setTimeout(() => {
-      if (s === 4) { SFX.score4(); vibe([30, 20, 30, 20, 60]); }
-      else if (s === 3) { SFX.score3(); vibe([25, 15, 40]); }
-      else if (s === 2) { SFX.score2(); vibe([20, 15, 30]); }
-      else { SFX.miss(); vibe(40); }
+      if (s === 4) { SFX.score4(); vibe([50, 30, 50, 30, 80]); }
+      else if (s === 3) { SFX.score3(); vibe([40, 25, 60]); }
+      else if (s === 2) { SFX.score2(); vibe([35, 20, 50]); }
+      else { SFX.miss(); vibe(70); }
     }, 120);
     setGameState("REVEAL");
   };
