@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useRef, useEffect, useState } from 'react'
 import { motion, useScroll, useTransform, useInView } from 'framer-motion'
@@ -26,7 +26,7 @@ const agents = [
   {
     role: 'Sales',
     chats: [
-      { user: 'Hospital projects over £500k in South West this week', ai: 'Found 12 matches in Glenigan. Top result: Royal Cornwall Hospital - £1.2M, planning approved.' },
+      { user: 'Hospital projects over Â£500k in South West this week', ai: 'Found 12 matches in Glenigan. Top result: Royal Cornwall Hospital - Â£1.2M, planning approved.' },
     ],
   },
   {
@@ -77,7 +77,7 @@ function Section({ children, id, dark = false }: { children: React.ReactNode; id
       id={id}
       initial={{ opacity: 0, y: 40 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.8 }}
       className="py-28 px-6"
       style={{ background: dark ? '#161616' : '#111111' }}
     >
@@ -99,7 +99,7 @@ function GoldHeading({ children }: { children: React.ReactNode }) {
         style={{ background: GOLD }}
         initial={{ scaleX: 0, originX: 0 }}
         animate={inView ? { scaleX: 1 } : {}}
-        transition={{ duration: 0.9, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.9, delay: 0.4 }}
       />
     </div>
   )
@@ -111,7 +111,7 @@ const stagger = {
 }
 const cardVariant = {
   hidden: { opacity: 0, y: 32 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
 }
 
 export default function Pres2Page() {
@@ -194,7 +194,7 @@ export default function Pres2Page() {
           <motion.h1
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 1, delay: 0.2 }}
             className="font-bold tracking-tight leading-[1.05] mb-8"
             style={{ fontSize: 'clamp(3rem,8vw,6.5rem)' }}
           >
@@ -290,7 +290,7 @@ export default function Pres2Page() {
             ))}
           </motion.div>
           <p className="text-center text-lg" style={{ color: 'rgba(255,255,255,0.35)' }}>
-            ~£5/month hosting. Microsoft login from day one.
+            ~Â£5/month hosting. Microsoft login from day one.
           </p>
         </div>
       </Section>
@@ -356,7 +356,7 @@ export default function Pres2Page() {
               style={{ background: '#161616', border: '1px solid rgba(255,255,255,0.06)' }}
             >
               <div className="text-xl mb-3" style={{ color: 'rgba(255,255,255,0.35)' }}>Hiring a Senior AI Engineer</div>
-              <div className="text-4xl md:text-5xl font-bold" style={{ color: 'rgba(255,255,255,0.25)' }}>£70k - £85k<span className="text-2xl">/year</span></div>
+              <div className="text-4xl md:text-5xl font-bold" style={{ color: 'rgba(255,255,255,0.25)' }}>Â£70k - Â£85k<span className="text-2xl">/year</span></div>
             </motion.div>
 
             <div className="text-3xl font-bold hidden md:block" style={{ color: 'rgba(255,255,255,0.2)' }}>VS</div>
@@ -371,7 +371,7 @@ export default function Pres2Page() {
             >
               <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(244,182,38,0.08) 0%, transparent 70%)' }} />
               <div className="relative text-xl font-bold mb-3" style={{ color: GOLD }}>This Platform</div>
-              <div className="relative text-5xl md:text-6xl font-bold text-white">£5<span className="text-2xl" style={{ color: 'rgba(255,255,255,0.5)' }}>/month + Josh</span></div>
+              <div className="relative text-5xl md:text-6xl font-bold text-white">Â£5<span className="text-2xl" style={{ color: 'rgba(255,255,255,0.5)' }}>/month + Josh</span></div>
             </motion.div>
           </div>
           <motion.p
@@ -382,7 +382,7 @@ export default function Pres2Page() {
             className="text-2xl md:text-3xl font-medium"
             style={{ color: 'rgba(255,255,255,0.75)' }}
           >
-            The work of a £75k hire.{' '}
+            The work of a Â£75k hire.{' '}
             <span style={{ color: GOLD }}>Already built. Working now.</span>
           </motion.p>
         </div>
@@ -432,3 +432,5 @@ export default function Pres2Page() {
     </div>
   )
 }
+
+
