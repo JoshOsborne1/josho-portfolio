@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { useDaily } from "../components/useDaily";
+import { useSounds } from "../components/useSounds";
 
 // --- Sudoku generation ---
 function isValid(board: number[][], row: number, col: number, num: number): boolean {
@@ -71,6 +73,8 @@ function generatePuzzle(difficulty: "easy" | "medium" | "hard"): { puzzle: numbe
 }
 
 export default function SudokuGame() {
+  const { canPlay, markPlayed, hoursUntilReset } = useDaily('sudoku');
+  const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
   const [difficulty, setDifficulty] = useState<"easy"|"medium"|"hard">("easy");
   const [puzzle, setPuzzle] = useState<number[][]>([]);
   const [solution, setSolution] = useState<number[][]>([]);
@@ -112,8 +116,10 @@ export default function SudokuGame() {
     const newCellStates = cellStates.map(row => [...row]);
     if (solution[r][c] === num) {
       newCellStates[r][c] = "correct";
+      playSuccess(); vibrate([20,10,20]);
     } else {
       newCellStates[r][c] = "wrong";
+      playError(); vibrate([50]);
       const newMistakes = mistakes + 1;
       setMistakes(newMistakes);
       if (newMistakes >= 3) {
@@ -121,6 +127,7 @@ export default function SudokuGame() {
         setTimerRunning(false);
       }
     }
+    markPlayed();
     setBoard(newBoard);
     setCellStates(newCellStates);
     // Check win
@@ -128,6 +135,7 @@ export default function SudokuGame() {
     if (isComplete) {
       setGameState("won");
       setTimerRunning(false);
+      playWin(); vibrate([50,30,50,30,100]);
     }
   }, [selected, gameState, given, board, solution, cellStates, mistakes]);
 
@@ -192,6 +200,14 @@ export default function SudokuGame() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background:"linear-gradient(135deg,#F0EBFF,#E8F4FF,#F0FFF8)", fontFamily:'-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
+      {!canPlay && (
+        <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-6">
+          <div className="font-black text-5xl" style={{ color:"#A78BFA" }}>Come back soon</div>
+          <div className="font-bold text-sm text-center" style={{ color:"#94a3b8" }}>You&apos;ve already played today.<br/>Resets in {hoursUntilReset}h</div>
+          <Link href="/games" className="font-bold text-sm no-underline mt-4" style={{ color:"#A78BFA" }}>Back to games</Link>
+        </div>
+      )}
+      {canPlay && (<>
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-4 pb-2 max-w-lg mx-auto w-full">
         <Link href="/games" className="no-underline flex items-center gap-2">
@@ -212,7 +228,7 @@ export default function SudokuGame() {
       {/* Grid */}
       <div className="flex-1 flex flex-col items-center justify-center gap-4 px-2">
         <div className="rounded-3xl p-3 overflow-hidden" style={{ background:"rgba(255,255,255,0.6)", backdropFilter:"blur(24px)", boxShadow:"0 16px 40px rgba(0,0,0,0.06)", border:"1px solid rgba(255,255,255,0.8)" }}>
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(9,1fr)", gap:2, maxWidth:360 }}>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(9,1fr)", gap:2, maxWidth:"min(320px, calc(100vw - 2rem))", width:"100%" }}>
             {board.map((row, ri) =>
               row.map((val, ci) => {
                 const cellStyle = getCellStyle(ri, ci);
@@ -226,7 +242,7 @@ export default function SudokuGame() {
                     whileTap={!isGiven ? { scale:0.93 } : {}}
                     className="flex items-center justify-center font-black cursor-pointer"
                     style={{
-                      width:36, height:36,
+                      width:"min(35px, calc((100vw - 2rem - 16px) / 9))", height:"min(35px, calc((100vw - 2rem - 16px) / 9))",
                       borderRadius:8,
                       ...cellStyle,
                       borderRight: borderRight || (cellStyle as {border?: string}).border,
@@ -285,6 +301,7 @@ export default function SudokuGame() {
           </motion.div>
         )}
       </AnimatePresence>
+      </>)}
     </div>
   );
 }

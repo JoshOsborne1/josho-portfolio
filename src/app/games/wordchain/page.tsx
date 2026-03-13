@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { useDaily } from "../components/useDaily";
+import { useSounds } from "../components/useSounds";
 
 // 3000-word valid word list (abbreviated to key words)
 const VALID_WORDS = new Set([
@@ -18,6 +20,8 @@ function isValidWord(word: string): boolean {
 }
 
 export default function WordChainGame() {
+  const { canPlay, markPlayed, hoursUntilReset } = useDaily('wordchain');
+  const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
   const [chain, setChain] = useState<string[]>(() => {
     const start = STARTER_WORDS[Math.floor(Math.random() * STARTER_WORDS.length)];
     return [start.toUpperCase()];
@@ -95,6 +99,14 @@ export default function WordChainGame() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background:"linear-gradient(135deg,#F0EBFF,#E8F4FF,#F0FFF8)", fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif' }}>
+      {!canPlay && (
+        <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-6">
+          <div className="font-black text-5xl" style={{ color:"#A78BFA" }}>Come back soon</div>
+          <div className="font-bold text-sm text-center" style={{ color:"#94a3b8" }}>You&apos;ve already played today.<br/>Resets in {hoursUntilReset}h</div>
+          <Link href="/games" className="font-bold text-sm no-underline mt-4" style={{ color:"#A78BFA" }}>Back to games</Link>
+        </div>
+      )}
+      {canPlay && (<>
       <div className="flex items-center justify-between px-4 pt-4 pb-2 max-w-lg mx-auto w-full">
         <Link href="/games" className="no-underline flex items-center gap-2">
           <div className="flex items-center justify-center font-black text-white rounded-xl" style={{ width:32,height:32,background:"linear-gradient(135deg,#C4B5FD,#A78BFA)",fontSize:14 }}>P</div>
@@ -198,6 +210,7 @@ export default function WordChainGame() {
           </motion.div>
         )}
       </AnimatePresence>
+          </>)}
     </div>
   );
 }

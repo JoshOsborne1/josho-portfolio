@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { useDaily } from "../components/useDaily";
+import { useSounds } from "../components/useSounds";
 
 // 2000-word list (5-letter words)
 const WORDS = [
@@ -166,6 +168,8 @@ const STATE_COLORS: Record<LetterState, { bg: string; text: string }> = {
 };
 
 export default function WordGame() {
+  const { canPlay, markPlayed, hoursUntilReset } = useDaily('word');
+  const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
   const [target, setTarget] = useState<string>(() => getRandomWord());
   const [guesses, setGuesses] = useState<Cell[][]>(
     Array(6).fill(null).map(() => Array(5).fill({ letter: "", state: "empty" as LetterState }))
@@ -183,6 +187,8 @@ export default function WordGame() {
 
   const addLetter = useCallback((letter: string) => {
     if (gameState !== "playing" || currentCol >= 5) return;
+    markPlayed();
+    playTap(); vibrate([10]);
     setGuesses(prev => {
       const next = prev.map(r => [...r]);
       next[currentRow][currentCol] = { letter, state: "active" };
@@ -205,6 +211,7 @@ export default function WordGame() {
     if (currentCol < 5) {
       setMessage("Not enough letters");
       setShakeRow(currentRow);
+      playError(); vibrate([50]);
       setTimeout(() => { setShakeRow(null); setMessage(""); }, 600);
       return;
     }
@@ -212,6 +219,7 @@ export default function WordGame() {
     if (!WORDS.map(w => w.toUpperCase()).includes(guess) && !WORDS.includes(guess.toLowerCase())) {
       setMessage("Not in word list");
       setShakeRow(currentRow);
+      playError(); vibrate([50]);
       setTimeout(() => { setShakeRow(null); setMessage(""); }, 600);
       return;
     }
@@ -240,12 +248,15 @@ export default function WordGame() {
       if (typeof window !== "undefined") localStorage.setItem("word-streak", String(newStreak));
       setGameState("won");
       setMessage("Brilliant!");
+      playWin(); vibrate([50,30,50,30,100]);
     } else if (currentRow >= 5) {
       setStreak(0);
       if (typeof window !== "undefined") localStorage.setItem("word-streak", "0");
       setGameState("lost");
       setMessage(target);
+      playError(); vibrate([100]);
     } else {
+      playSuccess(); vibrate([20,10,20]);
       setCurrentRow(r => r + 1);
       setCurrentCol(0);
     }
@@ -279,6 +290,14 @@ export default function WordGame() {
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
       }}
     >
+      {!canPlay && (
+        <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-6">
+          <div className="font-black text-5xl" style={{ color:"#A78BFA" }}>Come back soon</div>
+          <div className="font-bold text-sm text-center" style={{ color:"#94a3b8" }}>You&apos;ve already played today.<br/>Resets in {hoursUntilReset}h</div>
+          <Link href="/games" className="font-bold text-sm no-underline mt-4" style={{ color:"#A78BFA" }}>Back to games</Link>
+        </div>
+      )}
+      {canPlay && (<>
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-4 pb-2 max-w-lg mx-auto w-full">
         <Link href="/games" className="no-underline flex items-center gap-2">
@@ -422,6 +441,7 @@ export default function WordGame() {
           </motion.div>
         )}
       </AnimatePresence>
+      </>)}
     </div>
   );
 }

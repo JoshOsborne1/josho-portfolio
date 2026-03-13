@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { useDaily } from "../components/useDaily";
+import { useSounds } from "../components/useSounds";
 import Timer from "../components/Timer";
 
 const QUESTIONS = [
@@ -68,6 +70,18 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 export default function TriviaGame() {
+  const { canPlay, markPlayed, hoursUntilReset } = useDaily('trivia');
+  const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
+  if (!canPlay) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-6" style={{ background:"linear-gradient(135deg,#F0EBFF,#E8F4FF,#F0FFF8)" }}>
+        <div className="font-black text-5xl" style={{ color:"#A78BFA" }}>Come back soon</div>
+        <div className="font-bold text-sm text-center" style={{ color:"#94a3b8" }}>You&apos;ve already played today.<br/>Resets in {hoursUntilReset}h</div>
+        <Link href="/games" className="font-bold text-sm no-underline mt-4" style={{ color:"#A78BFA" }}>Back to games</Link>
+      </div>
+    );
+  }
+
   const [questions, setQuestions] = useState(() => shuffle(QUESTIONS).slice(0, 10));
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -135,6 +149,8 @@ export default function TriviaGame() {
     const correct = results.filter(r => r.correct).length;
     return (
       <div className="min-h-screen flex items-center justify-center p-4" style={{ background:"linear-gradient(135deg,#F0EBFF,#E8F4FF,#F0FFF8)" }}>
+
+
         <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} className="w-full max-w-sm flex flex-col gap-5 p-8 rounded-[32px]" style={{ background:"rgba(255,255,255,0.8)", backdropFilter:"blur(24px)", boxShadow:"0 24px 60px rgba(167,139,250,0.15)", border:"1px solid rgba(255,255,255,0.9)" }}>
           <Link href="/games" className="no-underline font-bold text-sm" style={{ color:"#A78BFA" }}>Back to games</Link>
           <div className="font-black text-3xl" style={{ color:"#1e1b4b" }}>Results</div>

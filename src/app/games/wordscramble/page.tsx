@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { useDaily } from "../components/useDaily";
+import { useSounds } from "../components/useSounds";
 
 const WORD_BANK = [
   "PROBLEM","KITCHEN","CRYSTAL","JOURNEY","CABINET","DOLPHIN","FORTUNE","BLANKET",
@@ -26,6 +28,18 @@ function scrambleWord(word: string): string {
 }
 
 export default function WordScrambleGame() {
+  const { canPlay, markPlayed, hoursUntilReset } = useDaily('wordscramble');
+  const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
+  if (!canPlay) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-6" style={{ background:"linear-gradient(135deg,#F0EBFF,#E8F4FF,#F0FFF8)" }}>
+        <div className="font-black text-5xl" style={{ color:"#A78BFA" }}>Come back soon</div>
+        <div className="font-bold text-sm text-center" style={{ color:"#94a3b8" }}>You&apos;ve already played today.<br/>Resets in {hoursUntilReset}h</div>
+        <Link href="/games" className="font-bold text-sm no-underline mt-4" style={{ color:"#A78BFA" }}>Back to games</Link>
+      </div>
+    );
+  }
+
   const [wordIndex, setWordIndex] = useState(0);
   const [currentWord, setCurrentWord] = useState(WORD_BANK[0]);
   const [scrambled, setScrambled] = useState(() => scrambleWord(WORD_BANK[0]));
@@ -126,6 +140,8 @@ export default function WordScrambleGame() {
   if (gameState === "done") {
     return (
       <div className="min-h-screen flex items-center justify-center p-4" style={{ background:"linear-gradient(135deg,#F0EBFF,#E8F4FF,#F0FFF8)" }}>
+
+
         <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} className="p-8 rounded-[32px] flex flex-col items-center gap-5" style={{ background:"rgba(255,255,255,0.8)", backdropFilter:"blur(24px)", boxShadow:"0 24px 60px rgba(167,139,250,0.15)", border:"1px solid rgba(255,255,255,0.9)", maxWidth:320, width:"100%" }}>
           <div className="font-black text-3xl" style={{ color:"#A78BFA" }}>All Done!</div>
           <div className="flex gap-6">

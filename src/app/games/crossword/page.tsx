@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { useDaily } from "../components/useDaily";
+import { useSounds } from "../components/useSounds";
 
 // 10 themed 5x5 mini crossword puzzles
 // grid: 5x5, '#' = black cell, letter = solution
@@ -79,6 +81,8 @@ function initBoard(grid: string[][]): string[][] {
 }
 
 export default function CrosswordGame() {
+  const { canPlay, markPlayed, hoursUntilReset } = useDaily('crossword');
+  const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
   const [puzzle] = useState(() => getRandomPuzzle());
   const [board, setBoard] = useState(() => initBoard(puzzle.grid));
   const [selected, setSelected] = useState<[number,number]|null>(null);
@@ -188,6 +192,14 @@ export default function CrosswordGame() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background:"linear-gradient(135deg,#F0EBFF,#E8F4FF,#F0FFF8)", fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif' }}>
+      {!canPlay && (
+        <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-6">
+          <div className="font-black text-5xl" style={{ color:"#A78BFA" }}>Come back soon</div>
+          <div className="font-bold text-sm text-center" style={{ color:"#94a3b8" }}>You&apos;ve already played today.<br/>Resets in {hoursUntilReset}h</div>
+          <Link href="/games" className="font-bold text-sm no-underline mt-4" style={{ color:"#A78BFA" }}>Back to games</Link>
+        </div>
+      )}
+      {canPlay && (<>
       {gameState === "won" && <canvas ref={confettiRef} className="fixed inset-0 pointer-events-none z-40" />}
 
       <div className="flex items-center justify-between px-4 pt-4 pb-2 max-w-lg mx-auto w-full">
@@ -267,6 +279,7 @@ export default function CrosswordGame() {
           </motion.div>
         )}
       </AnimatePresence>
+          </>)}
     </div>
   );
 }

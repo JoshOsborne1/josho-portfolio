@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { useDaily } from "../components/useDaily";
+import { useSounds } from "../components/useSounds";
 
 type Grid = (number | 0)[][];
 
@@ -98,6 +100,8 @@ function hasLost(grid: Grid): boolean {
 }
 
 export default function Game2048() {
+  const { canPlay, markPlayed, hoursUntilReset } = useDaily('2048');
+  const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
   const [grid, setGrid] = useState<Grid>(() => addRandomTile(addRandomTile(emptyGrid())));
   const [score, setScore] = useState(0);
   const [best, setBest] = useState(() => typeof window !== "undefined" ? parseInt(localStorage.getItem("2048-best") || "0") : 0);
@@ -158,6 +162,14 @@ export default function Game2048() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background:"linear-gradient(135deg,#F0EBFF,#E8F4FF,#F0FFF8)", fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif' }}>
+      {!canPlay && (
+        <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-6">
+          <div className="font-black text-5xl" style={{ color:"#A78BFA" }}>Come back soon</div>
+          <div className="font-bold text-sm text-center" style={{ color:"#94a3b8" }}>You&apos;ve already played today.<br/>Resets in {hoursUntilReset}h</div>
+          <Link href="/games" className="font-bold text-sm no-underline mt-4" style={{ color:"#A78BFA" }}>Back to games</Link>
+        </div>
+      )}
+      {canPlay && (<>
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-4 pb-2 max-w-lg mx-auto w-full">
         <Link href="/games" className="no-underline flex items-center gap-2">
@@ -238,6 +250,7 @@ export default function Game2048() {
           </motion.div>
         )}
       </AnimatePresence>
+          </>)}
     </div>
   );
 }

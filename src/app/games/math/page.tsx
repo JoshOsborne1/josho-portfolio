@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { useDaily } from "../components/useDaily";
+import { useSounds } from "../components/useSounds";
 
 function generateQuestion(difficulty: "easy" | "medium" | "hard") {
   const max = difficulty === "easy" ? 10 : difficulty === "medium" ? 50 : 100;
@@ -33,6 +35,18 @@ function generateQuestion(difficulty: "easy" | "medium" | "hard") {
 }
 
 export default function MathGame() {
+  const { canPlay, markPlayed, hoursUntilReset } = useDaily('math');
+  const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
+  if (!canPlay) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-6" style={{ background:"linear-gradient(135deg,#F0EBFF,#E8F4FF,#F0FFF8)" }}>
+        <div className="font-black text-5xl" style={{ color:"#A78BFA" }}>Come back soon</div>
+        <div className="font-bold text-sm text-center" style={{ color:"#94a3b8" }}>You&apos;ve already played today.<br/>Resets in {hoursUntilReset}h</div>
+        <Link href="/games" className="font-bold text-sm no-underline mt-4" style={{ color:"#A78BFA" }}>Back to games</Link>
+      </div>
+    );
+  }
+
   const [difficulty, setDifficulty] = useState<"easy"|"medium"|"hard">("easy");
   const [gameState, setGameState] = useState<"setup"|"playing"|"done">("setup");
   const [current, setCurrent] = useState(() => generateQuestion("easy"));
@@ -113,6 +127,8 @@ export default function MathGame() {
   if (gameState === "setup") {
     return (
       <div className="min-h-screen flex items-center justify-center p-4" style={{ background:"linear-gradient(135deg,#F0EBFF,#E8F4FF,#F0FFF8)" }}>
+
+
         <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} className="p-8 rounded-[32px] flex flex-col gap-5 items-center" style={{ background:"rgba(255,255,255,0.75)", backdropFilter:"blur(24px)", boxShadow:"0 16px 40px rgba(0,0,0,0.06)", border:"1px solid rgba(255,255,255,0.8)", maxWidth:320, width:"100%" }}>
           <Link href="/games" className="no-underline self-start font-bold text-sm" style={{ color:"#A78BFA" }}>Back</Link>
           <div className="flex items-center justify-center font-black text-white rounded-2xl" style={{ width:48,height:48,background:"linear-gradient(135deg,#C4B5FD,#A78BFA)",fontSize:20 }}>P</div>

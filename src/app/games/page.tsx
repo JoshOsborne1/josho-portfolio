@@ -489,19 +489,7 @@ export default function GamesPage() {
           ))}
         </div>
 
-        {/* Footer */}
-        <div className="pb-8 text-center">
-          <div className="font-bold text-xs uppercase tracking-widest mb-2" style={{ color: "#94a3b8" }}>
-            PLAY - josho.pro
-          </div>
-          <Link
-            href="/"
-            className="font-bold text-sm no-underline"
-            style={{ color: "#A78BFA" }}
-          >
-            Back to josho.pro
-          </Link>
-        </div>
+        {/* Footer removed */}
       </div>
     </div>
   );
