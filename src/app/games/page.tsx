@@ -5,6 +5,9 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { DailyProgressSidebar, DailyProgressStrip } from "./components/DailyProgress";
 import { useAllDailyStatus } from "./components/useDaily";
+import { useSubscription } from "./components/useSubscription";
+import { ProGate } from "./components/ProGate";
+import { ProBadge } from "./components/ProBadge";
 
 const games = [
   {
@@ -402,9 +405,20 @@ function DifficultyDots({ level }: { level: number }) {
 
 export default function GamesPage() {
   const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
-  const { statuses } = useAllDailyStatus();
+  const { statuses, completedCount } = useAllDailyStatus();
+  const { isPro } = useSubscription();
+  const [showProGate, setShowProGate] = useState(false);
+  const DAILY_LIMIT = 5;
+
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    }
+  }, []);
 
   return (
+    <>
+    {showProGate && <ProGate onClose={() => setShowProGate(false)} />}
     <div
       className="min-h-screen"
       style={{
@@ -444,7 +458,7 @@ export default function GamesPage() {
                 className="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-xl"
                 style={{ background: "rgba(255,255,255,0.6)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.8)", color: "#7c3aed" }}
               >
-                13 Games
+                13 Games {isPro && <ProBadge />}
               </div>
             </div>
 
@@ -500,7 +514,11 @@ export default function GamesPage() {
                   onMouseEnter={() => setHoveredSlug(game.slug)}
                   onMouseLeave={() => setHoveredSlug(null)}
                 >
-                  <Link href={`/games/${game.slug}`} className="no-underline block h-full">
+                  <Link
+                    href={!done && !isPro && completedCount >= DAILY_LIMIT ? "#" : `/games/${game.slug}`}
+                    onClick={!done && !isPro && completedCount >= DAILY_LIMIT ? (e) => { e.preventDefault(); setShowProGate(true); } : undefined}
+                    className="no-underline block h-full"
+                  >
                     <motion.div
                       className="p-4 h-full flex flex-col gap-3 cursor-pointer relative overflow-hidden"
                       style={{
@@ -551,5 +569,6 @@ export default function GamesPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
