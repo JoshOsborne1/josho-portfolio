@@ -264,6 +264,91 @@ const games = [
       });
     },
   },
+  {
+    slug: "flagle",
+    title: "Flagle",
+    desc: "Guess the flag from revealed tiles",
+    difficulty: 1,
+    canvasColor: ["#FEF9C3", "#FDE047"],
+    drawPreview: (ctx: CanvasRenderingContext2D, w: number, h: number) => {
+      ctx.clearRect(0, 0, w, h);
+      const cols = 3; const rows = 2;
+      const cw = (w - 8) / cols; const ch = (h - 8) / rows;
+      for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+        ctx.fillStyle = (r + c) % 2 === 0 ? "#FDE047" : "#FEF9C3";
+        ctx.beginPath();
+        ctx.roundRect(4 + c * cw, 4 + r * ch, cw - 2, ch - 2, 4);
+        ctx.fill();
+      }
+    },
+  },
+  {
+    slug: "worldle",
+    title: "Worldle",
+    desc: "Guess the country silhouette",
+    difficulty: 2,
+    canvasColor: ["#D1FAE5", "#34D399"],
+    drawPreview: (ctx: CanvasRenderingContext2D, w: number, h: number) => {
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "#34D39966";
+      ctx.beginPath();
+      ctx.ellipse(w / 2, h / 2, w / 3, h / 2.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#059669";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    },
+  },
+  {
+    slug: "globle",
+    title: "Globle",
+    desc: "Find the country on the globe",
+    difficulty: 3,
+    canvasColor: ["#DBEAFE", "#60A5FA"],
+    drawPreview: (ctx: CanvasRenderingContext2D, w: number, h: number, t: number) => {
+      ctx.clearRect(0, 0, w, h);
+      ctx.beginPath();
+      ctx.arc(w / 2, h / 2, Math.min(w, h) / 2.5, 0, Math.PI * 2);
+      const grad = ctx.createRadialGradient(w * 0.4, h * 0.35, 2, w / 2, h / 2, Math.min(w, h) / 2.5);
+      grad.addColorStop(0, "#93C5FD");
+      grad.addColorStop(1, "#1D4ED8");
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.strokeStyle = "#60A5FA";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      // Lat/lon lines
+      ctx.strokeStyle = "rgba(255,255,255,0.2)";
+      ctx.lineWidth = 1;
+      for (let i = 1; i < 3; i++) {
+        ctx.beginPath();
+        ctx.ellipse(w / 2, h / 2, (Math.min(w, h) / 2.5) * (i / 3), Math.min(w, h) / 2.5, t * 0.5, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    },
+  },
+  {
+    slug: "travle",
+    title: "Travle",
+    desc: "Navigate between countries via borders",
+    difficulty: 3,
+    canvasColor: ["#FCE7F3", "#F472B6"],
+    drawPreview: (ctx: CanvasRenderingContext2D, w: number, h: number) => {
+      ctx.clearRect(0, 0, w, h);
+      ctx.strokeStyle = "#F472B6";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(10, h / 2);
+      ctx.lineTo(w - 10, h / 2);
+      ctx.stroke();
+      [10, w / 2, w - 10].forEach(x => {
+        ctx.beginPath();
+        ctx.arc(x, h / 2, 5, 0, Math.PI * 2);
+        ctx.fillStyle = "#F472B6";
+        ctx.fill();
+      });
+    },
+  },
 ];
 
 function GamePreviewCanvas({
@@ -359,7 +444,7 @@ export default function GamesPage() {
                 className="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-xl"
                 style={{ background: "rgba(255,255,255,0.6)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.8)", color: "#7c3aed" }}
               >
-                9 Games
+                13 Games
               </div>
             </div>
 
@@ -376,7 +461,7 @@ export default function GamesPage() {
                 initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
                 className="font-bold text-base" style={{ color: "#64748b" }}
               >
-                9 games. No account. No ads. Free daily.
+                13 Games. No account. No ads. Free daily.
               </motion.p>
             </div>
 
