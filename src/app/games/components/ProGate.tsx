@@ -30,8 +30,8 @@ export function ProGate({ onClose }: ProGateProps) {
     }
     setLoading(true);
     const priceId = annual
-      ? (process.env.NEXT_PUBLIC_STRIPE_PRICE_ANNUAL || "price_1TAe1O5wvd0fcTaWt0ShVfai")
-      : (process.env.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY || "price_1TAe1O5wvd0fcTaWm9PGUxmN");
+      ? (process.env.NEXT_PUBLIC_STRIPE_PRICE_ANNUAL || "price_1TAeyZ4C761DH1sqcam6krV0")
+      : (process.env.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY || "price_1TAeyZ4C761DH1sqXCUs4KzJ");
     await startCheckout(priceId, trimmed);
     setLoading(false);
   };
