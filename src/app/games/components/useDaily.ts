@@ -93,7 +93,7 @@ export function useDaily(gameId: string) {
 /** Read all daily statuses for the hub without a gameId dependency */
 export function useAllDailyStatus() {
   const [statuses, setStatuses] = useState<Record<string, DailyEntry | null>>({});
-  const [msLeft, setMsLeft] = useState(msUntilMidnightUTC());
+  const [msLeft, setMsLeft] = useState(0);
 
   useEffect(() => {
     const load = () => {

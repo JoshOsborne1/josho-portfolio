@@ -30,7 +30,6 @@ function scrambleWord(word: string): string {
 
 export default function WordScrambleGame() {
   const { canPlay, markPlayed, hoursUntilReset, completionEntry, ready } = useDaily('wordscramble');
-  if (!ready) return <div className="min-h-screen" style={{background:"linear-gradient(135deg,#F0EBFF,#E8F4FF,#F0FFF8)"}} />;
   const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
   if (!canPlay) {
     return (

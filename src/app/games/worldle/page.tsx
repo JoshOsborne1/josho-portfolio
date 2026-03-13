@@ -18,7 +18,6 @@ interface Guess {
 
 export default function WorldlePage() {
   const { canPlay, markPlayed, hoursUntilReset, ready } = useDaily('worldle');
-  if (!ready) return <div className="min-h-screen" style={{ background: "linear-gradient(135deg,#D1FAE5,#A7F3D0)" }} />;
 
   const seed = useMemo(() => getDailySeed('worldle'), []);
   const answer = useMemo(() => getCountryByIndex(seed), [seed]);

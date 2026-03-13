@@ -25,7 +25,6 @@ interface GuessEntry {
 
 export default function GloblePage() {
   const { canPlay, markPlayed, hoursUntilReset, ready } = useDaily('globle');
-  if (!ready) return <div className="min-h-screen" style={{ background: "linear-gradient(135deg,#DBEAFE,#BFDBFE)" }} />;
 
   const seed = useMemo(() => getDailySeed('globle'), []);
   const answer = useMemo(() => getCountryByIndex(seed), [seed]);

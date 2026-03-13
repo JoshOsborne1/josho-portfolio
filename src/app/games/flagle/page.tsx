@@ -20,7 +20,6 @@ const TILE_ORDER = [0, 1, 2, 3, 4, 5]; // left-to-right, top-to-bottom
 
 export default function FlaglePage() {
   const { canPlay, markPlayed, hoursUntilReset, completionEntry, ready } = useDaily('flagle');
-  if (!ready) return <div className="min-h-screen" style={{ background: "linear-gradient(135deg,#FEF9C3,#FDE68A)" }} />;
 
   const seed = useMemo(() => getDailySeed('flagle'), []);
   const answer = useMemo(() => getCountryByIndex(seed), [seed]);

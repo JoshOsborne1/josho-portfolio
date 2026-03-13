@@ -16,7 +16,6 @@ interface ChainStep {
 
 export default function TravlePage() {
   const { canPlay, markPlayed, hoursUntilReset, ready } = useDaily('travle');
-  if (!ready) return <div className="min-h-screen" style={{ background: "linear-gradient(135deg,#FCE7F3,#FBCFE8)" }} />;
 
   const seed = useMemo(() => getDailySeed('travle'), []);
   const [startCountry, endCountry] = useMemo(() => findPuzzlePair(seed), [seed]);

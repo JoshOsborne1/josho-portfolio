@@ -75,7 +75,6 @@ function generatePuzzle6(): { puzzle: number[][], solution: number[][] } {
 
 export default function SudokuGame() {
   const { canPlay, markPlayed, hoursUntilReset, completionEntry, ready } = useDaily('sudoku');
-  if (!ready) return <div className="min-h-screen" style={{ background: "linear-gradient(135deg,#F0EBFF,#E8F4FF,#F0FFF8)" }} />;
   const { playSuccess, playError, playWin, vibrate } = useSounds();
   const [puzzle, setPuzzle] = useState<number[][]>([]);
   const [solution, setSolution] = useState<number[][]>([]);

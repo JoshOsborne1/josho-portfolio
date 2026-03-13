@@ -22,7 +22,6 @@ function isValidWord(word: string): boolean {
 
 export default function WordChainGame() {
   const { canPlay, markPlayed, hoursUntilReset, completionEntry, ready } = useDaily('wordchain');
-  if (!ready) return <div className="min-h-screen" style={{background:"linear-gradient(135deg,#F0EBFF,#E8F4FF,#F0FFF8)"}} />;
   const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
   const [chain, setChain] = useState<string[]>(() => {
     const start = STARTER_WORDS[Math.floor(Math.random() * STARTER_WORDS.length)];

@@ -172,7 +172,6 @@ const STATE_COLORS: Record<LetterState, { bg: string; text: string }> = {
 
 export default function WordGame() {
   const { canPlay, markPlayed, hoursUntilReset, completionEntry, ready } = useDaily('word');
-  if (!ready) return <div className="min-h-screen" style={{background:"linear-gradient(135deg,#F0EBFF,#E8F4FF,#F0FFF8)"}} />;
   const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
   const [target, setTarget] = useState<string>(() => getRandomWord());
   const [guesses, setGuesses] = useState<Cell[][]>(
