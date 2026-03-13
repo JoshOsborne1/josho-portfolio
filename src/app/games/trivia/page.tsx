@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { CompletedReplay } from "../components/CompletedReplay";
 import { useDaily } from "../components/useDaily";
 import { useSounds } from "../components/useSounds";
 import Timer from "../components/Timer";
@@ -70,7 +71,7 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 export default function TriviaGame() {
-  const { canPlay, markPlayed, hoursUntilReset } = useDaily('trivia');
+  const { canPlay, markPlayed, hoursUntilReset, completionEntry } = useDaily('trivia');
   const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
   if (!canPlay) {
     return (
@@ -95,6 +96,7 @@ export default function TriviaGame() {
   const nextQuestion = useCallback(() => {
     if (current + 1 >= questions.length) {
       setGameState("done");
+      markPlayed({ score, streak });
       return;
     }
     setCurrent(c => c + 1);

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { CompletedReplay } from "../components/CompletedReplay";
 import { useDaily } from "../components/useDaily";
 import { useSounds } from "../components/useSounds";
 
@@ -35,7 +36,7 @@ function generateQuestion(difficulty: "easy" | "medium" | "hard") {
 }
 
 export default function MathGame() {
-  const { canPlay, markPlayed, hoursUntilReset } = useDaily('math');
+  const { canPlay, markPlayed, hoursUntilReset, completionEntry } = useDaily('math');
   const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
   if (!canPlay) {
     return (
@@ -71,6 +72,7 @@ export default function MathGame() {
       setTimeLeft(t => {
         if (t <= 1) {
           setGameState("done");
+          markPlayed({ score, streak });
           return 0;
         }
         return t - 1;

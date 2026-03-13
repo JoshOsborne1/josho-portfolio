@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { CompletedReplay } from "../components/CompletedReplay";
 import { useDaily } from "../components/useDaily";
 import { useSounds } from "../components/useSounds";
 
@@ -100,7 +101,7 @@ function hasLost(grid: Grid): boolean {
 }
 
 export default function Game2048() {
-  const { canPlay, markPlayed, hoursUntilReset } = useDaily('2048');
+  const { canPlay, markPlayed, hoursUntilReset, completionEntry } = useDaily('2048');
   const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
   const [grid, setGrid] = useState<Grid>(() => addRandomTile(addRandomTile(emptyGrid())));
   const [score, setScore] = useState(0);
@@ -122,8 +123,13 @@ export default function Game2048() {
         setBest(newScore);
         if (typeof window !== "undefined") localStorage.setItem("2048-best", String(newScore));
       }
-      if (hasWon(newGrid) && gameState === "playing") setGameState("won");
-      else if (hasLost(newGrid)) setGameState("lost");
+      if (hasWon(newGrid) && gameState === "playing") {
+        setGameState("won");
+        markPlayed({ result: 'won', score: newScore });
+      } else if (hasLost(newGrid)) {
+        setGameState("lost");
+        markPlayed({ result: 'lost', score: newScore });
+      }
       return newGrid;
     });
   }, [gameState, score, best, wonDismissed]);

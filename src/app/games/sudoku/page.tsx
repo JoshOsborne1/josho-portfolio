@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { CompletedReplay } from "../components/CompletedReplay";
 import { useDaily } from "../components/useDaily";
 import { useSounds } from "../components/useSounds";
 
@@ -73,7 +74,7 @@ function generatePuzzle(difficulty: "easy" | "medium" | "hard"): { puzzle: numbe
 }
 
 export default function SudokuGame() {
-  const { canPlay, markPlayed, hoursUntilReset } = useDaily('sudoku');
+  const { canPlay, markPlayed, hoursUntilReset, completionEntry } = useDaily('sudoku');
   const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
   const [difficulty, setDifficulty] = useState<"easy"|"medium"|"hard">("easy");
   const [puzzle, setPuzzle] = useState<number[][]>([]);
@@ -136,6 +137,7 @@ export default function SudokuGame() {
       setGameState("won");
       setTimerRunning(false);
       playWin(); vibrate([50,30,50,30,100]);
+      markPlayed({ result: 'won', time: formatTime(timer) });
     }
   }, [selected, gameState, given, board, solution, cellStates, mistakes]);
 

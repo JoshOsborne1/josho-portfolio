@@ -168,7 +168,7 @@ const STATE_COLORS: Record<LetterState, { bg: string; text: string }> = {
 };
 
 export default function WordGame() {
-  const { canPlay, markPlayed, hoursUntilReset } = useDaily('word');
+  const { canPlay, markPlayed, hoursUntilReset, completionEntry } = useDaily('word');
   const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
   const [target, setTarget] = useState<string>(() => getRandomWord());
   const [guesses, setGuesses] = useState<Cell[][]>(
@@ -187,7 +187,6 @@ export default function WordGame() {
 
   const addLetter = useCallback((letter: string) => {
     if (gameState !== "playing" || currentCol >= 5) return;
-    markPlayed();
     playTap(); vibrate([10]);
     setGuesses(prev => {
       const next = prev.map(r => [...r]);
@@ -249,12 +248,14 @@ export default function WordGame() {
       setGameState("won");
       setMessage("Brilliant!");
       playWin(); vibrate([50,30,50,30,100]);
+      markPlayed({ result: 'won', target, guesses: newGuesses, row: currentRow });
     } else if (currentRow >= 5) {
       setStreak(0);
       if (typeof window !== "undefined") localStorage.setItem("word-streak", "0");
       setGameState("lost");
       setMessage(target);
       playError(); vibrate([100]);
+      markPlayed({ result: 'lost', target, guesses: newGuesses, row: 5 });
     } else {
       playSuccess(); vibrate([20,10,20]);
       setCurrentRow(r => r + 1);
@@ -290,7 +291,50 @@ export default function WordGame() {
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
       }}
     >
-      {!canPlay && (
+      {!canPlay && completionEntry && (() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const snap = completionEntry.snapshot as any;
+        const won = snap?.result === 'won';
+        const snappedGuesses: Array<Array<{letter:string;state:string}>> = snap?.guesses ?? [];
+        const colors: Record<string,string> = { correct:'#4ADE80', present:'#FBBF24', absent:'rgba(0,0,0,0.08)', active:'rgba(0,0,0,0.04)' };
+        return (
+          <div className="min-h-screen flex flex-col" style={{ background:"linear-gradient(135deg,#F0EBFF,#E8F4FF,#F0FFF8)", fontFamily:'-apple-system,sans-serif' }}>
+            <div className="flex items-center justify-between px-4 pt-4 pb-2">
+              <Link href="/games" className="no-underline flex items-center gap-2">
+                <div style={{ width:32,height:32,background:"linear-gradient(135deg,#C4B5FD,#A78BFA)",borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:900,fontSize:14 }}>P</div>
+                <span className="font-black text-xs" style={{ color:"#A78BFA" }}>PLAY</span>
+              </Link>
+              <span className="font-black text-base" style={{ color:"#1e1b4b" }}>Word Guess</span>
+              <div />
+            </div>
+            <div className="flex flex-col items-center gap-4 pt-6 px-4">
+              <div className="font-black text-2xl" style={{ color: won ? "#4ADE80" : "#ef4444" }}>{won ? "Solved!" : "Nice try"}</div>
+              <div className="font-bold text-sm" style={{ color:"#94a3b8" }}>
+                {won ? `Got it in ${(snap?.row ?? 0) + 1}/6` : `The word was ${(snap?.target ?? '').toUpperCase()}`}
+              </div>
+              {/* Read-only grid */}
+              <div className="flex flex-col gap-1.5 mt-2">
+                {snappedGuesses.slice(0, (snap?.row ?? 0) + 1).map((row, ri) => (
+                  <div key={ri} className="flex gap-1.5">
+                    {row.map((cell, ci) => (
+                      <div key={ci} className="flex items-center justify-center font-black text-sm rounded-xl"
+                        style={{ width:44,height:44,background:colors[cell.state]??colors.absent,color:cell.state==='absent'||cell.state==='active'?'#94a3b8':'#fff',border:`1.5px solid ${cell.state==='absent'||cell.state==='active'?'rgba(0,0,0,0.06)':'transparent'}` }}>
+                        {cell.letter.toUpperCase()}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+              <div className="font-bold text-xs mt-4" style={{ color:"#94a3b8" }}>Resets in {hoursUntilReset}h</div>
+              <Link href="/games" className="px-6 py-3 rounded-2xl font-black text-white no-underline mt-2"
+                style={{ background:"linear-gradient(180deg,#C4B5FD,#A78BFA)",boxShadow:"0 8px 20px rgba(167,139,250,0.3)" }}>
+                Back to games
+              </Link>
+            </div>
+          </div>
+        );
+      })()}
+      {!canPlay && !completionEntry && (
         <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-6">
           <div className="font-black text-5xl" style={{ color:"#A78BFA" }}>Come back soon</div>
           <div className="font-bold text-sm text-center" style={{ color:"#94a3b8" }}>You&apos;ve already played today.<br/>Resets in {hoursUntilReset}h</div>

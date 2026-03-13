@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { CompletedReplay } from "../components/CompletedReplay";
 import { useDaily } from "../components/useDaily";
 import { useSounds } from "../components/useSounds";
 
@@ -20,7 +21,7 @@ function isValidWord(word: string): boolean {
 }
 
 export default function WordChainGame() {
-  const { canPlay, markPlayed, hoursUntilReset } = useDaily('wordchain');
+  const { canPlay, markPlayed, hoursUntilReset, completionEntry } = useDaily('wordchain');
   const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
   const [chain, setChain] = useState<string[]>(() => {
     const start = STARTER_WORDS[Math.floor(Math.random() * STARTER_WORDS.length)];
@@ -84,6 +85,7 @@ export default function WordChainGame() {
 
   const handleLoss = useCallback(() => {
     const score = chain.length - 1;
+    markPlayed({ score });
     if (score > record) {
       setRecord(score);
       if (typeof window !== "undefined") localStorage.setItem("wordchain-record", String(score));

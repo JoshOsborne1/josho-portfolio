@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { DailyProgressSidebar, DailyProgressStrip } from "./components/DailyProgress";
+import { useAllDailyStatus } from "./components/useDaily";
 
 const games = [
   {
@@ -315,6 +317,7 @@ function DifficultyDots({ level }: { level: number }) {
 
 export default function GamesPage() {
   const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
+  const { statuses } = useAllDailyStatus();
 
   return (
     <div
@@ -324,172 +327,143 @@ export default function GamesPage() {
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
       }}
     >
-      {/* Header */}
-      <div className="max-w-3xl mx-auto px-4 pt-8 pb-4">
-        <div className="flex items-center justify-between">
-          <Link href="/" className="no-underline flex items-center gap-2">
-            <div
-              className="flex items-center justify-center font-black text-white rounded-2xl"
-              style={{
-                width: 44,
-                height: 44,
-                background: "linear-gradient(135deg, #C4B5FD 0%, #A78BFA 100%)",
-                boxShadow: "0 8px 20px rgba(167,139,250,0.35), inset 0 2px 4px rgba(255,255,255,0.35)",
-                fontSize: 20,
-                letterSpacing: "-0.02em",
-              }}
-            >
-              P
-            </div>
-            <div className="flex flex-col leading-none">
-              <span className="font-black text-base" style={{ color: "#A78BFA", letterSpacing: "0.06em" }}>PLAY</span>
-              <span className="font-bold text-xs" style={{ color: "#94a3b8", letterSpacing: "0.1em" }}>josho.pro</span>
-            </div>
-          </Link>
-          <div
-            className="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-xl"
-            style={{
-              background: "rgba(255,255,255,0.6)",
-              backdropFilter: "blur(12px)",
-              border: "1px solid rgba(255,255,255,0.8)",
-              color: "#7c3aed",
-            }}
-          >
-            9 Free Games
-          </div>
-        </div>
+      {/* Mobile-only strip */}
+      <div className="block lg:hidden">
+        <DailyProgressStrip />
+      </div>
 
-        {/* Hero */}
-        <div className="mt-10 mb-8">
-          <motion.h1
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="font-black text-4xl md:text-5xl leading-tight mb-3"
-            style={{ color: "#1e1b4b", letterSpacing: "-0.03em" }}
-          >
-            Think fast.<br />Play well.
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="font-bold text-base"
-            style={{ color: "#64748b" }}
-          >
-            9 games. No account. No ads. Just play.
-          </motion.p>
-        </div>
+      {/* Desktop layout: sidebar + main */}
+      <div className="flex gap-8 max-w-6xl mx-auto px-4 lg:px-8">
 
-        {/* Featured: Wave Game */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="mb-8 rounded-[32px] overflow-hidden"
-          style={{
-            background: "rgba(255,255,255,0.6)",
-            backdropFilter: "blur(24px)",
-            boxShadow: "0 16px 40px rgba(167,139,250,0.12), inset 0 2px 4px rgba(255,255,255,0.8)",
-            border: "1px solid rgba(255,255,255,0.8)",
-          }}
-        >
-          <div className="p-6 flex items-center justify-between flex-wrap gap-4">
-            <div className="flex flex-col gap-2">
-              <div
-                className="text-xs font-black uppercase tracking-widest px-3 py-1 rounded-xl w-fit"
-                style={{ background: "rgba(167,139,250,0.12)", color: "#7c3aed" }}
-              >
-                Flagship
-              </div>
-              <h2 className="font-black text-2xl" style={{ color: "#1e1b4b" }}>Wave</h2>
-              <p className="font-bold text-sm" style={{ color: "#64748b" }}>
-                The original josho.pro party game - clue giving, dials, and teams
-              </p>
-              <DifficultyDots level={2} />
-            </div>
-            <Link href="/wave" className="no-underline">
-              <motion.div
-                whileTap={{ scale: 0.95 }}
-                className="px-6 py-3 rounded-2xl font-black text-white active:scale-95"
-                style={{
-                  background: "linear-gradient(180deg, #C4B5FD 0%, #A78BFA 100%)",
-                  boxShadow: "0 12px 24px rgba(167,139,250,0.3), inset 0 4px 8px rgba(255,255,255,0.4), inset 0 -4px 8px rgba(0,0,0,0.1)",
-                  border: "1px solid rgba(255,255,255,0.5)",
-                }}
-              >
-                Play Wave
-              </motion.div>
-            </Link>
-          </div>
-        </motion.div>
-
-        {/* Games Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pb-8">
-          {games.map((game, index) => (
-            <motion.div
-              key={game.slug}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 + index * 0.04 }}
-              onMouseEnter={() => setHoveredSlug(game.slug)}
-              onMouseLeave={() => setHoveredSlug(null)}
-            >
-              <Link href={`/games/${game.slug}`} className="no-underline block h-full">
-                <motion.div
-                  className="p-4 h-full flex flex-col gap-3 cursor-pointer"
+        {/* Main content */}
+        <div className="flex-1 min-w-0">
+          {/* Header */}
+          <div className="pt-8 pb-4">
+            <div className="flex items-center justify-between">
+              <Link href="/" className="no-underline flex items-center gap-2">
+                <div
+                  className="flex items-center justify-center font-black text-white rounded-2xl"
                   style={{
-                    background: "rgba(255,255,255,0.6)",
-                    backdropFilter: "blur(24px)",
-                    borderRadius: 24,
-                    boxShadow: "0 8px 24px rgba(0,0,0,0.04), inset 0 2px 4px rgba(255,255,255,0.8)",
-                    border: "1px solid rgba(255,255,255,0.8)",
-                    transition: "box-shadow 0.2s, border-color 0.2s",
+                    width: 44, height: 44,
+                    background: "linear-gradient(135deg, #C4B5FD 0%, #A78BFA 100%)",
+                    boxShadow: "0 8px 20px rgba(167,139,250,0.35), inset 0 2px 4px rgba(255,255,255,0.35)",
+                    fontSize: 20,
                   }}
-                  whileHover={{
-                    boxShadow: "0 12px 32px rgba(167,139,250,0.15), inset 0 2px 4px rgba(255,255,255,0.8)",
-                    y: -2,
-                  }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  {/* Canvas Preview */}
-                  <div
-                    className="rounded-2xl overflow-hidden flex items-center justify-center self-start"
-                    style={{
-                      width: 60,
-                      height: 60,
-                      background: `linear-gradient(135deg, ${game.canvasColor[0]}22 0%, ${game.canvasColor[1]}22 100%)`,
-                    }}
-                  >
-                    <GamePreviewCanvas
-                      draw={game.drawPreview}
-                      isHovered={hoveredSlug === game.slug}
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-1 flex-1">
-                    <div className="font-black text-sm" style={{ color: "#1e1b4b" }}>{game.title}</div>
-                    <div className="font-bold text-xs leading-snug" style={{ color: "#64748b" }}>{game.desc}</div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <DifficultyDots level={game.difficulty} />
-                    <motion.div
-                      className="px-3 py-1 rounded-xl font-black text-xs text-white"
-                      style={{
-                        background: "linear-gradient(180deg, #C4B5FD 0%, #A78BFA 100%)",
-                        boxShadow: "0 4px 12px rgba(167,139,250,0.3)",
-                      }}
-                    >
-                      Play
-                    </motion.div>
-                  </div>
-                </motion.div>
+                >P</div>
+                <div className="flex flex-col leading-none">
+                  <span className="font-black text-base" style={{ color: "#A78BFA", letterSpacing: "0.06em" }}>PLAY</span>
+                  <span className="font-bold text-xs" style={{ color: "#94a3b8", letterSpacing: "0.1em" }}>josho.pro</span>
+                </div>
               </Link>
+              <div
+                className="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-xl"
+                style={{ background: "rgba(255,255,255,0.6)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.8)", color: "#7c3aed" }}
+              >
+                9 Free Games
+              </div>
+            </div>
+
+            {/* Hero */}
+            <div className="mt-10 mb-8">
+              <motion.h1
+                initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+                className="font-black text-4xl md:text-5xl leading-tight mb-3"
+                style={{ color: "#1e1b4b", letterSpacing: "-0.03em" }}
+              >
+                Think fast.<br />Play well.
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+                className="font-bold text-base" style={{ color: "#64748b" }}
+              >
+                9 games. No account. No ads. Just play.
+              </motion.p>
+            </div>
+
+            {/* Featured: Wave */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+              className="mb-8 rounded-[32px] overflow-hidden"
+              style={{ background: "rgba(255,255,255,0.6)", backdropFilter: "blur(24px)", boxShadow: "0 16px 40px rgba(167,139,250,0.12), inset 0 2px 4px rgba(255,255,255,0.8)", border: "1px solid rgba(255,255,255,0.8)" }}
+            >
+              <div className="p-6 flex items-center justify-between flex-wrap gap-4">
+                <div className="flex flex-col gap-2">
+                  <div className="text-xs font-black uppercase tracking-widest px-3 py-1 rounded-xl w-fit" style={{ background: "rgba(167,139,250,0.12)", color: "#7c3aed" }}>Flagship</div>
+                  <h2 className="font-black text-2xl" style={{ color: "#1e1b4b" }}>Wave</h2>
+                  <p className="font-bold text-sm" style={{ color: "#64748b" }}>The original josho.pro party game - clue giving, dials, and teams</p>
+                  <DifficultyDots level={2} />
+                </div>
+                <Link href="/wave" className="no-underline">
+                  <motion.div whileTap={{ scale: 0.95 }} className="px-6 py-3 rounded-2xl font-black text-white"
+                    style={{ background: "linear-gradient(180deg, #C4B5FD 0%, #A78BFA 100%)", boxShadow: "0 12px 24px rgba(167,139,250,0.3)", border: "1px solid rgba(255,255,255,0.5)" }}>
+                    Play Wave
+                  </motion.div>
+                </Link>
+              </div>
             </motion.div>
-          ))}
+          </div>
+
+          {/* Games Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 pb-12">
+            {games.map((game, index) => {
+              const done = statuses[game.slug] != null;
+              return (
+                <motion.div
+                  key={game.slug}
+                  initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + index * 0.04 }}
+                  onMouseEnter={() => setHoveredSlug(game.slug)}
+                  onMouseLeave={() => setHoveredSlug(null)}
+                >
+                  <Link href={`/games/${game.slug}`} className="no-underline block h-full">
+                    <motion.div
+                      className="p-4 h-full flex flex-col gap-3 cursor-pointer relative overflow-hidden"
+                      style={{
+                        background: done ? "rgba(240,255,244,0.75)" : "rgba(255,255,255,0.6)",
+                        backdropFilter: "blur(24px)",
+                        borderRadius: 24,
+                        boxShadow: done
+                          ? "0 8px 24px rgba(74,222,128,0.10), inset 0 2px 4px rgba(255,255,255,0.8)"
+                          : "0 8px 24px rgba(0,0,0,0.04), inset 0 2px 4px rgba(255,255,255,0.8)",
+                        border: done ? "1px solid rgba(74,222,128,0.25)" : "1px solid rgba(255,255,255,0.8)",
+                      }}
+                      whileHover={{ boxShadow: "0 12px 32px rgba(167,139,250,0.15)", y: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      {done && (
+                        <div className="absolute top-3 right-3 rounded-full flex items-center justify-center font-black text-[10px]"
+                          style={{ width: 20, height: 20, background: "linear-gradient(135deg,#86EFAC,#4ADE80)", color: "#166534" }}>
+                          ✓
+                        </div>
+                      )}
+                      <div className="rounded-2xl overflow-hidden flex items-center justify-center self-start"
+                        style={{ width: 60, height: 60, background: `linear-gradient(135deg, ${game.canvasColor[0]}22 0%, ${game.canvasColor[1]}22 100%)` }}>
+                        <GamePreviewCanvas draw={game.drawPreview} isHovered={hoveredSlug === game.slug} />
+                      </div>
+                      <div className="flex flex-col gap-1 flex-1">
+                        <div className="font-black text-sm" style={{ color: "#1e1b4b" }}>{game.title}</div>
+                        <div className="font-bold text-xs leading-snug" style={{ color: "#64748b" }}>{game.desc}</div>
+                        {done && <div className="font-bold text-[10px] mt-0.5" style={{ color: "#4ADE80" }}>View result</div>}
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <DifficultyDots level={game.difficulty} />
+                        <motion.div className="px-3 py-1 rounded-xl font-black text-xs text-white"
+                          style={{ background: done ? "linear-gradient(180deg,#86EFAC,#4ADE80)" : "linear-gradient(180deg, #C4B5FD 0%, #A78BFA 100%)", boxShadow: "0 4px 12px rgba(167,139,250,0.3)", color: done ? "#166534" : "#fff" }}>
+                          {done ? "Review" : "Play"}
+                        </motion.div>
+                      </div>
+                    </motion.div>
+                  </Link>
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Footer removed */}
+        {/* Desktop sidebar */}
+        <div className="hidden lg:block pt-8" style={{ width: 240, flexShrink: 0 }}>
+          <DailyProgressSidebar />
+        </div>
       </div>
     </div>
   );

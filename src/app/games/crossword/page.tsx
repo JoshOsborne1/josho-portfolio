@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { CompletedReplay } from "../components/CompletedReplay";
 import { useDaily } from "../components/useDaily";
 import { useSounds } from "../components/useSounds";
 
@@ -81,7 +82,7 @@ function initBoard(grid: string[][]): string[][] {
 }
 
 export default function CrosswordGame() {
-  const { canPlay, markPlayed, hoursUntilReset } = useDaily('crossword');
+  const { canPlay, markPlayed, hoursUntilReset, completionEntry } = useDaily('crossword');
   const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
   const [puzzle] = useState(() => getRandomPuzzle());
   const [board, setBoard] = useState(() => initBoard(puzzle.grid));
@@ -123,7 +124,7 @@ export default function CrosswordGame() {
       const allCorrect = puzzle.grid.every((row, ri) =>
         row.every((cell, ci) => cell === "#" || newBoard[ri][ci] === cell)
       );
-      if (allCorrect) setGameState("won");
+      if (allCorrect) { setGameState("won"); markPlayed({ result: 'won' }); }
       // Auto advance
       if (c < 4) setSelected([r, c + 1]);
     } else if (e.key === "ArrowRight" && c < 4) setSelected([r, c + 1]);

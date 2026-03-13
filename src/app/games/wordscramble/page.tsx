@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { CompletedReplay } from "../components/CompletedReplay";
 import { useDaily } from "../components/useDaily";
 import { useSounds } from "../components/useSounds";
 
@@ -28,7 +29,7 @@ function scrambleWord(word: string): string {
 }
 
 export default function WordScrambleGame() {
-  const { canPlay, markPlayed, hoursUntilReset } = useDaily('wordscramble');
+  const { canPlay, markPlayed, hoursUntilReset, completionEntry } = useDaily('wordscramble');
   const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
   if (!canPlay) {
     return (
@@ -58,6 +59,7 @@ export default function WordScrambleGame() {
   const loadNewWord = useCallback((index: number) => {
     if (index >= WORD_BANK.length) {
       setGameState("done");
+      markPlayed({ score, streak });
       return;
     }
     const word = WORD_BANK[index];

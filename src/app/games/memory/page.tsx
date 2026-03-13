@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { CompletedReplay } from "../components/CompletedReplay";
 import { useDaily } from "../components/useDaily";
 import { useSounds } from "../components/useSounds";
 
@@ -39,7 +40,7 @@ function makeCards(): Card[] {
 }
 
 export default function MemoryGame() {
-  const { canPlay, markPlayed, hoursUntilReset } = useDaily('memory');
+  const { canPlay, markPlayed, hoursUntilReset, completionEntry } = useDaily('memory');
   const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
   const [cards, setCards] = useState<Card[]>(makeCards());
   const [flipped, setFlipped] = useState<number[]>([]);
@@ -86,6 +87,7 @@ export default function MemoryGame() {
           if (newMatches === PAIRS.length) {
             setTimerRunning(false);
             setGameState("won");
+            markPlayed({ score: newMatches, time: timer });
             if (timer < best) {
               setBest(timer);
               if (typeof window !== "undefined") localStorage.setItem("memory-best", String(timer));
