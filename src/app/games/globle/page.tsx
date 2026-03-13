@@ -12,8 +12,8 @@ import {
 
 // Lazy-load globe (three.js)
 const GlobeView = dynamic(() => import("./GlobeView"), { ssr: false, loading: () => (
-  <div className="w-full flex items-center justify-center" style={{ height: 280 }}>
-    <div className="font-bold text-sm" style={{ color: "#60A5FA" }}>Loading globe...</div>
+  <div className="w-full h-full flex items-center justify-center">
+    <div className="font-bold text-sm" style={{ color: "#7c3aed" }}>Loading globe...</div>
   </div>
 )});
 
@@ -33,6 +33,7 @@ export default function GloblePage() {
   const [input, setInput] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [won, setWon] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const filteredCountries = useMemo(() => {
     if (!input.trim()) return [];
@@ -66,86 +67,90 @@ export default function GloblePage() {
     return "#d1d5db";
   };
 
+  if (!ready) return null;
+
   if (!canPlay) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: "linear-gradient(135deg,#DBEAFE,#BFDBFE)" }}>
-        <div className="font-black text-4xl" style={{ color: "#2563EB" }}>Come back soon</div>
-        <div className="font-bold text-sm" style={{ color: "#6b7280" }}>Resets in {hoursUntilReset}h</div>
-        <Link href="/games" className="font-bold text-sm no-underline" style={{ color: "#2563EB" }}>Back</Link>
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-6" style={{ background: "linear-gradient(135deg, #F0EBFF 0%, #E8F4FF 50%, #F0FFF8 100%)" }}>
+        <div className="font-black text-4xl" style={{ color: "#F59E0B" }}>Come back soon</div>
+        <div className="font-bold text-sm" style={{ color: "#78716c" }}>Resets in {hoursUntilReset}h</div>
+        <Link href="/games" className="font-bold text-sm no-underline" style={{ color: "#F59E0B" }}>Back</Link>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center pb-8 px-4" style={{ background: "linear-gradient(135deg,#DBEAFE,#BFDBFE,#EFF6FF)", fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
-      <div className="flex items-center justify-between w-full max-w-sm pt-4 pb-2">
-        <Link href="/games" className="no-underline">
-          <span className="font-black text-sm" style={{ color: "#2563EB" }}>Back</span>
+    <div className="min-h-screen flex flex-col items-center pb-8" style={{ background: 'linear-gradient(135deg, #F0EBFF 0%, #E8F4FF 50%, #F0FFF8 100%)', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
+      {/* Top Bar */}
+      <div className="sticky top-0 w-full z-20 flex items-center justify-between px-4 h-14"
+        style={{ background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(167,139,250,0.15)' }}>
+        <Link href="/games" className="flex items-center gap-2 no-underline">
+          <span className="text-lg font-black" style={{ color: '#7c3aed' }}>←</span>
+          <span className="font-bold text-sm" style={{ color: '#7c3aed' }}>Games</span>
         </Link>
-        <span className="font-black text-xl" style={{ color: "#1e3a8a" }}>Globle</span>
-        <span className="font-bold text-xs" style={{ color: "#1d4ed8" }}>{guesses.length} guesses</span>
+        <span className="font-black text-base" style={{ color: '#1e1b4b' }}>Globle</span>
+        <div className="font-bold text-xs" style={{ color: '#7c3aed' }}>{guesses.length} guesses</div>
       </div>
 
-      {/* Globe */}
-      <div className="w-full max-w-sm rounded-3xl overflow-hidden" style={{ background: "rgba(15,23,42,0.92)", boxShadow: "0 20px 60px rgba(0,0,0,0.25)", border: "2px solid rgba(96,165,250,0.2)" }}>
-        <GlobeView
-          guesses={guesses.map(g => ({ lat: g.country.lat, lng: g.country.lng, color: pctToColor(g.pct, g.correct) }))}
-          answerLat={won ? answer.lat : undefined}
-          answerLng={won ? answer.lng : undefined}
-        />
-      </div>
+      <div className="w-full max-w-md px-4 mt-6 flex flex-col items-center flex-1">
+        {/* Globe Area */}
+        <div className="rounded-3xl overflow-hidden mb-8 relative w-full" style={{ height: 280, background: "rgba(255,255,255,0.5)", backdropFilter: "blur(12px)", boxShadow: "0 16px 40px rgba(245,158,11,0.1)", border: "2px solid rgba(255,255,255,0.9)" }}>
+          <GlobeView
+            guesses={guesses.map(g => ({ lat: g.country.lat, lng: g.country.lng, color: pctToColor(g.pct, g.correct) }))}
+            answerLat={won ? answer.lat : undefined}
+            answerLng={won ? answer.lng : undefined}
+          />
+        </div>
 
-      {/* Win */}
-      <AnimatePresence>
-        {won && (
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="mt-4 px-6 py-4 rounded-3xl text-center" style={{ background: "rgba(255,255,255,0.9)", backdropFilter: "blur(20px)", boxShadow: "0 8px 24px rgba(0,0,0,0.08)" }}>
-            <div className="font-black text-2xl" style={{ color: "#1e3a8a" }}>Found it!</div>
-            <div className="flex items-center justify-center gap-2 mt-1">
-              <img src={FLAG_URL(answer.code)} alt={answer.name} style={{ width: 32, height: 20, objectFit: "cover", borderRadius: 3 }} />
-              <span className="font-bold text-sm" style={{ color: "#374151" }}>{answer.name} - {guesses.length} guess{guesses.length !== 1 ? "es" : ""}</span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Input */}
-      {!won && (
-        <div className="relative w-full max-w-sm mt-4">
-          <div className="flex gap-2">
-            <input
-              value={input}
-              onChange={e => { setInput(e.target.value); setShowDropdown(true); }}
-              onFocus={() => setShowDropdown(true)}
-              placeholder="Guess a country..."
-              className="flex-1 px-4 py-3 rounded-2xl font-bold text-sm outline-none"
-              style={{ background: "rgba(255,255,255,0.85)", border: "2px solid rgba(37,99,235,0.3)", color: "#1e3a8a" }}
-            />
-            <motion.button
-              onClick={() => { const m = COUNTRIES.find(c => c.name.toLowerCase() === input.toLowerCase()); if (m) submitGuess(m); }}
-              whileTap={{ scale: 0.95 }}
-              className="px-5 py-3 rounded-2xl font-black text-white"
-              style={{ background: "linear-gradient(180deg,#60A5FA,#2563EB)", boxShadow: "0 6px 16px rgba(37,99,235,0.3)" }}
-            >
-              Guess
-            </motion.button>
-          </div>
+        {/* Input */}
+        <div className="relative w-full mb-6 z-10">
+          <input
+            ref={inputRef}
+            value={input}
+            onChange={e => { setInput(e.target.value); setShowDropdown(true); }}
+            onFocus={() => setShowDropdown(true)}
+            onKeyDown={e => {
+                if (e.key === 'Enter' && filteredCountries.length > 0) {
+                    submitGuess(filteredCountries[0]);
+                }
+            }}
+            placeholder="Guess a country..."
+            style={{
+              background: 'rgba(255,255,255,0.8)',
+              border: '1.5px solid rgba(167,139,250,0.3)',
+              borderRadius: 16,
+              padding: '12px 16px',
+              fontSize: 14,
+              fontWeight: 600,
+              color: '#1e1b4b',
+              outline: 'none',
+              width: '100%',
+              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
+            }}
+          />
           <AnimatePresence>
             {showDropdown && filteredCountries.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
-                className="absolute w-full mt-1 rounded-2xl overflow-hidden z-50"
-                style={{ background: "rgba(255,255,255,0.97)", backdropFilter: "blur(16px)", boxShadow: "0 8px 24px rgba(0,0,0,0.15)" }}
+                className="absolute w-full mt-2 z-50 overflow-hidden"
+                style={{
+                  background: 'rgba(255,255,255,0.95)',
+                  backdropFilter: 'blur(16px)',
+                  border: '1px solid rgba(167,139,250,0.2)',
+                  borderRadius: 16,
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+                }}
               >
-                {filteredCountries.map(c => (
+                {filteredCountries.map((c, idx) => (
                   <button
                     key={c.code}
                     onMouseDown={() => submitGuess(c)}
-                    className="w-full px-4 py-2.5 text-left font-bold text-sm flex items-center gap-3"
-                    style={{ color: "#1e3a8a", borderBottom: "1px solid rgba(0,0,0,0.05)" }}
+                    className="w-full px-4 py-3 text-left font-bold text-sm flex items-center gap-3 transition-colors hover:bg-purple-50"
+                    style={{ color: "#1e1b4b", borderBottom: idx < filteredCountries.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}
                   >
-                    <img src={FLAG_URL(c.code)} alt="" style={{ width: 24, height: 16, objectFit: "cover", borderRadius: 3 }} />
+                    <img src={FLAG_URL(c.code)} alt="" style={{ width: 24, height: 16, objectFit: "cover", borderRadius: 3, boxShadow: '0 1px 2px rgba(0,0,0,0.1)' }} />
                     {c.name}
                   </button>
                 ))}
@@ -153,33 +158,87 @@ export default function GloblePage() {
             )}
           </AnimatePresence>
         </div>
-      )}
 
-      {/* Guess list */}
-      {guesses.length > 0 && (
-        <div className="w-full max-w-sm mt-3 flex flex-col gap-1.5">
-          {[...guesses].reverse().slice(0, 5).map((g, i) => (
-            <motion.div key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: "rgba(255,255,255,0.6)", backdropFilter: "blur(8px)" }}>
-              <div className="w-3 h-3 rounded-full" style={{ background: pctToColor(g.pct, g.correct), flexShrink: 0 }} />
-              <img src={FLAG_URL(g.country.code)} alt="" style={{ width: 24, height: 15, objectFit: "cover", borderRadius: 2 }} />
-              <span className="font-bold text-xs flex-1" style={{ color: "#1e3a8a" }}>{g.country.name}</span>
-              <span className="font-bold text-xs" style={{ color: "#6b7280" }}>{g.correct ? "Correct!" : `${g.pct}%`}</span>
+        {/* Guess history */}
+        <div className="w-full flex flex-col gap-2 pb-24">
+          <AnimatePresence>
+          {[...guesses].reverse().map((g, i) => (
+            <motion.div
+              key={g.country.code + i}
+              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 0.05, type: "spring", stiffness: 400, damping: 25 }}
+              className="flex items-center gap-3"
+              style={{
+                background: 'rgba(255,255,255,0.6)',
+                backdropFilter: 'blur(8px)',
+                border: '1px solid rgba(255,255,255,0.8)',
+                borderRadius: 12,
+                padding: '10px 14px',
+              }}
+            >
+              <div className="w-3.5 h-3.5 rounded-full" style={{ background: pctToColor(g.pct, g.correct), boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2)' }} />
+              <img src={FLAG_URL(g.country.code)} alt="" style={{ width: 28, height: 18, objectFit: "cover", borderRadius: 4, boxShadow: '0 1px 3px rgba(0,0,0,0.15)' }} />
+              <span className="font-bold text-sm flex-1 truncate" style={{ color: "#1e1b4b" }}>{g.country.name}</span>
+              <span className="font-bold text-sm" style={{ color: g.correct ? "#10b981" : "#64748b" }}>{g.correct ? "Correct!" : `${g.pct}%`}</span>
             </motion.div>
           ))}
-          {guesses.length > 5 && <div className="text-center font-bold text-xs" style={{ color: "#9ca3af" }}>+{guesses.length - 5} more</div>}
+          </AnimatePresence>
         </div>
-      )}
+      </div>
 
-      {won && (
-        <div className="w-full max-w-sm mt-4 flex gap-3">
-          <Link href="/games" className="flex-1 no-underline">
-            <div className="py-3 rounded-2xl font-black text-center text-sm" style={{ background: "rgba(255,255,255,0.8)", color: "#1e3a8a" }}>All Games</div>
-          </Link>
-          <div className="flex-1 py-3 rounded-2xl font-black text-center text-sm" style={{ background: "linear-gradient(180deg,#60A5FA,#2563EB)", color: "white" }}>
-            Back in {hoursUntilReset}h
-          </div>
-        </div>
-      )}
+      {/* Win Overlay */}
+      <AnimatePresence>
+        {won && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 z-50 flex items-center justify-center px-4"
+            style={{ 
+                background: 'rgba(20, 184, 166, 0.4)',
+                backdropFilter: 'blur(16px)'
+            }}
+          >
+            <motion.div 
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                className="w-full max-w-sm rounded-3xl p-6 flex flex-col items-center text-center"
+                style={{
+                    background: 'linear-gradient(135deg, #ffffff, #f8fafc)',
+                    boxShadow: '0 24px 48px rgba(0,0,0,0.2)',
+                    border: '1px solid rgba(255,255,255,0.8)'
+                }}
+            >
+                <div className="font-black text-3xl mb-2" style={{ color: '#0d9488' }}>
+                    You got it!
+                </div>
+                <div className="font-bold text-base mb-6" style={{ color: '#475569' }}>
+                    Solved in {guesses.length} {guesses.length === 1 ? 'guess' : 'guesses'}
+                </div>
+                
+                <div className="relative rounded-2xl overflow-hidden mb-8" style={{ width: 160, height: 106, boxShadow: "0 8px 24px rgba(0,0,0,0.12)" }}>
+                    <img src={FLAG_URL(answer.code)} alt={answer.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                </div>
+                
+                <div className="font-black text-2xl mb-8" style={{ color: '#1e1b4b' }}>
+                    {answer.name}
+                </div>
+
+                <div className="w-full flex gap-3">
+                    <Link href="/games" className="flex-1 no-underline">
+                        <div className="py-3.5 rounded-2xl font-black text-sm text-center" style={{ background: "rgba(167,139,250,0.1)", color: "#7c3aed" }}>
+                            Games Hub
+                        </div>
+                    </Link>
+                    <div className="flex-1 py-3.5 rounded-2xl font-black text-sm text-white" style={{ background: "linear-gradient(180deg, #F59E0B, #D97706)", boxShadow: "0 4px 12px rgba(245,158,11,0.3)" }}>
+                        Share
+                    </div>
+                </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

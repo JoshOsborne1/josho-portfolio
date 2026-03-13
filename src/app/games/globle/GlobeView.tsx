@@ -27,6 +27,7 @@ function Globe() {
     if (meshRef.current) meshRef.current.rotation.y += delta * 0.08;
   });
 
+  // Use a softer, more stylistic texture to match the glassmorphism theme
   const texture = new THREE.TextureLoader().load(
     "https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
   );
@@ -34,7 +35,8 @@ function Globe() {
   return (
     <mesh ref={meshRef}>
       <sphereGeometry args={[2, 64, 64]} />
-      <meshStandardMaterial map={texture} />
+      {/* Lighten the globe to fit the brighter theme */}
+      <meshStandardMaterial map={texture} color="#ffffff" roughness={0.6} />
     </mesh>
   );
 }
@@ -43,8 +45,8 @@ function Marker({ lat, lng, color }: MarkerData) {
   const [x, y, z] = latLngToXYZ(lat, lng, 2.06);
   return (
     <mesh position={[x, y, z]}>
-      <sphereGeometry args={[0.05, 8, 8]} />
-      <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.6} />
+      <sphereGeometry args={[0.06, 16, 16]} />
+      <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.8} />
     </mesh>
   );
 }
@@ -59,19 +61,20 @@ export default function GlobeView({ guesses, answerLat, answerLng }: GlobeViewPr
   return (
     <Canvas
       camera={{ position: [0, 0, 5.5], fov: 45 }}
-      style={{ height: 280 }}
-      gl={{ antialias: true }}
+      style={{ width: '100%', height: '100%', borderRadius: 'inherit' }}
+      gl={{ antialias: true, alpha: true }}
     >
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[5, 3, 5]} intensity={0.8} />
+      <ambientLight intensity={0.8} />
+      <directionalLight position={[5, 3, 5]} intensity={1.2} color="#ffffff" />
+      <directionalLight position={[-5, -3, -5]} intensity={0.5} color="#A78BFA" />
       <Globe />
       {guesses.map((g, i) => (
         <Marker key={i} lat={g.lat} lng={g.lng} color={g.color} />
       ))}
       {answerLat !== undefined && answerLng !== undefined && (
-        <Marker lat={answerLat} lng={answerLng} color="#FFD700" />
+        <Marker lat={answerLat} lng={answerLng} color="#F59E0B" />
       )}
-      <OrbitControls enableZoom={false} autoRotate={false} />
+      <OrbitControls enableZoom={false} autoRotate={false} enablePan={false} />
     </Canvas>
   );
 }
