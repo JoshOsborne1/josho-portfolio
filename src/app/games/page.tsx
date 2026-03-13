@@ -3,13 +3,45 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { DailyProgressSidebar, DailyProgressStrip } from "./components/DailyProgress";
+import { DailyProgressStrip } from "./components/DailyProgress";
 import { useAllDailyStatus } from "./components/useDaily";
 import { useSubscription } from "./components/useSubscription";
 import { ProGate } from "./components/ProGate";
 import { ProBadge } from "./components/ProBadge";
 
-const games = [
+const CATEGORIES = [
+  {
+    id: 'word',
+    label: 'Word Games',
+    icon: '✦',  // use text/emoji icon - no external icon lib
+    color: '#A78BFA',
+    games: ['word','wordchain','wordscramble','crossword']
+  },
+  {
+    id: 'numbers',
+    label: 'Number & Logic',
+    icon: '#',
+    color: '#5EEAD4',
+    games: ['2048','sudoku','math','memory','trivia']
+  },
+  {
+    id: 'geography',
+    label: 'Geography',
+    icon: '◎',
+    color: '#F59E0B',
+    games: ['flagle','worldle','globle','travle']
+  },
+  {
+    id: 'music',
+    label: 'Music',
+    icon: '♪',
+    color: '#F472B6',
+    games: ['wave']
+  }
+];
+
+// Original games array - keeping existing game data
+const allGames = [
   {
     slug: "word",
     title: "Word Guess",
@@ -352,6 +384,32 @@ const games = [
       });
     },
   },
+  {
+    slug: "wave",
+    title: "Wave",
+    desc: "The original josho.pro party game",
+    difficulty: 2,
+    canvasColor: ["#F472B6", "#EC4899"],
+    drawPreview: (ctx: CanvasRenderingContext2D, w: number, h: number, t: number) => {
+      ctx.clearRect(0, 0, w, h);
+      const points = [];
+      for (let x = 0; x <= w; x += w / 10) {
+        const y = h / 2 + Math.sin(t * 2 + x * 0.1) * (h / 4);
+        points.push({x, y});
+      }
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+      }
+      const grad = ctx.createLinearGradient(0, 0, w, h);
+      grad.addColorStop(0, "#F472B6");
+      grad.addColorStop(1, "#EC4899");
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    },
+  }
 ];
 
 function GamePreviewCanvas({
@@ -416,159 +474,281 @@ export default function GamesPage() {
     }
   }, []);
 
+  // Calculate completed games per category
+  const categoryStats = CATEGORIES.map(category => {
+    const categoryGames = allGames.filter(game => category.games.includes(game.slug));
+    const completedInCategory = categoryGames.filter(game => statuses[game.slug]).length;
+    return {
+      id: category.id,
+      completed: completedInCategory,
+      total: categoryGames.length
+    };
+  });
+
+  // Filter games by category
+  const gamesByCategory = CATEGORIES.map(category => {
+    return {
+      ...category,
+      games: allGames.filter(game => category.games.includes(game.slug))
+    };
+  });
+
   return (
     <>
-    {showProGate && <ProGate onClose={() => setShowProGate(false)} />}
-    <div
-      className="min-h-screen"
-      style={{
-        background: "linear-gradient(135deg, #F0EBFF 0%, #E8F4FF 50%, #F0FFF8 100%)",
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-      }}
-    >
-      {/* Mobile-only strip */}
-      <div className="block lg:hidden">
-        <DailyProgressStrip />
-      </div>
-
-      {/* Desktop layout: sidebar + main */}
-      <div className="flex gap-8 max-w-6xl mx-auto px-4 lg:px-8">
-
-        {/* Main content */}
-        <div className="flex-1 min-w-0">
-          {/* Header */}
-          <div className="pt-8 pb-4">
-            <div className="flex items-center justify-between">
-              <Link href="/" className="no-underline flex items-center gap-2">
-                <div
-                  className="flex items-center justify-center font-black text-white rounded-2xl"
-                  style={{
-                    width: 44, height: 44,
-                    background: "linear-gradient(135deg, #C4B5FD 0%, #A78BFA 100%)",
-                    boxShadow: "0 8px 20px rgba(167,139,250,0.35), inset 0 2px 4px rgba(255,255,255,0.35)",
-                    fontSize: 20,
-                  }}
-                >P</div>
-                <div className="flex flex-col leading-none">
-                  <span className="font-black text-base" style={{ color: "#A78BFA", letterSpacing: "0.06em" }}>PLAY</span>
-                  <span className="font-bold text-xs" style={{ color: "#94a3b8", letterSpacing: "0.1em" }}>josho.pro</span>
-                </div>
-              </Link>
-              <div
-                className="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-xl"
-                style={{ background: "rgba(255,255,255,0.6)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.8)", color: "#7c3aed" }}
-              >
-                13 Games {isPro && <ProBadge />}
-              </div>
-            </div>
-
-            {/* Hero */}
-            <div className="mt-10 mb-8">
-              <motion.h1
-                initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-                className="font-black text-4xl md:text-5xl leading-tight mb-3"
-                style={{ color: "#1e1b4b", letterSpacing: "-0.03em" }}
-              >
-                Think fast.<br />Play well.
-              </motion.h1>
-              <motion.p
-                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                className="font-bold text-base" style={{ color: "#64748b" }}
-              >
-                13 Games. No account. No ads. Free daily.
-              </motion.p>
-            </div>
-
-            {/* Featured: Wave */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-              className="mb-8 rounded-[32px] overflow-hidden"
-              style={{ background: "rgba(255,255,255,0.6)", backdropFilter: "blur(24px)", boxShadow: "0 16px 40px rgba(167,139,250,0.12), inset 0 2px 4px rgba(255,255,255,0.8)", border: "1px solid rgba(255,255,255,0.8)" }}
+      {showProGate && <ProGate onClose={() => setShowProGate(false)} />}
+      
+      <div
+        className="min-h-screen pb-11"
+        style={{
+          background: "linear-gradient(135deg, #F0EBFF 0%, #E8F4FF 50%, #F0FFF8 100%)",
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        }}
+      >
+        {/* Top Bar */}
+        <div 
+          className="sticky top-0 z-10 flex items-center justify-between px-4 py-3"
+          style={{
+            height: 52,
+            background: "rgba(255,255,255,0.6)",
+            backdropFilter: "blur(12px)",
+            borderBottom: "1px solid rgba(255,255,255,0.8)"
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <div
+              className="flex items-center justify-center font-black text-white rounded-2xl"
+              style={{
+                width: 32, height: 32,
+                background: "linear-gradient(135deg, #C4B5FD 0%, #A78BFA 100%)",
+                boxShadow: "0 4px 12px rgba(167,139,250,0.25), inset 0 2px 4px rgba(255,255,255,0.35)",
+                fontSize: 14,
+              }}
+            >G</div>
+            <span className="font-black text-sm" style={{ color: "#A78BFA", letterSpacing: "0.06em" }}>Games</span>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            {isPro && <ProBadge />}
+            <div 
+              className="text-xs font-bold uppercase tracking-widest px-2 py-1 rounded-lg"
+              style={{ 
+                background: "rgba(167,139,250,0.12)", 
+                color: "#7c3aed",
+                minWidth: 70,
+                textAlign: 'center'
+              }}
             >
-              <div className="p-6 flex items-center justify-between flex-wrap gap-4">
-                <div className="flex flex-col gap-2">
-                  <div className="text-xs font-black uppercase tracking-widest px-3 py-1 rounded-xl w-fit" style={{ background: "rgba(167,139,250,0.12)", color: "#7c3aed" }}>Flagship</div>
-                  <h2 className="font-black text-2xl" style={{ color: "#1e1b4b" }}>Wave</h2>
-                  <p className="font-bold text-sm" style={{ color: "#64748b" }}>The original josho.pro party game - clue giving, dials, and teams</p>
-                  <DifficultyDots level={2} />
-                </div>
-                <Link href="/games/wave" className="no-underline">
-                  <motion.div whileTap={{ scale: 0.95 }} className="px-6 py-3 rounded-2xl font-black text-white"
-                    style={{ background: "linear-gradient(180deg, #C4B5FD 0%, #A78BFA 100%)", boxShadow: "0 12px 24px rgba(167,139,250,0.3)", border: "1px solid rgba(255,255,255,0.5)" }}>
-                    Play Wave
-                  </motion.div>
-                </Link>
-              </div>
-            </motion.div>
+              24h left
+            </div>
           </div>
+        </div>
 
-          {/* Games Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 pb-12">
-            {games.map((game, index) => {
-              const done = statuses[game.slug] != null;
-              return (
-                <motion.div
-                  key={game.slug}
-                  initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 + index * 0.04 }}
-                  onMouseEnter={() => setHoveredSlug(game.slug)}
-                  onMouseLeave={() => setHoveredSlug(null)}
-                >
-                  <Link
-                    href={!done && !isPro && completedCount >= DAILY_LIMIT ? "#" : `/games/${game.slug}`}
-                    onClick={!done && !isPro && completedCount >= DAILY_LIMIT ? (e) => { e.preventDefault(); setShowProGate(true); } : undefined}
-                    className="no-underline block h-full"
-                  >
-                    <motion.div
-                      className="p-4 h-full flex flex-col gap-3 cursor-pointer relative overflow-hidden"
-                      style={{
-                        background: done ? "rgba(240,255,244,0.75)" : "rgba(255,255,255,0.6)",
-                        backdropFilter: "blur(24px)",
-                        borderRadius: 24,
-                        boxShadow: done
-                          ? "0 8px 24px rgba(74,222,128,0.10), inset 0 2px 4px rgba(255,255,255,0.8)"
-                          : "0 8px 24px rgba(0,0,0,0.04), inset 0 2px 4px rgba(255,255,255,0.8)",
-                        border: done ? "1px solid rgba(74,222,128,0.25)" : "1px solid rgba(255,255,255,0.8)",
+        {/* Daily Progress Strip */}
+        <div className="px-4 py-2">
+          <div 
+            className="text-xs font-bold flex items-center justify-between px-3 py-1.5 rounded-xl"
+            style={{ 
+              background: "rgba(255,255,255,0.6)", 
+              backdropFilter: "blur(12px)", 
+              border: "1px solid rgba(255,255,255,0.8)", 
+              color: "#7c3aed" 
+            }}
+          >
+            <span>Today: {completedCount}/13 completed</span>
+            <span>Resets in 4h 22m</span>
+            {isPro && <span className="text-purple-600">PRO: unlimited</span>}
+          </div>
+        </div>
+
+        {/* Category Sections */}
+        <div className="px-4 py-4 space-y-8">
+          {gamesByCategory.map((category, catIndex) => {
+            const catStat = categoryStats.find(stat => stat.id === category.id);
+            return (
+              <div key={category.id}>
+                {/* Category Header */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div 
+                      className="text-lg"
+                      style={{ 
+                        color: category.color,
+                        width: 24,
+                        height: 24,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
                       }}
-                      whileHover={{ boxShadow: "0 12px 32px rgba(167,139,250,0.15)", y: -2 }}
-                      whileTap={{ scale: 0.98 }}
                     >
-                      {done && (
-                        <div className="absolute top-3 right-3 rounded-full flex items-center justify-center font-black text-[10px]"
-                          style={{ width: 20, height: 20, background: "linear-gradient(135deg,#86EFAC,#4ADE80)", color: "#166534" }}>
-                          ✓
-                        </div>
-                      )}
-                      <div className="rounded-2xl overflow-hidden flex items-center justify-center self-start"
-                        style={{ width: 60, height: 60, background: `linear-gradient(135deg, ${game.canvasColor[0]}22 0%, ${game.canvasColor[1]}22 100%)` }}>
-                        <GamePreviewCanvas draw={game.drawPreview} isHovered={hoveredSlug === game.slug} />
-                      </div>
-                      <div className="flex flex-col gap-1 flex-1">
-                        <div className="font-black text-sm" style={{ color: "#1e1b4b" }}>{game.title}</div>
-                        <div className="font-bold text-xs leading-snug" style={{ color: "#64748b" }}>{game.desc}</div>
-                        {done && <div className="font-bold text-[10px] mt-0.5" style={{ color: "#4ADE80" }}>View result</div>}
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <DifficultyDots level={game.difficulty} />
-                        <motion.div className="px-3 py-1 rounded-xl font-black text-xs text-white"
-                          style={{ background: done ? "linear-gradient(180deg,#86EFAC,#4ADE80)" : "linear-gradient(180deg, #C4B5FD 0%, #A78BFA 100%)", boxShadow: "0 4px 12px rgba(167,139,250,0.3)", color: done ? "#166534" : "#fff" }}>
-                          {done ? "Review" : "Play"}
-                        </motion.div>
-                      </div>
-                    </motion.div>
-                  </Link>
-                </motion.div>
-              );
-            })}
-          </div>
+                      {category.icon}
+                    </div>
+                    <h2 
+                      className="font-black text-lg"
+                      style={{ color: "#1e1b4b" }}
+                    >
+                      {category.label}
+                    </h2>
+                  </div>
+                  <div 
+                    className="text-xs font-bold px-2.5 py-1 rounded-full"
+                    style={{ 
+                      background: "rgba(167,139,250,0.12)", 
+                      color: "#7c3aed" 
+                    }}
+                  >
+                    {catStat?.completed}/{catStat?.total} completed
+                  </div>
+                </div>
+
+                {/* Game Cards Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {category.games.map((game, gameIndex) => {
+                    const done = statuses[game.slug] != null;
+                    const canPlayNew = isPro || completedCount < DAILY_LIMIT;
+                    const isLocked = !done && !canPlayNew;
+                    
+                    return (
+                      <motion.div
+                        key={game.slug}
+                        initial={{ opacity: 0, y: 16 }} 
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.05 * (catIndex * 5 + gameIndex) }}
+                        className="relative"
+                        style={{
+                          width: '100%',
+                          height: 200,
+                        }}
+                      >
+                        <Link
+                          href={isLocked ? "#" : `/games/${game.slug}`}
+                          onClick={isLocked ? (e) => { e.preventDefault(); setShowProGate(true); } : undefined}
+                          className="no-underline block h-full"
+                        >
+                          <motion.div
+                            className="h-full flex flex-col gap-3 p-3 rounded-2xl cursor-pointer relative overflow-hidden"
+                            style={{
+                              background: isLocked 
+                                ? "rgba(220,220,220,0.3)" 
+                                : done 
+                                  ? "rgba(240,255,244,0.75)" 
+                                  : "rgba(255,255,255,0.6)",
+                              backdropFilter: "blur(24px)",
+                              boxShadow: done
+                                ? "0 8px 24px rgba(74,222,128,0.10), inset 0 2px 4px rgba(255,255,255,0.8)"
+                                : "0 8px 24px rgba(0,0,0,0.04), inset 0 2px 4px rgba(255,255,255,0.8)",
+                              border: done 
+                                ? "1px solid rgba(74,222,128,0.25)" 
+                                : isLocked
+                                  ? "1px solid rgba(200,200,200,0.3)"
+                                  : "1px solid rgba(255,255,255,0.8)",
+                            }}
+                            whileHover={{ boxShadow: "0 12px 32px rgba(167,139,250,0.15)", y: -2 }}
+                            whileTap={{ scale: 0.98 }}
+                            onMouseEnter={() => setHoveredSlug(game.slug)}
+                            onMouseLeave={() => setHoveredSlug(null)}
+                          >
+                            {/* Lock overlay for locked games */}
+                            {isLocked && (
+                              <div className="absolute inset-0 flex items-center justify-center z-10 bg-white bg-opacity-50">
+                                <div className="text-gray-500 text-2xl">🔒</div>
+                              </div>
+                            )}
+                            
+                            {/* Checkmark overlay for completed games */}
+                            {done && (
+                              <div className="absolute top-2 right-2 rounded-full flex items-center justify-center font-black text-xs z-10"
+                                style={{ width: 20, height: 20, background: "linear-gradient(135deg,#86EFAC,#4ADE80)", color: "#166534" }}>
+                                ✓
+                              </div>
+                            )}
+                            
+                            {/* Game preview canvas - only for playable unplayed games */}
+                            {!done && !isLocked && (
+                              <div className="rounded-xl overflow-hidden flex items-center justify-center self-start mx-auto"
+                                style={{ width: 60, height: 60, background: `linear-gradient(135deg, ${game.canvasColor[0]}22 0%, ${game.canvasColor[1]}22 100%)` }}>
+                                <GamePreviewCanvas draw={game.drawPreview} isHovered={hoveredSlug === game.slug} />
+                              </div>
+                            )}
+                            
+                            {/* Category-colored background for completed/locked states */}
+                            {(done || isLocked) && (
+                              <div 
+                                className="rounded-xl overflow-hidden flex items-center justify-center self-start mx-auto"
+                                style={{ 
+                                  width: 60, 
+                                  height: 60, 
+                                  background: `linear-gradient(135deg, ${category.color}22 0%, ${category.color}44 100%)` 
+                                }}
+                              >
+                                <div className="text-2xl" style={{ color: category.color }}>
+                                  {game.slug === 'wave' ? '♪' : 
+                                   game.slug.includes('word') ? '✦' :
+                                   game.slug.includes('2048') || game.slug.includes('sudoku') || game.slug.includes('math') || game.slug.includes('memory') || game.slug.includes('trivia') ? '#' :
+                                   game.slug.includes('flagle') || game.slug.includes('worldle') || game.slug.includes('globle') || game.slug.includes('travle') ? '◎' : '✦'}
+                                </div>
+                              </div>
+                            )}
+                            
+                            <div className="flex flex-col gap-1 flex-1">
+                              <div className="font-black text-sm" style={{ color: "#1e1b4b" }}>{game.title}</div>
+                              <div className="font-bold text-xs leading-snug" style={{ color: "#64748b" }}>{game.desc}</div>
+                              {done && <div className="font-bold text-[10px] mt-0.5" style={{ color: "#4ADE80" }}>Completed today</div>}
+                              {isLocked && <div className="font-bold text-[10px] mt-0.5" style={{ color: "#94a3b8" }}>Limit reached</div>}
+                            </div>
+                            
+                            <div className="flex items-center justify-between">
+                              <DifficultyDots level={game.difficulty} />
+                              <motion.div 
+                                className={`px-3 py-1 rounded-xl font-black text-xs text-white ${
+                                  done ? 'bg-green-500' : isLocked ? 'bg-gray-400' : ''
+                                }`}
+                                style={{ 
+                                  background: done 
+                                    ? "linear-gradient(180deg,#86EFAC,#4ADE80)" 
+                                    : isLocked
+                                      ? "linear-gradient(180deg, #d1d5db 0%, #9ca3af 100%)"
+                                      : "linear-gradient(180deg, #C4B5FD 0%, #A78BFA 100%)",
+                                  boxShadow: done 
+                                    ? "0 4px 12px rgba(74,222,128,0.3)" 
+                                    : isLocked
+                                      ? "0 4px 12px rgba(156,163,175,0.3)"
+                                      : "0 4px 12px rgba(167,139,250,0.3)",
+                                  color: done ? "#166534" : isLocked ? "#4b5563" : "#fff"
+                                }}
+                              >
+                                {done ? "Review" : isLocked ? "Locked" : "Play"}
+                              </motion.div>
+                            </div>
+                          </motion.div>
+                        </Link>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
         </div>
 
-        {/* Desktop sidebar */}
-        <div className="hidden lg:block pt-8" style={{ width: 240, flexShrink: 0 }}>
-          <DailyProgressSidebar />
-        </div>
+        {/* Subscription CTA Strip (only for non-pro users) */}
+        {!isPro && (
+          <div 
+            className="fixed bottom-0 left-0 right-0 flex items-center justify-between px-4 py-3 z-20"
+            style={{ 
+              height: 44,
+              background: "linear-gradient(90deg, #A78BFA 0%, #7C3AED 100%)",
+            }}
+          >
+            <span className="font-bold text-white text-sm">Free: 5 games/day</span>
+            <button 
+              onClick={() => setShowProGate(true)}
+              className="font-bold text-white flex items-center gap-1"
+            >
+              Go Pro for unlimited <span>→</span>
+            </button>
+          </div>
+        )}
       </div>
-    </div>
     </>
   );
 }
