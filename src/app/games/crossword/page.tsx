@@ -82,7 +82,8 @@ function initBoard(grid: string[][]): string[][] {
 }
 
 export default function CrosswordGame() {
-  const { canPlay, markPlayed, hoursUntilReset, completionEntry } = useDaily('crossword');
+  const { canPlay, markPlayed, hoursUntilReset, completionEntry, ready } = useDaily('crossword');
+  if (!ready) return <div className="min-h-screen" style={{background:"linear-gradient(135deg,#F0EBFF,#E8F4FF,#F0FFF8)"}} />;
   const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
   const [puzzle] = useState(() => getRandomPuzzle());
   const [board, setBoard] = useState(() => initBoard(puzzle.grid));

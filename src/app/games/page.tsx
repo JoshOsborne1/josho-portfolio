@@ -359,7 +359,7 @@ export default function GamesPage() {
                 className="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-xl"
                 style={{ background: "rgba(255,255,255,0.6)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.8)", color: "#7c3aed" }}
               >
-                9 Free Games
+                9 Games
               </div>
             </div>
 
@@ -376,7 +376,7 @@ export default function GamesPage() {
                 initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
                 className="font-bold text-base" style={{ color: "#64748b" }}
               >
-                9 games. No account. No ads. Just play.
+                9 games. No account. No ads. Free daily.
               </motion.p>
             </div>
 
@@ -393,7 +393,7 @@ export default function GamesPage() {
                   <p className="font-bold text-sm" style={{ color: "#64748b" }}>The original josho.pro party game - clue giving, dials, and teams</p>
                   <DifficultyDots level={2} />
                 </div>
-                <Link href="/wave" className="no-underline">
+                <Link href="/games/wave" className="no-underline">
                   <motion.div whileTap={{ scale: 0.95 }} className="px-6 py-3 rounded-2xl font-black text-white"
                     style={{ background: "linear-gradient(180deg, #C4B5FD 0%, #A78BFA 100%)", boxShadow: "0 12px 24px rgba(167,139,250,0.3)", border: "1px solid rgba(255,255,255,0.5)" }}>
                     Play Wave

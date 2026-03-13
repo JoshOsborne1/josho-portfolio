@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 export const ALL_GAME_SLUGS = [
-  'word','sudoku','2048','trivia','memory','wordchain','math','crossword','wordscramble'
+  'word','sudoku','2048','trivia','memory','wordchain','math','crossword','wordscramble','wave'
 ];
 
 export const GAME_LABELS: Record<string, string> = {
@@ -16,6 +16,7 @@ export const GAME_LABELS: Record<string, string> = {
   math: 'Math',
   crossword: 'Crossword',
   wordscramble: 'Scramble',
+  wave: 'Wave',
 };
 
 export type DailyEntry = {

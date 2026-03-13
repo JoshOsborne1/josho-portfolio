@@ -71,7 +71,8 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 export default function TriviaGame() {
-  const { canPlay, markPlayed, hoursUntilReset, completionEntry } = useDaily('trivia');
+  const { canPlay, markPlayed, hoursUntilReset, completionEntry, ready } = useDaily('trivia');
+  if (!ready) return <div className="min-h-screen" style={{background:"linear-gradient(135deg,#F0EBFF,#E8F4FF,#F0FFF8)"}} />;
   const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
   if (!canPlay) {
     return (

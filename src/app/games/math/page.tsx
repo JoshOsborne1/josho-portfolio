@@ -36,7 +36,8 @@ function generateQuestion(difficulty: "easy" | "medium" | "hard") {
 }
 
 export default function MathGame() {
-  const { canPlay, markPlayed, hoursUntilReset, completionEntry } = useDaily('math');
+  const { canPlay, markPlayed, hoursUntilReset, completionEntry, ready } = useDaily('math');
+  if (!ready) return <div className="min-h-screen" style={{background:"linear-gradient(135deg,#F0EBFF,#E8F4FF,#F0FFF8)"}} />;
   const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
   if (!canPlay) {
     return (

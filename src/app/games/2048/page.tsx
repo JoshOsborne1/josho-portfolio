@@ -101,7 +101,8 @@ function hasLost(grid: Grid): boolean {
 }
 
 export default function Game2048() {
-  const { canPlay, markPlayed, hoursUntilReset, completionEntry } = useDaily('2048');
+  const { canPlay, markPlayed, hoursUntilReset, completionEntry, ready } = useDaily('2048');
+  if (!ready) return <div className="min-h-screen" style={{background:"linear-gradient(135deg,#F0EBFF,#E8F4FF,#F0FFF8)"}} />;
   const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
   const [grid, setGrid] = useState<Grid>(() => addRandomTile(addRandomTile(emptyGrid())));
   const [score, setScore] = useState(0);
