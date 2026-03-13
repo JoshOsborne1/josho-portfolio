@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { VALID_GUESSES } from "./validGuesses";
 import { useDaily } from "../components/useDaily";
 import { useSounds } from "../components/useSounds";
 
@@ -139,10 +140,12 @@ function getRandomWord() {
 
 function scoreGuess(guess: string, target: string): LetterState[] {
   const result: LetterState[] = Array(5).fill("absent");
-  const remaining = target.split("");
+  const g = guess.toLowerCase();
+  const t = target.toLowerCase();
+  const remaining = t.split("");
   // First pass: correct
   for (let i = 0; i < 5; i++) {
-    if (guess[i] === target[i]) {
+    if (g[i] === t[i]) {
       result[i] = "correct";
       remaining[i] = "";
     }
@@ -150,7 +153,7 @@ function scoreGuess(guess: string, target: string): LetterState[] {
   // Second pass: present
   for (let i = 0; i < 5; i++) {
     if (result[i] === "correct") continue;
-    const idx = remaining.indexOf(guess[i]);
+    const idx = remaining.indexOf(g[i]);
     if (idx !== -1) {
       result[i] = "present";
       remaining[idx] = "";
@@ -215,7 +218,8 @@ export default function WordGame() {
       return;
     }
     const guess = guesses[currentRow].map(c => c.letter).join("");
-    if (!WORDS.map(w => w.toUpperCase()).includes(guess) && !WORDS.includes(guess.toLowerCase())) {
+    const guessLower = guess.toLowerCase();
+    if (!WORDS.includes(guessLower) && !VALID_GUESSES.has(guessLower)) {
       setMessage("Not in word list");
       setShakeRow(currentRow);
       playError(); vibrate([50]);
@@ -241,7 +245,7 @@ export default function WordGame() {
     }
     setKeyStates(newKeyStates);
 
-    if (guess === target) {
+    if (guess.toLowerCase() === target.toLowerCase()) {
       const newStreak = streak + 1;
       setStreak(newStreak);
       if (typeof window !== "undefined") localStorage.setItem("word-streak", String(newStreak));
