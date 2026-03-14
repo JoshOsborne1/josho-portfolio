@@ -7,6 +7,7 @@ import { CompletedReplay } from "../components/CompletedReplay";
 import { useDaily } from "../components/useDaily";
 import { useSounds } from "../components/useSounds";
 import Timer from "../components/Timer";
+import GameShell from "../components/GameShell";
 
 const QUESTIONS = [
   { q:"What planet is closest to the Sun?", opts:["Mercury","Venus","Mars","Earth"], a:0, cat:"Science" },

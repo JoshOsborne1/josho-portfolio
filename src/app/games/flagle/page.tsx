@@ -8,6 +8,7 @@ import {
   COUNTRIES, getDailySeed, getCountryByIndex, haversineKm,
   bearingDeg, proximityPct, bearingArrow, FLAG_URL, type Country
 } from "../geo/data";
+import GameShell from "../components/GameShell";
 
 interface Guess {
   country: Country;
@@ -71,6 +72,7 @@ export default function FlaglePage() {
   }
 
   return (
+    <GameShell gameSlug="flagle" gameTitle="Flagle">
     <div className="min-h-screen flex flex-col items-center pb-8" style={{ background: 'linear-gradient(135deg, #F0EBFF 0%, #E8F4FF 50%, #F0FFF8 100%)', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
       {/* Top Bar */}
       <div className="sticky top-0 w-full z-20 flex items-center justify-between px-4 h-14"
@@ -275,5 +277,6 @@ export default function FlaglePage() {
         )}
       </AnimatePresence>
     </div>
+    </GameShell>
   );
 }

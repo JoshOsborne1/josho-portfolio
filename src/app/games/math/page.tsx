@@ -6,6 +6,7 @@ import Link from "next/link";
 import { CompletedReplay } from "../components/CompletedReplay";
 import { useDaily } from "../components/useDaily";
 import { useSounds } from "../components/useSounds";
+import GameShell from "../components/GameShell";
 
 function generateQuestion(difficulty: "easy" | "medium" | "hard") {
   const max = difficulty === "easy" ? 10 : difficulty === "medium" ? 50 : 100;

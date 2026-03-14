@@ -6,6 +6,7 @@ import Link from "next/link";
 import { CompletedReplay } from "../components/CompletedReplay";
 import { useDaily } from "../components/useDaily";
 import { useSounds } from "../components/useSounds";
+import GameShell from "../components/GameShell";
 
 const PAIRS = ["AA","BB","CC","DD","EE","FF","GG","HH"];
 const PAIR_COLORS: Record<string, { bg: string; text: string }> = {

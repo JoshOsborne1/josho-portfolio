@@ -6,6 +6,7 @@ import Link from "next/link";
 import { CompletedReplay } from "../components/CompletedReplay";
 import { useDaily } from "../components/useDaily";
 import { useSounds } from "../components/useSounds";
+import GameShell from "../components/GameShell";
 
 // 10 themed 5x5 mini crossword puzzles
 // grid: 5x5, '#' = black cell, letter = solution

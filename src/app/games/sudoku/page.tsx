@@ -6,6 +6,7 @@ import Link from "next/link";
 import { CompletedReplay } from "../components/CompletedReplay";
 import { useDaily } from "../components/useDaily";
 import { useSounds } from "../components/useSounds";
+import GameShell from "../components/GameShell";
 
 // --- 6x6 Sudoku: rows/cols/boxes unique, numbers 1-6 ---
 // Boxes: 3 cols x 2 rows = 6 boxes

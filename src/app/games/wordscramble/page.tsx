@@ -6,6 +6,7 @@ import Link from "next/link";
 import { CompletedReplay } from "../components/CompletedReplay";
 import { useDaily } from "../components/useDaily";
 import { useSounds } from "../components/useSounds";
+import GameShell from "../components/GameShell";
 
 const WORD_BANK = [
   "PROBLEM","KITCHEN","CRYSTAL","JOURNEY","CABINET","DOLPHIN","FORTUNE","BLANKET",

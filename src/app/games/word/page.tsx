@@ -170,6 +170,8 @@ const STATE_COLORS: Record<LetterState, { bg: string; text: string }> = {
   active: { bg: "rgba(255,255,255,0.9)", text: "#1e1b4b" },
 };
 
+import GameShell from "../components/GameShell";
+
 export default function WordGame() {
   const { canPlay, markPlayed, hoursUntilReset, completionEntry, ready } = useDaily('word');
   const { playTap, playSuccess, playError, playWin, vibrate } = useSounds();
@@ -288,13 +290,7 @@ export default function WordGame() {
   };
 
   return (
-    <div
-      className="min-h-screen flex flex-col"
-      style={{
-        background: "linear-gradient(135deg, #F0EBFF 0%, #E8F4FF 50%, #F0FFF8 100%)",
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-      }}
-    >
+    <GameShell gameSlug="word" gameTitle="Word Guess">
       {!canPlay && completionEntry && (() => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const snap = completionEntry.snapshot as any;
@@ -303,14 +299,6 @@ export default function WordGame() {
         const colors: Record<string,string> = { correct:'#4ADE80', present:'#FBBF24', absent:'rgba(0,0,0,0.08)', active:'rgba(0,0,0,0.04)' };
         return (
           <div className="min-h-screen flex flex-col" style={{ background:"linear-gradient(135deg,#F0EBFF,#E8F4FF,#F0FFF8)", fontFamily:'-apple-system,sans-serif' }}>
-            <div className="flex items-center justify-between px-4 pt-4 pb-2">
-              <Link href="/games" className="no-underline flex items-center gap-2">
-                <div style={{ width:32,height:32,background:"linear-gradient(135deg,#C4B5FD,#A78BFA)",borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:900,fontSize:14 }}>P</div>
-                <span className="font-black text-xs" style={{ color:"#A78BFA" }}>PLAY</span>
-              </Link>
-              <span className="font-black text-base" style={{ color:"#1e1b4b" }}>Word Guess</span>
-              <div />
-            </div>
             <div className="flex flex-col items-center gap-4 pt-6 px-4">
               <div className="font-black text-2xl" style={{ color: won ? "#4ADE80" : "#ef4444" }}>{won ? "Solved!" : "Nice try"}</div>
               <div className="font-bold text-sm" style={{ color:"#94a3b8" }}>
@@ -346,17 +334,6 @@ export default function WordGame() {
         </div>
       )}
       {canPlay && (<>
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 pt-4 pb-2 max-w-lg mx-auto w-full">
-        <Link href="/games" className="no-underline flex items-center gap-2">
-          <div className="flex items-center justify-center font-black text-white rounded-xl text-sm" style={{ width:32,height:32,background:"linear-gradient(135deg,#C4B5FD,#A78BFA)",boxShadow:"0 4px 12px rgba(167,139,250,0.4)" }}>P</div>
-          <span className="font-black text-xs" style={{ color:"#A78BFA" }}>PLAY</span>
-        </Link>
-        <span className="font-black text-base" style={{ color:"#1e1b4b" }}>Word Guess</span>
-        <div className="flex items-center gap-1 px-2 py-1 rounded-xl" style={{ background:"rgba(167,139,250,0.1)", border:"1px solid rgba(167,139,250,0.2)" }}>
-          <span className="font-bold text-xs" style={{ color:"#7c3aed" }}>{streak} streak</span>
-        </div>
-      </div>
 
       {/* Message */}
       <AnimatePresence>
@@ -490,6 +467,6 @@ export default function WordGame() {
         )}
       </AnimatePresence>
       </>)}
-    </div>
+    </GameShell>
   );
 }
