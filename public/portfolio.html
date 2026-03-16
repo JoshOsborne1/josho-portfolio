@@ -501,10 +501,24 @@ footer{padding:72px 0;border-top:1px solid var(--border);display:flex;justify-co
 .dstat-num.primary { color: var(--primary); }
 
 /* LIVE PDF EDITOR */
-.pdf-live-editor{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;margin-bottom:64px}
+.pdf-live-editor{display:grid;grid-template-columns:1fr 1.1fr;gap:32px;align-items:start;margin-bottom:64px}
 @media(max-width:900px){.pdf-live-editor{grid-template-columns:1fr}}
 
-.ple-preview{display:flex;justify-content:center;align-items:flex-start}
+/* Custom scrollbar — suppress OS scrollbar everywhere */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.22)}
+* { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.12) transparent; }
+
+.ple-preview{display:flex;justify-content:stretch;align-items:flex-start;}
+/* PDF Viewer chrome — matches the proof-panel / input form dark style */
+.ple-preview-inner{width:100%;background:var(--s1);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 10px 40px -10px rgba(0,0,0,0.8);display:flex;flex-direction:column;}
+/* Canvas area — neutral almost-black so the white paper pops cleanly */
+.ple-canvas-area{background:#141414;flex:1;display:flex;justify-content:center;padding:20px 16px;overflow:hidden;}
+/* The paper scaler fills the column, max 400px */
+.ple-paper-scaler{width:100%;max-width:400px;}
+.ple-paper-scaler .pdf-paper-inner{background:#ffffff;width:100%;box-shadow:0 8px 30px rgba(0,0,0,0.5);display:flex;flex-direction:column;}
 .pdf-paper{background:#fff;width:100%;max-width:400px;border-radius:4px;box-shadow:0 16px 48px rgba(0,0,0,0.55),0 2px 8px rgba(0,0,0,0.3);padding:28px 28px 20px;color:#1f1f1f;font-family:'Inter',sans-serif}
 .pdf-paper-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .pdf-paper-brand{display:flex;align-items:center;gap:8px;font-size:9px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#1a3c6e}
@@ -1129,65 +1143,68 @@ Headcount growth of 18 planned for H2</textarea>
         </div>
 
         <!-- RIGHT: live paper PDF mockup -->
-        <div class="ple-preview" style="background:#18181b; border:1px solid rgba(255,255,255,0.05); border-radius:12px; overflow:hidden; display:flex; flex-direction:column; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.8); height:100%; min-height:500px;">
-          <!-- Toolbar -->
-          <div style="height:36px; background:#27272a; border-bottom:1px solid #3f3f46; display:flex; align-items:center; padding:0 12px; justify-content:space-between;">
-            <div style="display:flex; gap:6px;">
-              <div style="width:10px; height:10px; border-radius:50%; background:#ef4444"></div>
-              <div style="width:10px; height:10px; border-radius:50%; background:#eab308"></div>
-              <div style="width:10px; height:10px; border-radius:50%; background:#22c55e"></div>
-            </div>
-            <div style="font-family:var(--mono); color:#a1a1aa; font-size:11px;">output_report_04.pdf - 100%</div>
-            <div style="display:flex; gap:4px">
-              <svg width="14" height="14" fill="none" stroke="#71717a" stroke-width="2"><path d="M1 1h12M1 7h12M1 13h12"/></svg>
-            </div>
-          </div>
-          <!-- Canvas area -->
-          <div style="background:#1e1e20; flex:1; display:flex; justify-content:center; padding:30px 20px; overflow:hidden;">
-            <!-- The Paper itself -->
-            <div style="background:#ffffff; width:340px; height:auto; min-height:460px; box-shadow: 0 8px 30px rgba(0,0,0,0.5); position:relative; overflow:hidden; display:flex; flex-direction:column;">
-              <!-- PDF Header -->
-              <div style="background:var(--primary); height:6px; width:100%;"></div>
-              <div style="padding:24px 32px 16px; border-bottom:1px solid #e4e4e7; display:flex; justify-content:space-between; align-items:flex-end;">
-                <div style="flex:1;">
-                  <h3 style="color:#111; font-size:18px; font-weight:800; letter-spacing:-0.03em; margin-bottom:4px; line-height:1.2;" id="pdf-out-title">Strategic Growth</h3>
-                  <p style="color:#71717a; font-size:10px; font-weight:500; margin:0;">PREPARED FOR: <span id="pdf-out-client" style="color:#3f3f46">Meridian</span></p>
-                </div>
-                <div style="text-align:right">
-                  <div style="width:24px; height:24px; background:#111; border-radius:4px; margin-bottom:4px; margin-left:auto;"></div>
-                  <p style="color:#a1a1aa; font-size:9px; margin:0;" id="pdf-out-date">2026-02-26</p>
-                </div>
+        <div class="ple-preview">
+          <div class="ple-preview-inner" style="width:100%;">
+            <!-- Toolbar — matches the proof-panel header style -->
+            <div style="height:36px;flex-shrink:0; background:var(--s2); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 12px; justify-content:space-between; gap:8px;">
+              <div style="display:flex; gap:6px; flex-shrink:0;">
+                <div style="width:10px; height:10px; border-radius:50%; background:#ef4444"></div>
+                <div style="width:10px; height:10px; border-radius:50%; background:#eab308"></div>
+                <div style="width:10px; height:10px; border-radius:50%; background:#22c55e"></div>
               </div>
-              
-              <!-- PDF Body -->
-              <div style="padding:24px 32px; flex:1; display:flex; flex-direction:column; gap:20px;">
-                <div>
-                  <div style="color:#000; font-family:var(--mono); font-size:9px; letter-spacing:0.1em; margin-bottom:10px;">EXECUTIVE SUMMARY</div>
-                  <ul id="pdf-out-bullets" style="color:#3f3f46; font-size:11px; line-height:1.6; padding-left:16px; margin:0;">
-                    <li>Projected revenue uplift of 23% within 12 months</li>
-                    <li>Priority expansion: Nordics and DACH region</li>
-                    <li>Headcount growth of 18 planned for H2</li>
-                  </ul>
-                </div>
-                
-                <!-- Chart Area -->
-                <div style="border:1px solid #f4f4f5; border-radius:6px; padding:12px; background:#fafafa;">
-                  <div style="color:#71717a; font-size:8px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:12px;">Quarterly Progress</div>
-                  <div style="display:flex; align-items:flex-end; gap:8px; height:60px;">
-                    <div style="flex:1; background:#e4e4e7; height:40%; border-radius:2px 2px 0 0;"></div>
-                    <div style="flex:1; background:#e4e4e7; height:55%; border-radius:2px 2px 0 0;"></div>
-                    <div style="flex:1; background:#e4e4e7; height:75%; border-radius:2px 2px 0 0;"></div>
-                    <div style="flex:1; background:#111; height:100%; border-radius:2px 2px 0 0; position:relative;">
-                      <div style="position:absolute; top:-14px; left:50%; transform:translateX(-50%); font-size:8px; font-weight:700; color:#111;">Q4</div>
+              <div style="font-family:var(--mono); color:var(--dim); font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;">output_report_04.pdf&nbsp;&mdash;&nbsp;100%</div>
+              <div style="display:flex; gap:4px; flex-shrink:0;">
+                <svg width="14" height="14" fill="none" stroke="var(--dim)" stroke-width="2"><path d="M1 1h12M1 7h12M1 13h12"/></svg>
+              </div>
+            </div>
+            <!-- Canvas area: neutral dark so white paper pops. No overflow scroll. -->
+            <div style="background:#141414; padding:16px; overflow:hidden;">
+              <!-- Scaler wrapper: JS sets height to match scaled paper so nothing clips -->
+              <div id="ple-scaler-wrap" style="width:100%; position:relative; overflow:hidden;">
+                <!-- 400px natural width paper; JS scales it to fit the column -->
+                <div id="ple-paper-natural" style="width:400px; transform-origin:top left; background:#ffffff; box-shadow:0 8px 32px rgba(0,0,0,0.55); display:flex; flex-direction:column;">
+                  <!-- PDF accent bar — matches PDF's own navy brand, NOT the site teal -->
+                  <div style="background:#1a3c6e; height:6px; width:100%; flex-shrink:0;"></div>
+                  <!-- PDF Header -->
+                  <div style="padding:20px 28px 14px; border-bottom:1px solid #e4e4e7; display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+                    <div style="flex:1; min-width:0;">
+                      <h3 style="color:#111; font-size:16px; font-weight:800; letter-spacing:-0.03em; margin-bottom:4px; line-height:1.25; word-break:break-word;" id="pdf-out-title">Strategic Growth Review 2026</h3>
+                      <p style="color:#71717a; font-size:10px; font-weight:500; margin:0;">PREPARED FOR:&nbsp;<span id="pdf-out-client" style="color:#3f3f46; font-weight:600;">Meridian Partners</span></p>
+                    </div>
+                    <div style="text-align:right; flex-shrink:0;">
+                      <div style="width:22px; height:22px; background:#1a3c6e; border-radius:3px; margin-bottom:4px; margin-left:auto;"></div>
+                      <p style="color:#a1a1aa; font-size:9px; margin:0;" id="pdf-out-date">2026-02-27</p>
                     </div>
                   </div>
+                  <!-- PDF Body -->
+                  <div style="padding:20px 28px; display:flex; flex-direction:column; gap:16px;">
+                    <div>
+                      <div style="color:#1a3c6e; font-family:var(--mono); font-size:8px; letter-spacing:0.1em; margin-bottom:8px; text-transform:uppercase; font-weight:700;">Executive Summary</div>
+                      <ul id="pdf-out-bullets" style="color:#374151; font-size:11px; line-height:1.65; padding-left:16px; margin:0;">
+                        <li>Projected revenue uplift of 23% within 12 months</li>
+                        <li>Priority expansion: Nordics and DACH region</li>
+                        <li>Headcount growth of 18 planned for H2</li>
+                      </ul>
+                    </div>
+                    <!-- Chart Area -->
+                    <div style="border:1px solid #f4f4f5; border-radius:6px; padding:12px; background:#f8faff;">
+                      <div style="color:#1a3c6e; font-size:8px; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:10px; font-weight:600;">Quarterly Progress</div>
+                      <div style="display:flex; align-items:flex-end; gap:8px; height:56px;">
+                        <div style="flex:1; background:#dce7f5; height:40%; border-radius:2px 2px 0 0;"></div>
+                        <div style="flex:1; background:#b3cce8; height:55%; border-radius:2px 2px 0 0;"></div>
+                        <div style="flex:1; background:#7aadd4; height:75%; border-radius:2px 2px 0 0;"></div>
+                        <div style="flex:1; background:#1a3c6e; height:100%; border-radius:2px 2px 0 0; position:relative;">
+                          <div style="position:absolute; top:-14px; left:50%; transform:translateX(-50%); font-size:8px; font-weight:700; color:#1a3c6e;">Q4</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- PDF Footer -->
+                  <div style="padding:12px 28px; border-top:1px solid #e4e4e7; display:flex; justify-content:space-between; color:#9ca3af; font-size:8px; font-family:var(--mono); letter-spacing:0.06em;">
+                    <span>CONFIDENTIAL</span>
+                    <span>PAGE 1 OF 4</span>
+                  </div>
                 </div>
-              </div>
-              
-              <!-- PDF Footer -->
-              <div style="padding:16px 32px; border-top:1px solid #f4f4f5; display:flex; justify-content:space-between; color:#a1a1aa; font-size:8px; font-family:var(--mono);">
-                <span>CONFIDENTIAL</span>
-                <span>PAGE 1 OF 4</span>
               </div>
             </div>
           </div>
@@ -1560,138 +1577,139 @@ const bgCanvas = document.getElementById('bg-canvas');
 const bgCtx = bgCanvas.getContext('2d');
 let hW, hH;
 const gridSpacing = 50;
+const dots = [];
 
 function resizeHeroCanvas() {
-  hW = bgCanvas.offsetWidth;
-  hH = bgCanvas.offsetHeight;
+  hW = window.innerWidth;
+  hH = window.innerHeight;
   bgCanvas.width = hW;
   bgCanvas.height = hH;
+  initDots();
 }
 
 window.addEventListener('resize', resizeHeroCanvas);
-resizeHeroCanvas();
 
 let heroScrollY = 0;
 window.addEventListener('scroll', () => {
-  heroScrollY = window.scrollY;
-  // Parallax offset applied to parent section using transform is smoother than redrawing
-  // but requirements say "canvas translates at 0.4x scroll speed". 
-  // We'll apply it via CSS transform for max performance.
-  // Fade scroll indicator
+  heroScrollY = window.pageYOffset || document.documentElement.scrollTop;
   const indicator = document.getElementById('scroll-cue');
-  if (indicator) {
-    if (heroScrollY > 80) indicator.style.opacity = '0';
-    else indicator.style.opacity = '1';
-  }
-  
-  document.getElementById('nav').classList.toggle('scrolled', heroScrollY > 40);
-});
+  if (indicator) indicator.style.opacity = heroScrollY > 80 ? '0' : '1';
+  const nav = document.getElementById('nav');
+  if (nav) nav.classList.toggle('scrolled', heroScrollY > 40);
+}, { passive: true });
 
-// Dot brightening logic
+// Mouse Tracking — Viewport Space
 let heroMouseX = -1000;
 let heroMouseY = -1000;
-const heroSection = document.querySelector('.hero');
 
 document.addEventListener('mousemove', (e) => {
-  const rect = heroSection.getBoundingClientRect();
-  heroMouseX = e.clientX - rect.left;
-  heroMouseY = e.clientY - rect.top;
+  heroMouseX = e.clientX;
+  heroMouseY = e.clientY;
 });
 
-heroSection.addEventListener('mouseleave', () => {
+document.addEventListener('mouseleave', () => {
   heroMouseX = -1000;
   heroMouseY = -1000;
 });
 
-// Grid logic
-const dots = [];
-// Initialise dots
+// Initialize a viewport-sized grid (+ buffer)
 function initDots() {
   dots.length = 0;
-  // Make grid larger than canvas to account for parallax
-  const cols = Math.ceil(3000 / gridSpacing); 
-  const rows = Math.ceil(2000 / gridSpacing);
-  for (let x = 0; x < cols; x++) {
-    for (let y = 0; y < rows; y++) {
+  // Create a grid large enough to cover the viewport + some overflow
+  const cols = Math.ceil(window.innerWidth / gridSpacing) + 2;
+  const rows = Math.ceil(window.innerHeight / gridSpacing) + 2;
+  for (let x = -1; x < cols; x++) {
+    for (let y = -1; y < rows; y++) {
       dots.push({
-        x: x * gridSpacing,
-        y: y * gridSpacing,
+        origX: x * gridSpacing,
+        origY: y * gridSpacing,
         brightness: 0
       });
     }
   }
 }
-initDots();
+
+resizeHeroCanvas();
 
 function renderHero() {
-  bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+  bgCtx.clearRect(0, 0, hW, hH);
   
-  // We need to account for parallax offset to find the real mouse relative to canvas
-  const canvasMouseY = heroMouseY - (heroScrollY * 0.4);
+  // Parallax: Background shifts at 40% scroll speed
+  // We use modulo to make the vertical movement infinite
+  const parallaxShiftY = (heroScrollY * 0.4) % gridSpacing;
   
+  // Theme colors
+  const [pR, pG, pB] = window.THEME_RGB_ARRAY || [0, 212, 204];
+
   for (let i = 0; i < dots.length; i++) {
     const dot = dots[i];
     
-    // Only draw if visible (roughly)
-    if (dot.x > hW || dot.y > hH + (heroScrollY * 0.4) || dot.x < 0) continue;
-    
-    // Calculate distance to mouse
-    const dx = dot.x - heroMouseX;
-    const dy = dot.y - canvasMouseY;
-    const dist = Math.sqrt(dx*dx + dy*dy);
-    
-    // Target brightness based on distance (3x3 grid = ~75px radius)
-    let targetB = 0;
-    if (dist < 80) targetB = 1;
-    
-    // Lerp brightness (600ms return = slow lerp down)
+    // Viewport-space coordinates
+    const vx = dot.origX;
+    const vy = dot.origY - parallaxShiftY;
+
+    // Check distance to cursor (both in viewport space)
+    const dx = vx - heroMouseX;
+    const dy = vy - heroMouseY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    // Update brightness
+    const targetB = dist < 85 ? 1 : 0;
     if (targetB > dot.brightness) {
-       dot.brightness += (targetB - dot.brightness) * 0.5; // fast up
+      dot.brightness += (targetB - dot.brightness) * 0.5; // Snap up
     } else {
-       dot.brightness += (targetB - dot.brightness) * 0.05; // slow down (~600ms)
+      dot.brightness += (targetB - dot.brightness) * 0.05; // Fade down
     }
+
+    if (dot.brightness < 0.01) continue;
+
+    const b = dot.brightness;
+    const alpha = 0.06 + 0.44 * b;
     
-    // Base color: rgba(255,255,255,0.06)
-    // Bright color: var(--primary-rgb-fallback,0.5)
-    
-    let a = 0.06 + (0.5 - 0.06) * dot.brightness;
-    let [pR, pG, pB] = window.THEME_RGB_ARRAY || [0, 240, 255];
-    let r = 255 + (pR - 255) * dot.brightness;
-    let g = 255 + (pG - 255) * dot.brightness;
-    let b = 255 + (pB - 255) * dot.brightness;
-    
-    bgCtx.fillStyle = `rgba(${r},${g},${b},${a})`;
-    const t = Date.now() * 0.003;
-    const sizeOffset = Math.sin(t + dot.x * 0.01 + dot.y * 0.01) * 0.5;
-    const size = 1.5 + (dot.brightness * 1.5) + sizeOffset;
+    // Math.round is critical for browser color parsing consistency
+    const r = Math.round(255 + (pR - 255) * b);
+    const g = Math.round(255 + (pG - 255) * b);
+    const bl = Math.round(255 + (pB - 255) * b);
+
+    // Visuals
+    const time = Date.now() * 0.002;
+    const pulse = Math.sin(time + vx * 0.01 + vy * 0.01) * 0.5;
+    const size = 1.3 + b * 1.5 + pulse;
+
+    bgCtx.fillStyle = `rgba(${r}, ${g}, ${bl}, ${alpha})`;
     bgCtx.beginPath();
-    bgCtx.arc(dot.x, dot.y, size, 0, Math.PI * 2);
+    bgCtx.arc(vx, vy, size, 0, Math.PI * 2);
     bgCtx.fill();
 
-    // Draw particle connection lines
-    if (dot.brightness > 0.05) {
+    // Secondary pass for lines
+    if (b > 0.1) {
       for (let j = i + 1; j < dots.length; j++) {
         const dot2 = dots[j];
-        if (dot2.brightness > 0.05) {
-          const dx2 = dot.x - dot2.x;
-          const dy2 = dot.y - dot2.y;
-          const dist2 = Math.sqrt(dx2*dx2 + dy2*dy2);
-          if (dist2 < 120) {
-            const lineAlpha = Math.min(dot.brightness, dot2.brightness) * (1 - dist2 / 120) * 0.5;
-            bgCtx.strokeStyle = `rgba(${window.THEME_RGB_ARRAY[0]}, ${window.THEME_RGB_ARRAY[1]}, ${window.THEME_RGB_ARRAY[2]}, ${lineAlpha})`;
-            bgCtx.lineWidth = 1;
-            bgCtx.beginPath();
-            bgCtx.moveTo(dot.x, dot.y);
-            bgCtx.lineTo(dot2.x, dot2.y);
-            bgCtx.stroke();
-          }
+        if (dot2.brightness < 0.1) continue;
+
+        const vx2 = dot2.origX;
+        const vy2 = dot2.origY - parallaxShiftY;
+        
+        const ldx = vx - vx2;
+        const ldy = vy - vy2;
+        const ldist = Math.sqrt(ldx * ldx + ldy * ldy);
+
+        if (ldist < 80) { // Keep lines short and clean
+          const lineA = Math.min(b, dot2.brightness) * (1 - ldist / 80) * 0.4;
+          bgCtx.strokeStyle = `rgba(${pR}, ${pG}, ${pB}, ${lineA})`;
+          bgCtx.lineWidth = 1;
+          bgCtx.beginPath();
+          bgCtx.moveTo(vx, vy);
+          bgCtx.lineTo(vx2, vy2);
+          bgCtx.stroke();
         }
       }
     }
   }
-  
+
   requestAnimationFrame(renderHero);
 }
+
 requestAnimationFrame(renderHero);
 
 
@@ -1875,6 +1893,8 @@ function initPreviewSim() {
   if(e) e.style.display = 'flex';
   const c = document.getElementById('file-card');
   if(c) c.style.display = 'none';
+  // Scale the PDF paper now that the page is visible
+  setTimeout(scalePDFPaper, 50);
 }
 
 function livePreview() {
@@ -2149,6 +2169,26 @@ function updatePDFLive() {
   var d = document.getElementById('lf-date');
   if (d) { d.value = new Date().toISOString().slice(0,10); updatePDFLive(); }
 })();
+
+// PDF paper scaler — scales the 400px paper to fit its column at any viewport width
+function scalePDFPaper() {
+  var wrap = document.getElementById('ple-scaler-wrap');
+  var paper = document.getElementById('ple-paper-natural');
+  if (!wrap || !paper) return;
+  var availableWidth = wrap.offsetWidth;
+  var paperNaturalWidth = 400;
+  var scale = Math.min(1, availableWidth / paperNaturalWidth);
+  paper.style.transform = 'scale(' + scale + ')';
+  // Collapse the wrapper height to match the scaled paper height
+  var paperHeight = paper.scrollHeight;
+  wrap.style.height = Math.round(paperHeight * scale) + 'px';
+}
+
+// Run on load and on every resize
+window.addEventListener('resize', scalePDFPaper);
+// Delay slightly so the layout is settled before we measure
+setTimeout(scalePDFPaper, 100);
+document.addEventListener('DOMContentLoaded', function(){ setTimeout(scalePDFPaper, 50); });
 // MOBILE NAV
 function closeMobileNav() {
   var overlay = document.getElementById('nav-mobile-overlay');
