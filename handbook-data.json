@@ -1,1 +1,31 @@
-{"settings":{},"edits":{},"selected":[],"history":[],"savedAt":null}
+{
+  "settings": {
+    "companyName": "Guldmann UK",
+    "hrContact": "",
+    "hrEmail": "",
+    "pensionProvider": "",
+    "employerPension": "",
+    "employeePension": "",
+    "holidayDays": "28",
+    "holidayYearStart": "1 January",
+    "probationMonths": "6",
+    "enhancedSickWeeks": "",
+    "noticeProbation": "1 week",
+    "noticeUnder2": "1 month",
+    "noticeOver2": "1 week per year of service (up to 12 weeks)",
+    "expenseBreakfast": "10",
+    "expenseLunch": "15",
+    "expenseDinner": "25",
+    "cardApprovalLimit": "200",
+    "extraBenefit1": "",
+    "extraBenefit2": "",
+    "extraBenefit3": "",
+    "versionDate": "2026"
+  },
+  "edits": {
+    "bank-holidays": "## Bank Holidays\n\nYour [HOLIDAY_DAYS]-day holiday entitlement includes the eight UK public bank holidays. If a bank holiday falls on a day you do not normally work, you do not receive an automatic substitute day - your entitlement is calculated pro-rata based on your contracted days.\n\nWe aim to close the office on all UK bank holidays. If your role requires you to work on a bank holiday, you will be given a substitute day off in lieu to be taken by agreement with your manager.\n\nPart-time employees: your entitlement is proportional to your contracted hours."
+  },
+  "selected": [],
+  "history": [],
+  "savedAt": "2026-03-16T11:07:11.925Z"
+}
