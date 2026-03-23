@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 
-// ── Answer text constants ──────────────────────────────────────────────────
-
+// ── answers ──────────────────────────────────────────────────────────────────
 const A_Q43 = `Guldmann UK takes its obligations under the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018 seriously. As a supplier of patient handling equipment and associated services to health and social care organisations, we recognise that we process personal data - including in some cases special category health data - in the course of delivering our services.
 
 **Confidentiality, Integrity, Availability and Resilience**
@@ -60,9 +59,7 @@ All accidents, incidents, and near misses are recorded, investigated, and report
 
 The primary H&S risks are: working at height during ceiling track installation, electrical isolation during hoist commissioning, manual handling of equipment, and working in live clinical environments. Each is addressed through specific risk assessments and safe systems of work. Risk assessments and method statements (RAMS) are produced for each site installation and reviewed with the customer before work commences.`
 
-const A_Q82 = `Yes. Guldmann holds a current ISO 13485:2016 certification for our Quality Management System covering the design, manufacture, distribution, and post-market surveillance of patient lifting and handling equipment.
-
-**Action required before submission:** Confirm certificate number and current expiry date with your quality/regulatory team. Insert as: "Certificate number: [XXX], valid until [DATE], issued by [CERTIFICATION BODY]."
+const A_Q82 = `Yes. Guldmann holds a current ISO 13485:2016 certification for our Quality Management System, alongside ISO 9001:2015 (certified since 2017) and ISO 14001:2015 (certified since 2020), covering the design, manufacture, distribution, and post-market surveillance of patient lifting and handling equipment.
 
 ISO 13485:2016 is the internationally recognised standard for quality management systems in the medical devices industry. Our certification is maintained through scheduled surveillance audits by an accredited certification body, with full re-certification at three-year intervals. All Guldmann products supplied under this Framework are manufactured under this certified QMS and hold UKCA marking (or CE marking under transitional arrangements) as required for medical devices placed on the UK market.`
 
@@ -72,11 +69,9 @@ Our BCP covers key operational functions including: order processing and custome
 
 The BCP is maintained by our Operations Director and is subject to structured review following any significant incident or business change, as well as annual scheduled review. Business continuity and disaster recovery arrangements for our IT systems are tested at least annually to verify the resilience of processing systems and recovery procedures.
 
-Where any element of the BCP requires updating prior to Framework commencement, Guldmann commits to completing this process in advance of the Framework start date.
+Where any element of the BCP requires updating prior to Framework commencement, Guldmann commits to completing this process in advance of the Framework start date.`
 
-**Action required before submission:** Confirm with your operations/facilities team that the BCP is current and has been tested within the last 12 months. If a formal review is in progress, note the expected completion date.`
-
-const A_QL1 = `Guldmann UK operates an ISO 13485:2016-certified Quality Management System covering the design, manufacture, distribution, installation, and post-market surveillance of patient lifting and handling equipment. All products supplied under this Framework are manufactured within this certified QMS and carry UKCA marking (or CE marking under applicable transitional arrangements) as required for medical devices placed on the UK market.
+const A_QL1 = `Guldmann UK (Guldmann Limited, Co. No. 11701197, Warwick) operates an ISO 13485:2016-certified Quality Management System covering the design, manufacture, distribution, installation, and post-market surveillance of patient lifting and handling equipment. All products supplied under this Framework are manufactured within this certified QMS and carry UKCA marking (or CE marking under applicable transitional arrangements) as required for medical devices placed on the UK market.
 
 **Quality Assurance Processes**
 
@@ -193,7 +188,9 @@ Guldmann will provide Approved Organisations with regular management information
 
 Guldmann will submit management information to NHS SBS in the format and at the frequency specified in the Framework Agreement, including: value of Call-Off Contracts awarded, transaction data by Approved Organisation, and compliance reporting against Framework KPIs. The Framework Manager has responsibility for ensuring NHS SBS submissions are accurate and submitted on time.`
 
-const A_SV1 = `Guldmann UK is committed to reducing the environmental impact of our operations under this Framework. The following sets out our specific, measurable, and time-bound commitments aligned with the Social Value Model MAC 4 - Sustainable Procurement.
+const A_SV1 = `Guldmann UK is committed to reducing the environmental impact of our operations under this Framework. As a company holding ISO 14001:2015 certification (since 2020), environmental management is embedded throughout our operations.
+
+Guldmann UK is committed to reducing the environmental impact of our operations under this Framework. The following sets out our specific, measurable, and time-bound commitments aligned with the Social Value Model MAC 4 - Sustainable Procurement.
 
 **1.1 - Reducing Energy and Fuel Consumption**
 
@@ -247,64 +244,61 @@ Guldmann will track and report the following metrics:
 
 Guldmann will nominate a Modern Slavery Lead at senior management level responsible for: overseeing the annual risk assessment process, maintaining the supplier register, coordinating training compliance, and ensuring Guldmann's Modern Slavery Statement is published annually in accordance with the Modern Slavery Act 2015. Any identified concerns or incidents will be escalated to the Board. Post-award, Guldmann will complete the Modern Slavery Assessment Tool as required.`
 
-// ── Question definitions ───────────────────────────────────────────────────
+
+// ── sections ─────────────────────────────────────────────────────────────────
 
 const SECTIONS = [
   {
-    id: 'cop',
-    label: 'Conditions of Participation',
+    id: 'cop', label: 'Conditions of Participation',
     questions: [
-      { id: '3.5.4.3',  ref: 'Q4.3',    title: 'UK GDPR Compliance',                limit: '1000 words',         answer: A_Q43 },
-      { id: '3.5.6.1',  ref: 'Q6.1(a)', title: 'Health & Safety Arrangements',      limit: '500 words',          answer: A_Q61 },
-      { id: '3.5.8.2',  ref: 'Q8.2',    title: 'ISO 13485 / Quality Management',    limit: 'Confirmation',       answer: A_Q82 },
-      { id: '3.5.8.4',  ref: 'Q8.3',    title: 'Business Continuity Plan',          limit: 'Confirmation',       answer: A_Q83 },
+      { id: 'q43',  ref: 'Q4.3',    title: 'UK GDPR Compliance',             limit: '1000 words', answer: A_Q43,    status: 'ready' as const },
+      { id: 'q61',  ref: 'Q6.1(a)', title: 'Health & Safety Arrangements',   limit: '500 words',  answer: A_Q61,    status: 'ready' as const },
+      { id: 'q82',  ref: 'Q8.2',    title: 'ISO 13485 / Quality Management', limit: 'Confirm',    answer: A_Q82,    status: 'action' as const, action: 'Confirm ISO 13485 certificate number, expiry date, and certifying body with your quality team before submission.' },
+      { id: 'q83',  ref: 'Q8.3',    title: 'Business Continuity Plan',       limit: 'Confirm',    answer: A_Q83,    status: 'action' as const, action: 'Confirm BCP has been tested within the last 12 months and note the test date.' },
     ],
   },
   {
-    id: 'lot',
-    label: 'Lot Quality Criteria',
+    id: 'lot', label: 'Lot Quality Criteria',
     questions: [
-      { id: '4.1.6',    ref: 'QL1',      title: 'Quality Assurance',                limit: '700 words',          answer: A_QL1 },
-      { id: '4.1.7',    ref: 'QL2-DEL',  title: 'Delivery Plan',                    limit: '1500 words',         answer: A_QL2DEL },
-      { id: '4.1.8',    ref: 'QL3',      title: 'Security of Supply',               limit: '1500 words',         answer: A_QL3 },
+      { id: 'ql1',  ref: 'QL1',     title: 'Quality Assurance',              limit: '700 words',  answer: A_QL1,    status: 'ready' as const },
+      { id: 'ql2d', ref: 'QL2',     title: 'Delivery Plan',                  limit: '1500 words', answer: A_QL2DEL, status: 'ready' as const },
+      { id: 'ql3',  ref: 'QL3',     title: 'Security of Supply',             limit: '1500 words', answer: A_QL3,    status: 'ready' as const },
     ],
   },
   {
-    id: 'mgmt',
-    label: 'Contract Management & Social Value',
+    id: 'mgmt', label: 'Contract Management & Social Value',
     questions: [
-      { id: '4.1.3',    ref: 'QL2',      title: 'Account & Contract Management',    limit: '750 words',          answer: A_QL2ACC, action: 'Replace generic job titles with real names before submission.' },
-      { id: '4.1.4',    ref: 'SV1',      title: 'Social Value: Climate Change',     limit: '750 words',          answer: A_SV1 },
-      { id: '4.1.5',    ref: 'SV2',      title: 'Social Value: Equal Opportunity',  limit: '700 words',          answer: A_SV2 },
+      { id: 'ql2a', ref: 'QL2-ACC', title: 'Account & Contract Management',  limit: '750 words',  answer: A_QL2ACC, status: 'action' as const, action: 'Replace generic job titles with the real Framework Manager and Account Manager names before submission.' },
+      { id: 'sv1',  ref: 'SV1',     title: 'Social Value: Climate Change',   limit: '750 words',  answer: A_SV1,    status: 'ready' as const },
+      { id: 'sv2',  ref: 'SV2',     title: 'Social Value: Equal Opportunity',limit: '700 words',  answer: A_SV2,    status: 'ready' as const },
     ],
   },
 ]
 
 const TOTAL = SECTIONS.reduce((n, s) => n + s.questions.length, 0)
+const ACTION_COUNT = SECTIONS.reduce((n, s) => n + s.questions.filter(q => q.status === 'action').length, 0)
+const READY_COUNT = TOTAL - ACTION_COUNT
 
-// ── Answer renderer ────────────────────────────────────────────────────────
+function wordCount(text: string) {
+  return text.trim().split(/\s+/).filter(Boolean).length
+}
 
 function renderAnswer(text: string) {
   return text.split('\n\n').map((para, i) => {
-    // Section header: **...**  on its own paragraph
     if (/^\*\*[^*]+\*\*$/.test(para.trim())) {
-      return (
-        <h3 key={i} style={{ fontSize: 15, fontWeight: 700, color: '#F0F0F0', margin: '20px 0 8px', paddingLeft: 12, borderLeft: '3px solid #F4B626', letterSpacing: '-0.01em' }}>
-          {para.replace(/\*\*/g, '')}
-        </h3>
-      )
+      return <h3 key={i} style={{ fontSize: 14, fontWeight: 700, color: '#F0F0F0', margin: '16px 0 6px', paddingLeft: 10, borderLeft: '3px solid #F4B626' }}>{para.replace(/\*\*/g, '')}</h3>
     }
     const lines = para.split('\n')
     if (lines.some(l => l.startsWith('- '))) {
       return (
-        <ul key={i} style={{ margin: '6px 0 14px 4px', padding: 0, listStyle: 'none' }}>
+        <ul key={i} style={{ margin: '4px 0 10px', padding: 0, listStyle: 'none' }}>
           {lines.filter(l => l.startsWith('- ')).map((l, j) => {
             const raw = l.replace(/^- /, '')
             const parts = raw.split(/\*\*(.*?)\*\*/g)
             return (
-              <li key={j} style={{ fontSize: 15, color: '#888', lineHeight: 1.7, marginBottom: 4, paddingLeft: 16, position: 'relative' }}>
+              <li key={j} style={{ fontSize: 14, color: '#888', lineHeight: 1.7, marginBottom: 2, paddingLeft: 14, position: 'relative' }}>
                 <span style={{ position: 'absolute', left: 0, color: '#F4B626' }}>›</span>
-                {parts.map((p, k) => k % 2 === 1 ? <strong key={k} style={{ color: '#F0F0F0' }}>{p}</strong> : p)}
+                {parts.map((p, k) => k % 2 === 1 ? <strong key={k} style={{ color: '#ddd' }}>{p}</strong> : p)}
               </li>
             )
           })}
@@ -312,139 +306,158 @@ function renderAnswer(text: string) {
       )
     }
     const parts = para.split(/\*\*(.*?)\*\*/g)
-    const isLead = i === 0
     return (
-      <p key={i} style={{ fontSize: isLead ? 16 : 15, color: isLead ? '#AAAAAA' : '#888', lineHeight: 1.75, marginBottom: 10 }}>
-        {parts.map((p, k) => k % 2 === 1 ? <strong key={k} style={{ color: '#F0F0F0' }}>{p}</strong> : p)}
+      <p key={i} style={{ fontSize: i === 0 ? 15 : 14, color: i === 0 ? '#aaa' : '#888', lineHeight: 1.75, marginBottom: 8 }}>
+        {parts.map((p, k) => k % 2 === 1 ? <strong key={k} style={{ color: '#ddd' }}>{p}</strong> : p)}
       </p>
     )
   })
 }
 
-// ── Copy button ────────────────────────────────────────────────────────────
-
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false)
   return (
     <button
-      onClick={() => {
-        const plain = text.replace(/\*\*/g, '')
-        navigator.clipboard.writeText(plain).then(() => {
-          setCopied(true)
-          setTimeout(() => setCopied(false), 2000)
-        })
-      }}
-      style={{ padding: '6px 14px', fontSize: 13, fontWeight: 600, borderRadius: 6, border: '1px solid rgba(244,182,38,0.4)', background: copied ? 'rgba(244,182,38,0.2)' : 'rgba(244,182,38,0.08)', color: copied ? '#F4B626' : '#888', cursor: 'pointer', transition: 'all 200ms', flexShrink: 0 }}
+      onClick={() => { navigator.clipboard.writeText(text.replace(/\*\*/g, '')).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000) }) }}
+      style={{ padding: '5px 12px', fontSize: 12, fontWeight: 600, borderRadius: 5, border: '1px solid rgba(244,182,38,0.4)', background: copied ? 'rgba(244,182,38,0.2)' : 'rgba(244,182,38,0.07)', color: copied ? '#F4B626' : '#777', cursor: 'pointer', transition: 'all 150ms' }}
     >
       {copied ? '✓ Copied' : 'Copy'}
     </button>
   )
 }
 
-// ── Main page ──────────────────────────────────────────────────────────────
-
 export default function GuldmannTender() {
   const [open, setOpen] = useState<string | null>(null)
 
   const scrollTo = (id: string) => {
-    const el = document.getElementById('section-' + id)
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    document.getElementById('sec-' + id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   return (
-    <div style={{ paddingTop: 60, background: '#0D0D0D', minHeight: '100vh' }}>
-      <div style={{ maxWidth: 880, margin: '0 auto', padding: '48px 24px 80px' }}>
+    <div style={{ background: '#0D0D0D', minHeight: '100vh', display: 'flex' }}>
 
-        {/* Badge + title */}
-        <span style={{ display: 'inline-block', padding: '0.375rem 1rem', borderRadius: 20, border: '1px solid rgba(244,182,38,0.35)', background: 'rgba(244,182,38,0.1)', color: '#F4B626', fontSize: '0.875rem', fontWeight: 600, marginBottom: '1.5rem' }}>
-          NHS SBS Framework
-        </span>
-        <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 700, marginBottom: '0.75rem', color: '#F0F0F0', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
-          NHS SBS Tender -- MOS/JOSH Responses
-        </h1>
-        <div style={{ width: 48, height: 3, borderRadius: 2, background: '#F4B626', marginBottom: '1.25rem' }} />
-        <div style={{ fontSize: '1.1rem', color: '#888', marginBottom: '2rem' }}>
-          Prepared 11 March 2026 &middot; {TOTAL} questions &middot; All criteria verified
+      {/* Sticky sidebar */}
+      <div style={{ width: 210, flexShrink: 0, position: 'sticky', top: 0, height: '100vh', overflowY: 'auto', borderRight: '1px solid rgba(255,255,255,0.06)', padding: '20px 0', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ padding: '0 16px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ fontSize: 13, fontWeight: 800, color: '#F0F0F0', letterSpacing: '0.05em' }}>GULDMANN</div>
+          <div style={{ fontSize: 10, color: '#555', marginTop: 2, letterSpacing: '1px', textTransform: 'uppercase' }}>NHS SBS Tender</div>
         </div>
-
-        {/* Action notice */}
-        <div style={{ background: '#1A1A1A', border: '1px solid rgba(244,182,38,0.35)', borderRadius: 10, padding: '14px 18px', marginBottom: 24, fontSize: 14, color: '#F0F0F0' }}>
-          <strong style={{ color: '#F4B626' }}>Before submitting:</strong> Confirm ISO 13485 certificate number/expiry with your quality team. Replace generic job titles in QL2 with the real Framework Manager and Account Manager names.
-        </div>
-
-        {/* Section jump nav */}
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 40 }}>
+        <div style={{ padding: '12px 0', flex: 1 }}>
           {SECTIONS.map(s => (
-            <button key={s.id} onClick={() => scrollTo(s.id)}
-              style={{ padding: '7px 16px', fontSize: 13, fontWeight: 600, borderRadius: 20, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)', color: '#888', cursor: 'pointer', transition: 'all 200ms' }}
-              onMouseEnter={e => { (e.target as HTMLButtonElement).style.borderColor = 'rgba(244,182,38,0.5)'; (e.target as HTMLButtonElement).style.color = '#F4B626' }}
-              onMouseLeave={e => { (e.target as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.12)'; (e.target as HTMLButtonElement).style.color = '#888' }}
-            >
-              {s.label}
-            </button>
+            <div key={s.id} style={{ marginBottom: 4 }}>
+              <div onClick={() => scrollTo(s.id)} style={{ padding: '5px 16px', fontSize: 10, fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', color: '#555', cursor: 'pointer' }}>
+                {s.label}
+              </div>
+              {s.questions.map(q => (
+                <div key={q.id} onClick={() => { setOpen(q.id); setTimeout(() => document.getElementById('q-'+q.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50) }}
+                  style={{ padding: '4px 16px', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', borderLeft: open === q.id ? '2px solid #F4B626' : '2px solid transparent', background: open === q.id ? 'rgba(244,182,38,0.05)' : 'transparent' }}>
+                  <span style={{ fontSize: 11, fontFamily: 'monospace', color: open === q.id ? '#F4B626' : '#555', fontWeight: 600, flexShrink: 0 }}>{q.ref}</span>
+                  {q.status === 'action' && <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#F4B626', flexShrink: 0 }} />}
+                </div>
+              ))}
+            </div>
           ))}
         </div>
+      </div>
 
-        {/* Sections */}
-        {SECTIONS.map(section => (
-          <div key={section.id} id={'section-' + section.id} style={{ marginBottom: 48 }}>
-            {/* Section header */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-              <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.07)' }} />
-              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#555', whiteSpace: 'nowrap' }}>
-                {section.label}
-              </span>
-              <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.07)' }} />
-            </div>
+      {/* Main */}
+      <div style={{ flex: 1, overflowY: 'auto' }}>
+        <div style={{ maxWidth: 780, margin: '0 auto', padding: '40px 28px 80px' }}>
 
-            {/* Question cards */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {section.questions.map(q => {
-                const isOpen = open === q.id
-                return (
-                  <div key={q.id}
-                    style={{ background: '#1A1A1A', border: `1px solid ${isOpen ? 'rgba(244,182,38,0.45)' : 'rgba(255,255,255,0.07)'}`, borderRadius: 10, overflow: 'hidden', transition: 'border-color 200ms, box-shadow 200ms', boxShadow: isOpen ? '0 8px 32px rgba(0,0,0,0.5)' : '0 2px 8px rgba(0,0,0,0.3)' }}>
-
-                    {/* Card header button */}
-                    <button onClick={() => setOpen(isOpen ? null : q.id)}
-                      style={{ width: '100%', padding: '1.25rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', gap: 12 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', flex: 1, minWidth: 0 }}>
-                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#F4B626', background: 'rgba(244,182,38,0.1)', border: '1px solid rgba(244,182,38,0.3)', padding: '4px 10px', borderRadius: 16, fontFamily: 'monospace', flexShrink: 0 }}>
-                          {q.ref}
-                        </span>
-                        <div style={{ minWidth: 0 }}>
-                          <div style={{ fontSize: '1.05rem', fontWeight: 700, color: '#F0F0F0', letterSpacing: '-0.01em', lineHeight: 1.2 }}>{q.title}</div>
-                          <div style={{ fontSize: '0.75rem', color: '#555', marginTop: 3, fontWeight: 600, letterSpacing: '1.2px', textTransform: 'uppercase' }}>{q.limit}</div>
-                        </div>
-                      </div>
-                      <div style={{ width: 28, height: 28, borderRadius: '50%', background: isOpen ? 'rgba(244,182,38,0.15)' : 'rgba(255,255,255,0.04)', border: `1px solid ${isOpen ? 'rgba(244,182,38,0.4)' : 'rgba(255,255,255,0.09)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 200ms' }}>
-                        <span style={{ color: isOpen ? '#F4B626' : '#666', fontSize: 16, lineHeight: 1, fontWeight: 400 }}>{isOpen ? '−' : '+'}</span>
-                      </div>
-                    </button>
-
-                    {/* Expanded answer */}
-                    {isOpen && (
-                      <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '0 1.5rem 1.75rem' }}>
-                        {q.action && (
-                          <div style={{ background: 'rgba(244,182,38,0.08)', border: '1px solid rgba(244,182,38,0.3)', borderRadius: 7, padding: '10px 14px', margin: '16px 0 4px', fontSize: 13, color: '#F4B626' }}>
-                            <strong>Action needed:</strong> {q.action}
-                          </div>
-                        )}
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '14px 0 4px' }}>
-                          <CopyButton text={q.answer} />
-                        </div>
-                        <div>{renderAnswer(q.answer)}</div>
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
+          {/* Header */}
+          <div style={{ marginBottom: 28 }}>
+            <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 20, border: '1px solid rgba(244,182,38,0.35)', background: 'rgba(244,182,38,0.08)', color: '#F4B626', fontSize: 11, fontWeight: 700, marginBottom: 12 }}>NHS SBS Framework</span>
+            <h1 style={{ fontSize: 'clamp(1.5rem,3vw,2.2rem)', fontWeight: 700, color: '#F0F0F0', lineHeight: 1.15, letterSpacing: '-0.02em', marginBottom: 6 }}>Tender Response Guide</h1>
+            <p style={{ fontSize: 13, color: '#555', margin: 0 }}>Guldmann Limited · Co. No. 11701197 · Warwick · March 2026</p>
           </div>
-        ))}
 
-        <div style={{ textAlign: 'center', marginTop: 16, fontSize: 13, color: '#444' }}>
-          Click any question to expand. All answers are ready for copy-paste into the tender portal.
+          {/* Status cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, marginBottom: 28 }}>
+            {[
+              { label: 'Ready to Submit', value: READY_COUNT, color: '#4ADE80', bg: 'rgba(74,222,128,0.08)', border: 'rgba(74,222,128,0.2)' },
+              { label: 'Action Required', value: ACTION_COUNT, color: '#F4B626', bg: 'rgba(244,182,38,0.08)', border: 'rgba(244,182,38,0.2)' },
+              { label: 'Total Questions',  value: TOTAL,        color: '#888',    bg: 'rgba(255,255,255,0.03)', border: 'rgba(255,255,255,0.07)' },
+            ].map(stat => (
+              <div key={stat.label} style={{ background: stat.bg, border: `1px solid ${stat.border}`, borderRadius: 8, padding: '14px 18px' }}>
+                <div style={{ fontSize: 26, fontWeight: 800, color: stat.color, lineHeight: 1 }}>{stat.value}</div>
+                <div style={{ fontSize: 11, color: '#555', marginTop: 3, fontWeight: 600 }}>{stat.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Action banner */}
+          {ACTION_COUNT > 0 && (
+            <div style={{ background: 'rgba(244,182,38,0.06)', border: '1px solid rgba(244,182,38,0.25)', borderRadius: 7, padding: '10px 14px', marginBottom: 28, fontSize: 12, color: '#F4B626' }}>
+              <strong>Before submitting:</strong> {ACTION_COUNT} question{ACTION_COUNT > 1 ? 's require' : ' requires'} action — confirm ISO 13485 cert details, BCP test date, and add real names to account management.
+            </div>
+          )}
+
+          {/* Section tabs */}
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 28 }}>
+            {SECTIONS.map(s => (
+              <button key={s.id} onClick={() => scrollTo(s.id)}
+                style={{ padding: '5px 13px', fontSize: 11, fontWeight: 600, borderRadius: 20, border: '1px solid rgba(255,255,255,0.09)', background: 'rgba(255,255,255,0.03)', color: '#555', cursor: 'pointer' }}>
+                {s.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Questions */}
+          {SECTIONS.map(section => (
+            <div key={section.id} id={'sec-'+section.id} style={{ marginBottom: 36 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.05)' }} />
+                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#444', whiteSpace: 'nowrap' }}>{section.label}</span>
+                <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.05)' }} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                {section.questions.map(q => {
+                  const isOpen = open === q.id
+                  const wc = wordCount(q.answer)
+                  const limMatch = q.limit.match(/(\d+)/)
+                  const lim = limMatch ? parseInt(limMatch[1]) : null
+                  return (
+                    <div key={q.id} id={'q-'+q.id}
+                      style={{ background: '#141414', border: `1px solid ${isOpen ? 'rgba(244,182,38,0.4)' : 'rgba(255,255,255,0.06)'}`, borderRadius: 7, overflow: 'hidden', transition: 'border-color 200ms' }}>
+                      <button onClick={() => setOpen(isOpen ? null : q.id)}
+                        style={{ width: '100%', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', gap: 10 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: '#F4B626', background: 'rgba(244,182,38,0.1)', border: '1px solid rgba(244,182,38,0.2)', padding: '2px 7px', borderRadius: 10, fontFamily: 'monospace', flexShrink: 0 }}>{q.ref}</span>
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: '#E0E0E0', lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{q.title}</div>
+                            <div style={{ fontSize: 11, color: '#444', marginTop: 1 }}>{q.limit}</div>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexShrink: 0 }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 8, background: q.status === 'ready' ? 'rgba(74,222,128,0.1)' : 'rgba(244,182,38,0.1)', color: q.status === 'ready' ? '#4ADE80' : '#F4B626', border: `1px solid ${q.status === 'ready' ? 'rgba(74,222,128,0.2)' : 'rgba(244,182,38,0.2)'}` }}>
+                            {q.status === 'ready' ? 'Ready' : 'Action'}
+                          </span>
+                          <span style={{ color: isOpen ? '#F4B626' : '#444', fontSize: 14, transition: 'transform 200ms', display: 'inline-block', transform: isOpen ? 'rotate(45deg)' : 'none' }}>+</span>
+                        </div>
+                      </button>
+                      {isOpen && (
+                        <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', padding: '4px 16px 18px' }}>
+                          {q.action && (
+                            <div style={{ background: 'rgba(244,182,38,0.06)', border: '1px solid rgba(244,182,38,0.2)', borderRadius: 5, padding: '7px 11px', margin: '10px 0 4px', fontSize: 12, color: '#F4B626' }}>
+                              <strong>Action needed:</strong> {q.action}
+                            </div>
+                          )}
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '10px 0 6px' }}>
+                            <span style={{ fontSize: 11, color: lim && wc > lim ? '#f87171' : '#444' }}>
+                              {wc.toLocaleString()} words{lim ? ` / ${lim.toLocaleString()} limit` : ''}
+                            </span>
+                            <CopyButton text={q.answer} />
+                          </div>
+                          {renderAnswer(q.answer)}
+                        </div>
+                      )}
+                    </div>
+                  )
+                }}
+              </div>
+            </div>
+          ))}
+          <div style={{ textAlign: 'center', fontSize: 11, color: '#333', marginTop: 8 }}>Click any question to expand · Copy strips formatting for portal paste</div>
         </div>
       </div>
     </div>
