@@ -122,9 +122,9 @@ function Portfolio() {
 
 
 ﻿const tiers = [
-  { name: "Website", price: "From 350", timeline: "3 days", description: "Up to 5 pages. Mobile-first design. Fast hosting setup. Contact form. You own the domain and code.", highlight: false },
-  { name: "Automation", price: "From 400", timeline: "3 days", description: "Booking forms, enquiry routing, follow-up emails, quote calculators. Reduces manual admin.", highlight: true },
-  { name: "Website + Automation", price: "From 650", timeline: "5 days", description: "Everything in both packages. Full site plus the automation built in from day one.", highlight: false },
+  { name: "Website", price: "From £350", timeline: "3 days", description: "Up to 5 pages. Mobile-first design. Fast hosting setup. Contact form. You own the domain and code.", highlight: false },
+  { name: "Automation", price: "From £400", timeline: "3 days", description: "Booking forms, enquiry routing, follow-up emails, quote calculators. Reduces manual admin.", highlight: true },
+  { name: "Website + Automation", price: "From £650", timeline: "5 days", description: "Everything in both packages. Full site plus the automation built in from day one.", highlight: false },
 ];
 
 function Pricing() {
