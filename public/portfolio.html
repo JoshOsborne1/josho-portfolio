@@ -1,0 +1,2233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Josh Osborne - josho.pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --primary: #00f0ff;
+  --primary-bg: rgba(0, 240, 255, 0.1);
+  --primary-rgb: 0, 240, 255;
+  --primary-rgb-fallback: rgba(var(--primary-rgb), 0.8);
+}
+:root{--bg:#0f0f0f;--s1:#141414;--s2:#1a1a1a;--s3:#222;--border:rgba(255,255,255,0.07);--border-hi:rgba(255,255,255,0.18);--text:#f0f0f0;--muted:#666;--dim:#333;--green:#22c55e;--green-bg:rgba(34,197,94,0.08);--primary:#258487;--primary-bg:var(--primary-rgb-fallback,0.1);--amber:#f59e0b;--red:#ef4444;--mono:'JetBrains Mono',monospace;}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:hidden;line-height:1.6;cursor:none !important}
+body *{cursor:none !important}
+@media(hover:none),(pointer:coarse),(max-width:768px){body,body *{cursor:auto !important}}
+@media(hover:none),(pointer:coarse){.cursor-dot,.cursor-ring{display:none !important}}
+::selection{background:var(--text);color:var(--bg)}
+a{color:inherit;text-decoration:none}
+button,a,[onclick]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.cursor-dot{position:fixed;top:0;left:0;width:6px;height:6px;background:#fff;border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform 0.1s}
+.cursor-ring{position:fixed;top:0;left:0;width:36px;height:36px;border:1.5px solid rgba(255,255,255,0.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width 0.15s ease-out,height 0.15s ease-out,border-color 0.15s ease-out,transform 0.08s linear}
+.cursor-ring.hover{width:56px;height:56px;border-color:var(--primary-rgb-fallback,0.8);transform:translate(-50%,-50%) scale(1.2)}
+.cursor-dot.click{animation:pulseDot 0.2s ease-out}
+@keyframes pulseDot{0%{transform:translate(-50%,-50%) scale(2.5)}100%{transform:translate(-50%,-50%) scale(1)}}
+.js-ready .project-card,.js-ready .detail-hero,.js-ready .detail-stats,.js-ready .dstat,.js-ready .proof-panel,.js-ready .price-table,.js-ready .how-step,.js-ready .detail-body,.js-ready .section-label,.js-ready .detail-section-title{opacity:0;transform:translateY(32px)}
+.revealed{opacity:1 !important;transform:translateY(0) !important;transition:opacity 0.55s ease,transform 0.55s ease}
+@media(prefers-reduced-motion:reduce){.js-ready .project-card,.js-ready .detail-hero,.js-ready .detail-stats,.js-ready .dstat,.js-ready .proof-panel,.js-ready .price-table,.js-ready .how-step,.js-ready .detail-body,.js-ready .section-label,.js-ready .detail-section-title{opacity:1;transform:none;transition-delay:0s !important}}
+.wrap{max-width:1280px;margin:0 auto;padding:0 64px}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:22px 64px;display:flex;justify-content:space-between;align-items:center;transition:all 0.3s}
+nav.scrolled{background:rgba(15,15,15,0.95);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:0.06em}
+.nav-links{display:flex;gap:28px}
+.nav-links a{font-size:13px;color:var(--muted);letter-spacing:0.04em;transition:color 0.2s}
+.nav-links a:hover{color:var(--text)}
+/* MOBILE NAV */
+.nav-hamburger{display:none;flex-direction:column;gap:5px;width:28px;cursor:pointer;background:none;border:none;padding:4px;z-index:300;position:relative}
+.nav-hamburger span{display:block;height:1.5px;background:var(--muted);border-radius:2px;transition:transform 0.3s,opacity 0.3s,width 0.3s}
+.nav-hamburger.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg);background:var(--text)}
+.nav-hamburger.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+.nav-hamburger.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg);background:var(--text)}
+.nav-mobile-overlay{display:none;position:fixed;inset:0;z-index:250;background:rgba(15,15,15,0.97);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);flex-direction:column;justify-content:center;align-items:center;gap:40px;opacity:0;transition:opacity 0.3s ease}
+.nav-mobile-overlay.open{display:flex;opacity:1}
+.nav-mobile-overlay a{font-family:var(--mono);font-size:clamp(22px,6vw,32px);color:var(--muted);letter-spacing:0.05em;text-transform:uppercase;transition:color 0.2s;text-decoration:none}
+.nav-mobile-overlay a:hover,.nav-mobile-overlay a:focus{color:var(--text)}
+.hero{min-height:100vh;min-height:100svh;min-height:100dvh;position:relative;display:flex;flex-direction:column;justify-content:center;padding:120px 64px 80px;overflow:hidden}
+#bg-canvas{position:absolute;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+.hero-content{position:relative;z-index:1}
+.hero-eyebrow{font-family:var(--mono);font-size:11px;color:var(--primary);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:28px;opacity:0;animation:fadeUp 0.5s 0.1s both}
+.hero-name{font-size:clamp(80px,10.5vw,160px);font-weight:900;line-height:0.9;letter-spacing:-0.04em;margin-bottom:36px;opacity:0;animation:fadeUp 0.6s 0.2s both;white-space:pre-wrap}
+.hero-name .first{color:var(--text)}
+.hero-name .last{color:var(--muted)}
+.hero-role{font-size:clamp(15px,1.4vw,19px);color:var(--muted);font-weight:300;max-width:560px;line-height:1.75;margin-bottom:48px;opacity:0;animation:fadeUp 0.5s 0.32s both}
+.hero-typewriter{font-family:var(--mono);font-size:13px;color:var(--primary);letter-spacing:0.1em;min-height:22px;margin-bottom:16px}
+.hero-typewriter::after{content:"|";animation:blink 0.8s step-end infinite}
+.hero-stats-row{display:flex;gap:40px;margin:32px 0 28px;flex-wrap:wrap}
+.hero-stat{display:flex;flex-direction:column;gap:4px}
+.hs-num{font-size: clamp(36px, 4vw, 56px);font-weight:700;letter-spacing:-0.03em;color:var(--text)}
+.hs-label{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:0.12em;text-transform:uppercase}
+.hero-meta{display:flex;gap:40px;flex-wrap:wrap;opacity:0;animation:fadeUp 0.5s 0.42s both}
+.hero-meta a{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:0.08em;transition:color 0.2s}
+.hero-meta a:hover{color:var(--text)}
+.scroll-indicator{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:1px;height:48px;background:rgba(255,255,255,0.15);overflow:hidden;transition:opacity 0.3s ease}
+.scroll-indicator::after{content:"";position:absolute;top:-100%;left:0;width:100%;height:100%;background:#fff;animation:scrollDrop 1.8s infinite}
+@keyframes scrollDrop{0%{top:-100%}100%{top:100%}}
+.scroll-nudge{display:flex;flex-direction:column;align-items:center;gap:12px;padding:48px 0 64px;opacity:0.4}
+.scroll-nudge-text{font-family:var(--mono);font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--dim)}
+.scroll-nudge-line{width:1px;height:48px;background:linear-gradient(to bottom, var(--dim), transparent);animation:scrollDrop 1.8s ease-in-out infinite}
+.section-label{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:64px}
+.projects-index{padding:100px 0 120px}
+.project-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.project-card{background:var(--s1);border:1px solid var(--border);padding:48px;cursor:pointer;transition:border-color 0.25s,background 0.25s,transform 0.5s cubic-bezier(0.23,1,0.32,1);transform-style:preserve-3d;position:relative;overflow:visible;-webkit-user-select:none;user-select:none}
+.project-card::before,.project-card::after{content:"";position:absolute;pointer-events:none;z-index:10;opacity:0;transition:opacity 0.35s ease;}
+.project-card::before{top:-1px;left:-1px;height:1.5px;width:calc(100%+2px);background:linear-gradient(90deg,var(--primary) 0%,transparent 100%);}
+.project-card::after{top:-1px;left:-1px;width:1.5px;height:calc(100%+2px);background:linear-gradient(180deg,var(--primary) 0%,transparent 100%);}
+.project-card:hover{background:var(--s2);border-color:var(--border-hi)}
+.project-card:hover::before,.project-card:hover::after{opacity:0.75;}
+.card-glow{position:absolute;inset:0;pointer-events:none;z-index:1;background:radial-gradient(circle at var(--gx,50%) var(--gy,50%),rgba(var(--primary-rgb),0.08) 0%,transparent 55%);opacity:0;transition:opacity 0.3s;}
+.project-card:hover .card-glow{opacity:1;}
+.card-shine{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 50%,rgba(255,255,255,0.0),transparent 60%);z-index:2;transition:background 0.12s}
+.card-view{position:absolute;bottom:24px;right:28px;font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:0.1em;transition:color 0.25s;z-index:3}
+.project-card:hover .card-view{color:var(--text)}
+.card-content{position:relative;z-index:3}
+.card-num{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:0.15em;margin-bottom:20px}
+.card-headline{font-size:clamp(18px,2vw,26px);font-weight:700;line-height:1.2;letter-spacing:-0.02em;margin-bottom:16px}
+.card-desc{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:28px}
+.card-badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:32px}
+.badge{font-family:var(--mono);font-size:10px;padding:4px 10px;border:1px solid var(--border);border-radius:3px;color:var(--muted);letter-spacing:0.04em}
+.badge.teal{background:var(--primary-bg);border-color:var(--primary-rgb-fallback,0.3);color:var(--primary)}
+.badge.lang{background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.3);color:#818cf8}
+.badge.tool{background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);color:#fbbf24}
+
+.badge.concept { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.15); color: rgba(255,255,255,0.5); }
+
+.badge.ai{background:var(--primary-bg);border-color:var(--primary-rgb-fallback,0.3);color:var(--primary)}
+.card-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.cstat-num{font-size:clamp(18px,1.8vw,24px);font-weight:700;letter-spacing:-0.02em;line-height:1;white-space:nowrap}
+.cstat-num.green{color:var(--green)}
+.cstat-num.primary{color:var(--primary)}
+.cstat-label{font-family:var(--mono);font-size:9px;color:var(--dim);letter-spacing:0.12em;text-transform:uppercase;margin-top:4px}
+.page-container{transition:opacity 0.3s ease,transform 0.3s ease}
+.page-container.fading-out{opacity:0;transform:translateY(0px);transition:opacity 0.2s ease}
+.page-container.fading-in{opacity:0;transform:translateY(16px)}
+.page-container.faded-in{opacity:1;transform:translateY(0)}
+.detail-page{display:none;padding-top:100px;min-height:100vh}
+.detail-page.active{display:block}
+.back-btn{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:0.1em;cursor:pointer;padding:10px 0;margin-bottom:60px;display:inline-flex;align-items:center;gap:8px;transition:color 0.2s;border:none;background:none}
+.back-btn:hover{color:var(--text)}
+.detail-hero{margin-bottom:80px}
+.detail-eyebrow{font-family:var(--mono);font-size:11px;color:var(--primary);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:20px}
+.detail-title{font-size:clamp(36px,4.5vw,68px);font-weight:900;line-height:1.0;letter-spacing:-0.03em;margin-bottom:24px}
+.detail-sub{font-size:17px;color:var(--muted);max-width:680px;line-height:1.8}
+.detail-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:80px}
+.dstat{background:var(--s1);padding:32px 28px}
+.dstat-num{font-size:clamp(28px,3vw,44px);font-weight:700;letter-spacing:-0.03em;line-height:1;margin-bottom:6px;white-space:nowrap}
+.dstat-num.green{color:var(--green)}
+.dstat-num.primary{color:var(--primary)}
+.dstat-label{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:0.14em;text-transform:uppercase}
+.detail-body{display:grid;grid-template-columns:1fr 1fr;gap:64px;margin-bottom:80px;align-items:start}
+.detail-body.wide{grid-template-columns:1fr}
+.detail-section-title{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:24px}
+.detail-text p{font-size:15px;color:var(--muted);line-height:1.9;margin-bottom:16px}
+.detail-text p:last-child{margin-bottom:0}
+.proof-panel{background:var(--s1);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.proof-header{background:var(--s2);padding:12px 20px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
+.proof-title{font-family:var(--mono);font-size:11px;color:var(--dim);margin-left:4px}
+.proof-body{padding:24px}
+.term{font-family:var(--mono);font-size:12.5px;line-height:1.9}
+.t-cmd{color:var(--amber)}
+.t-ok{color:var(--green)}
+.t-err{color:var(--red)}
+.t-dim{color:var(--dim);font-size:11px}
+.t-white{color:var(--text)}
+.t-teal{color:var(--primary)}
+.term-cursor{display:inline-block;width:7px;height:13px;background:var(--green);vertical-align:middle;animation:blink 1s step-end infinite}
+.contact-section{background:var(--s1);border-top:1px solid var(--border);padding:120px 0}
+/* HOVER STEP MOBILE TOGGLE (tap to expand) */
+.hover-step-sim.open{max-height:200px !important}
+.hover-step.touch-hover .hover-step-hint{opacity:0}
+.hover-step.touch-hover .hover-step-sim{max-height:200px}
+.hover-step.touch-hover .hsim-line{opacity:1}
+.hover-step.touch-hover .hsim-line:nth-child(1){transition:opacity 0.2s 0.1s}
+.hover-step.touch-hover .hsim-line:nth-child(2){transition:opacity 0.2s 0.3s}
+.hover-step.touch-hover .hsim-line:nth-child(3){transition:opacity 0.2s 0.5s}
+.hover-step.touch-hover .hsim-line:nth-child(4){transition:opacity 0.2s 0.7s}
+.contact-content{max-width:800px;margin:0 auto;text-align:center}
+.contact-headline{font-size:clamp(40px,5vw,72px);font-weight:900;letter-spacing:-0.03em;margin-bottom:16px;color:var(--text)}
+.contact-sub{font-size:18px;color:var(--muted);margin-bottom:48px}
+.contact-btn{display:inline-block;background:var(--text);color:var(--bg);font-weight:600;font-size:18px;padding:16px 40px;border-radius:32px;text-decoration:none;margin-bottom:48px;transition:transform 0.2s, background 0.2s}
+.contact-btn:hover{background:#fff;transform:translateY(-2px)}
+.contact-meta{display:flex;align-items:center;justify-content:center;gap:16px;font-family:var(--mono);font-size:13px;color:var(--dim)}
+.contact-meta a{color:var(--muted);transition:color 0.2s}
+.contact-meta a:hover{color:var(--text)}
+.pipeline{display:flex;align-items:stretch;gap:0}
+.pipe-step{flex:1;padding:14px 10px;text-align:center;border:1px solid var(--border);border-right:none;transition:border-color 0.4s, background 0.4s}
+.pipe-step:last-child{border-right:1px solid var(--border)}
+.pipe-step.active {
+  background: var(--primary-rgb-fallback,0.06);
+  border-color: var(--primary-rgb-fallback,0.3);
+  box-shadow: 0 0 12px var(--primary-rgb-fallback,0.2);
+}
+.pipe-step-label{font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);transition:color 0.4s}
+.pipe-step.active .pipe-step-label{color:var(--green)}
+.pipe-bar-wrap{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:16px}
+.pipe-bar{height:100%;background:var(--green);width:0%;transition:width 0.7s ease;border-radius:2px}
+.pdf-doc{background:#fff;border-radius:6px;padding:24px;color:#1f1f1f;font-size:12px;line-height:1.6;box-shadow:0 4px 24px rgba(0,0,0,0.4)}
+.pdf-header{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:16px;margin-bottom:16px;border-bottom:3px solid #1a3c6e}
+.pdf-logo-area{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:0.1em}
+.pdf-confidential{font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:0.12em}
+.pdf-title{font-size:18px;font-weight:700;color:#1a3c6e;margin-bottom:4px}
+.pdf-client{font-size:13px;color:#444;margin-bottom:2px}
+.pdf-date{font-size:10px;color:#888}
+.pdf-section-head{font-size:10px;font-weight:700;color:#1a3c6e;text-transform:uppercase;letter-spacing:0.1em;margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid #e5e7eb}
+.pdf-bullet{display:flex;gap:8px;font-size:11px;color:#444;margin-bottom:4px}
+.pdf-bullet::before{content:'•';color:#1a3c6e;flex-shrink:0}
+.pdf-table{width:100%;border-collapse:collapse;font-size:10px;margin-top:8px}
+.pdf-table th{background:#f0f4fa;color:#1a3c6e;padding:5px 8px;text-align:left;font-size:9px;letter-spacing:0.06em;text-transform:uppercase}
+.pdf-table td{padding:5px 8px;border-bottom:1px solid #f0f0f0;color:#333}
+.pdf-table .total-row td{font-weight:700;color:#1a3c6e;border-top:2px solid #1a3c6e}
+.pdf-footer{margin-top:14px;padding-top:10px;border-top:1px solid #e5e7eb;font-size:9px;color:#aaa;text-align:center}
+#agent-canvas{display:block;width:100%;border-radius:10px}
+.price-table{width:100%;border-collapse:collapse}
+.price-table th{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);padding:10px 16px;text-align:left;border-bottom:1px solid var(--border)}
+.price-table td{padding:14px 16px;border-bottom:1px solid var(--border);font-size:14px;color:var(--muted)}
+.price-table td:last-child{text-align:right;font-family:var(--mono);font-size:13px;color:var(--text)}
+.price-table tr.highlight td{color:var(--text);background:var(--green-bg)}
+.price-table tr.highlight td:last-child{color:var(--green);font-weight:600}
+.how-steps{counter-reset:step}
+.how-step{display:flex;gap:24px;padding:24px 0;border-bottom:1px solid var(--border)}
+.how-step:last-child{border-bottom:none}
+.step-num{font-family:var(--mono);font-size:11px;color:var(--primary);flex-shrink:0;width:28px;padding-top:2px}
+.step-body h4{font-size:15px;font-weight:600;margin-bottom:6px}
+.step-body p{font-size:13px;color:var(--muted);line-height:1.7}
+.hover-steps-container { height: 440px; position: relative; }
+.hover-steps{display:flex;flex-direction:column;gap:0}
+.hover-step{border-bottom:1px solid var(--border);overflow:hidden}
+.hover-step:first-child{border-top:1px solid var(--border)}
+.hover-step-header{display:flex;align-items:center;gap:16px;padding:20px 0;cursor:none;-webkit-user-select:none;user-select:none}
+.hover-step-num{font-family:var(--mono);font-size:13px;color:var(--primary);font-weight:600;min-width:28px}
+.hover-step-title{font-size:15px;font-weight:600;flex:1}
+.hover-step-hint{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:0.12em;text-transform:uppercase;transition:opacity 0.2s}
+.hover-step:hover .hover-step-hint{opacity:0}
+.hover-step-sim{max-height:0;overflow:hidden;transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1)}
+.hover-step:hover .hover-step-sim{max-height:160px}
+.hover-step-sim .term{padding:0 0 16px 44px}
+.hsim-line{opacity:0;margin-bottom:3px;font-size:12px}
+.hover-step:hover .hsim-line{opacity:1}
+.hover-step:hover .hsim-line:nth-child(1){transition:opacity 0.2s 0.1s}
+.hover-step:hover .hsim-line:nth-child(2){transition:opacity 0.2s 0.3s}
+.hover-step:hover .hsim-line:nth-child(3){transition:opacity 0.2s 0.5s}
+.hover-step:hover .hsim-line:nth-child(4){transition:opacity 0.2s 0.7s}
+.f-field{margin-bottom:14px}
+.f-label{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:5px}
+.f-input{background:var(--s2);border:1px solid var(--border);border-radius:5px;padding:9px 13px;font-family:var(--mono);font-size:12px;color:var(--text);width:100%;transition:border-color 0.3s;min-height:36px}
+.f-input.typing{border-color:rgba(255,255,255,0.2)}
+.f-btn{width:100%;padding:11px;background:var(--green);color:#0f0f0f;font-weight:700;font-size:13px;border:none;border-radius:5px;cursor:pointer;letter-spacing:0.04em;margin-top:6px;transition:opacity 0.2s}
+.pdf-result{margin-top:16px;border:1px solid var(--border);border-radius:7px;overflow:hidden;max-height:0;transition:max-height 0.4s ease,opacity 0.4s;opacity:0}
+.pdf-result.show{max-height:80px;opacity:1}
+.pdf-stripe{height:5px;background:var(--primary)}
+.pdf-content{padding:12px 16px;background:var(--s2)}
+.pdf-content p{font-size:11px;color:var(--muted);font-family:var(--mono)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+footer{padding:72px 0;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:24px}
+.footer-name{font-size:15px;font-weight:600;margin-bottom:6px}
+.footer-links{display:flex;gap:24px}
+.footer-links a{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:0.06em;transition:color 0.2s}
+.footer-links a:hover{color:var(--text)}
+.footer-right{font-family:var(--mono);font-size:11px;color:var(--dim)}
+
+/* =============================================
+   TABLET & MOBILE RESPONSIVE (≤ 1024px)
+   ============================================= */
+@media(max-width:1024px){
+  .wrap{padding:0 40px}
+  nav{padding:20px 40px}
+  .hero{padding:100px 40px 60px}
+  .project-card{padding:36px}
+}
+
+/* =============================================
+   MOBILE (≤ 768px)
+   ============================================= */
+@media(max-width:768px){
+  /* Nav */
+  nav{padding:18px 24px}
+  .nav-hamburger{display:flex}
+  .nav-links{display:none}
+  
+  /* Layout */
+  .wrap{padding:0 20px}
+
+  /* Hero */
+  .hero{padding:90px 24px 60px;min-height:100vh;min-height:100svh;min-height:100dvh}
+  .hero-name{font-size:clamp(52px,13vw,88px);margin-bottom:24px}
+  .hero-role{font-size:15px;margin-bottom:32px}
+  .hero-stats-row{gap:24px;margin:24px 0 20px}
+  .hs-num{font-size:clamp(28px,7vw,40px)}
+  .hero-meta{gap:20px}
+  .scroll-cue{left:24px}
+  
+  /* Project grid */
+  .projects-index{padding:64px 0 80px}
+  .section-label{margin-bottom:40px}
+  .project-grid{grid-template-columns:1fr;gap:2px}
+  .project-card{padding:28px 24px}
+  .card-stats{grid-template-columns:repeat(2,1fr);gap:16px}
+  .card-headline{font-size:clamp(17px,4.5vw,22px)}
+
+  /* Detail page */
+  .detail-page{padding-top:80px}
+  .detail-title{font-size:clamp(32px,8vw,56px)}
+  .detail-stats{grid-template-columns:repeat(2,1fr)}
+  .dstat{padding:20px 16px}
+  .dstat-num{font-size:clamp(22px,5vw,32px)}
+  .detail-body{grid-template-columns:1fr;gap:40px;margin-bottom:48px}
+  .back-btn{margin-bottom:36px}
+  .detail-hero{margin-bottom:48px}
+  
+  /* Contact page */
+  .contact-pg-grid{grid-template-columns:1fr;gap:40px}
+  .contact-two-col{grid-template-columns:1fr;gap:40px}
+  .contact-pg-title{font-size:clamp(40px,10vw,72px)}
+  .contact-hero-title{font-size:clamp(40px,10vw,72px)}
+
+  /* PDF live demo */
+  .pdf-live-editor{grid-template-columns:1fr;gap:24px}
+  .pdf-live-demo{grid-template-columns:1fr}
+  
+  /* Agent pipeline */
+  .ap-stages{grid-template-columns:1fr}
+  .wf-connector{margin-left:0;height:24px}
+  
+  /* Footer */
+  footer{flex-direction:column;align-items:flex-start;padding:48px 0 40px}
+
+  /* Hover steps: enlarge tap target */
+  .hover-step-header{padding:18px 0;cursor:pointer}
+}
+
+/* =============================================
+   SMALL MOBILE (≤ 480px)
+   ============================================= */
+@media(max-width:480px){
+  .wrap{padding:0 16px}
+  nav{padding:16px 20px}
+  .hero{padding:80px 16px 48px}
+  .hero-name{font-size:clamp(44px,12vw,72px)}
+  .project-card{padding:22px 18px}
+  .detail-stats{grid-template-columns:repeat(2,1fr)}
+  .dstat{padding:16px 12px}
+  .card-stats{grid-template-columns:1fr 1fr}
+  .contact-hero-title,.contact-pg-title{font-size:clamp(36px,11vw,60px)}
+  .detail-body{gap:28px}
+  .agent-row{flex-direction:column}
+  .agent-card{min-width:unset}
+}
+/* WORKFLOW */
+.wf-wrap{margin-bottom:80px}
+.wf-stage{display:grid;grid-template-columns:120px 1fr;gap:24px;align-items:start;margin-bottom:0}
+.wf-side-label{padding-top:14px;text-align:right}
+.wf-who{display:block;font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:0.08em}
+.wf-who.user{color:var(--muted)}
+.wf-who.rox{color:var(--primary)}
+.wf-who.atlas{color:#7c3aed}
+.wf-who.pixel{color:#ec4899}
+.wf-role{display:block;font-size:10px;color:var(--dim);margin-top:3px;font-family:var(--mono)}
+.wf-connector{width:1px;background:linear-gradient(to bottom,var(--primary-rgb-fallback,0.35),var(--primary-rgb-fallback,0.08));height:48px;margin:0 0 0 119px;position:relative}
+.wf-dot{width:8px;height:8px;background:var(--primary);border-radius:50%;position:absolute;left:50%;transform:translateX(-50%);top:-4px;opacity:0}
+.wf-bubble{border-radius:14px;padding:20px 24px;max-width:640px}
+.user-bubble{background:var(--s2);border:1px solid var(--border);border-bottom-left-radius:4px}
+.ai-bubble{background:var(--primary-rgb-fallback,0.08);border:1px solid var(--primary-rgb-fallback,0.2);border-bottom-right-radius:4px;margin-left:auto}
+.wf-bubble-text{font-size:14px;line-height:1.75;color:var(--text);margin-bottom:10px}
+.wf-bubble-meta{font-family:var(--mono);font-size:10px;color:var(--dim)}
+.wf-bubble-meta-right{text-align:right}
+.wf-dl-row{display:flex;gap:10px;margin:14px 0 10px;flex-wrap:wrap}
+.wf-dl-btn{font-family:var(--mono);font-size:11px;padding:7px 14px;border-radius:6px;background:var(--primary);color:#fff;transition:opacity 0.2s;letter-spacing:0.04em}
+.wf-dl-btn.secondary{background:var(--s3);border:1px solid var(--border);color:var(--muted)}
+.wf-badge{font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:3px;margin-left:auto;letter-spacing:0.12em;text-transform:uppercase}
+.wf-badge.amber{background:rgba(245,158,11,0.12);color:var(--amber);border:1px solid rgba(245,158,11,0.2)}
+.wf-badge.green{background:var(--green-bg);color:var(--green);border:1px solid rgba(34,197,94,0.2)}
+.proof-header{display:flex;align-items:center}
+.wf-line{opacity:0;margin-bottom:2px;transition:opacity 0.3s}
+.wf-line.show{opacity:1}
+/* AGENT TEAM */
+.agent-row{display:flex;gap:12px;flex-wrap:wrap}
+.agent-card{flex:1;min-width:160px;background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:16px 18px}
+.agent-card-name{font-family:var(--mono);font-size: 14px;color:var(--primary);margin-bottom:4px}
+.agent-card-role{font-size:13px;font-weight:600;margin-bottom:4px}
+.agent-card-desc{font-size:12px;color:var(--muted);line-height:1.6}
+/* PRICE SOURCE */
+
+.price-source a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+.price-source a:hover{color:var(--text)}
+/* LIVE PDF DEMO */
+.pdf-live-demo{display:grid;grid-template-columns:1.5fr 1fr;gap:40px;align-items:start;margin-bottom:64px}
+@media(max-width:900px){.pdf-live-demo{grid-template-columns:1fr}}
+.live-input{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:5px;padding:9px 13px;font-family:var(--mono);font-size:12px;color:var(--text);outline:none;transition:border-color 0.2s;margin-bottom:10px;display:block;box-sizing:border-box}
+.live-input:focus{border-color:rgba(255,255,255,0.2)}
+.live-textarea{min-height:80px;resize:vertical}
+.live-btn{padding:10px 18px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:none;letter-spacing:0.03em;transition:opacity 0.2s}
+.live-btn.primary{background:var(--green);color:#0f0f0f}
+.live-btn.secondary{background:var(--primary-bg,var(--primary-rgb-fallback,0.1));border:1px solid var(--primary-rgb-fallback,0.3);color:var(--primary)}
+.live-btn:disabled{opacity:0.4}
+.live-btn-row{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap}
+.live-status{font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:10px;min-height:16px;transition:color 0.2s}
+.live-status.error{color:var(--red,#f87171)}
+.live-status.loading{color:var(--amber,#f59e0b)}
+.live-status.ok{color:var(--green,#22c55e)}
+.preview-frame-wrap{position:relative;min-height:400px;background:var(--s2);border-radius:6px;overflow:hidden}
+.preview-frame-wrap iframe{width:100%;height:400px;border:none;display:block}
+.preview-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--dim);text-align:center;padding:16px}
+.preview-loading{position:absolute;inset:0;background:rgba(15,15,15,0.85);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--amber,#f59e0b);animation:pulse 1.5s ease-in-out infinite}
+.file-card{background:var(--s1);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.file-card-stripe{height:4px;background:var(--primary)}
+.file-card-body{padding:16px}
+.file-card-name{font-family:var(--mono);font-size:12px;color:var(--text);margin-bottom:4px;word-break:break-all}
+.file-card-meta{font-family:var(--mono);font-size:10px;color:var(--dim);margin-bottom:14px}
+.file-card-empty{border:1px dashed rgba(255,255,255,0.12);border-radius:8px;min-height:120px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--dim);padding:16px;text-align:center}
+/* SCROLL NUDGE */
+.scroll-nudge{display:flex;flex-direction:column;align-items:center;gap:12px;padding:48px 0 64px;opacity:0.4}
+.scroll-nudge-text{font-family:var(--mono);font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--dim)}
+.scroll-nudge-line{width:1px;height:48px;background:linear-gradient(to bottom,rgba(255,255,255,0.3),transparent);animation:scrollDrop 1.8s ease-in-out infinite}
+/* HOVER STEPS */
+.hover-steps{display:flex;flex-direction:column;gap:0}
+.hover-step{border-bottom:1px solid var(--border);overflow:hidden}
+.hover-step:first-child{border-top:1px solid var(--border)}
+.hover-step-header{display:flex;align-items:center;gap:16px;padding:20px 0}
+.hover-step-num{font-family:var(--mono);font-size:13px;color:var(--primary);font-weight:600;min-width:28px}
+.hover-step-title{font-size:15px;font-weight:600;flex:1}
+.hover-step-hint{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:0.12em;text-transform:uppercase;transition:opacity 0.2s}
+.hover-step:hover .hover-step-hint{opacity:0}
+.hover-step-sim{max-height:0;overflow:hidden;transition:max-height 0.4s cubic-bezier(0.4,0,0.2,1)}
+.hover-step:hover .hover-step-sim{max-height:200px}
+.hover-step-sim .term{padding:0 0 16px 44px}
+.hsim-line{opacity:0;margin-bottom:3px;font-size:12px}
+.hover-step:hover .hsim-line{opacity:1}
+.hover-step:hover .hsim-line:nth-child(1){transition:opacity 0.2s 0.1s}
+.hover-step:hover .hsim-line:nth-child(2){transition:opacity 0.2s 0.3s}
+.hover-step:hover .hsim-line:nth-child(3){transition:opacity 0.2s 0.5s}
+.hover-step:hover .hsim-line:nth-child(4){transition:opacity 0.2s 0.7s}
+/* TRUST BARS */
+
+
+.p4-plain-english{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:24px 32px;margin-bottom:48px;font-size:16px;line-height:1.8;color:var(--muted);max-width:640px}
+
+/* P4 PLAIN ENGLISH */
+.p4-plain-english{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:24px 32px;margin-bottom:48px;font-size:16px;line-height:1.8;color:var(--muted);max-width:640px}
+/* CONTACT PAGE */
+.contact-pg-hero{padding:60px 0 48px}
+.contact-pg-title{font-size:clamp(48px,6vw,96px);font-weight:900;letter-spacing:-0.04em;line-height:0.95;margin-bottom:20px}
+.contact-pg-title span{color:var(--primary)}
+.contact-pg-sub{font-size:17px;color:var(--muted);line-height:1.7;max-width:500px}
+.contact-pg-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;padding-bottom:80px;align-items:start}
+@media(max-width:768px){.contact-pg-grid{grid-template-columns:1fr;gap:48px}}
+.contact-card{background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:20px 24px;margin-bottom:12px}
+.contact-card-label{font-family:var(--mono);font-size:10px;color:var(--primary);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:8px}
+.contact-card-value{font-size:16px;font-weight:500;color:var(--text);text-decoration:none;display:block;transition:color 0.2s}
+.contact-card-value:hover{color:var(--primary)}
+.contact-pg-cta{display:inline-block;background:var(--primary);color:#fff;font-weight:600;font-size:15px;padding:14px 32px;border-radius:8px;text-decoration:none;margin-top:24px;letter-spacing:0.02em;transition:opacity 0.2s}
+.contact-pg-cta:hover{opacity:0.85}
+.contact-build-list{display:flex;flex-direction:column;gap:0}
+.contact-build-item{display:flex;gap:16px;padding:20px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+.contact-build-item:first-child{border-top:1px solid var(--border)}
+.contact-build-dot{width:6px;height:6px;background:var(--primary);border-radius:50%;margin-top:8px;flex-shrink:0}
+.contact-build-title{font-size:15px;font-weight:600;margin-bottom:4px}
+.contact-build-desc{font-size:13px;color:var(--muted);line-height:1.6}
+.hero { min-height: 100svh;  position:relative; z-index:1; }
+#index-page { position:relative; z-index:1; }
+.detail-page { position:relative; z-index:1; }
+#contact-page { position:relative; z-index:1; }
+
+.section-divider { display:flex; align-items:center; gap:24px; padding:40px 0 0; }
+.section-divider-label { font-family:var(--mono); font-size:11px; color:var(--dim); letter-spacing:0.2em; text-transform:uppercase; white-space:nowrap; }
+.section-divider-line { flex:1; height:1px; background:var(--border); }
+
+.scroll-cue { position:absolute; bottom:40px; left:64px; display:flex; flex-direction:column; gap:8px; align-items:flex-start; opacity:0; animation: fadeUp 0.5s 1.2s both; transition:opacity 0.3s; }
+.scroll-cue-text { font-family:var(--mono); font-size:10px; color:rgba(255,255,255,0.25); letter-spacing:0.2em; text-transform:uppercase; }
+.scroll-cue-chevron { animation: bounceCue 2s ease-in-out infinite; }
+@keyframes bounceCue { 0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)} }
+
+.contact-hero { padding: 60px 0 64px; }
+.contact-hero-title { font-size: clamp(56px, 7vw, 112px); font-weight: 900; letter-spacing: -0.04em; line-height: 0.92; margin-bottom: 28px; }
+.contact-hero-sub { font-size: 18px; color: var(--muted); line-height: 1.75; max-width: 520px; }
+.contact-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; padding-bottom: 80px; align-items: start; }
+@media(max-width:768px) { .contact-two-col { grid-template-columns: 1fr; gap: 48px; } }
+.contact-big-card { display: block; background: var(--s1); border: 1px solid var(--border); border-radius: 10px; padding: 22px 28px; margin-bottom: 10px; text-decoration: none; position: relative; transition: border-color 0.2s, background 0.2s; }
+.contact-big-card:not(.static):hover { border-color: var(--border-hi); background: var(--s2); }
+.contact-big-card-label { font-family: var(--mono); font-size: 10px; color: var(--primary); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 6px; }
+.contact-big-card-value { font-size: 17px; font-weight: 500; color: var(--text); }
+.contact-big-card-arrow { position: absolute; top: 22px; right: 24px; font-size: 18px; color: var(--dim); transition: color 0.2s; }
+.contact-big-card:hover .contact-big-card-arrow { color: var(--primary); }
+.contact-cta-btn { display: inline-block; background: var(--primary); color: #fff; font-weight: 600; font-size: 15px; padding: 14px 36px; border-radius: 8px; text-decoration: none; margin-top: 20px; letter-spacing: 0.02em; transition: opacity 0.2s; }
+.contact-cta-btn:hover { opacity: 0.85; }
+.contact-build-items { display: flex; flex-direction: column; gap: 0; }
+.contact-build-row { border-bottom: 1px solid var(--border); overflow: hidden; }
+.contact-build-row:first-child { border-top: 1px solid var(--border); }
+.contact-build-row-header { display: flex; align-items: center; gap: 16px; padding: 20px 0; }
+.contact-build-num { font-family: var(--mono); font-size: 13px; color: var(--primary); font-weight: 600; min-width: 28px; }
+.contact-build-name { font-size: 15px; font-weight: 600; flex: 1; }
+.contact-build-hint { font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: 0.12em; text-transform: uppercase; transition: opacity 0.2s; }
+.contact-build-row:hover .contact-build-hint { opacity: 0; }
+.contact-build-desc { max-height: 0; overflow: hidden; font-size: 13px; color: var(--muted); line-height: 1.7; padding: 0 0 0 44px; transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), padding 0.3s; }
+.contact-build-row:hover .contact-build-desc { max-height: 100px; padding-bottom: 16px; }
+
+.wf-results { opacity: 0; transform: translateY(16px); transition: opacity 0.5s ease, transform 0.5s ease; }
+.wf-results.show { opacity: 1; transform: translateY(0); display: block !important; }
+.wf-results-row { display: flex; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.wf-result-stat { flex: 1; background: var(--s1); padding: 28px 24px; }
+.wf-result-num { font-size: clamp(28px, 3vw, 44px); font-weight: 700; color: var(--green); letter-spacing: -0.03em; margin-bottom: 6px; }
+.wf-result-label { font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: 0.14em; text-transform: uppercase; }
+
+.trust-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 16px 14px 20px;
+  border-left: 2px solid var(--primary-rgb-fallback,0.4);
+  margin-top: 12px;
+  border-top: none;
+}
+.trust-item {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--green);
+  letter-spacing: 0.04em;
+}
+
+/* Cursor hover glow */
+.cursor-ring.hover { box-shadow: 0 0 14px rgba(var(--primary-rgb), 0.5); }
+.t-primary { color: var(--primary); }
+.dstat-num.primary { color: var(--primary); }
+
+/* LIVE PDF EDITOR */
+.pdf-live-editor{display:grid;grid-template-columns:1fr 1.1fr;gap:32px;align-items:start;margin-bottom:64px}
+@media(max-width:900px){.pdf-live-editor{grid-template-columns:1fr}}
+
+/* Custom scrollbar — suppress OS scrollbar everywhere */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.22)}
+* { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.12) transparent; }
+
+.ple-preview{display:flex;justify-content:stretch;align-items:flex-start;}
+/* PDF Viewer chrome — matches the proof-panel / input form dark style */
+.ple-preview-inner{width:100%;background:var(--s1);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 10px 40px -10px rgba(0,0,0,0.8);display:flex;flex-direction:column;}
+/* Canvas area — neutral almost-black so the white paper pops cleanly */
+.ple-canvas-area{background:#141414;flex:1;display:flex;justify-content:center;padding:20px 16px;overflow:hidden;}
+/* The paper scaler fills the column, max 400px */
+.ple-paper-scaler{width:100%;max-width:400px;}
+.ple-paper-scaler .pdf-paper-inner{background:#ffffff;width:100%;box-shadow:0 8px 30px rgba(0,0,0,0.5);display:flex;flex-direction:column;}
+.pdf-paper{background:#fff;width:100%;max-width:400px;border-radius:4px;box-shadow:0 16px 48px rgba(0,0,0,0.55),0 2px 8px rgba(0,0,0,0.3);padding:28px 28px 20px;color:#1f1f1f;font-family:'Inter',sans-serif}
+.pdf-paper-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.pdf-paper-brand{display:flex;align-items:center;gap:8px;font-size:9px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#1a3c6e}
+.pdf-paper-logo-mark{width:14px;height:14px;background:#1a3c6e;border-radius:2px}
+.pdf-paper-confidential{font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:#9ca3af}
+.pdf-paper-title-area{margin-bottom:14px}
+.pdf-paper-title{font-size:18px;font-weight:800;color:#111827;line-height:1.2;margin-bottom:6px;transition:all 0.2s}
+.pdf-paper-meta{font-size:11px;color:#6b7280;display:flex;align-items:center}
+.pdf-paper-sep{color:#d1d5db}
+.pdf-paper-rule{height:3px;background:#1a3c6e;border-radius:1px;margin-bottom:14px}
+.pdf-paper-section-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#1a3c6e;margin-bottom:8px}
+.pdf-paper-bullets{padding-left:14px;font-size:11px;line-height:1.7;color:#374151;margin-bottom:16px}
+.pdf-paper-bullets li{margin-bottom:4px;transition:color 0.2s}
+.pdf-paper-chart-area{margin-bottom:16px}
+.pdf-chart-bars{display:flex;align-items:flex-end;gap:6px;height:70px;background:#f9fafb;border-radius:4px;padding:8px 12px 0}
+.pdf-bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.pdf-bar-fill{width:100%;background:#1a3c6e;border-radius:2px 2px 0 0;min-height:4px}
+.pdf-bar-lbl{font-size:8px;color:#9ca3af;margin-top:3px;letter-spacing:0.06em}
+.pdf-paper-footer{margin-top:12px;padding-top:10px;border-top:1px solid #e5e7eb;display:flex;justify-content:space-between;font-size:8px;color:#9ca3af;letter-spacing:0.06em}
+
+/* AGENT PIPELINE SVG */
+.ap-svg-wrap{padding:8px 0 32px;overflow:visible}
+.ap-path{stroke:rgba(255,255,255,0.1);stroke-width:1.5;fill:none;stroke-linecap:round;transition:stroke 0.5s ease,stroke-opacity 0.5s ease}
+.ap-path.lit{stroke:var(--primary);stroke-opacity:0.5}
+.ap-nbg{fill:var(--s1);stroke:rgba(255,255,255,0.08);stroke-width:1;transition:fill 0.5s,stroke 0.5s}
+.ap-nring{fill:none;stroke:rgba(255,255,255,0.12);stroke-width:1.5;transition:stroke 0.5s,filter 0.5s}
+.ap-nicon{font-size:18px;text-anchor:middle;dominant-baseline:middle;fill:var(--dim);transition:fill 0.5s}
+.ap-nlbl{font-size:10px;font-family:'JetBrains Mono',monospace;letter-spacing:0.1em;text-anchor:middle;fill:var(--muted);text-transform:uppercase;transition:fill 0.5s}
+.ap-nsub{font-size:9px;text-anchor:middle;fill:var(--dim);font-family:'Inter',sans-serif}
+.ap-node.lit .ap-nbg{fill:var(--s2);stroke:var(--primary);stroke-opacity:0.4}
+.ap-node.lit .ap-nring{stroke:var(--primary);filter:drop-shadow(0 0 10px var(--primary))}
+.ap-node.lit .ap-nicon,.ap-node.lit .ap-nlbl{fill:var(--primary)}
+/* Stage descriptions */
+.ap-stages{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px}
+@media(max-width:700px){.ap-stages{grid-template-columns:1fr}}
+.ap-sd{display:flex;gap:16px;align-items:flex-start;opacity:0;transform:translateY(12px);transition:opacity 0.5s ease,transform 0.5s ease}
+.ap-sd.lit{opacity:1;transform:translateY(0)}
+.ap-sd-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--primary);flex-shrink:0;width:28px;padding-top:2px}
+.ap-sd-title{font-size:14px;font-weight:600;margin-bottom:6px}
+.ap-sd-text{font-size:13px;color:var(--muted);line-height:1.7}
+/* SLIDE CAROUSEL */
+.slide-carousel{display:flex;gap:12px;margin:16px 0 12px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.slide-carousel::-webkit-scrollbar{display:none}
+.slide-card{flex:0 0 160px;height:100px;border-radius:6px;overflow:hidden;cursor:none;border:2px solid transparent;transition:border-color 0.2s,transform 0.2s;opacity:0.7}
+.slide-card:hover{transform:translateY(-2px);opacity:1}
+.slide-card.slide-active{border-color:var(--primary);opacity:1}
+.slide-inner{width:100%;height:100%;padding:12px;display:flex;flex-direction:column;box-sizing:border-box}
+.sl-eyebrow{font-size:7px;color:rgba(255,255,255,0.4);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:6px}
+.sl-main-title{font-size:14px;font-weight:800;color:#fff;line-height:1.2}
+.sl-subtitle{font-size:7px;color:rgba(255,255,255,0.35);letter-spacing:0.06em}
+.sl-stat-row{display:flex;gap:8px}
+.sl-stat{flex:1;text-align:center}
+.sl-stat-num{font-size:16px;font-weight:700;color:#60a5fa}
+.sl-stat-lbl{font-size:7px;color:#475569;letter-spacing:0.06em;text-transform:uppercase;margin-top:2px}
+.sl-check-list{display:flex;flex-direction:column;gap:6px}
+.sl-check{font-size:9px;color:#86efac;display:flex;align-items:center;gap:6px}
+.sl-tick{color:#4ade80;font-size:9px}
+</style>
+<script>
+
+// Fixed accent colour — clean teal
+const PRIMARY_RGB = '0,212,204';
+document.documentElement.style.setProperty('--primary', '#00d4cc');
+document.documentElement.style.setProperty('--primary-bg', `rgba(${PRIMARY_RGB}, 0.1)`);
+document.documentElement.style.setProperty('--primary-rgb', PRIMARY_RGB);
+window.THEME_RGB_ARRAY = PRIMARY_RGB.split(',').map(Number);
+document.documentElement.classList.add('js-ready');
+// Live PDF Viewer JS
+document.addEventListener('DOMContentLoaded', () => {
+    const titleIn = document.getElementById('lf-title');
+    const clientIn = document.getElementById('lf-client');
+    const dateIn = document.getElementById('lf-date');
+    const bulletsIn = document.getElementById('lf-bullets');
+    
+    const titleOut = document.getElementById('pdf-out-title');
+    const clientOut = document.getElementById('pdf-out-client');
+    const dateOut = document.getElementById('pdf-out-date');
+    const bulletsOut = document.getElementById('pdf-out-bullets');
+
+    function updatePDF() {
+        if (!titleOut) return;
+        titleOut.innerText = titleIn.value || 'Untitled Report';
+        clientOut.innerText = clientIn.value || 'Client Name';
+        dateOut.innerText = dateIn.value || new Date().toISOString().split('T')[0];
+        
+        const bText = bulletsIn.value.split('\n').filter(l=>l.trim().length > 0);
+        bulletsOut.innerHTML = '';
+        bText.forEach(b => {
+            const li = document.createElement('li');
+            li.style.marginBottom = '6px';
+            li.innerText = b;
+            bulletsOut.appendChild(li);
+        });
+    }
+
+    if (titleIn) {
+        titleIn.addEventListener('input', updatePDF);
+        clientIn.addEventListener('input', updatePDF);
+        dateIn.addEventListener('input', updatePDF);
+        bulletsIn.addEventListener('input', updatePDF);
+    }
+});
+
+</script>
+</head>
+<body>
+<canvas id="bg-canvas" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0.6"></canvas>
+<div class="cursor-ring" id="cursor-ring"></div>
+<div class="cursor-dot" id="cursor-dot"></div>
+
+<nav id="nav">
+  <span class="nav-logo">josho.pro</span>
+  <div class="nav-links">
+    <a href="#" onclick="showIndex();return false" data-hover>Work</a>
+    <a href="#" onclick="showContact();return false"  data-hover>Contact</a>
+  </div>
+  <button class="nav-hamburger" id="nav-hamburger" aria-label="Toggle menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE NAV OVERLAY -->
+<div class="nav-mobile-overlay" id="nav-mobile-overlay" role="dialog" aria-label="Mobile navigation">
+  <a href="#" onclick="closeMobileNav();showIndex();return false">Work</a>
+  <a href="#" onclick="closeMobileNav();showContact();return false">Contact</a>
+</div>
+
+<div class="page-container faded-in" id="page-container">
+
+<!-- INDEX PAGE -->
+<div id="index-page">
+
+<section class="hero">
+  
+  <div class="hero-content">
+    <div class="hero-eyebrow">Available for new opportunities</div>
+    <div class="hero-typewriter" id="hero-tw"></div>
+    <h1 class="hero-name"><span class="first" id="hero-first"></span><br><span class="last" id="hero-last"></span><span id="hero-caret" style="color:var(--primary);animation:blink 0.8s step-end infinite;font-weight:300">|</span></h1>
+    <p class="hero-role">I eliminate manual work. Python automation, AI systems, and full-stack tooling that gives time back to the people who need it most.</p>
+    <div class="hero-stats-row">
+      <div class="hero-stat" style="animation: fadeUp 0.6s ease both; animation-delay: 0.5s"><span class="hs-num" data-count="4">0</span><span class="hs-label">Production systems</span></div>
+      <div class="hero-stat" style="animation: fadeUp 0.6s ease both; animation-delay: 0.62s"><span class="hs-num" data-count="250" data-suffix="+">0</span><span class="hs-label">Hours R&amp;D</span></div>
+      <div class="hero-stat" style="animation: fadeUp 0.6s ease both; animation-delay: 0.74s"><span class="hs-num" data-count="99.8" data-suffix="%">0</span><span class="hs-label">Automation accuracy</span></div>
+      <div class="hero-stat" style="animation: fadeUp 0.6s ease both; animation-delay: 0.86s"><span class="hs-num">24/7</span><span class="hs-label">AI uptime</span></div>
+    </div>
+    <div class="hero-meta">
+      <a href="mailto:contact@josho.pro" data-hover>contact@josho.pro</a>
+      <a href="#" data-hover>Downend, Bristol</a>
+    </div>
+  </div>
+  
+<div class="scroll-cue" id="scroll-cue">
+  <span class="scroll-cue-text">Scroll</span>
+  <div class="scroll-cue-chevron">
+    <svg width="16" height="10" viewBox="0 0 16 10" fill="none"><path d="M1 1l7 7 7-7" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/></svg>
+  </div>
+</div>
+
+</section>
+
+<hr style="border:none;border-top:1px solid var(--border)">
+
+<section class="projects-index wrap" id="projects">
+  <p class="section-label">Selected Work - 2023 to Present</p>
+  <div class="project-grid">
+
+    <!-- CARD 01 -->
+    <div class="project-card" onclick="showDetail('p1')" onmousemove="cardMove(event, this)" onmouseleave="cardLeave(this)" data-hover>
+      <div class="card-shine"></div>
+      <div class="card-content">
+        <p class="card-num">01 / 04</p>
+        <h2 class="card-headline">3 Months of Manual Work.<br>Automated in 5 Minutes.</h2>
+        <p class="card-desc">Python parallelisation across 8 workers, extracting 2,547 assets from a legacy system with 99.8% accuracy.</p>
+        <div class="card-badges">
+          <span class="badge lang">Python</span><span class="badge tool">Parallelization</span><span class="badge concept">Automation</span><span class="badge concept">Data Compliance</span>
+        </div>
+        <div class="card-stats">
+          <div><div class="cstat-num" data-count="2547">0</div><div class="cstat-label">Assets</div></div>
+          <div><div class="cstat-num">5 min</div><div class="cstat-label">Runtime</div></div>
+          <div><div class="cstat-num">8</div><div class="cstat-label">Workers</div></div>
+          <div><div class="cstat-num green" data-count="99.8" data-suffix="%">0</div><div class="cstat-label">Accuracy</div></div>
+        </div>
+      </div>
+      <div class="card-view">View Case Study &rarr;</div>
+    </div>
+
+    <!-- CARD 02 -->
+    <div class="project-card" onclick="showDetail('p2')" onmousemove="cardMove(event, this)" onmouseleave="cardLeave(this)" data-hover>
+      <div class="card-shine"></div>
+      <div class="card-content">
+        <p class="card-num">02 / 04</p>
+        <h2 class="card-headline">End-to-End Reporting. Zero Manual Steps.</h2>
+        <p class="card-desc">API integration with legacy database auth, recursive data extraction, automated report generation for 2,340+ records.</p>
+        <div class="card-badges">
+          <span class="badge lang">Python</span><span class="badge tool">API Integration</span><span class="badge concept">Data Curation</span><span class="badge concept">Automation</span>
+        </div>
+        <div class="card-stats">
+          <div><div class="cstat-num">2d&rarr;4m</div><div class="cstat-label">Time Saved</div></div>
+          <div><div class="cstat-num" data-count="2340" data-suffix="+">0</div><div class="cstat-label">Records</div></div>
+          <div><div class="cstat-num green" data-count="100" data-suffix="%">0</div><div class="cstat-label">Automated</div></div>
+          <div><div class="cstat-num">0</div><div class="cstat-label">Manual Steps</div></div>
+        </div>
+      </div>
+      <div class="card-view">View Case Study &rarr;</div>
+    </div>
+
+    <!-- CARD 03 -->
+    <div class="project-card" onclick="showDetail('p3')" onmousemove="cardMove(event, this)" onmouseleave="cardLeave(this)" data-hover>
+      <div class="card-shine"></div>
+      <div class="card-content">
+        <p class="card-num">03 / 04</p>
+        <h2 class="card-headline">From Form to Branded PDF<br>in Under 5 Minutes.</h2>
+        <p class="card-desc">FastAPI backend, React frontend, Playwright-powered PDF generation. Production-deployed. A 60-minute manual task reduced to a button click.</p>
+        <div class="card-badges">
+          <span class="badge lang">Python</span><span class="badge tool">FastAPI</span><span class="badge tool">React</span><span class="badge tool">Vite</span><span class="badge tool">Playwright</span>
+        </div>
+        <div class="card-stats">
+          <div><div class="cstat-num">60m</div><div class="cstat-label">Before</div></div>
+          <div><div class="cstat-num green">&lt;5m</div><div class="cstat-label">After</div></div>
+          <div><div class="cstat-num">0</div><div class="cstat-label">Manual Steps</div></div>
+          <div><div class="cstat-num">1</div><div class="cstat-label">Click</div></div>
+        </div>
+      </div>
+      <div class="card-view">View Case Study &rarr;</div>
+    </div>
+
+    <!-- CARD 04 -->
+    <div class="project-card" onclick="showDetail('p4')" onmousemove="cardMove(event, this)" onmouseleave="cardLeave(this)" data-hover>
+      <div class="card-shine"></div>
+      <div class="card-content">
+        <p class="card-num">04 / 04</p>
+        <h2 class="card-headline">24/7 Autonomous<br>AI Orchestration.</h2>
+        <p class="card-desc">Custom platform routing tasks between 5 specialist AI agents across 19+ integrations. 250+ hours of R&amp;D. Runs while you sleep.</p>
+        <div class="card-badges">
+          <span class="badge ai">Context Optimisation</span><span class="badge ai">Routing</span><span class="badge ai">Workflow Design</span><span class="badge lang">Python</span><span class="badge tool">WebSocket</span>
+        </div>
+        <div class="card-stats">
+          <div><div class="cstat-num" data-count="250" data-suffix="+">0</div><div class="cstat-label">Hours R&amp;D</div></div>
+          <div><div class="cstat-num">19+</div><div class="cstat-label">Integrations</div></div>
+          <div><div class="cstat-num teal">24/7</div><div class="cstat-label">Uptime</div></div>
+          <div><div class="cstat-num">5</div><div class="cstat-label">Agents</div></div>
+        </div>
+      </div>
+      <div class="card-view">View Case Study &rarr;</div>
+    </div>
+
+  </div>
+</section>
+
+
+</div><!-- end #index-page -->
+
+<!-- CONTACT PAGE -->
+<div id="contact-page" class="detail-page">
+<div class="wrap">
+  <button class="back-btn" onclick="showIndex(); setTimeout(() => document.getElementById('projects').scrollIntoView({behavior: 'smooth', block: 'start'}), 10);" data-hover>&#8592; Back to Work</button>
+
+  <div class="contact-pg-hero">
+    <p class="detail-eyebrow">Contact</p>
+    <h1 class="contact-pg-title">Get in touch.</h1>
+    <p class="contact-pg-sub">Open to automation projects, full-stack builds, and AI integration work. Based in Bristol - available remotely.</p>
+  </div>
+
+  <div class="contact-pg-grid">
+    <div class="contact-pg-left">
+      <div class="contact-card">
+        <div class="contact-card-label">Email</div>
+        <a href="mailto:contact@josho.pro?subject=Project Enquiry" class="contact-card-value" data-hover>contact@josho.pro</a>
+      </div>
+      <div class="contact-card">
+        <div class="contact-card-label">Phone</div>
+        <a href="tel:+447407233513" class="contact-card-value" data-hover>+44 7407 233513</a>
+      </div>
+      <div class="contact-card">
+        <div class="contact-card-label">Location</div>
+        <span class="contact-card-value">Downend, Bristol BS16</span>
+      </div>
+      <div class="contact-card">
+        <div class="contact-card-label">Web</div>
+        <span class="contact-card-value">josho.pro</span>
+      </div>
+      <a href="mailto:contact@josho.pro?subject=Project Enquiry" class="contact-pg-cta" data-hover>Send me an email</a>
+    </div>
+    <div class="contact-pg-right">
+      <p class="detail-section-title" style="margin-bottom:24px">What I build</p>
+      <div class="contact-build-list">
+        <div class="contact-build-item">
+          <span class="contact-build-dot"></span>
+          <div>
+            <div class="contact-build-title">Python Automation</div>
+            <div class="contact-build-desc">Turning days of manual work into minutes. Data migration, extraction, transformation pipelines.</div>
+          </div>
+        </div>
+        <div class="contact-build-item">
+          <span class="contact-build-dot"></span>
+          <div>
+            <div class="contact-build-title">AI Orchestration</div>
+            <div class="contact-build-desc">Multi-agent systems that plan, delegate, and execute complex tasks autonomously. 24/7, no hand-holding.</div>
+          </div>
+        </div>
+        <div class="contact-build-item">
+          <span class="contact-build-dot"></span>
+          <div>
+            <div class="contact-build-title">Full-stack Tooling</div>
+            <div class="contact-build-desc">Production-deployed web applications. FastAPI backends, React frontends, real workflows.</div>
+          </div>
+        </div>
+        <div class="contact-build-item">
+          <span class="contact-build-dot"></span>
+          <div>
+            <div class="contact-build-title">Data Pipelines</div>
+            <div class="contact-build-desc">End-to-end data collection, curation, and reporting. From legacy APIs to clean, usable outputs.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<footer class="wrap" id="footer" style="padding:48px 0">
+  <div>
+    <div class="footer-name">Josh Osborne</div>
+    <div class="footer-links">
+      <a href="mailto:contact@josho.pro" data-hover>contact@josho.pro</a>
+    </div>
+  </div>
+  <div class="footer-right">Downend, Bristol &middot; 2026</div>
+</footer>
+</div>
+<!-- PROJECT 01 DETAIL -->
+<div id="p1-page" class="detail-page">
+<div class="wrap">
+  <button class="back-btn" onclick="showIndex(); setTimeout(() => document.getElementById('projects').scrollIntoView({behavior: 'smooth', block: 'start'}), 10);" data-hover>&#8592; Back to Work</button>
+
+  <div class="detail-hero">
+    <p class="detail-eyebrow">01 / 04 &nbsp;&middot;&nbsp; Data Automation</p>
+    <h1 class="detail-title">3 Months of Manual Work.<br>Automated in 5 Minutes.</h1>
+    <p class="detail-sub">A legacy system held 2,547 critical assets locked behind a slow manual export process. This script parallelised the extraction across 8 workers, completed the job in under 5 minutes, and achieved 99.8% accuracy.</p>
+  </div>
+
+  <div class="detail-stats">
+    <div class="dstat"><div class="dstat-num" data-count="2547">0</div><div class="dstat-label">Assets Extracted</div></div>
+    <div class="dstat"><div class="dstat-num green">4m 53s</div><div class="dstat-label">Total Runtime</div></div>
+    <div class="dstat"><div class="dstat-num">8</div><div class="dstat-label">Parallel Workers</div></div>
+    <div class="dstat"><div class="dstat-num green" data-count="99.8" data-suffix="%">0</div><div class="dstat-label">Accuracy</div></div>
+  </div>
+  <div class="scroll-nudge"><span class="scroll-nudge-text">Scroll to explore</span><div class="scroll-nudge-line"></div></div>
+
+  <div class="detail-body">
+    <div>
+      <p class="detail-section-title">How it works</p>
+      <div class="how-steps">
+        <div class="how-step">
+          <span class="step-num">01</span>
+          <div class="step-body"><h4>Connect to legacy system</h4><p>Script authenticates with the legacy database using credentials passed via secure environment variables. No hardcoded secrets.</p></div>
+        </div>
+        <div class="how-step">
+          <span class="step-num">02</span>
+          <div class="step-body"><h4>Enumerate all 2,547 assets</h4><p>Recursive query walks the full asset tree, building a manifest of every item to be extracted before any transfer begins.</p></div>
+        </div>
+        <div class="how-step">
+          <span class="step-num">03</span>
+          <div class="step-body"><h4>Dispatch to 8 parallel workers</h4><p>Python's concurrent.futures splits the manifest across 8 threads. Each worker extracts independently, updating a shared progress counter.</p></div>
+        </div>
+        <div class="how-step">
+          <span class="step-num">04</span>
+          <div class="step-body"><h4>Validate and write output</h4><p>Every asset is checksummed on arrival. Failures are flagged for retry. Final report confirms extraction count and accuracy rate.</p></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <p class="detail-section-title">Live demo</p>
+      <div class="proof-panel">
+        <div class="proof-header">
+          <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+          <span class="proof-title">extract.py -- running</span>
+        </div>
+        <div class="proof-body">
+          <div class="term" id="term1">
+            <div><span class="t-cmd">£ python extract.py --workers=8 --output=./export</span></div>
+            <div><span class="t-ok">&#x2714; Worker pool ready (8 threads)</span></div>
+            <div><span class="t-ok">&#x2714; Legacy system: connected</span></div>
+            <div><span class="t-ok">&#x2714; Asset manifest: 2,547 items</span></div>
+            <div id="t1-progress"><span class="t-white">Extracting... <span id="t1-pct">0</span>% &nbsp;<span id="t1-count">0</span>/2547</span></div>
+            <div id="t1-done" style="display:none"><span class="t-ok">&#x2714; Complete: 2,547 extracted - 5 failed checksums (retried) - 99.8% accuracy</span></div>
+            <div id="t1-time" style="display:none"><span class="t-dim">Runtime: 4m 53s &nbsp;&middot;&nbsp; Previously: ~90 working days</span></div>
+            <div><span class="term-cursor"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-body">
+    <div>
+      <p class="detail-section-title">What this would cost otherwise</p>
+      <table class="price-table">
+        <thead><tr><th>Approach</th><th>Estimated Cost</th></tr></thead>
+        <tbody>
+          <tr><td>Manual in-house (90 working days, UK mid Python dev avg &pound;52k/yr)</td><td>~&pound;17,500 in staff time</td></tr>
+          <tr><td>Data migration agency (small-to-mid scope)</td><td>&pound;8,000&ndash;&pound;25,000 project fee</td></tr>
+          <tr><td>Off-the-shelf migration tooling (annual licence + setup)</td><td>&pound;2,000&ndash;&pound;8,000/yr</td></tr>
+          <tr class="highlight"><td><strong>This solution</strong></td><td>Built once. Runs in 5 min. Reusable.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <p class="detail-section-title">Stack</p>
+      <div class="how-steps">
+        <div class="how-step"><span class="step-num" style="color:var(--muted)">Lang</span><div class="step-body"><h4>Python 3.11</h4><p>concurrent.futures for the worker pool, custom retry logic for failed checksums.</p></div></div>
+        <div class="how-step"><span class="step-num" style="color:var(--muted)">I/O</span><div class="step-body"><h4>Direct DB + filesystem</h4><p>Reads from legacy system over authenticated connection. Writes to structured output directory with manifest JSON.</p></div></div>
+        <div class="how-step"><span class="step-num" style="color:var(--muted)">QA</span><div class="step-body"><h4>Checksum validation</h4><p>Every asset verified on write. Any mismatch flagged and retried automatically before the run ends.</p></div></div>
+      </div>
+    </div>
+  </div>
+
+<div class="project-nav-links" style="padding: 40px 0; border-top: 1px solid var(--border); display: flex; justify-content: space-between; margin-top: 60px;"><a href="#" class="nav-links" onclick="showDetail('p4'); setTimeout(()=>window.scrollTo(0,0),10); return false;" style="font-family:var(--mono);font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:0.1em;" data-hover>&larr; Previous Project</a><a href="#" class="nav-links" onclick="showDetail('p2'); setTimeout(()=>window.scrollTo(0,0),10); return false;" style="font-family:var(--mono);font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:0.1em;" data-hover>Next Project &rarr;</a></div></div>
+</div>
+<!-- PROJECT 02 DETAIL -->
+<div id="p2-page" class="detail-page">
+<div class="wrap">
+  <button class="back-btn" onclick="showIndex(); setTimeout(() => document.getElementById('projects').scrollIntoView({behavior: 'smooth', block: 'start'}), 10);" data-hover>&#8592; Back to Work</button>
+
+  <div class="detail-hero">
+    <p class="detail-eyebrow">02 / 04 &nbsp;&middot;&nbsp; Reporting Automation</p>
+    <h1 class="detail-title">End-to-End Reporting. Zero Manual Steps.</h1>
+    <p class="detail-sub">A reporting process that consumed two full working days per cycle. Now it runs in 4 minutes. 2,340+ records extracted, curated, and formatted automatically every time.</p>
+  </div>
+
+  <div class="detail-stats">
+    <div class="dstat"><div class="dstat-num green" style="white-space:nowrap">2 days &rarr; 4 min</div><div class="dstat-label">Time Per Cycle</div></div>
+    <div class="dstat"><div class="dstat-num" data-count="2340" data-suffix="+">0</div><div class="dstat-label">Records Processed</div></div>
+    <div class="dstat"><div class="dstat-num green" data-count="100" data-suffix="%">0</div><div class="dstat-label">Automated</div></div>
+    <div class="dstat"><div class="dstat-num">0</div><div class="dstat-label">Manual Steps</div></div>
+  </div>
+  <div class="scroll-nudge"><span class="scroll-nudge-text">Scroll to explore</span><div class="scroll-nudge-line"></div></div>
+
+  <div class="detail-body">
+    <div>
+      <p class="detail-section-title">How it works</p>
+      <div class="p4-plain-english" style="margin-bottom:0">
+        Job reports, pulls all completed services for any and all specific sites, takes all notes, service status and automatically creates a .xlsx file to a template that's ready to ship.
+      </div>
+      <div style="display:none" class="hover-steps-container">
+        <div class="hover-steps" id="p2-hover-steps">
+        <div class="hover-step" data-step="0">
+          <div class="hover-step-header">
+            <span class="hover-step-num">01</span>
+            <h4 class="hover-step-title">Authenticate with legacy API</h4>
+            <span class="hover-step-hint">Hover</span>
+          </div>
+          <div class="hover-step-sim" id="hsim-0">
+            <div class="term">
+              <div class="hsim-line"><span class="t-dim">£ python pipeline.py --auth</span></div>
+              <div class="hsim-line"><span class="t-white">Connecting to legacy API endpoint...</span></div>
+              <div class="hsim-line"><span class="t-ok">&#x2714; Token acquired (expires in 3600s)</span></div>
+              <div class="hsim-line"><span class="t-primary">Session established. Rate limit: 500 req/min</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="hover-step" data-step="1">
+          <div class="hover-step-header">
+            <span class="hover-step-num">02</span>
+            <h4 class="hover-step-title">Recursive data extraction</h4>
+            <span class="hover-step-hint">Hover</span>
+          </div>
+          <div class="hover-step-sim" id="hsim-1">
+            <div class="term">
+              <div class="hsim-line"><span class="t-white">Paginating records... cursor-based</span></div>
+              <div class="hsim-line"><span class="t-primary">Page 1/47: 50 records ✓</span></div>
+              <div class="hsim-line"><span class="t-primary">Page 23/47: 1,150 records ✓</span></div>
+              <div class="hsim-line"><span class="t-ok">&#x2714; 2,340 records extracted. 0 errors.</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="hover-step" data-step="2">
+          <div class="hover-step-header">
+            <span class="hover-step-num">03</span>
+            <h4 class="hover-step-title">Curate and normalise</h4>
+            <span class="hover-step-hint">Hover</span>
+          </div>
+          <div class="hover-step-sim" id="hsim-2">
+            <div class="term">
+              <div class="hsim-line"><span class="t-white">Applying schema transformation...</span></div>
+              <div class="hsim-line"><span class="t-primary">Deduplicated: 14 duplicate records removed</span></div>
+              <div class="hsim-line"><span class="t-primary">Normalised: dates, currencies, nulls</span></div>
+              <div class="hsim-line"><span class="t-ok">&#x2714; 2,326 clean records ready for report</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="hover-step" data-step="3">
+          <div class="hover-step-header">
+            <span class="hover-step-num">04</span>
+            <h4 class="hover-step-title">Generate and deliver report</h4>
+            <span class="hover-step-hint">Hover</span>
+          </div>
+          <div class="hover-step-sim" id="hsim-3">
+            <div class="term">
+              <div class="hsim-line"><span class="t-white">Rendering report template...</span></div>
+              <div class="hsim-line"><span class="t-ok">&#x2714; PDF generated: Q4_Report_2026.pdf (2.1MB)</span></div>
+              <div class="hsim-line"><span class="t-primary">Delivered to: reports@client.internal</span></div>
+              <div class="hsim-line"><span class="t-dim">Total runtime: 3m 58s. Previously: 2 working days.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+    <div>
+      <p class="detail-section-title">Live pipeline</p>
+      <div class="proof-panel">
+        <div class="proof-header">
+          <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+          <span class="proof-title">report_pipeline.py</span>
+        </div>
+        <div class="proof-body">
+          <div class="pipeline" id="pipeline2">
+            <div class="pipe-step" data-step="0" style="color:#fff;border-color:rgba(255,255,255,0.2)"><div class="pipe-step-label">Auth</div></div>
+            <div class="pipe-step" data-step="1" style="color:#fff;border-color:rgba(255,255,255,0.2)"><div class="pipe-step-label">Extract</div></div>
+            <div class="pipe-step" data-step="2" style="color:#fff;border-color:rgba(255,255,255,0.2)"><div class="pipe-step-label">Curate</div></div>
+            <div class="pipe-step" data-step="3" style="color:#fff;border-color:rgba(255,255,255,0.2)"><div class="pipe-step-label">Report</div></div>
+          </div>
+          <div class="pipe-bar-wrap"><div class="pipe-bar" id="pipe-bar2"></div></div>
+          <div style="margin-top:16px" class="term">
+            <div id="p2-log1"><span class="t-dim">Waiting for trigger...</span></div>
+            <div id="p2-log2" style="display:none"><span class="t-ok">&#x2714; Auth token acquired</span></div>
+            <div id="p2-log3" style="display:none"><span class="t-white">Extracting records... <span id="p2-count">0</span>/2340</span></div>
+            <div id="p2-log4" style="display:none"><span class="t-ok">&#x2714; 2,340 records extracted - 0 errors</span></div>
+            <div id="p2-log5" style="display:none"><span class="t-ok">&#x2714; Report generated and delivered</span></div>
+            <div id="p2-log6" style="display:none"><span class="t-dim">Total: 3m 58s &nbsp;&middot;&nbsp; Previously: 2 working days</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-body">
+    <div>
+      <p class="detail-section-title">What this would cost otherwise</p>
+      <table class="price-table">
+        <thead><tr><th>Approach</th><th>Estimated Cost</th></tr></thead>
+        <tbody>
+          <tr><td>Staff time: 2 days/cycle &times; 26 cycles/yr (UK avg office worker &pound;32k/yr)</td><td>~&pound;6,700/yr in labour</td></tr>
+          <tr><td>Outsource to reporting/BI agency</td><td>&pound;500&ndash;&pound;2,000 per report run</td></tr>
+          <tr><td>Tableau or Power BI (Professional + setup consultant)</td><td>&pound;4,200&ndash;&pound;14,000/yr + setup</td></tr>
+          <tr class="highlight"><td><strong>This solution</strong></td><td>Zero ongoing cost. Runs on demand.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <p class="detail-section-title">Stack</p>
+      <div class="how-steps">
+        <div class="how-step"><span class="step-num" style="color:var(--muted)">Auth</span><div class="step-body"><h4>Custom session handler</h4><p>Wraps the legacy API's non-standard token flow with automatic refresh and retry on 401.</p></div></div>
+        <div class="how-step"><span class="step-num" style="color:var(--muted)">Data</span><div class="step-body"><h4>Recursive pagination</h4><p>Handles variable page sizes, cursor-based and offset-based pagination in the same codebase.</p></div></div>
+        <div class="how-step"><span class="step-num" style="color:var(--muted)">Out</span><div class="step-body"><h4>Structured output</h4><p>Normalised schema, consistent formatting, ready for downstream consumption or direct delivery.</p></div></div>
+      </div>
+    </div>
+  </div>
+
+<div class="project-nav-links" style="padding: 40px 0; border-top: 1px solid var(--border); display: flex; justify-content: space-between; margin-top: 60px;"><a href="#" class="nav-links" onclick="showDetail('p1'); setTimeout(()=>window.scrollTo(0,0),10); return false;" style="font-family:var(--mono);font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:0.1em;" data-hover>&larr; Previous Project</a><a href="#" class="nav-links" onclick="showDetail('p3'); setTimeout(()=>window.scrollTo(0,0),10); return false;" style="font-family:var(--mono);font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:0.1em;" data-hover>Next Project &rarr;</a></div></div>
+</div>
+<!-- PROJECT 03 DETAIL -->
+<div id="p3-page" class="detail-page">
+<div class="wrap">
+  <button class="back-btn" onclick="showIndex(); setTimeout(() => document.getElementById('projects').scrollIntoView({behavior: 'smooth', block: 'start'}), 10);" data-hover>&#8592; Back to Work</button>
+
+  <div class="detail-hero">
+    <p class="detail-eyebrow">03 / 04 &nbsp;&middot;&nbsp; Full-Stack Tool</p>
+    <h1 class="detail-title">From Form to Branded PDF<br>in Under 5 Minutes.</h1>
+    <p class="detail-sub">A production-deployed tool that takes client and report data via a web form and generates a fully branded, multi-page PDF in seconds. FastAPI backend, React frontend, Playwright-powered PDF engine.</p>
+  </div>
+
+  <div class="detail-stats">
+    <div class="dstat"><div class="dstat-num green" style="font-size:clamp(22px, 2.5vw, 38px); line-height:1.2;">60m &rarr; &lt;5m</div><div class="dstat-label">Generation Time</div></div>
+    <div class="dstat"><div class="dstat-num primary">Live</div><div class="dstat-label">Production Deployed</div></div>
+    <div class="dstat"><div class="dstat-num">0</div><div class="dstat-label">Manual Steps</div></div>
+    <div class="dstat"><div class="dstat-num">1</div><div class="dstat-label">Click to Generate</div></div>
+  </div>
+  <div class="scroll-nudge"><span class="scroll-nudge-text">Scroll to explore</span><div class="scroll-nudge-line"></div></div>
+
+  <div class="detail-body">
+    <div>
+      <p class="detail-section-title">How it works</p>
+      <div class="how-steps">
+        <div class="how-step"><span class="step-num">01</span><div class="step-body"><h4>React frontend (Vite)</h4><p>User fills a clean web form. Client name, report title, date, and executive summary bullets. No formatting required.</p></div></div>
+        <div class="how-step"><span class="step-num">02</span><div class="step-body"><h4>FastAPI receives the POST</h4><p>FastAPI endpoint receives the form data, merges it with the JSON data template, renders the document via headless browser.</p></div></div>
+        <div class="how-step"><span class="step-num">03</span><div class="step-body"><h4>Playwright-powered PDF</h4><p>Headless Chromium renders the HTML with branded CSS. Supports modern layouts, page numbers, and complex charts.</p></div></div>
+        <div class="how-step"><span class="step-num">04</span><div class="step-body"><h4>PDF returned instantly</h4><p>The binary PDF is streamed back to the browser as a file download. No files saved server-side. Generation time: under 5 seconds.</p></div></div>
+      </div>
+    </div>
+    <div>
+      <p class="detail-section-title">Try it live</p>
+      <div class="pdf-live-editor">
+
+        <!-- LEFT: form -->
+        <div class="ple-form">
+          <div class="proof-panel">
+            <div class="proof-header">
+              <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+              <span class="proof-title">input form</span>
+            </div>
+            <div class="proof-body" style="padding:20px">
+              <div class="f-field"><div class="f-label">Client Name</div>
+                <input class="live-input" id="lf-client" type="text" value="Meridian Partners" oninput="updatePDFLive()">
+              </div>
+              <div class="f-field"><div class="f-label">Report Title</div>
+                <input class="live-input" id="lf-title" type="text" value="Strategic Growth Review 2026" oninput="updatePDFLive()">
+              </div>
+              <div class="f-field"><div class="f-label">Date</div>
+                <input class="live-input" id="lf-date" type="date" oninput="updatePDFLive()">
+              </div>
+              <div class="f-field"><div class="f-label">Executive Bullets (one per line)</div>
+                <textarea class="live-input live-textarea" id="lf-bullets" rows="4" oninput="updatePDFLive()">Projected revenue uplift of 23% within 12 months
+Priority expansion: Nordics and DACH region
+Headcount growth of 18 planned for H2</textarea>
+              </div>
+              <div style="margin-top:10px;font-family:var(--mono);font-size:10px;color:var(--dim)">
+                &#8607; Updates the preview live &mdash; no button press needed
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: live paper PDF mockup -->
+        <div class="ple-preview">
+          <div class="ple-preview-inner" style="width:100%;">
+            <!-- Toolbar — matches the proof-panel header style -->
+            <div style="height:36px;flex-shrink:0; background:var(--s2); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 12px; justify-content:space-between; gap:8px;">
+              <div style="display:flex; gap:6px; flex-shrink:0;">
+                <div style="width:10px; height:10px; border-radius:50%; background:#ef4444"></div>
+                <div style="width:10px; height:10px; border-radius:50%; background:#eab308"></div>
+                <div style="width:10px; height:10px; border-radius:50%; background:#22c55e"></div>
+              </div>
+              <div style="font-family:var(--mono); color:var(--dim); font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;">output_report_04.pdf&nbsp;&mdash;&nbsp;100%</div>
+              <div style="display:flex; gap:4px; flex-shrink:0;">
+                <svg width="14" height="14" fill="none" stroke="var(--dim)" stroke-width="2"><path d="M1 1h12M1 7h12M1 13h12"/></svg>
+              </div>
+            </div>
+            <!-- Canvas area: neutral dark so white paper pops. No overflow scroll. -->
+            <div style="background:#141414; padding:16px; overflow:hidden;">
+              <!-- Scaler wrapper: JS sets height to match scaled paper so nothing clips -->
+              <div id="ple-scaler-wrap" style="width:100%; position:relative; overflow:hidden;">
+                <!-- 400px natural width paper; JS scales it to fit the column -->
+                <div id="ple-paper-natural" style="width:400px; transform-origin:top left; background:#ffffff; box-shadow:0 8px 32px rgba(0,0,0,0.55); display:flex; flex-direction:column;">
+                  <!-- PDF accent bar — matches PDF's own navy brand, NOT the site teal -->
+                  <div style="background:#1a3c6e; height:6px; width:100%; flex-shrink:0;"></div>
+                  <!-- PDF Header -->
+                  <div style="padding:20px 28px 14px; border-bottom:1px solid #e4e4e7; display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+                    <div style="flex:1; min-width:0;">
+                      <h3 style="color:#111; font-size:16px; font-weight:800; letter-spacing:-0.03em; margin-bottom:4px; line-height:1.25; word-break:break-word;" id="pdf-out-title">Strategic Growth Review 2026</h3>
+                      <p style="color:#71717a; font-size:10px; font-weight:500; margin:0;">PREPARED FOR:&nbsp;<span id="pdf-out-client" style="color:#3f3f46; font-weight:600;">Meridian Partners</span></p>
+                    </div>
+                    <div style="text-align:right; flex-shrink:0;">
+                      <div style="width:22px; height:22px; background:#1a3c6e; border-radius:3px; margin-bottom:4px; margin-left:auto;"></div>
+                      <p style="color:#a1a1aa; font-size:9px; margin:0;" id="pdf-out-date">2026-02-27</p>
+                    </div>
+                  </div>
+                  <!-- PDF Body -->
+                  <div style="padding:20px 28px; display:flex; flex-direction:column; gap:16px;">
+                    <div>
+                      <div style="color:#1a3c6e; font-family:var(--mono); font-size:8px; letter-spacing:0.1em; margin-bottom:8px; text-transform:uppercase; font-weight:700;">Executive Summary</div>
+                      <ul id="pdf-out-bullets" style="color:#374151; font-size:11px; line-height:1.65; padding-left:16px; margin:0;">
+                        <li>Projected revenue uplift of 23% within 12 months</li>
+                        <li>Priority expansion: Nordics and DACH region</li>
+                        <li>Headcount growth of 18 planned for H2</li>
+                      </ul>
+                    </div>
+                    <!-- Chart Area -->
+                    <div style="border:1px solid #f4f4f5; border-radius:6px; padding:12px; background:#f8faff;">
+                      <div style="color:#1a3c6e; font-size:8px; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:10px; font-weight:600;">Quarterly Progress</div>
+                      <div style="display:flex; align-items:flex-end; gap:8px; height:56px;">
+                        <div style="flex:1; background:#dce7f5; height:40%; border-radius:2px 2px 0 0;"></div>
+                        <div style="flex:1; background:#b3cce8; height:55%; border-radius:2px 2px 0 0;"></div>
+                        <div style="flex:1; background:#7aadd4; height:75%; border-radius:2px 2px 0 0;"></div>
+                        <div style="flex:1; background:#1a3c6e; height:100%; border-radius:2px 2px 0 0; position:relative;">
+                          <div style="position:absolute; top:-14px; left:50%; transform:translateX(-50%); font-size:8px; font-weight:700; color:#1a3c6e;">Q4</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- PDF Footer -->
+                  <div style="padding:12px 28px; border-top:1px solid #e4e4e7; display:flex; justify-content:space-between; color:#9ca3af; font-size:8px; font-family:var(--mono); letter-spacing:0.06em;">
+                    <span>CONFIDENTIAL</span>
+                    <span>PAGE 1 OF 4</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-body">
+    <div>
+      <p class="detail-section-title">What this would cost otherwise</p>
+      <table class="price-table">
+        <thead><tr><th>Approach</th><th>Estimated Cost</th></tr></thead>
+        <tbody>
+          <tr><td>Manual document creation (1hr/report, 50 reports/yr)</td><td>&pound;2,500&ndash;&pound;5,000/yr staff cost</td></tr>
+          <tr><td>PandaDoc / DocuSign enterprise plan</td><td>&pound;3,000&ndash;&pound;8,000/yr</td></tr>
+          <tr><td>Custom dev agency (FastAPI + React + PDF)</td><td>&pound;8,000&ndash;&pound;25,000 build</td></tr>
+          <tr class="highlight"><td><strong>This tool (production-deployed, reusable, fully owned)</strong></td><td>Built. Running. Yours.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <p class="detail-section-title">Stack</p>
+      <div class="how-steps">
+        <div class="how-step"><span class="step-num" style="color:var(--muted)">Back</span><div class="step-body"><h4>FastAPI &amp; Playwright</h4><p>High-speed async API receives form data and drives headless Chromium to render and capture the branded PDF.</p></div></div>
+        <div class="how-step"><span class="step-num" style="color:var(--muted)">Front</span><div class="step-body"><h4>React (Vite)</h4><p>Lightweight, high-performance UI for data entry with live PDF preview updating in real time.</p></div></div>
+        <div class="how-step"><span class="step-num" style="color:var(--muted)">Logic</span><div class="step-body"><h4>Jinja2 Templating</h4><p>Dynamic HTML generation with multi-page support, auto-calculated table rows, and brand colour injection.</p></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="project-nav-links" style="padding: 40px 0; border-top: 1px solid var(--border); display: flex; justify-content: space-between; margin-top: 60px;"><a href="#" class="nav-links" onclick="showDetail('p2'); setTimeout(()=>window.scrollTo(0,0),10); return false;" style="font-family:var(--mono);font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:0.1em;" data-hover>&larr; Previous Project</a><a href="#" class="nav-links" onclick="showDetail('p4'); setTimeout(()=>window.scrollTo(0,0),10); return false;" style="font-family:var(--mono);font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:0.1em;" data-hover>Next Project &rarr;</a></div>
+</div>
+</div>
+<!-- PROJECT 04 DETAIL -->
+<div id="p4-page" class="detail-page">
+<div class="wrap">
+  <button class="back-btn" onclick="showIndex(); setTimeout(() => document.getElementById('projects').scrollIntoView({behavior: 'smooth', block: 'start'}), 10);" data-hover>&#8592; Back to Work</button>
+
+  <div class="detail-hero">
+    <p class="detail-eyebrow">04 / 04 &nbsp;&middot;&nbsp; AI Infrastructure</p>
+    <h1 class="detail-title">24/7 Autonomous<br>AI Orchestration.</h1>
+    <p class="detail-sub">250+ hours of R&amp;D. A custom platform routing tasks between 5 specialist AI agents across 19+ integrations. It thinks, delegates, builds, and delivers - while you sleep.</p>
+  </div>
+
+  <div class="detail-stats">
+    <div class="dstat"><div class="dstat-num" data-count="250" data-suffix="+">0</div><div class="dstat-label">Hours R&amp;D</div></div>
+    <div class="dstat"><div class="dstat-num">19+</div><div class="dstat-label">Integrations</div></div>
+    <div class="dstat"><div class="dstat-num primary">24/7</div><div class="dstat-label">Uptime</div></div>
+    <div class="dstat"><div class="dstat-num">5</div><div class="dstat-label">Specialist Agents</div></div>
+  </div>
+  <div class="scroll-nudge"><span class="scroll-nudge-text">Scroll to explore</span><div class="scroll-nudge-line"></div></div>
+
+  <div class="p4-plain-english">
+    <p>You describe a task. The AI figures out who's best at it, delegates it, builds it, and sends it back. No setup. No instructions. It just works.</p>
+  </div>
+
+  <!-- WORKFLOW SIMULATION -->
+  <!-- VISUAL AGENT PIPELINE -->
+  <div class="wf-wrap" style="padding: 40px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; margin-top: 48px;">
+    <!-- Pipeline SVG nodes -->
+    <div class="ap-svg-wrap" style="position:relative; width:100%; height:120px; display:flex; align-items:center; justify-content:space-between; max-width: 800px; margin: 0 auto;">
+      <!-- connecting lines -->
+      <svg style="position:absolute; top:50%; left:0; width:100%; height:2px; transform:translateY(-50%); z-index:0">
+        <line x1="10%" y1="1" x2="30%" y2="1" stroke="var(--border)" stroke-width="2" id="ap-p0" class="ap-path" />
+        <line x1="30%" y1="1" x2="60%" y2="1" stroke="var(--border)" stroke-width="2" id="ap-p1" class="ap-path" />
+        <line x1="30%" y1="1" x2="60%" y2="1" stroke="var(--border)" stroke-width="2" id="ap-p2" class="ap-path" />
+        <line x1="60%" y1="1" x2="90%" y2="1" stroke="var(--border)" stroke-width="2" id="ap-p3" class="ap-path" />
+        <line x1="60%" y1="1" x2="90%" y2="1" stroke="var(--border)" stroke-width="2" id="ap-p4" class="ap-path" />
+      </svg>
+      
+      <!-- Nodes -->
+      <div class="ap-node lit" id="apn-0" style="left:10%; z-index:1"><div class="ap-nring"></div><div class="ap-ndot"></div><span class="ap-nlbl">You</span></div>
+      <div class="ap-node lit" id="apn-1" style="left:30%; z-index:1"><div class="ap-nring"></div><div class="ap-ndot"></div><span class="ap-nlbl">AI Assistant</span><span class="apn-sub" style="font-size:10px;color:var(--muted);position:absolute;top:calc(100% + 24px);left:50%;transform:translateX(-50%)">Orchestrator</span></div>
+      
+      <!-- parallel branch -->
+      <div class="ap-node lit" id="apn-2" style="left:60%; top:-10px; z-index:1"><div class="ap-nring"></div><div class="ap-ndot"></div><span class="ap-nlbl" style="white-space:nowrap">Research AI</span></div>
+      <div class="ap-node lit" id="apn-3" style="left:60%; top:60px; z-index:1"><div class="ap-nring"></div><div class="ap-ndot"></div><span class="ap-nlbl" style="white-space:nowrap">Design AI</span></div>
+      
+      <div class="ap-node lit" id="apn-4" style="left:90%; z-index:1"><div class="ap-nring"></div><div class="ap-ndot"></div><span class="ap-nlbl">Delivered</span><span class="apn-sub" style="font-size:10px;color:var(--muted);position:absolute;top:calc(100% + 24px);left:50%;transform:translateX(-50%);white-space:nowrap">via Telegram</span></div>
+    </div>
+
+    <!-- Agent Stage Descriptions -->
+    <div class="ap-stages" style="margin-top: 64px;">
+      <div class="ap-sd lit" id="apsd-0">
+        <span class="ap-sd-num">01</span>
+        <div><h4 class="ap-sd-title">Your Request</h4><p class="ap-sd-text" style="color:var(--text)">"I need to do a presentation for work... can you understand my files in /Documents/Task and build me one?"</p></div>
+      </div>
+      <div class="ap-sd lit" id="apsd-1">
+        <span class="ap-sd-num">02</span>
+        <div><h4 class="ap-sd-title">Triaged by AI Assistant</h4><p class="ap-sd-text">The orchestrator analyses the request, reads the 3 related files, and writes detailed briefs for the specialist agents.</p></div>
+      </div>
+      <div class="ap-sd lit" id="apsd-2">
+        <span class="ap-sd-num">03</span>
+        <div><h4 class="ap-sd-title">Parallel Execution</h4><p class="ap-sd-text"><strong>Research AI</strong> extracts 7 key insights and drafts a slide structure. <strong>Design AI</strong> builds a custom PPTX applying your brand colours (#1A3C6E).</p></div>
+      </div>
+      <div class="ap-sd lit" id="apsd-3">
+        <span class="ap-sd-num">04</span>
+        <div><h4 class="ap-sd-title">Automated Delivery</h4><p class="ap-sd-text">The orchestrator synthesises the work and delivers the final presentation directly to your phone. Ready for the meeting.</p></div>
+      </div>
+    </div>
+    
+    <!-- 3-Slide Carousel instead of buttons/text -->
+    <div class="slide-carousel" style="margin-top: 48px; border-top: 1px solid var(--border); padding-top: 32px; justify-content: center;">
+      <div class="slide-card slide-active" onmouseenter="setSlide(0)">
+        <div class="slide-inner" style="background:#1e293b;">
+          <div class="sl-eyebrow">Slide 01</div>
+          <div class="sl-main-title">Q4 Sales<br>Review 2025</div>
+          <div style="margin-top:auto"><span class="sl-tick">✓</span> <span class="sl-check" style="color:#cbd5e1;display:inline">Branded title</span></div>
+        </div>
+      </div>
+
+      <div class="slide-card" onmouseenter="setSlide(1)">
+        <div class="slide-inner" style="background:#0f172a;">
+          <div class="sl-eyebrow">Slide 02</div>
+          <div class="sl-stat-row">
+            <div class="sl-stat"><div class="sl-stat-num">+23%</div><div class="sl-stat-lbl">YoY Rev</div></div>
+            <div class="sl-stat"><div class="sl-stat-num">£1.2m</div><div class="sl-stat-lbl">Profit</div></div>
+          </div>
+          <div style="margin-top:auto" class="sl-check-list">
+             <div class="sl-check"><span class="sl-tick">✓</span> <span>Data extracted</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-card" onmouseenter="setSlide(2)">
+        <div class="slide-inner" style="background:#1e293b;">
+          <div class="sl-eyebrow">Slide 03</div>
+          <div class="sl-main-title" style="font-size:11px; margin-bottom:8px">Growth Targets</div>
+          <div class="sl-check-list">
+            <div class="sl-check" style="color:#cbd5e1"><span class="sl-tick">✓</span> <span>Expand Nordics</span></div>
+            <div class="sl-check" style="color:#cbd5e1"><span class="sl-tick">✓</span> <span>+18 Headcount</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- end .wf-wrap -->
+
+  <!-- AGENT TEAM CARDS -->
+  <div class="agent-row" style="margin-top:80px">
+    <div class="agent-card"><div class="agent-card-name">AI Assistant</div><div class="agent-card-role">Orchestrator</div><div class="agent-card-desc">Triages tasks, picks the right specialist, writes briefs, synthesises results.</div></div>
+    <div class="agent-card"><div class="agent-card-name">Research AI</div><div class="agent-card-role">Research</div><div class="agent-card-desc">Deep research, file analysis, competitive intelligence, structured reports.</div></div>
+    <div class="agent-card"><div class="agent-card-name">Build AI</div><div class="agent-card-role">Engineering</div><div class="agent-card-desc">Writes, debugs, deploys code. Full-stack builds, scripts, infrastructure.</div></div>
+    <div class="agent-card"><div class="agent-card-name">Design AI</div><div class="agent-card-role">Design</div><div class="agent-card-desc">UI/UX specialist. Self-contained HTML prototypes, design systems, visual assets.</div></div>
+    <div class="agent-card"><div class="agent-card-name">Automation AI</div><div class="agent-card-role">Automation</div><div class="agent-card-desc">Cron jobs, data pipelines, integration glue across 19+ connected services.</div></div>
+  </div>
+
+  <!-- PRICING TABLE -->
+  <div style="margin-top:48px">
+    <p class="detail-section-title">What this would cost to build or buy</p>
+    <table class="price-table">
+      <thead><tr><th>Approach</th><th>Estimated Cost</th></tr></thead>
+      <tbody>
+        <tr><td>Reactive AI agent (chatbot, off-the-shelf, rule-based)</td><td>£16,000-£28,000</td></tr>
+        <tr><td>Intermediate agent (multi-step workflows, API integrations)</td><td>£32,000-£56,000</td></tr>
+        <tr><td>Advanced autonomous agent (planning, tool orchestration)</td><td>£64,000-£96,000</td></tr>
+        <tr><td>Enterprise multi-agent system (swarms, legacy integration)</td><td>£80,000-£160,000+</td></tr>
+        <tr><td>Hire equivalent team (5 specialists, UK market salaries)</td><td>£250,000+/yr ongoing</td></tr>
+        <tr class="highlight"><td>This system - custom-built, 250+ hrs R&amp;D, production-live</td><td>Built. Running. 24/7.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+<div class="project-nav-links" style="padding: 40px 0; border-top: 1px solid var(--border); display: flex; justify-content: space-between; margin-top: 60px;"><a href="#" class="nav-links" onclick="showDetail('p3'); setTimeout(()=>window.scrollTo(0,0),10); return false;" style="font-family:var(--mono);font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:0.1em;" data-hover>&larr; Previous Project</a><a href="#" class="nav-links" onclick="showDetail('p1'); setTimeout(()=>window.scrollTo(0,0),10); return false;" style="font-family:var(--mono);font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:0.1em;" data-hover>Next Project &rarr;</a></div></div>
+</div>
+
+</div><!-- end .page-container -->
+
+<script>
+
+// JS init
+// removed js-ready override
+
+
+// P4 Scroll Sequence
+const wfStages = document.querySelectorAll('.wf-stage');
+const wfcLines = document.querySelectorAll('.wf-line');
+
+const seqObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      if (entry.target.classList.contains('wf-line')) {
+         entry.target.classList.add('show');
+      } else {
+         entry.target.classList.add('revealed');
+      }
+      seqObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.9 });
+
+wfStages.forEach(s => seqObserver.observe(s));
+wfcLines.forEach(l => {
+    l.classList.remove('show');
+    l.style.transitionDelay = '0s'; // override interval delay
+    seqObserver.observe(l);
+});
+
+// SCROLL REVEAL (IntersectionObserver)
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('revealed');
+      
+      // Animate numbers if they exist in this element
+      const countEls = entry.target.querySelectorAll('[data-count]');
+      if (entry.target.hasAttribute('data-count')) {
+        animateNumber(entry.target);
+      }
+      countEls.forEach(animateNumber);
+      
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12 });
+
+const revealEls = document.querySelectorAll('.project-card, .detail-hero, .detail-stats, .dstat, .proof-panel, .price-table, .how-step, .detail-body, .section-label, .detail-section-title');
+revealEls.forEach((el, index) => {
+  // clean element ready
+  // Stagger children if needed. Easiest way is CSS nth-child, or inline style here
+  if(el.classList.contains('project-card')){
+    el.style.transitionDelay = `${(index % 2) * 80}ms`;
+  }
+  observer.observe(el);
+});
+
+// NUMBER COUNTER
+function animateNumber(el) {
+  if (el.classList.contains('animated')) return;
+  el.classList.add('animated');
+  
+  const target = parseFloat(el.getAttribute('data-count'));
+  const suffix = el.getAttribute('data-suffix') || '';
+  const duration = 1200; // ms
+  const startTime = performance.now();
+  const startVal = 0;
+  
+  // easeOutQuart
+  const easeOutQuart = (x) => 1 - Math.pow(1 - x, 4);
+
+  function update(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const easedProgress = easeOutQuart(progress);
+    
+    let currentVal = startVal + (target - startVal) * easedProgress;
+    
+    // Format based on whether it has decimals
+    if (target % 1 !== 0) {
+      el.textContent = currentVal.toFixed(1) + suffix;
+    } else {
+      el.textContent = Math.floor(currentVal).toLocaleString() + suffix;
+    }
+
+    if (progress < 1) {
+      requestAnimationFrame(update);
+    } else {
+      // Ensure final value is exact
+      el.textContent = (target % 1 !== 0 ? target.toFixed(1) : target.toLocaleString()) + suffix;
+    }
+  }
+  
+  requestAnimationFrame(update);
+}
+
+// MAGNETIC CURSOR — skip entirely on touch/pointer-coarse devices
+const isTouchDevice = window.matchMedia('(hover:none),(pointer:coarse)').matches;
+const cursorRing = document.getElementById('cursor-ring');
+const cursorDot = document.getElementById('cursor-dot');
+let mouseX = window.innerWidth / 2;
+let mouseY = window.innerHeight / 2;
+let ringX = window.innerWidth / 2;
+let ringY = window.innerHeight / 2;
+
+if (!isTouchDevice) {
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    cursorDot.style.left = `${mouseX}px`;
+    cursorDot.style.top = `${mouseY}px`;
+  });
+
+  function lerpCursor() {
+    ringX += (mouseX - ringX) * 0.2;
+    ringY += (mouseY - ringY) * 0.2;
+    cursorRing.style.left = `${ringX}px`;
+    cursorRing.style.top = `${ringY}px`;
+    requestAnimationFrame(lerpCursor);
+  }
+  requestAnimationFrame(lerpCursor);
+
+  document.addEventListener('mousedown', () => {
+    cursorDot.classList.add('click');
+    setTimeout(() => cursorDot.classList.remove('click'), 200);
+  });
+
+  const hoverElements = document.querySelectorAll('.project-card, .back-btn, .f-btn, a, [data-hover]');
+  hoverElements.forEach(el => {
+    el.addEventListener('mouseenter', () => cursorRing.classList.add('hover'));
+    el.addEventListener('mouseleave', () => cursorRing.classList.remove('hover'));
+  });
+}
+
+// CARD 3D TILT — skip on touch devices
+function cardMove(e, card) {
+  if (isTouchDevice) return;
+  const rect = card.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  const centerX = rect.width / 2;
+  const centerY = rect.height / 2;
+  const normX = (x - centerX) / centerX;
+  const normY = (y - centerY) / centerY;
+  const rotateX = normY * -6;
+  const rotateY = normX * 6;
+  card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+  const pctX = (x / rect.width) * 100;
+  const pctY = (y / rect.height) * 100;
+  card.style.setProperty("--gx", pctX + "%");
+  card.style.setProperty("--gy", pctY + "%");
+  const shine = card.querySelector('.card-shine');
+  if (shine) shine.style.background = `radial-gradient(circle at ${pctX}% ${pctY}%, rgba(255,255,255,0.04), transparent 60%)`;
+}
+
+function cardLeave(card) {
+  card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg)`;
+  const shine = card.querySelector('.card-shine');
+  if (shine) {
+    shine.style.background = `radial-gradient(circle at 50% 50%, rgba(255,255,255,0.0), transparent 60%)`;
+  }
+}
+
+// HERO NAME — sequential typewriter with blinking caret
+
+function heroType() {
+
+  const first = document.getElementById("hero-first");
+
+  const last = document.getElementById("hero-last");
+
+  if (!first || !last) return;
+
+  const w1 = "Josh", w2 = "Osborne.";
+
+  let i = 0, j = 0;
+
+  function t1() {
+
+    if (i < w1.length) { first.textContent += w1[i++]; setTimeout(t1, 90); }
+
+    else setTimeout(t2, 240);
+
+  }
+
+  function t2() {
+
+    if (j < w2.length) { last.textContent += w2[j++]; setTimeout(t2, 80); }
+
+  }
+
+  setTimeout(t1, 300);
+
+}
+
+heroType();
+
+// PARALLAX HERO CANVAS
+const bgCanvas = document.getElementById('bg-canvas');
+const bgCtx = bgCanvas.getContext('2d');
+let hW, hH;
+const gridSpacing = 50;
+const dots = [];
+
+function resizeHeroCanvas() {
+  hW = window.innerWidth;
+  hH = window.innerHeight;
+  bgCanvas.width = hW;
+  bgCanvas.height = hH;
+  initDots();
+}
+
+window.addEventListener('resize', resizeHeroCanvas);
+
+let heroScrollY = 0;
+window.addEventListener('scroll', () => {
+  heroScrollY = window.pageYOffset || document.documentElement.scrollTop;
+  const indicator = document.getElementById('scroll-cue');
+  if (indicator) indicator.style.opacity = heroScrollY > 80 ? '0' : '1';
+  const nav = document.getElementById('nav');
+  if (nav) nav.classList.toggle('scrolled', heroScrollY > 40);
+}, { passive: true });
+
+// Mouse Tracking — Viewport Space
+let heroMouseX = -1000;
+let heroMouseY = -1000;
+
+document.addEventListener('mousemove', (e) => {
+  heroMouseX = e.clientX;
+  heroMouseY = e.clientY;
+});
+
+document.addEventListener('mouseleave', () => {
+  heroMouseX = -1000;
+  heroMouseY = -1000;
+});
+
+// Initialize a viewport-sized grid (+ buffer)
+function initDots() {
+  dots.length = 0;
+  // Create a grid large enough to cover the viewport + some overflow
+  const cols = Math.ceil(window.innerWidth / gridSpacing) + 2;
+  const rows = Math.ceil(window.innerHeight / gridSpacing) + 2;
+  for (let x = -1; x < cols; x++) {
+    for (let y = -1; y < rows; y++) {
+      dots.push({
+        origX: x * gridSpacing,
+        origY: y * gridSpacing,
+        brightness: 0
+      });
+    }
+  }
+}
+
+resizeHeroCanvas();
+
+function renderHero() {
+  bgCtx.clearRect(0, 0, hW, hH);
+  
+  // Parallax: Background shifts at 40% scroll speed
+  // We use modulo to make the vertical movement infinite
+  const parallaxShiftY = (heroScrollY * 0.4) % gridSpacing;
+  
+  // Theme colors
+  const [pR, pG, pB] = window.THEME_RGB_ARRAY || [0, 212, 204];
+
+  for (let i = 0; i < dots.length; i++) {
+    const dot = dots[i];
+    
+    // Viewport-space coordinates
+    const vx = dot.origX;
+    const vy = dot.origY - parallaxShiftY;
+
+    // Check distance to cursor (both in viewport space)
+    const dx = vx - heroMouseX;
+    const dy = vy - heroMouseY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    // Update brightness
+    const targetB = dist < 85 ? 1 : 0;
+    if (targetB > dot.brightness) {
+      dot.brightness += (targetB - dot.brightness) * 0.5; // Snap up
+    } else {
+      dot.brightness += (targetB - dot.brightness) * 0.05; // Fade down
+    }
+
+    if (dot.brightness < 0.01) continue;
+
+    const b = dot.brightness;
+    const alpha = 0.06 + 0.44 * b;
+    
+    // Math.round is critical for browser color parsing consistency
+    const r = Math.round(255 + (pR - 255) * b);
+    const g = Math.round(255 + (pG - 255) * b);
+    const bl = Math.round(255 + (pB - 255) * b);
+
+    // Visuals
+    const time = Date.now() * 0.002;
+    const pulse = Math.sin(time + vx * 0.01 + vy * 0.01) * 0.5;
+    const size = 1.3 + b * 1.5 + pulse;
+
+    bgCtx.fillStyle = `rgba(${r}, ${g}, ${bl}, ${alpha})`;
+    bgCtx.beginPath();
+    bgCtx.arc(vx, vy, size, 0, Math.PI * 2);
+    bgCtx.fill();
+
+    // Secondary pass for lines
+    if (b > 0.1) {
+      for (let j = i + 1; j < dots.length; j++) {
+        const dot2 = dots[j];
+        if (dot2.brightness < 0.1) continue;
+
+        const vx2 = dot2.origX;
+        const vy2 = dot2.origY - parallaxShiftY;
+        
+        const ldx = vx - vx2;
+        const ldy = vy - vy2;
+        const ldist = Math.sqrt(ldx * ldx + ldy * ldy);
+
+        if (ldist < 80) { // Keep lines short and clean
+          const lineA = Math.min(b, dot2.brightness) * (1 - ldist / 80) * 0.4;
+          bgCtx.strokeStyle = `rgba(${pR}, ${pG}, ${pB}, ${lineA})`;
+          bgCtx.lineWidth = 1;
+          bgCtx.beginPath();
+          bgCtx.moveTo(vx, vy);
+          bgCtx.lineTo(vx2, vy2);
+          bgCtx.stroke();
+        }
+      }
+    }
+  }
+
+  requestAnimationFrame(renderHero);
+}
+
+requestAnimationFrame(renderHero);
+
+
+// PAGE ROUTING & TRANSITIONS
+const pageContainer = document.getElementById('page-container');
+
+
+function showDetail(id) {
+    var pageContainer = document.getElementById('page-container');
+    document.body.style.overflow = 'hidden';
+    pageContainer.style.opacity = '0';
+    setTimeout(() => {
+        document.querySelectorAll('.detail-page').forEach(el => el.style.display = 'none');
+        document.getElementById('index-page').style.display = 'none';
+        document.getElementById('contact-page').style.display = 'none';
+        const target = document.getElementById(id + '-page');
+        if (target) target.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        document.body.style.overflow = '';
+        
+        pageContainer.classList.remove('faded-in');
+        pageContainer.classList.add('fading-in');
+        
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                pageContainer.classList.remove('fading-in');
+                pageContainer.classList.add('faded-in');
+                pageContainer.style.opacity = '';
+                pageContainer.style.transform = '';
+            });
+        });
+        
+        // specific resets
+        if (id === 'p4') { startWorkflow(); }
+        else { resetWorkflow(); }
+        if (id === 'p1') { startP1Sim(); }
+        else { resetP1Sim(); }
+        if (id === 'p2') { startP2Sim(); }
+        else { resetP2Sim(); }
+        if (id === 'p3') { initPreviewSim(); }
+    }, 220);
+}
+
+function showIndex() {
+    var pageContainer = document.getElementById('page-container');
+    document.body.style.overflow = 'hidden';
+    pageContainer.style.opacity = '0';
+    setTimeout(() => {
+        document.querySelectorAll('.detail-page').forEach(el => el.style.display = 'none');
+        document.getElementById('index-page').style.display = 'block';
+        document.getElementById('contact-page').style.display = 'none';
+        
+        let target = document.getElementById('projects');
+        if (target) {
+            window.scrollTo({ top: target.offsetTop, behavior: 'instant' });
+        } else {
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+        document.body.style.overflow = '';
+        
+        pageContainer.classList.remove('faded-in');
+        pageContainer.classList.add('fading-in');
+        
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                pageContainer.classList.remove('fading-in');
+                pageContainer.classList.add('faded-in');
+                pageContainer.style.opacity = '';
+                pageContainer.style.transform = '';
+            });
+        });
+        
+        resetWorkflow();
+    }, 220);
+}
+
+function showContact() {
+    var pageContainer = document.getElementById('page-container');
+    document.body.style.overflow = 'hidden';
+    pageContainer.style.opacity = '0';
+    setTimeout(() => {
+        document.querySelectorAll('.detail-page').forEach(el => el.style.display = 'none');
+        document.getElementById('index-page').style.display = 'none';
+        const target = document.getElementById('contact-page');
+        if(target) target.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        document.body.style.overflow = '';
+        
+        pageContainer.classList.remove('faded-in');
+        pageContainer.classList.add('fading-in');
+        
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                pageContainer.classList.remove('fading-in');
+                pageContainer.classList.add('faded-in');
+                pageContainer.style.opacity = '';
+                pageContainer.style.transform = '';
+            });
+        });
+        resetWorkflow();
+    }, 220);
+}
+
+// TYPEWRITER
+(function() {
+  var phrases = [
+    'Python automation engineer',
+    'AI systems builder',
+    'Full-stack problem solver',
+    'Turning 5-day jobs into 5-minute ones'
+  ];
+  var el, idx = 0, charIdx = 0, deleting = false;
+  function tick() {
+    el = document.getElementById('hero-tw');
+    if (!el) return;
+    var phrase = phrases[idx];
+    if (!deleting) {
+      el.textContent = phrase.slice(0, charIdx + 1);
+      charIdx++;
+      if (charIdx === phrase.length) {
+        deleting = true;
+        setTimeout(tick, 2000);
+      } else {
+        setTimeout(tick, 40);
+      }
+    } else {
+      el.textContent = phrase.slice(0, charIdx - 1);
+      charIdx--;
+      if (charIdx === 0) {
+        deleting = false;
+        idx = (idx + 1) % phrases.length;
+        setTimeout(tick, 300);
+      } else {
+        setTimeout(tick, 20);
+      }
+    }
+  }
+  setTimeout(tick, 800);
+})();
+
+// HERO STAT COUNTERS (hs-num)
+document.querySelectorAll('.hs-num[data-count]').forEach(function(el) {
+  var target = parseFloat(el.getAttribute('data-count'));
+  var suffix = el.getAttribute('data-suffix') || '';
+  var decimals = target % 1 !== 0 ? 1 : 0;
+  var start = null;
+  var duration = 1800;
+  function step(ts) {
+    if (!start) start = ts;
+    var progress = Math.min((ts - start) / duration, 1);
+    var ease = 1 - Math.pow(1 - progress, 3);
+    var val = target * ease;
+    el.textContent = val.toFixed(decimals) + suffix;
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+});
+
+// WORKFLOW AND SIMULATION FUNCTIONS
+let wfTimeouts = [];
+
+function resetWorkflow() {
+  wfTimeouts.forEach(clearTimeout);
+  wfTimeouts = [];
+}
+
+function startWorkflow() {
+  resetWorkflow();
+}
+
+function initPreviewSim() {
+  const stat = document.getElementById('lf-status');
+  if(stat) { stat.textContent = 'Ready'; stat.className = 'live-status'; }
+  const p = document.getElementById('preview-placeholder');
+  if(p) p.style.display = 'flex';
+  const i = document.getElementById('preview-iframe');
+  if(i) i.style.display = 'none';
+  const l = document.getElementById('preview-loading');
+  if(l) l.style.display = 'none';
+  const e = document.getElementById('file-card-empty');
+  if(e) e.style.display = 'flex';
+  const c = document.getElementById('file-card');
+  if(c) c.style.display = 'none';
+  // Scale the PDF paper now that the page is visible
+  setTimeout(scalePDFPaper, 50);
+}
+
+function livePreview() {
+  const btn = document.getElementById('lf-preview-btn');
+  const stat = document.getElementById('lf-status');
+  const iframe = document.getElementById('preview-iframe');
+  
+  if(btn.disabled) return;
+  btn.disabled = true;
+  stat.textContent = 'Generating PDF...';
+  stat.className = 'live-status loading';
+  
+  document.getElementById('preview-placeholder').style.display = 'none';
+  document.getElementById('preview-iframe').style.display = 'none';
+  document.getElementById('preview-loading').style.display = 'flex';
+  
+  setTimeout(() => {
+    stat.textContent = 'Generation complete (1.2s)';
+    stat.className = 'live-status ok';
+    document.getElementById('preview-loading').style.display = 'none';
+    
+    const client = document.getElementById('lf-client').value || 'Client';
+    const title = document.getElementById('lf-title').value || 'Report';
+    
+    iframe.srcdoc = `
+      <div style="font-family: Inter, sans-serif; padding: 40px; color: #333;">
+        <h1 style="color: #1a3c6e; margin-bottom: 8px;">${title}</h1>
+        <h3 style="color: #666; font-weight: 400; font-size: 14px; margin-top: 0;">Prepared for: ${client}</h3>
+        <hr style="border:1px solid #eee; margin:24px 0;">
+        <p style="font-size: 14px; line-height: 1.6;">Successfully rendered with automated data injection. Ready for distribution.</p>
+      </div>
+    `;
+    iframe.style.display = 'block';
+    
+    document.getElementById('file-card-empty').style.display = 'none';
+    document.getElementById('file-card').style.display = 'block';
+    document.getElementById('file-card-name').textContent = `${title.replace(/\\s+/g, '_')}.pdf`;
+    document.getElementById('file-card-meta').textContent = `2.1 MB · 1.2s`;
+    
+    btn.disabled = false;
+  }, 1200);
+}
+
+function liveDownload() {
+  const stat = document.getElementById('lf-status');
+  stat.textContent = 'Downloading...';
+  stat.className = 'live-status ok';
+  setTimeout(() => {
+    stat.textContent = 'Download complete.';
+  }, 1000);
+}
+
+// Project 1 Simulation
+function resetP1Sim() {
+  const prog = document.getElementById('t1-progress');
+  const pct = document.getElementById('t1-pct');
+  const cnt = document.getElementById('t1-count');
+  const dn = document.getElementById('t1-done');
+  const tm = document.getElementById('t1-time');
+  if(prog) prog.style.display = 'block';
+  if(pct) pct.textContent = '0';
+  if(cnt) cnt.textContent = '0';
+  if(dn) dn.style.display = 'none';
+  if(tm) tm.style.display = 'none';
+}
+
+function startP1Sim() {
+  resetP1Sim();
+  const pct = document.getElementById('t1-pct');
+  const cnt = document.getElementById('t1-count');
+  const prog = document.getElementById('t1-progress');
+  const dn = document.getElementById('t1-done');
+  const tm = document.getElementById('t1-time');
+  
+  if(!pct) return;
+  
+  let p = 0;
+  const target = 2547;
+  const interval = setInterval(() => {
+    p += Math.floor(Math.random() * 80) + 20;
+    if(p >= target) {
+      p = target;
+      clearInterval(interval);
+      setTimeout(() => {
+        if(prog) prog.style.display = 'none';
+        if(dn) dn.style.display = 'block';
+        if(tm) tm.style.display = 'block';
+      }, 300);
+    }
+    pct.textContent = Math.floor((p / target) * 100);
+    cnt.textContent = p;
+  }, 40);
+  // store interval to clear it on reset if we want perfectly clean transitions
+  wfTimeouts.push(interval);
+}
+
+// Project 2 Simulation
+function resetP2Sim() {
+  const bar = document.getElementById('pipe-bar2');
+  if(bar) bar.style.width = '0%';
+  document.querySelectorAll('#pipeline2 .pipe-step').forEach(e => e.classList.remove('active'));
+  for(let i=1; i<=6; i++) {
+    const lg = document.getElementById('p2-log'+i);
+    if(lg) lg.style.display = i === 1 ? 'block' : 'none';
+  }
+}
+
+function startP2Sim() {
+  resetP2Sim();
+  const bar = document.getElementById('pipe-bar2');
+  const steps = Array.from(document.querySelectorAll('#pipeline2 .pipe-step'));
+  
+  if(!bar) return;
+  
+  wfTimeouts.push(setTimeout(() => {
+    if(steps[0]) steps[0].classList.add('active');
+    bar.style.width = '25%';
+    const lg1 = document.getElementById('p2-log1');
+    const lg2 = document.getElementById('p2-log2');
+    if(lg1) lg1.style.display = 'none';
+    if(lg2) lg2.style.display = 'block';
+  }, 1000));
+  
+  wfTimeouts.push(setTimeout(() => {
+    if(steps[0]) steps[0].classList.remove('active');
+    if(steps[1]) steps[1].classList.add('active');
+    bar.style.width = '50%';
+    const lg2 = document.getElementById('p2-log2');
+    const lg3 = document.getElementById('p2-log3');
+    if(lg2) lg2.style.display = 'none';
+    if(lg3) lg3.style.display = 'block';
+    
+    const cnt = document.getElementById('p2-count');
+    let p = 0;
+    const target = 2340;
+    const intv = setInterval(() => {
+      p += Math.floor(Math.random() * 120) + 40;
+      if(p >= target) {
+        p = target;
+        clearInterval(intv);
+        const lg3 = document.getElementById('p2-log3');
+        const lg4 = document.getElementById('p2-log4');
+        if(lg3) lg3.style.display = 'none';
+        if(lg4) lg4.style.display = 'block';
+      }
+      if(cnt) cnt.textContent = p;
+    }, 40);
+    wfTimeouts.push(intv);
+  }, 2500));
+  
+  wfTimeouts.push(setTimeout(() => {
+    if(steps[1]) steps[1].classList.remove('active');
+    if(steps[2]) steps[2].classList.add('active');
+    bar.style.width = '75%';
+  }, 4500));
+  
+  wfTimeouts.push(setTimeout(() => {
+    if(steps[2]) steps[2].classList.remove('active');
+    if(steps[3]) steps[3].classList.add('active');
+    bar.style.width = '100%';
+    const lg4 = document.getElementById('p2-log4');
+    const lg5 = document.getElementById('p2-log5');
+    const lg6 = document.getElementById('p2-log6');
+    if(lg4) lg4.style.display = 'none';
+    if(lg5) lg5.style.display = 'block';
+    if(lg6) lg6.style.display = 'block';
+  }, 6500));
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var dateEl = document.getElementById('lf-date');
+  if (dateEl) dateEl.value = new Date().toISOString().slice(0, 10);
+});
+
+// Live PDF Viewer JS
+document.addEventListener('DOMContentLoaded', () => {
+    const titleIn = document.getElementById('lf-title');
+    const clientIn = document.getElementById('lf-client');
+    const dateIn = document.getElementById('lf-date');
+    const bulletsIn = document.getElementById('lf-bullets');
+    
+    const titleOut = document.getElementById('pdf-out-title');
+    const clientOut = document.getElementById('pdf-out-client');
+    const dateOut = document.getElementById('pdf-out-date');
+    const bulletsOut = document.getElementById('pdf-out-bullets');
+
+    function updatePDF() {
+        if (!titleOut) return;
+        titleOut.innerText = titleIn.value || 'Untitled Report';
+        clientOut.innerText = clientIn.value || 'Client Name';
+        dateOut.innerText = dateIn.value || new Date().toISOString().split('T')[0];
+        
+        const bText = bulletsIn.value.split('\n').filter(l=>l.trim().length > 0);
+        bulletsOut.innerHTML = '';
+        bText.forEach(b => {
+            const li = document.createElement('li');
+            li.style.marginBottom = '6px';
+            li.innerText = b;
+            bulletsOut.appendChild(li);
+        });
+    }
+
+    if (titleIn) {
+        titleIn.addEventListener('input', updatePDF);
+        clientIn.addEventListener('input', updatePDF);
+        dateIn.addEventListener('input', updatePDF);
+        bulletsIn.addEventListener('input', updatePDF);
+    }
+});
+
+
+
+// AGENT PIPELINE ANIMATION
+// Note: uses .wf-wrap as the scroll trigger since #ap-scene doesn't exist in DOM
+(function() {
+  // setSlide is needed globally for carousel
+  function setSlide(n) {
+    document.querySelectorAll(".slide-card").forEach(function(c,i){ c.classList.toggle("slide-active", i===n); });
+  }
+  window.setSlide = setSlide;
+  var stages = [
+    { nodes: ["apn-0"], paths: [], descs: ["apsd-0"] },
+    { nodes: ["apn-1"], paths: ["ap-p0"], descs: ["apsd-1"] },
+    { nodes: ["apn-2","apn-3"], paths: ["ap-p1","ap-p2"], descs: ["apsd-2"] },
+    { nodes: ["apn-4"], paths: ["ap-p3","ap-p4"], descs: ["apsd-3"] }
+  ];
+  var stageIdx = 0;
+  var triggered = false;
+  function runStage() {
+    if (stageIdx >= stages.length) return;
+    var s = stages[stageIdx++];
+    s.nodes.forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.add("lit"); });
+    s.paths.forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.add("lit"); });
+    s.descs.forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.add("lit"); });
+    if (stageIdx < stages.length) setTimeout(runStage, 700);
+  }
+  // Use the wf-wrap as trigger (it contains the SVG pipeline)
+  var trigger = document.querySelector('.ap-svg-wrap') || document.querySelector('.wf-wrap');
+  if (trigger) {
+    var obs = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting && !triggered) { triggered = true; setTimeout(runStage, 200); obs.disconnect(); }
+    }, { threshold: 0.15 });
+    obs.observe(trigger);
+  }
+})();
+
+// LIVE PDF EDITOR — instant no-click updates
+function updatePDFLive() {
+  var t = document.getElementById('lf-title');
+  var c = document.getElementById('lf-client');
+  var d = document.getElementById('lf-date');
+  var b = document.getElementById('lf-bullets');
+  var oT = document.getElementById('pdf-out-title');
+  var oC = document.getElementById('pdf-out-client');
+  var oD = document.getElementById('pdf-out-date');
+  var oB = document.getElementById('pdf-out-bullets');
+  if (oT && t) oT.textContent = t.value || 'Untitled Report';
+  if (oC && c) oC.textContent = c.value || 'Client Name';
+  if (oD && d) oD.textContent = d.value || '2026';
+  if (oB && b) {
+    var lines = b.value.split('\n').filter(function(l){ return l.trim(); });
+    oB.innerHTML = '';
+    lines.forEach(function(line) {
+      var li = document.createElement('li');
+      li.textContent = line;
+      oB.appendChild(li);
+    });
+  }
+}
+// Set initial date
+(function(){
+  var d = document.getElementById('lf-date');
+  if (d) { d.value = new Date().toISOString().slice(0,10); updatePDFLive(); }
+})();
+
+// PDF paper scaler — scales the 400px paper to fit its column at any viewport width
+function scalePDFPaper() {
+  var wrap = document.getElementById('ple-scaler-wrap');
+  var paper = document.getElementById('ple-paper-natural');
+  if (!wrap || !paper) return;
+  var availableWidth = wrap.offsetWidth;
+  var paperNaturalWidth = 400;
+  var scale = Math.min(1, availableWidth / paperNaturalWidth);
+  paper.style.transform = 'scale(' + scale + ')';
+  // Collapse the wrapper height to match the scaled paper height
+  var paperHeight = paper.scrollHeight;
+  wrap.style.height = Math.round(paperHeight * scale) + 'px';
+}
+
+// Run on load and on every resize
+window.addEventListener('resize', scalePDFPaper);
+// Delay slightly so the layout is settled before we measure
+setTimeout(scalePDFPaper, 100);
+document.addEventListener('DOMContentLoaded', function(){ setTimeout(scalePDFPaper, 50); });
+// MOBILE NAV
+function closeMobileNav() {
+  var overlay = document.getElementById('nav-mobile-overlay');
+  var hamburger = document.getElementById('nav-hamburger');
+  if (overlay) overlay.classList.remove('open');
+  if (hamburger) { hamburger.classList.remove('open'); hamburger.setAttribute('aria-expanded','false'); }
+  document.body.style.overflow = '';
+}
+
+(function() {
+  var hamburger = document.getElementById('nav-hamburger');
+  var overlay = document.getElementById('nav-mobile-overlay');
+  if (!hamburger || !overlay) return;
+  hamburger.addEventListener('click', function() {
+    var isOpen = overlay.classList.toggle('open');
+    hamburger.classList.toggle('open', isOpen);
+    hamburger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  });
+  // Close on escape
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeMobileNav();
+  });
+})();
+
+// TOUCH HOVER-STEPS (tap to expand on touch devices)
+(function() {
+  if (!isTouchDevice) return;
+  document.querySelectorAll('.hover-step').forEach(function(step) {
+    step.addEventListener('click', function() {
+      var isOpen = step.classList.toggle('touch-hover');
+      // Close siblings
+      if (isOpen) {
+        var siblings = step.parentElement ? step.parentElement.querySelectorAll('.hover-step') : [];
+        siblings.forEach(function(s) { if (s !== step) s.classList.remove('touch-hover'); });
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -38,3 +38,12 @@
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: #666; }
+
+/* josho.pro tokens */
+@theme {
+  --color-canvas: #FAFAF8;
+  --color-ink: #1C1C1A;
+  --color-ink-muted: #6B6B67;
+  --color-rust: #B85C38;
+  --color-line: #E8E6E1;
+}
